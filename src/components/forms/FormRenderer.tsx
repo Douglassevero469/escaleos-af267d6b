@@ -128,7 +128,7 @@ export default function FormRenderer({
 
   if (submitted) {
     return (
-      <div className="flex items-center justify-center p-6 min-h-[300px]" style={themeStyle}>
+      <div className={`flex items-center justify-center p-6 ${wrapperHeight}`} style={themeStyle}>
         <div className="text-center space-y-4 max-w-md">
           <CheckCircle2 className="h-16 w-16 text-primary mx-auto" />
           <h2 className="text-2xl font-bold">{settings.successMessage || "Obrigado!"}</h2>
@@ -472,7 +472,7 @@ export default function FormRenderer({
     const isLast = chatStep >= chatFields.length - 1;
 
     return (
-      <div className="flex items-center justify-center p-6 min-h-[300px]" style={themeStyle}>
+      <div className={`flex items-center justify-center p-6 ${wrapperHeight}`} style={themeStyle}>
         <div className="w-full max-w-md space-y-6">
           {formHeader}
           <p className="text-xs text-center text-muted-foreground">{chatStep + 1} de {chatFields.length}</p>
@@ -517,7 +517,7 @@ export default function FormRenderer({
     const isLast = stepperStep >= totalSteps - 1;
 
     return (
-      <div className="flex items-center justify-center p-6 min-h-[300px]" style={themeStyle}>
+      <div className={`flex items-center justify-center p-6 ${wrapperHeight}`} style={themeStyle}>
         <div className="w-full max-w-lg space-y-6">
           {formHeader}
           <StepIndicator steps={Array.from({ length: totalSteps }, (_, i) => `Etapa ${i + 1}`)} currentStep={stepperStep} />
@@ -543,7 +543,7 @@ export default function FormRenderer({
   // Card
   if (layout === "card") {
     return (
-      <div className="flex items-center justify-center p-6 min-h-[300px]" style={themeStyle}>
+      <div className={`flex items-center justify-center p-6 ${wrapperHeight}`} style={themeStyle}>
         <div className="w-full max-w-lg space-y-4">
           {formHeader}
           {fields.map(f => (
@@ -558,7 +558,7 @@ export default function FormRenderer({
   // Inline
   if (layout === "inline") {
     return (
-      <div className="flex items-center justify-center p-6 min-h-[300px]" style={themeStyle}>
+      <div className={`flex items-center justify-center p-6 ${wrapperHeight}`} style={themeStyle}>
         <div className="w-full max-w-2xl space-y-4">
           {formHeader}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -574,7 +574,7 @@ export default function FormRenderer({
 
   // Default: List
   return (
-    <div className="flex items-center justify-center p-6 min-h-[300px]" style={themeStyle}>
+    <div className={`flex items-center justify-center p-6 ${wrapperHeight}`} style={themeStyle}>
       <div className="w-full max-w-lg space-y-4">
         {formHeader}
         {formDescription && <p className="text-sm text-center" style={mutedStyle}>{formDescription}</p>}
