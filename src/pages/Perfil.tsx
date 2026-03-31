@@ -9,7 +9,8 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
-import { Camera, Save, User, Mail, Shield, Bell, Palette, Loader2 } from "lucide-react";
+import { Camera, Save, User, Mail, Shield, Bell, Palette, Loader2, Sun, Moon } from "lucide-react";
+import { useTheme } from "@/hooks/useTheme";
 
 export default function Perfil() {
   const { user, signOut } = useAuth();
