@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -11,6 +11,7 @@ import { Loader2, CheckCircle2, Send, ArrowRight, ArrowLeft } from "lucide-react
 import { FormField } from "@/lib/form-field-types";
 import { StepIndicator } from "@/components/ui/StepIndicator";
 import { Separator } from "@/components/ui/separator";
+import { getFormTheme } from "@/lib/form-themes";
 
 interface FormRendererProps {
   formName: string;
