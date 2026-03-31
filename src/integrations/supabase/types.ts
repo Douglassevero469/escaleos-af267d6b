@@ -129,6 +129,39 @@ export type Database = {
           },
         ]
       }
+      generation_logs: {
+        Row: {
+          action: string
+          created_at: string
+          doc_type: string
+          document_id: string
+          id: string
+          token_estimate: number
+          user_id: string
+          word_count: number
+        }
+        Insert: {
+          action?: string
+          created_at?: string
+          doc_type: string
+          document_id: string
+          id?: string
+          token_estimate?: number
+          user_id: string
+          word_count?: number
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          doc_type?: string
+          document_id?: string
+          id?: string
+          token_estimate?: number
+          user_id?: string
+          word_count?: number
+        }
+        Relationships: []
+      }
       packages: {
         Row: {
           briefing_id: string
