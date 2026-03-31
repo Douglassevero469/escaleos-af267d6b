@@ -520,7 +520,7 @@ export default function PacoteDocumentos() {
   const progress = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
   const isGenerating = generatingDocs.size > 0 || docs.some((d: any) => d.status === "pending" || d.status === "generating");
 
-  const isDocReady = (status: string) => status === "ready" || status === "completed";
+  const isDocReady = (status: string) => status === "completed";
 
   const getDocContent = (doc: any) => {
     if (streamingContent[doc.id]) return streamingContent[doc.id];
