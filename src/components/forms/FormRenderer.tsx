@@ -307,6 +307,7 @@ export default function FormRenderer({
           <div>
             <Label>{field.label}{field.required && <span className="text-destructive"> *</span>}</Label>
             <Input
+              style={inputStyle}
               value={values[field.id] || ""}
               onChange={e => {
                 const v = e.target.value.replace(/\D/g, "").slice(0, 11);
