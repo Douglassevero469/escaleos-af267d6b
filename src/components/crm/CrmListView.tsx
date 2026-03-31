@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import type { CrmLead } from "./LeadCard";
 import type { StageDef } from "./KanbanStageColumn";
 import { format } from "date-fns";
+import { FileText } from "lucide-react";
 
 interface Props {
   leads: CrmLead[];
@@ -21,6 +22,7 @@ export function CrmListView({ leads, stages, onLeadClick }: Props) {
           <TableRow>
             <TableHead>Nome</TableHead>
             <TableHead>Email</TableHead>
+            <TableHead>Origem</TableHead>
             <TableHead>Etapa</TableHead>
             <TableHead>Score</TableHead>
             <TableHead>Valor</TableHead>
@@ -38,6 +40,16 @@ export function CrmListView({ leads, stages, onLeadClick }: Props) {
               </TableCell>
               <TableCell className="text-sm">{lead.email}</TableCell>
               <TableCell>
+                {lead.form_name ? (
+                  <Badge variant="outline" className="text-xs gap-1">
+                    <FileText className="h-3 w-3" />
+                    {lead.form_name}
+                  </Badge>
+                ) : (
+                  <span className="text-xs text-muted-foreground">Manual</span>
+                )}
+              </TableCell>
+              <TableCell>
                 <Badge variant="outline" className="text-xs" style={{ borderColor: stageColor(lead.stage) }}>
                   <div className="h-2 w-2 rounded-full mr-1" style={{ backgroundColor: stageColor(lead.stage) }} />
                   {stageName(lead.stage)}
@@ -53,7 +65,7 @@ export function CrmListView({ leads, stages, onLeadClick }: Props) {
             </TableRow>
           ))}
           {leads.length === 0 && (
-            <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground py-8">Nenhum lead encontrado</TableCell></TableRow>
+            <TableRow><TableCell colSpan={7} className="text-center text-muted-foreground py-8">Nenhum lead encontrado</TableCell></TableRow>
           )}
         </TableBody>
       </Table>
