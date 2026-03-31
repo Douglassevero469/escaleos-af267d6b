@@ -381,16 +381,70 @@ function downloadAsDocx(title: string, content: string) {
   URL.revokeObjectURL(url);
 }
 
-async function downloadAllAsZip(docs: any[], clientName: string) {
+async function generatePdfBlob(title: string, content: string): Promise<Blob> {
+  const html2pdf = (await import("html2pdf.js")).default;
+  const html = buildBrandedHtml(title, content);
+
+  // Create a temporary container
+  const container = document.createElement("div");
+  container.innerHTML = html;
+  // Extract just the body content for rendering
+  const bodyContent = container.querySelector("body");
+  const wrapper = document.createElement("div");
+  wrapper.innerHTML = bodyContent?.innerHTML || html;
+  wrapper.style.width = "210mm";
+  wrapper.style.position = "absolute";
+  wrapper.style.left = "-9999px";
+  wrapper.style.top = "0";
+
+  // Inject styles
+  const styleEl = document.createElement("style");
+  styleEl.textContent = ESCALE_BRAND_CSS;
+  wrapper.prepend(styleEl);
+
+  document.body.appendChild(wrapper);
+
+  // Wait for fonts to load
+  await new Promise(r => setTimeout(r, 500));
+
+  const opt = {
+    margin: 0,
+    filename: `${title}.pdf`,
+    image: { type: "jpeg", quality: 0.95 },
+    html2canvas: { scale: 2, useCORS: true, letterRendering: true, width: 794 },
+    jsPDF: { unit: "mm", format: "a4", orientation: "portrait" as const },
+    pagebreak: { mode: ["avoid-all", "css", "legacy"] },
+  };
+
+  const pdfBlob = await html2pdf().set(opt).from(wrapper).outputPdf("blob");
+  document.body.removeChild(wrapper);
+  return pdfBlob as Blob;
+}
+
+async function downloadAllAsZip(docs: any[], clientName: string, setZipProgress?: (p: number) => void) {
   const zip = new JSZip();
   const readyDocs = docs.filter((d: any) => d.status === "completed" && d.content);
 
-  for (const doc of readyDocs) {
+  for (let i = 0; i < readyDocs.length; i++) {
+    const doc = readyDocs[i];
     const safeTitle = doc.title.replace(/[^a-zA-Z0-9À-ÿ\s-]/g, "").replace(/\s+/g, "_");
-    // Add markdown
+
+    // Generate PDF
+    try {
+      const pdfBlob = await generatePdfBlob(doc.title, doc.content);
+      zip.file(`${safeTitle}.pdf`, pdfBlob);
+    } catch (e) {
+      console.error(`Error generating PDF for ${doc.title}:`, e);
+      // Fallback to HTML
+      zip.file(`${safeTitle}.html`, buildBrandedHtml(doc.title, doc.content));
+    }
+
+    // Also include markdown for editability
     zip.file(`${safeTitle}.md`, doc.content);
-    // Add branded HTML (for opening in browser / printing as PDF)
-    zip.file(`${safeTitle}.html`, buildBrandedHtml(doc.title, doc.content));
+
+    if (setZipProgress) {
+      setZipProgress(Math.round(((i + 1) / readyDocs.length) * 100));
+    }
   }
 
   const blob = await zip.generateAsync({ type: "blob" });
@@ -401,6 +455,7 @@ async function downloadAllAsZip(docs: any[], clientName: string) {
   a.download = `Pacote_${safeName}.zip`;
   a.click();
   URL.revokeObjectURL(url);
+  if (setZipProgress) setZipProgress(0);
 }
 
 export default function PacoteDocumentos() {
