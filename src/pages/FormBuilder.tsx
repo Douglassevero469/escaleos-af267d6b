@@ -27,6 +27,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import FormSubmissions from "@/components/forms/FormSubmissions";
+import FormRenderer from "@/components/forms/FormRenderer";
 
 const ICON_MAP: Record<string, any> = {
   Type, AlignLeft, Mail, Phone, Hash, ChevronDown, CheckSquare, Circle, ToggleLeft,
@@ -256,6 +257,7 @@ export default function FormBuilder() {
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList>
           <TabsTrigger value="editor">Editor</TabsTrigger>
+          <TabsTrigger value="preview"><Eye className="h-3.5 w-3.5 mr-1" /> Preview</TabsTrigger>
           <TabsTrigger value="responses">Respostas</TabsTrigger>
         </TabsList>
 
@@ -388,6 +390,37 @@ export default function FormBuilder() {
                 </>
               ) : (
                 <p className="text-sm text-muted-foreground text-center py-8">Selecione um campo para editar suas propriedades</p>
+              )}
+            </GlassCard>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="preview">
+          <div className={`mx-auto transition-all ${previewMode === "mobile" ? "max-w-[375px]" : "max-w-3xl"}`}>
+            <GlassCard className="overflow-hidden">
+              <div className="bg-muted/30 px-4 py-2 border-b border-border flex items-center gap-2">
+                <div className="flex gap-1.5">
+                  <div className="w-2.5 h-2.5 rounded-full bg-destructive/60" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-yellow-400/60" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-green-400/60" />
+                </div>
+                <span className="text-[10px] text-muted-foreground font-mono ml-2 truncate">
+                  {window.location.origin}/f/{formData?.slug || "..."}
+                </span>
+              </div>
+              {fields.length === 0 ? (
+                <div className="flex items-center justify-center py-20 text-muted-foreground">
+                  <p className="text-sm">Adicione campos no Editor para visualizar o preview</p>
+                </div>
+              ) : (
+                <FormRenderer
+                  formName={formName}
+                  formDescription={formDesc}
+                  layout={layout}
+                  fields={fields}
+                  settings={settings}
+                  isPreview
+                />
               )}
             </GlassCard>
           </div>
