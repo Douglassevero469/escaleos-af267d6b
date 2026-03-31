@@ -210,7 +210,7 @@ export default function FormBuilder() {
           <Button variant="outline" size="sm" onClick={() => setSettingsOpen(!settingsOpen)}>
             <Settings className="h-4 w-4 mr-1" /> Config
           </Button>
-          <Button variant="outline" size="sm" onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending}>
+          <Button variant="outline" size="sm" onClick={() => saveMutation.mutate(null)} disabled={saveMutation.isPending}>
             <Save className="h-4 w-4 mr-1" /> Salvar
           </Button>
           <Button size="sm" onClick={() => saveMutation.mutate(status === "published" ? "draft" : "published")} disabled={saveMutation.isPending}>
