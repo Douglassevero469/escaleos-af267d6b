@@ -180,7 +180,8 @@ export default function FormPublic() {
 
   const handleSubmit = async (data: Record<string, any>) => {
     submittedRef.current = true;
-    await supabase.from("form_submissions").insert({ form_id: form.id, data, status: "complete" });
+    const meta = { ...deviceRef.current, ...(geoRef.current || {}) };
+    await supabase.from("form_submissions").insert({ form_id: form.id, data, status: "complete", metadata: meta } as any);
     trackEvent(form.id, "submit");
 
     if (settings.webhookUrl) {
