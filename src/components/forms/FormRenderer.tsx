@@ -91,6 +91,10 @@ export default function FormRenderer({
 
   const setValue = (id: string, val: any) => setValues(v => ({ ...v, [id]: val }));
 
+  const handleFieldFocus = (field: FormField) => {
+    if (onFieldFocus) onFieldFocus(field.id, field.label);
+  };
+
   const validate = () => {
     const errs: Record<string, string> = {};
     inputFields.forEach(f => {
