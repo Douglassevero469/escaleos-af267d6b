@@ -678,7 +678,7 @@ export default function PacoteDocumentos() {
                   <Loader2 className="h-4 w-4 animate-spin text-accent" />
                 )}
               </DialogTitle>
-              {viewDoc?.content && viewDoc?.status === "ready" && (
+              {viewDoc?.content && (viewDoc?.status === "ready" || viewDoc?.status === "completed") && (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="outline" size="sm" className="gap-1">
