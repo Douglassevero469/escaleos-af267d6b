@@ -386,7 +386,7 @@ export default function FormRenderer({
     return (
       <div className="flex items-center justify-center p-6 min-h-[300px]" style={themeStyle}>
         <div className="w-full max-w-2xl space-y-4">
-          <h1 className="text-xl font-bold text-center">{formName}</h1>
+          {formHeader}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {fields.map(f => (
               <div key={f.id} className={f.width === "half" ? "" : "md:col-span-2"}>{renderField(f)}</div>
