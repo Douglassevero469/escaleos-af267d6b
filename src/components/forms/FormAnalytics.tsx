@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils";
 
 interface Props {
   formId: string;
+  formName?: string;
 }
 
 type PeriodPreset = "7d" | "30d" | "90d" | "all" | "custom";
