@@ -1,9 +1,10 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Calendar, GripVertical, User, Paperclip, CheckSquare } from "lucide-react";
+import { Calendar, GripVertical, Paperclip, CheckSquare } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
+import { AssigneeAvatarGroup, parseAssignees } from "./AssigneeAvatars";
 
 export interface DemandItem {
   id: string;
@@ -122,12 +123,14 @@ export function KanbanCard({ item, onClick, selectable, selected, onSelect }: Ka
                 {item.attachment_count}
               </span>
             )}
-            {item.assignee_name && (
-              <span className="flex items-center gap-1 text-[10px] text-muted-foreground ml-auto">
-                <User className="h-3 w-3" />
-                {item.assignee_name.split(" ")[0]}
-              </span>
-            )}
+            {(() => {
+              const assignees = parseAssignees(item.assignee_name);
+              return assignees.length > 0 ? (
+                <span className="ml-auto">
+                  <AssigneeAvatarGroup names={assignees} max={3} size="sm" />
+                </span>
+              ) : null;
+            })()}
           </div>
         </div>
       </div>

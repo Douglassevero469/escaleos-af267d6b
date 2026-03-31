@@ -263,7 +263,11 @@ export default function Demandas() {
   // Derived data for filters
   const assignees = useMemo(() => {
     const set = new Set<string>();
-    items.forEach(i => { if (i.assignee_name) set.add(i.assignee_name); });
+    items.forEach(i => {
+      if (i.assignee_name) {
+        i.assignee_name.split(/[,;]/).map(n => n.trim()).filter(Boolean).forEach(n => set.add(n));
+      }
+    });
     return Array.from(set).sort();
   }, [items]);
 
@@ -277,7 +281,7 @@ export default function Demandas() {
     return items.filter(i => {
       if (search && !i.title.toLowerCase().includes(search.toLowerCase())) return false;
       if (priorityFilter !== "all" && i.priority !== priorityFilter) return false;
-      if (assigneeFilter !== "all" && i.assignee_name !== assigneeFilter) return false;
+      if (assigneeFilter !== "all" && !(i.assignee_name || "").split(/[,;]/).map(n => n.trim()).includes(assigneeFilter)) return false;
       if (tagFilter !== "all" && !(i.tags || []).includes(tagFilter)) return false;
       return true;
     });

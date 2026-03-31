@@ -7,12 +7,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Trash2, Send, X } from "lucide-react";
+import { Trash2, Send, X, AtSign } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { SubtaskList, type Subtask } from "./SubtaskList";
 import { AttachmentList } from "./AttachmentList";
 import { ActivityLog } from "./ActivityLog";
+import { MultiAssigneeInput, parseAssignees, joinAssignees } from "./AssigneeAvatars";
 import type { DemandItem } from "./KanbanCard";
 import type { ColumnDef } from "./KanbanColumn";
 
@@ -71,6 +72,24 @@ export function DemandDetailSheet({ open, onOpenChange, item, columns, onUpdate,
   const addComment = async () => {
     if (!newComment.trim() || !item || !user) return;
     await supabase.from("demand_comments").insert({ item_id: item.id, user_id: user.id, content: newComment });
+
+    // Parse @mentions and create notifications
+    const mentions = newComment.match(/@(\w[\w\s]*?)(?=\s@|\s*$|[,.!?])/g);
+    if (mentions && mentions.length > 0) {
+      for (const mention of mentions) {
+        const mentionedName = mention.replace("@", "").trim();
+        // Create a notification for the item owner about the mention
+        await supabase.from("notifications").insert({
+          user_id: user.id,
+          title: `Menção em comentário`,
+          message: `@${mentionedName} foi mencionado(a) na demanda "${item.title}"`,
+          type: "info",
+          link: `/demandas`,
+        });
+      }
+      logActivity("mention", { mentions: mentions.map(m => m.replace("@", "").trim()), comment: newComment });
+    }
+
     setNewComment("");
     loadComments(item.id);
   };
@@ -86,6 +105,17 @@ export function DemandDetailSheet({ open, onOpenChange, item, columns, onUpdate,
       logActivity("priority_changed", { from: item.priority, to: editItem.priority });
     }
     onUpdate(editItem);
+  };
+
+  const renderCommentWithMentions = (text: string) => {
+    const parts = text.split(/(@\w[\w\s]*?)(?=\s@|\s*$|[,.!?])/g);
+    return parts.map((part, i) =>
+      part.startsWith("@") ? (
+        <span key={i} className="text-primary font-semibold">{part}</span>
+      ) : (
+        <span key={i}>{part}</span>
+      )
+    );
   };
 
   const addTag = () => {
@@ -199,8 +229,11 @@ export function DemandDetailSheet({ open, onOpenChange, item, columns, onUpdate,
               </div>
             </div>
             <div>
-              <Label>Responsável</Label>
-              <Input value={editItem.assignee_name || ""} onChange={e => setEditItem({ ...editItem, assignee_name: e.target.value })} />
+              <Label>Responsáveis</Label>
+              <MultiAssigneeInput
+                value={parseAssignees(editItem.assignee_name)}
+                onChange={(names) => setEditItem({ ...editItem, assignee_name: joinAssignees(names) })}
+              />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
@@ -239,15 +272,21 @@ export function DemandDetailSheet({ open, onOpenChange, item, columns, onUpdate,
             <div className="border-t pt-4 mt-4">
               <Label className="text-sm font-semibold">Comentários</Label>
               <div className="space-y-2 mt-2 max-h-48 overflow-y-auto">
-                {comments.map(c => (
+              {comments.map(c => (
                   <div key={c.id} className="bg-muted rounded-lg p-2 text-xs">
-                    <p>{c.content}</p>
+                    <p>{renderCommentWithMentions(c.content)}</p>
                     <span className="text-muted-foreground text-[10px]">{new Date(c.created_at).toLocaleString("pt-BR")}</span>
                   </div>
                 ))}
               </div>
               <div className="flex gap-2 mt-2">
-                <Input value={newComment} onChange={e => setNewComment(e.target.value)} placeholder="Adicionar comentário..." onKeyDown={e => e.key === "Enter" && addComment()} className="flex-1" />
+              <Input
+                value={newComment}
+                onChange={e => setNewComment(e.target.value)}
+                placeholder="Comentar... use @nome para mencionar"
+                onKeyDown={e => e.key === "Enter" && addComment()}
+                className="flex-1"
+              />
                 <Button size="icon" variant="outline" onClick={addComment}><Send className="h-4 w-4" /></Button>
               </div>
             </div>
