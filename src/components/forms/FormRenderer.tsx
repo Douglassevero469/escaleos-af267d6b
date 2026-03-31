@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -11,6 +11,7 @@ import { Loader2, CheckCircle2, Send, ArrowRight, ArrowLeft } from "lucide-react
 import { FormField } from "@/lib/form-field-types";
 import { StepIndicator } from "@/components/ui/StepIndicator";
 import { Separator } from "@/components/ui/separator";
+import { getFormTheme } from "@/lib/form-themes";
 
 interface FormRendererProps {
   formName: string;
@@ -39,8 +40,41 @@ export default function FormRenderer({
   const [chatStep, setChatStep] = useState(0);
   const [stepperStep, setStepperStep] = useState(0);
 
+  const theme = useMemo(() => getFormTheme(settings.theme), [settings.theme]);
+  const isGradientBg = theme.vars["--form-bg"].startsWith("linear-gradient");
+
+  const themeStyle: React.CSSProperties = {
+    fontFamily: theme.vars["--form-font"],
+    color: theme.vars["--form-fg"],
+    ...(isGradientBg
+      ? { backgroundImage: theme.vars["--form-bg"] }
+      : { backgroundColor: theme.vars["--form-bg"] }),
+    borderRadius: theme.vars["--form-radius"],
+  };
+
+  const inputStyle: React.CSSProperties = {
+    backgroundColor: theme.vars["--form-input-bg"],
+    borderColor: theme.vars["--form-input-border"],
+    color: theme.vars["--form-fg"],
+    borderRadius: theme.vars["--form-radius"],
+  };
+
+  const btnStyle: React.CSSProperties = {
+    backgroundColor: settings.buttonColor || theme.vars["--form-accent"],
+    color: theme.vars["--form-accent-fg"],
+    borderRadius: theme.vars["--form-radius"],
+  };
+
+  const cardStyle: React.CSSProperties = {
+    backgroundColor: theme.vars["--form-card-bg"],
+    borderColor: theme.vars["--form-border"],
+    borderRadius: theme.vars["--form-radius"],
+  };
+
+  const labelStyle: React.CSSProperties = { color: theme.vars["--form-fg"] };
+  const mutedStyle: React.CSSProperties = { color: theme.vars["--form-muted"] };
+
   const inputFields = fields.filter(f => !["heading", "paragraph", "divider", "spacer"].includes(f.type));
-  const buttonColor = settings.buttonColor || undefined;
 
   const setValue = (id: string, val: any) => setValues(v => ({ ...v, [id]: val }));
 
@@ -75,7 +109,7 @@ export default function FormRenderer({
 
   if (submitted) {
     return (
-      <div className="flex items-center justify-center p-4 min-h-[300px]">
+      <div className="flex items-center justify-center p-6 min-h-[300px]" style={themeStyle}>
         <div className="text-center space-y-4 max-w-md">
           <CheckCircle2 className="h-16 w-16 text-primary mx-auto" />
           <h2 className="text-2xl font-bold">{settings.successMessage || "Obrigado!"}</h2>
@@ -240,7 +274,7 @@ export default function FormRenderer({
   const submitButton = (fullWidth = true) => (
     <Button
       className={fullWidth ? "w-full" : "flex-1"}
-      style={buttonColor ? { backgroundColor: buttonColor } : undefined}
+      style={btnStyle}
       onClick={isPreview ? undefined : handleSubmit}
       disabled={submitting || isPreview}
     >
@@ -255,7 +289,7 @@ export default function FormRenderer({
     const isLast = chatStep >= chatFields.length - 1;
 
     return (
-      <div className="flex items-center justify-center p-4 min-h-[300px]">
+      <div className="flex items-center justify-center p-6 min-h-[300px]" style={themeStyle}>
         <div className="w-full max-w-md space-y-6">
           <h1 className="text-xl font-bold text-center">{formName}</h1>
           <p className="text-xs text-center text-muted-foreground">{chatStep + 1} de {chatFields.length}</p>
@@ -270,7 +304,7 @@ export default function FormRenderer({
                 )}
                 <Button
                   className="flex-1"
-                  style={buttonColor ? { backgroundColor: buttonColor } : undefined}
+                  style={btnStyle}
                   onClick={() => {
                     if (isPreview) return;
                     if (isLast) handleSubmit();
@@ -300,7 +334,7 @@ export default function FormRenderer({
     const isLast = stepperStep >= totalSteps - 1;
 
     return (
-      <div className="flex items-center justify-center p-4 min-h-[300px]">
+      <div className="flex items-center justify-center p-6 min-h-[300px]" style={themeStyle}>
         <div className="w-full max-w-lg space-y-6">
           <h1 className="text-xl font-bold text-center">{formName}</h1>
           <StepIndicator steps={Array.from({ length: totalSteps }, (_, i) => `Etapa ${i + 1}`)} currentStep={stepperStep} />
@@ -311,7 +345,7 @@ export default function FormRenderer({
             {stepperStep > 0 && <Button variant="outline" onClick={() => setStepperStep(s => s - 1)}><ArrowLeft className="h-4 w-4 mr-1" /> Voltar</Button>}
             <Button
               className="flex-1"
-              style={buttonColor ? { backgroundColor: buttonColor } : undefined}
+              style={btnStyle}
               onClick={() => { if (isPreview) return; if (isLast) handleSubmit(); else setStepperStep(s => s + 1); }}
               disabled={submitting || isPreview}
             >
@@ -326,11 +360,11 @@ export default function FormRenderer({
   // Card
   if (layout === "card") {
     return (
-      <div className="flex items-center justify-center p-4 min-h-[300px]">
+      <div className="flex items-center justify-center p-6 min-h-[300px]" style={themeStyle}>
         <div className="w-full max-w-lg space-y-4">
           <h1 className="text-xl font-bold text-center">{formName}</h1>
           {fields.map(f => (
-            <div key={f.id} className="rounded-xl border bg-card p-4 shadow-sm">{renderField(f)}</div>
+            <div key={f.id} className="rounded-xl border p-4 shadow-sm" style={cardStyle}>{renderField(f)}</div>
           ))}
           {submitButton()}
         </div>
@@ -341,7 +375,7 @@ export default function FormRenderer({
   // Inline
   if (layout === "inline") {
     return (
-      <div className="flex items-center justify-center p-4 min-h-[300px]">
+      <div className="flex items-center justify-center p-6 min-h-[300px]" style={themeStyle}>
         <div className="w-full max-w-2xl space-y-4">
           <h1 className="text-xl font-bold text-center">{formName}</h1>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -357,10 +391,10 @@ export default function FormRenderer({
 
   // Default: List
   return (
-    <div className="flex items-center justify-center p-4 min-h-[300px]">
+    <div className="flex items-center justify-center p-6 min-h-[300px]" style={themeStyle}>
       <div className="w-full max-w-lg space-y-4">
         <h1 className="text-xl font-bold text-center">{formName}</h1>
-        {formDescription && <p className="text-sm text-muted-foreground text-center">{formDescription}</p>}
+        {formDescription && <p className="text-sm text-center" style={mutedStyle}>{formDescription}</p>}
         <div className="space-y-4">
           {fields.map(f => <div key={f.id}>{renderField(f)}</div>)}
         </div>

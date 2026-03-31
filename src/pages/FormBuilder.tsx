@@ -19,6 +19,7 @@ import {
   ThumbsUp, List, Calendar, Upload, Heading, FileText, Minus, MoveVertical, Settings,
 } from "lucide-react";
 import { FormField, FIELD_TYPES, createField } from "@/lib/form-field-types";
+import { FORM_THEMES } from "@/lib/form-themes";
 import {
   DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent,
 } from "@dnd-kit/core";
@@ -223,7 +224,7 @@ export default function FormBuilder() {
 
       {/* Settings Panel */}
       {settingsOpen && (
-        <GlassCard className="p-4 space-y-3">
+        <GlassCard className="p-4 space-y-4">
           <h4 className="font-semibold text-sm">Configurações do Formulário</h4>
           <div className="grid gap-3 md:grid-cols-3">
             <div>
@@ -249,6 +250,28 @@ export default function FormBuilder() {
                 onChange={e => setSettings((s: any) => ({ ...s, buttonColor: e.target.value }))}
                 placeholder="#6366f1"
               />
+            </div>
+          </div>
+          <div>
+            <Label className="text-xs mb-2 block">Tema Visual</Label>
+            <div className="flex flex-wrap gap-2">
+              {FORM_THEMES.map(t => (
+                <button
+                  key={t.id}
+                  onClick={() => setSettings((s: any) => ({ ...s, theme: t.id }))}
+                  className={`flex flex-col items-center gap-1.5 p-2 rounded-lg border-2 transition-all ${
+                    ((settings as any)?.theme || "light") === t.id
+                      ? "border-primary ring-1 ring-primary/30"
+                      : "border-border hover:border-primary/40"
+                  }`}
+                >
+                  <div
+                    className="w-12 h-8 rounded-md border border-border/50 shadow-sm"
+                    style={{ background: t.preview }}
+                  />
+                  <span className="text-[10px] font-medium">{t.label}</span>
+                </button>
+              ))}
             </div>
           </div>
         </GlassCard>
