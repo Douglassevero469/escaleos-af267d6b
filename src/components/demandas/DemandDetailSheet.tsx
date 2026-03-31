@@ -72,6 +72,24 @@ export function DemandDetailSheet({ open, onOpenChange, item, columns, onUpdate,
   const addComment = async () => {
     if (!newComment.trim() || !item || !user) return;
     await supabase.from("demand_comments").insert({ item_id: item.id, user_id: user.id, content: newComment });
+
+    // Parse @mentions and create notifications
+    const mentions = newComment.match(/@(\w[\w\s]*?)(?=\s@|\s*$|[,.!?])/g);
+    if (mentions && mentions.length > 0) {
+      for (const mention of mentions) {
+        const mentionedName = mention.replace("@", "").trim();
+        // Create a notification for the item owner about the mention
+        await supabase.from("notifications").insert({
+          user_id: user.id,
+          title: `Menção em comentário`,
+          message: `@${mentionedName} foi mencionado(a) na demanda "${item.title}"`,
+          type: "info",
+          link: `/demandas`,
+        });
+      }
+      logActivity("mention", { mentions: mentions.map(m => m.replace("@", "").trim()), comment: newComment });
+    }
+
     setNewComment("");
     loadComments(item.id);
   };
