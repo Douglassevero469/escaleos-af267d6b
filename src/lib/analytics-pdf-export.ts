@@ -191,25 +191,45 @@ function buildPDFHtml(data: AnalyticsExportData): string {
 export async function exportAnalyticsPDF(data: AnalyticsExportData): Promise<void> {
   const html = buildPDFHtml(data);
 
-  // Create off-screen container
+  // Create off-screen container with fixed A4 width
   const container = document.createElement("div");
   container.style.position = "fixed";
   container.style.left = "-9999px";
   container.style.top = "0";
-  container.style.width = "210mm";
+  container.style.width = "794px";
+  container.style.background = "#fff";
   container.innerHTML = html;
   document.body.appendChild(container);
 
+  // Wait for images to load
+  const images = container.querySelectorAll("img");
+  await Promise.all(
+    Array.from(images).map(
+      (img) =>
+        new Promise<void>((resolve) => {
+          if (img.complete) return resolve();
+          img.onload = () => resolve();
+          img.onerror = () => resolve();
+        })
+    )
+  );
+
+  // Small delay for rendering
+  await new Promise((r) => setTimeout(r, 200));
+
   try {
+    const element = container.firstElementChild as HTMLElement;
+    if (!element) throw new Error("No content to export");
+
     await html2pdf()
       .set({
         margin: [0, 0, 0, 0] as [number, number, number, number],
         filename: `analytics-${data.formName.replace(/\s+/g, "-").toLowerCase()}-${data.exportDate.replace(/\//g, "-")}.pdf`,
         image: { type: "jpeg" as const, quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true, logging: false, width: 794 },
+        html2canvas: { scale: 2, useCORS: true, logging: false },
         jsPDF: { unit: "mm" as const, format: "a4" as const, orientation: "portrait" as const },
       } as any)
-      .from(container.firstElementChild as HTMLElement)
+      .from(element)
       .save();
   } finally {
     document.body.removeChild(container);
