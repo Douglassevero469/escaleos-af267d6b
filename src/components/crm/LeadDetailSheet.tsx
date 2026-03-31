@@ -7,13 +7,13 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { LeadTimeline } from "./LeadTimeline";
-import type { CrmLead } from "./LeadCard";
+import { CrmLead, NEXT_ACTION_TYPES, getActionType } from "./LeadCard";
 import type { StageDef } from "./KanbanStageColumn";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
-import { Trash2 } from "lucide-react";
+import { Trash2, X } from "lucide-react";
 
 interface Props {
   lead: CrmLead | null;
