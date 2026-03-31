@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef, useCallback } from "react";
+import { useState, useMemo, useRef, useCallback, lazy, Suspense } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { format, subDays, startOfDay, isAfter, isBefore } from "date-fns";
 import { ptBR } from "date-fns/locale";
