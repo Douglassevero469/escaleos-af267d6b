@@ -25,6 +25,8 @@ interface FormRendererProps {
   onSubmit?: (data: Record<string, any>) => Promise<void>;
   /** Called when user focuses a field — used for abandonment tracking */
   onFieldFocus?: (fieldId: string, fieldLabel: string) => void;
+  /** Called whenever form values change — used for partial data capture */
+  onValuesChange?: (values: Record<string, any>) => void;
 }
 
 export default function FormRenderer({
@@ -36,6 +38,7 @@ export default function FormRenderer({
   isPreview = false,
   onSubmit,
   onFieldFocus,
+  onValuesChange,
 }: FormRendererProps) {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -89,7 +92,13 @@ export default function FormRenderer({
     </div>
   );
 
-  const setValue = (id: string, val: any) => setValues(v => ({ ...v, [id]: val }));
+  const setValue = (id: string, val: any) => {
+    setValues(v => {
+      const next = { ...v, [id]: val };
+      onValuesChange?.(next);
+      return next;
+    });
+  };
 
   const handleFieldFocus = (field: FormField) => {
     if (onFieldFocus) onFieldFocus(field.id, field.label);

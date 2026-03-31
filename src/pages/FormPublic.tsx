@@ -32,6 +32,8 @@ export default function FormPublic() {
   const startTracked = useRef(false);
   const submittedRef = useRef(false);
   const lastFieldRef = useRef<{ id: string; label: string } | null>(null);
+  const currentValuesRef = useRef<Record<string, any>>({});
+  const fieldsRef = useRef<FormField[]>([]);
 
   useEffect(() => {
     if (!slug) return;
@@ -39,6 +41,7 @@ export default function FormPublic() {
       .then(({ data }) => {
         if (data) {
           setForm(data);
+          fieldsRef.current = Array.isArray(data.fields) ? (data.fields as unknown as FormField[]) : [];
           if (!viewTracked.current) {
             viewTracked.current = true;
             trackEvent(data.id, "view");
@@ -48,11 +51,49 @@ export default function FormPublic() {
       });
   }, [slug]);
 
-  // Track abandonment on page leave
+  // Save partial data on page leave (abandonment)
   useEffect(() => {
     if (!form) return;
     const handleBeforeUnload = () => {
-      if (!submittedRef.current && lastFieldRef.current) {
+      if (submittedRef.current) return;
+
+      // Build labeled data from current values
+      const rawValues = currentValuesRef.current;
+      const hasData = Object.values(rawValues).some(v =>
+        v !== undefined && v !== null && v !== "" && !(Array.isArray(v) && v.length === 0)
+      );
+
+      if (hasData) {
+        const data: Record<string, any> = {};
+        const inputFields = fieldsRef.current.filter(
+          f => !["heading", "paragraph", "divider", "spacer"].includes(f.type)
+        );
+        inputFields.forEach(f => {
+          if (rawValues[f.id] !== undefined && rawValues[f.id] !== "" && rawValues[f.id] !== null) {
+            data[f.label] = rawValues[f.id];
+          }
+        });
+
+        if (Object.keys(data).length > 0) {
+          // Use fetch with keepalive for reliable delivery on page unload
+          const url = `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/form_submissions`;
+          const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+          fetch(url, {
+            method: "POST",
+            keepalive: true,
+            headers: {
+              "Content-Type": "application/json",
+              "apikey": anonKey,
+              "Authorization": `Bearer ${anonKey}`,
+              "Prefer": "return=minimal",
+            },
+            body: JSON.stringify({ form_id: form.id, data, status: "incomplete" }),
+          }).catch(() => {});
+        }
+      }
+
+      // Also track abandonment event
+      if (lastFieldRef.current) {
         trackEvent(form.id, "abandon", {
           last_field_id: lastFieldRef.current.id,
           last_field_label: lastFieldRef.current.label,
@@ -76,6 +117,10 @@ export default function FormPublic() {
     trackEvent(form.id, "field_focus", { field_id: fieldId, field_label: fieldLabel });
   }, [form]);
 
+  const handleValuesChange = useCallback((values: Record<string, any>) => {
+    currentValuesRef.current = values;
+  }, []);
+
   if (loading) return <div className="min-h-screen flex items-center justify-center bg-white"><Loader2 className="h-8 w-8 animate-spin text-blue-600" /></div>;
   if (!form) return <div className="min-h-screen flex items-center justify-center bg-white"><p className="text-gray-500">Formulário não encontrado</p></div>;
 
@@ -84,7 +129,7 @@ export default function FormPublic() {
 
   const handleSubmit = async (data: Record<string, any>) => {
     submittedRef.current = true;
-    await supabase.from("form_submissions").insert({ form_id: form.id, data });
+    await supabase.from("form_submissions").insert({ form_id: form.id, data, status: "complete" });
     trackEvent(form.id, "submit");
 
     if (settings.webhookUrl) {
@@ -108,6 +153,7 @@ export default function FormPublic() {
         settings={settings}
         onSubmit={handleSubmit}
         onFieldFocus={handleFieldFocus}
+        onValuesChange={handleValuesChange}
       />
     </div>
   );

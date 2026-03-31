@@ -1,0 +1,1 @@
+ALTER TABLE public.form_submissions ADD COLUMN status text NOT NULL DEFAULT 'complete';

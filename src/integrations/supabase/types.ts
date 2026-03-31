@@ -204,6 +204,7 @@ export type Database = {
           form_id: string
           id: string
           ip_address: string | null
+          status: string
         }
         Insert: {
           created_at?: string
@@ -211,6 +212,7 @@ export type Database = {
           form_id: string
           id?: string
           ip_address?: string | null
+          status?: string
         }
         Update: {
           created_at?: string
@@ -218,6 +220,7 @@ export type Database = {
           form_id?: string
           id?: string
           ip_address?: string | null
+          status?: string
         }
         Relationships: [
           {
