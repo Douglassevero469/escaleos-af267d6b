@@ -18,6 +18,7 @@ export default function Clientes() {
   const [open, setOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [editClient, setEditClient] = useState<any>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<any>(null);
   const [form, setForm] = useState({ name: "", nicho: "", instagram: "", site: "" });
   const { user } = useAuth();
   const { toast } = useToast();
