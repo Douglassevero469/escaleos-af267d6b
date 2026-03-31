@@ -25,7 +25,7 @@ export default function Perfil() {
 
   // Settings state
   const [emailNotifications, setEmailNotifications] = useState(true);
-  const [darkMode, setDarkMode] = useState(true);
+  const { theme, setTheme } = useTheme();
 
   useEffect(() => {
     if (!user) return;
