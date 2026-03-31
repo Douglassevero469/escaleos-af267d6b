@@ -126,6 +126,15 @@ export default function Demandas() {
     toast.success("Demanda excluída!");
   };
 
+  const updateBoardColumns = async (newColumns: ColumnDef[]) => {
+    if (!currentBoard) return;
+    await supabase.from("demand_boards").update({ columns: newColumns as unknown as Json }).eq("id", currentBoard.id);
+    const updated = { ...currentBoard, columns: newColumns };
+    setCurrentBoard(updated);
+    setBoards(prev => prev.map(b => b.id === updated.id ? updated : b));
+    toast.success("Colunas atualizadas!");
+  };
+
   const columns = currentBoard?.columns || DEFAULT_COLUMNS;
 
   const filtered = useMemo(() => {
