@@ -44,8 +44,17 @@ function getColorClasses(colorValue: string) {
 function parseTags(raw: any): TagItem[] {
   if (!Array.isArray(raw)) return [];
   return raw.map((t: any) => {
-    if (typeof t === "string") return { text: t, color: "blue" };
     if (typeof t === "object" && t?.text) return { text: t.text, color: t.color || "blue" };
+    if (typeof t === "string") {
+      // Try parsing JSON string like '{"text": "Qualificado", "color": "green"}'
+      if (t.startsWith("{")) {
+        try {
+          const parsed = JSON.parse(t);
+          if (parsed?.text) return { text: parsed.text, color: parsed.color || "blue" };
+        } catch { /* fall through */ }
+      }
+      return { text: t, color: "blue" };
+    }
     return null;
   }).filter(Boolean) as TagItem[];
 }

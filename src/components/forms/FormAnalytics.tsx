@@ -291,8 +291,14 @@ export default function FormAnalytics({ formId, formName, formFields = [] }: Pro
       const name = d["Nome"] || d["nome"] || d["Name"] || d["name"] || keys[0] ? d[keys[0]] : "—";
       const email = d["Email"] || d["email"] || d["E-mail"] || "—";
       const phone = d["Telefone"] || d["telefone"] || d["Phone"] || d["phone"] || d["Whatsapp"] || d["whatsapp"] || "—";
-      const rawTags: string[] = Array.isArray(s.tags) ? s.tags : [];
-      const tags = rawTags.map((t: any) => typeof t === "string" ? (t.startsWith("{") ? JSON.parse(t)?.text || t : t) : t?.text || String(t));
+      const rawTags: any[] = Array.isArray(s.tags) ? s.tags : [];
+      const tags = rawTags.map((t: any) => {
+        if (typeof t === "object" && t?.text) return t.text;
+        if (typeof t === "string" && t.startsWith("{")) {
+          try { const p = JSON.parse(t); return p?.text || t; } catch { return t; }
+        }
+        return typeof t === "string" ? t : String(t);
+      });
       return {
         id: s.id,
         name: name || "—",
