@@ -518,6 +518,17 @@ export default function PacoteDocumentos() {
 
       if (!resp.ok || !resp.body) {
         await supabase.from("documents").update({ status: "error" }).eq("id", docId);
+        // Notify doc failure
+        const { data: { user: u } } = await supabase.auth.getUser();
+        if (u) {
+          await supabase.from("notifications").insert({
+            user_id: u.id,
+            type: "doc_failed",
+            title: `Falha na geração: ${doc.title}`,
+            message: "O documento não pôde ser gerado. Tente novamente.",
+            link: `/pacote/${id}`,
+          } as any);
+        }
         setGeneratingDocs(prev => { const n = new Set(prev); n.delete(docId); return n; });
         return;
       }
@@ -573,6 +584,17 @@ export default function PacoteDocumentos() {
     } catch (e) {
       console.error(`Error generating ${docType}:`, e);
       await supabase.from("documents").update({ status: "error" }).eq("id", docId);
+      // Notify doc failure
+      const { data: { user: u2 } } = await supabase.auth.getUser();
+      if (u2) {
+        await supabase.from("notifications").insert({
+          user_id: u2.id,
+          type: "doc_failed",
+          title: `Erro: ${doc.title}`,
+          message: `Ocorreu um erro inesperado na geração.`,
+          link: `/pacote/${id}`,
+        } as any);
+      }
     } finally {
       setGeneratingDocs(prev => { const n = new Set(prev); n.delete(docId); return n; });
     }
@@ -606,8 +628,19 @@ export default function PacoteDocumentos() {
       const workers = Array.from({ length: Math.min(concurrency, queue.length) }, () => runNext());
       await Promise.all(workers);
 
-      // Update package status
+      // Update package status & notify
       await supabase.from("packages").update({ status: "completed" }).eq("id", id!);
+      const clientName = (pkg as any)?.clients?.name || "cliente";
+      const { data: { user: pkgUser } } = await supabase.auth.getUser();
+      if (pkgUser) {
+        await supabase.from("notifications").insert({
+          user_id: pkgUser.id,
+          type: "package_complete",
+          title: `Pacote finalizado: ${clientName}`,
+          message: `Todos os documentos do pacote foram gerados com sucesso.`,
+          link: `/pacote/${id}`,
+        } as any);
+      }
       queryClient.invalidateQueries({ queryKey: ["package", id] });
     };
 
