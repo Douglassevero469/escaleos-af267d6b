@@ -7,6 +7,8 @@ interface ActivityEntry {
   action: string;
   details: Record<string, any>;
   created_at: string;
+  user_id: string;
+  display_name?: string;
 }
 
 const ACTION_CONFIG: Record<string, { icon: typeof Clock; label: string; color: string }> = {
@@ -34,7 +36,17 @@ export function ActivityLog({ itemId }: { itemId: string }) {
       .eq("item_id", itemId)
       .order("created_at", { ascending: false })
       .limit(50);
-    if (data) setEntries(data as ActivityEntry[]);
+    if (data && data.length > 0) {
+      const userIds = [...new Set(data.map(e => e.user_id))];
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("user_id, display_name")
+        .in("user_id", userIds);
+      const profileMap = new Map((profiles || []).map(p => [p.user_id, p.display_name]));
+      setEntries(data.map(e => ({ ...e, display_name: profileMap.get(e.user_id) || undefined })) as ActivityEntry[]);
+    } else {
+      setEntries([]);
+    }
   };
 
   if (entries.length === 0) {
@@ -50,6 +62,8 @@ export function ActivityLog({ itemId }: { itemId: string }) {
           <div key={entry.id} className="flex items-start gap-2 text-xs py-1">
             <Icon className={`h-3.5 w-3.5 mt-0.5 flex-shrink-0 ${config.color}`} />
             <div className="flex-1 min-w-0">
+              <span className="font-medium">{entry.display_name || 'Usuário'}</span>
+              <span className="text-muted-foreground mx-1">·</span>
               <span className="font-medium">{config.label}</span>
               {entry.details?.from && entry.details?.to && (
                 <span className="text-muted-foreground"> {entry.details.from} → {entry.details.to}</span>
