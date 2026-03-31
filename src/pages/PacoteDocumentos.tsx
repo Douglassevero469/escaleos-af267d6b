@@ -552,6 +552,14 @@ export default function PacoteDocumentos() {
             {(pkg as any)?.clients?.name ?? "..."} · {docs.length} documentos
           </p>
         </div>
+        {completedCount > 0 && !isGenerating && (
+          <Button
+            onClick={() => downloadAllAsZip(docs, (pkg as any)?.clients?.name || "cliente")}
+            className="gap-2 btn-primary-glow font-semibold"
+          >
+            <Archive className="h-4 w-4" /> Baixar Todos (ZIP)
+          </Button>
+        )}
       </div>
 
       {/* Progress bar */}
