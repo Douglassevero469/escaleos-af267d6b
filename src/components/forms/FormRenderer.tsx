@@ -109,7 +109,7 @@ export default function FormRenderer({
 
   if (submitted) {
     return (
-      <div className="flex items-center justify-center p-4 min-h-[300px]">
+      <div className="flex items-center justify-center p-6 min-h-[300px]" style={themeStyle}>
         <div className="text-center space-y-4 max-w-md">
           <CheckCircle2 className="h-16 w-16 text-primary mx-auto" />
           <h2 className="text-2xl font-bold">{settings.successMessage || "Obrigado!"}</h2>
