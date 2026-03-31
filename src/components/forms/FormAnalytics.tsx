@@ -840,15 +840,25 @@ export default function FormAnalytics({ formId, formName, formFields = [] }: Pro
         <GlassCard className="p-4" data-chart-section data-chart-title="Funil por Campo" data-chart-subtitle="Sessões únicas que interagiram com cada campo">
           <h3 className="text-sm font-semibold mb-1">Funil por Campo</h3>
           <p className="text-xs text-muted-foreground mb-3">Sessões únicas que interagiram com cada campo</p>
-          <ChartContainer config={{ sessoes: { label: "Sessões", color: "hsl(var(--chart-2))" } }} className="h-[220px] w-full">
-            <BarChart data={fieldFunnel} layout="vertical">
-              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" horizontal={false} />
-              <XAxis type="number" allowDecimals={false} tick={{ fontSize: 10 }} />
-              <YAxis dataKey="field" type="category" width={120} tick={{ fontSize: 10 }} />
-              <ChartTooltip content={<ChartTooltipContent />} />
-              <Bar dataKey="sessoes" fill="hsl(var(--chart-2))" radius={[0, 4, 4, 0]} name="Sessões" />
-            </BarChart>
-          </ChartContainer>
+           <ChartContainer config={{ sessoes: { label: "Sessões", color: "hsl(var(--chart-2))" } }} className="h-[220px] w-full">
+             <BarChart data={fieldFunnel} layout="vertical">
+               <CartesianGrid strokeDasharray="3 3" className="stroke-muted" horizontal={false} />
+               <XAxis type="number" allowDecimals={false} tick={{ fontSize: 10 }} />
+               <YAxis dataKey="field" type="category" width={120} tick={{ fontSize: 10 }} />
+               <ChartTooltip content={<ChartTooltipContent />} />
+               <Bar dataKey="sessoes" radius={[0, 4, 4, 0]} name="Sessões">
+                 {fieldFunnel.map((_, i) => <Cell key={i} fill={BAR_COLORS[i % BAR_COLORS.length]} />)}
+               </Bar>
+             </BarChart>
+           </ChartContainer>
+           <div className="flex flex-wrap gap-2 mt-2 px-1">
+             {fieldFunnel.map((d, i) => (
+               <div key={d.field} className="flex items-center gap-1">
+                 <div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: BAR_COLORS[i % BAR_COLORS.length] }} />
+                 <span className="text-[10px] text-muted-foreground">{d.field}: {d.sessoes}</span>
+               </div>
+             ))}
+           </div>
         </GlassCard>
       )}
 
