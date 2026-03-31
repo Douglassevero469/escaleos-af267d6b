@@ -38,6 +38,7 @@ const App = () => (
               <Route path="/pacote/:id" element={<PacoteDocumentos />} />
               <Route path="/templates" element={<Templates />} />
               <Route path="/admin" element={<Admin />} />
+              <Route path="/perfil" element={<Perfil />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>

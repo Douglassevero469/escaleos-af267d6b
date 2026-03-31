@@ -32,6 +32,7 @@ const mainItems = [
   { title: "Clientes", url: "/clientes", icon: Users },
   { title: "Templates", url: "/templates", icon: FileText },
   { title: "Admin", url: "/admin", icon: Settings },
+  { title: "Meu Perfil", url: "/perfil", icon: UserCircle },
 ];
 
 export function AppSidebar() {
