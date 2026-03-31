@@ -344,11 +344,28 @@ export default function PacoteDocumentos() {
       <Dialog open={!!viewDoc} onOpenChange={() => setViewDoc(null)}>
         <DialogContent className="max-w-3xl max-h-[85vh]">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              {viewDoc?.title}
-              {generatingDocs.has(viewDoc?.id) && (
-                <Loader2 className="h-4 w-4 animate-spin text-accent" />
+            <div className="flex items-center justify-between">
+              <DialogTitle className="flex items-center gap-2">
+                {viewDoc?.title}
+                {generatingDocs.has(viewDoc?.id) && (
+                  <Loader2 className="h-4 w-4 animate-spin text-accent" />
+                )}
+              </DialogTitle>
+              {viewDoc?.content && viewDoc?.status === "ready" && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm" className="gap-1">
+                      <Download className="h-3.5 w-3.5" /> Baixar
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => downloadAsPdf(viewDoc.title, getDocContent(viewDoc))}>PDF</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => downloadAsDocx(viewDoc.title, getDocContent(viewDoc))}>DOCX</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => downloadAsText(`${viewDoc.title.replace(/\s+/g, "_")}.md`, getDocContent(viewDoc))}>Markdown</DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               )}
+            </div>
             </DialogTitle>
           </DialogHeader>
           <ScrollArea className="max-h-[70vh]">
