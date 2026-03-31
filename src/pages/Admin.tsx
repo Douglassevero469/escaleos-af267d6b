@@ -84,7 +84,7 @@ export default function Admin() {
     mutationFn: async ({ targetUserId, role }: { targetUserId: string; role: string }) => {
       const { error } = await supabase.rpc("admin_set_user_role", {
         _target_user_id: targetUserId,
-        _role: role,
+        _role: role as "admin" | "user",
       });
       if (error) throw error;
     },
