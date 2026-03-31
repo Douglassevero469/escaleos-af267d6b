@@ -21,7 +21,7 @@ interface KanbanColumnProps {
   onSelect?: (id: string, checked: boolean) => void;
 }
 
-export function KanbanColumn({ column, items, onCardClick, onAddItem }: KanbanColumnProps) {
+export function KanbanColumn({ column, items, onCardClick, onAddItem, selectable, selectedIds, onSelect }: KanbanColumnProps) {
   const { setNodeRef, isOver } = useDroppable({ id: column.id });
 
   return (
