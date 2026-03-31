@@ -16,6 +16,9 @@ interface KanbanColumnProps {
   items: DemandItem[];
   onCardClick: (item: DemandItem) => void;
   onAddItem: (columnId: string) => void;
+  selectable?: boolean;
+  selectedIds?: Set<string>;
+  onSelect?: (id: string, checked: boolean) => void;
 }
 
 export function KanbanColumn({ column, items, onCardClick, onAddItem }: KanbanColumnProps) {
