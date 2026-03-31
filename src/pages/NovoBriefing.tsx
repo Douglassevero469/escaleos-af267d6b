@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { StepIndicator } from "@/components/ui/StepIndicator";
-import { ArrowLeft, ArrowRight, Send, Upload, Loader2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, Send, Loader2, Plus, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
@@ -15,9 +15,88 @@ import { useQuery } from "@tanstack/react-query";
 
 const stepNames = ["Identidade", "Financeiro", "Produto", "Concorrentes", "Operacional", "Mídia", "Revisão"];
 
+const DOC_TYPES = ["planejamento", "concorrentes", "funil", "midia", "criativos", "playbook", "script", "objecoes"] as const;
+const DOC_TITLES: Record<string, string> = {
+  planejamento: "Planejamento Estratégico",
+  concorrentes: "Análise de Concorrentes",
+  funil: "Funil de Vendas",
+  midia: "Plano de Mídia",
+  criativos: "Criativos Prontos",
+  playbook: "Playbook Comercial",
+  script: "Script de Vendas",
+  objecoes: "Tabela de Objeções",
+};
+
+interface Concorrente {
+  nome: string;
+  pontoFraco: string;
+  pontoForte: string;
+  precoEstimado: string;
+  siteConcorrente: string;
+}
+
+interface BriefingFormData {
+  nomeEmpresa: string;
+  nichoAtuacao: string;
+  tempoMercado: string;
+  regiaoAtuacao: string;
+  instagramEmpresa: string;
+  siteEmpresa: string;
+  faturamentoAtual: string;
+  metaFaturamento: string;
+  ticketMedio: string;
+  orcamentoAnuncios: string;
+  nomeProduto: string;
+  precoProduto: string;
+  garantia: string;
+  diferenciais: string[];
+  perfilClienteIdeal: string;
+  doresPublico: string[];
+  desejosPublico: string[];
+  concorrentes: Concorrente[];
+  equipeVendas: string;
+  ferramentas: string;
+  gargalo: string;
+  objecoes: string[];
+  tomDeVoz: string;
+  canaisAtendimento: string[];
+  objetivoCampanha: string;
+  plataformasAnuncio: string[];
+  jaInvesteAnuncios: string;
+  investimentoMidia: string;
+  resultadosAtuais: string;
+  coresMarca: string;
+  provaSocial: string;
+}
+
+const defaultData: BriefingFormData = {
+  nomeEmpresa: "", nichoAtuacao: "", tempoMercado: "", regiaoAtuacao: "",
+  instagramEmpresa: "", siteEmpresa: "",
+  faturamentoAtual: "", metaFaturamento: "", ticketMedio: "", orcamentoAnuncios: "",
+  nomeProduto: "", precoProduto: "", garantia: "",
+  diferenciais: ["", "", ""],
+  perfilClienteIdeal: "",
+  doresPublico: ["", "", ""],
+  desejosPublico: ["", "", ""],
+  concorrentes: [
+    { nome: "", pontoFraco: "", pontoForte: "", precoEstimado: "", siteConcorrente: "" },
+    { nome: "", pontoFraco: "", pontoForte: "", precoEstimado: "", siteConcorrente: "" },
+    { nome: "", pontoFraco: "", pontoForte: "", precoEstimado: "", siteConcorrente: "" },
+  ],
+  equipeVendas: "", ferramentas: "", gargalo: "",
+  objecoes: ["", "", ""],
+  tomDeVoz: "",
+  canaisAtendimento: [],
+  objetivoCampanha: "",
+  plataformasAnuncio: [],
+  jaInvesteAnuncios: "",
+  investimentoMidia: "", resultadosAtuais: "",
+  coresMarca: "", provaSocial: "",
+};
+
 export default function NovoBriefing() {
   const [step, setStep] = useState(0);
-  const [data, setData] = useState<Record<string, string>>({});
+  const [data, setData] = useState<BriefingFormData>(defaultData);
   const [selectedClient, setSelectedClient] = useState<string>("");
   const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
@@ -32,7 +111,30 @@ export default function NovoBriefing() {
     },
   });
 
-  const update = (key: string, value: string) => setData(prev => ({ ...prev, [key]: value }));
+  const set = (key: keyof BriefingFormData, value: any) => setData(prev => ({ ...prev, [key]: value }));
+
+  const setArrayItem = (key: keyof BriefingFormData, index: number, value: string) => {
+    setData(prev => {
+      const arr = [...(prev[key] as string[])];
+      arr[index] = value;
+      return { ...prev, [key]: arr };
+    });
+  };
+
+  const setConcorrente = (index: number, field: keyof Concorrente, value: string) => {
+    setData(prev => {
+      const concs = [...prev.concorrentes];
+      concs[index] = { ...concs[index], [field]: value };
+      return { ...prev, concorrentes: concs };
+    });
+  };
+
+  const toggleArray = (key: keyof BriefingFormData, value: string) => {
+    setData(prev => {
+      const arr = prev[key] as string[];
+      return { ...prev, [key]: arr.includes(value) ? arr.filter(v => v !== value) : [...arr, value] };
+    });
+  };
 
   const next = () => step < 6 && setStep(s => s + 1);
   const prev = () => step > 0 && setStep(s => s - 1);
@@ -43,11 +145,10 @@ export default function NovoBriefing() {
     try {
       let clientId = selectedClient;
 
-      // Create client if not selected
-      if (!clientId && data.nome) {
+      if (!clientId && data.nomeEmpresa) {
         const { data: newClient, error: clientErr } = await supabase
           .from("clients")
-          .insert({ name: data.nome, nicho: data.nicho || null, instagram: data.instagram || null, site: data.site || null, user_id: user.id })
+          .insert({ name: data.nomeEmpresa, nicho: data.nichoAtuacao || null, instagram: data.instagramEmpresa || null, site: data.siteEmpresa || null, user_id: user.id })
           .select("id")
           .single();
         if (clientErr) throw clientErr;
@@ -55,12 +156,11 @@ export default function NovoBriefing() {
       }
 
       if (!clientId) {
-        toast({ title: "Selecione ou preencha o nome do cliente", variant: "destructive" });
+        toast({ title: "Preencha o nome da empresa ou selecione um cliente", variant: "destructive" });
         setSubmitting(false);
         return;
       }
 
-      // Create briefing
       const { data: briefing, error: briefErr } = await supabase
         .from("briefings")
         .insert({ client_id: clientId, user_id: user.id, data: data as any, status: "completed" })
@@ -68,7 +168,6 @@ export default function NovoBriefing() {
         .single();
       if (briefErr) throw briefErr;
 
-      // Create package
       const { data: pkg, error: pkgErr } = await supabase
         .from("packages")
         .insert({ briefing_id: briefing.id, client_id: clientId, user_id: user.id, status: "generating" })
@@ -76,7 +175,24 @@ export default function NovoBriefing() {
         .single();
       if (pkgErr) throw pkgErr;
 
-      toast({ title: "Briefing enviado!", description: "Seu pacote está sendo gerado." });
+      // Create document placeholders for all 8 doc types
+      const docInserts = DOC_TYPES.map(docType => ({
+        package_id: pkg.id,
+        user_id: user.id,
+        doc_type: docType,
+        title: DOC_TITLES[docType],
+        status: "pending",
+        content: null,
+      }));
+      const { error: docErr } = await supabase.from("documents").insert(docInserts);
+      if (docErr) throw docErr;
+
+      // Trigger generation for each document (fire & forget — the page will poll)
+      for (const docType of DOC_TYPES) {
+        triggerGeneration(pkg.id, docType, data, user.id).catch(console.error);
+      }
+
+      toast({ title: "Briefing enviado!", description: "Seus 8 documentos estão sendo gerados com IA." });
       navigate(`/pacote/${pkg.id}`);
     } catch (e: any) {
       toast({ title: "Erro ao salvar briefing", description: e.message, variant: "destructive" });
@@ -85,103 +201,190 @@ export default function NovoBriefing() {
     }
   };
 
-  const Field = ({ label, field, placeholder, textarea }: { label: string; field: string; placeholder?: string; textarea?: boolean }) => (
+  const Field = ({ label, field, placeholder, textarea }: { label: string; field: keyof BriefingFormData; placeholder?: string; textarea?: boolean }) => (
     <div className="space-y-2">
       <Label className="text-sm">{label}</Label>
       {textarea ? (
-        <Textarea value={data[field] || ""} onChange={e => update(field, e.target.value)} placeholder={placeholder} className="bg-muted/50 border-border/60 min-h-[80px]" />
+        <Textarea value={(data[field] as string) || ""} onChange={e => set(field, e.target.value)} placeholder={placeholder} className="bg-muted/50 border-border/60 min-h-[80px]" />
       ) : (
-        <Input value={data[field] || ""} onChange={e => update(field, e.target.value)} placeholder={placeholder} className="bg-muted/50 border-border/60" />
+        <Input value={(data[field] as string) || ""} onChange={e => set(field, e.target.value)} placeholder={placeholder} className="bg-muted/50 border-border/60" />
       )}
     </div>
   );
 
+  const ArrayField = ({ label, field, placeholder }: { label: string; field: keyof BriefingFormData; placeholder?: string }) => {
+    const arr = data[field] as string[];
+    return (
+      <div className="space-y-2">
+        <Label className="text-sm">{label}</Label>
+        {arr.map((val, i) => (
+          <Input key={i} value={val} onChange={e => setArrayItem(field, i, e.target.value)} placeholder={`${placeholder || ""} ${i + 1}`} className="bg-muted/50 border-border/60" />
+        ))}
+        <Button type="button" variant="ghost" size="sm" onClick={() => set(field, [...arr, ""])} className="text-xs gap-1">
+          <Plus className="h-3 w-3" /> Adicionar
+        </Button>
+      </div>
+    );
+  };
+
+  const canaisOptions = ["WhatsApp", "Telefone", "Email", "Instagram DM", "Chat do site", "Presencial"];
+  const plataformasOptions = ["Meta Ads (Facebook/Instagram)", "Google Ads", "TikTok Ads", "LinkedIn Ads", "YouTube Ads", "Pinterest Ads"];
+
   const steps = [
+    // Step 0: Identidade
     <div key={0} className="space-y-4 animate-fade-in">
       <h3 className="font-display text-lg font-semibold">Identidade do Negócio</h3>
       {clients.length > 0 && (
         <div className="space-y-2">
           <Label className="text-sm">Cliente Existente (opcional)</Label>
           <Select value={selectedClient} onValueChange={setSelectedClient}>
-            <SelectTrigger className="bg-muted/50 border-border/60">
-              <SelectValue placeholder="Selecione um cliente existente..." />
-            </SelectTrigger>
+            <SelectTrigger className="bg-muted/50 border-border/60"><SelectValue placeholder="Selecione um cliente existente..." /></SelectTrigger>
             <SelectContent>
-              {clients.map((c: any) => (
-                <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
-              ))}
+              {clients.map((c: any) => (<SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>))}
             </SelectContent>
           </Select>
         </div>
       )}
-      <Field label="Nome da Empresa" field="nome" placeholder="Ex: Studio Fitness Prime" />
-      <Field label="Nicho / Segmento" field="nicho" placeholder="Ex: Academia, Personal Trainer" />
-      <Field label="Instagram" field="instagram" placeholder="@empresa" />
-      <Field label="Site" field="site" placeholder="https://..." />
-      <Field label="Tempo de Mercado" field="tempo" placeholder="Ex: 3 anos" />
+      <Field label="Nome da Empresa *" field="nomeEmpresa" placeholder="Ex: Studio Fitness Prime" />
+      <Field label="Nicho / Segmento *" field="nichoAtuacao" placeholder="Ex: Academia, Personal Trainer" />
+      <Field label="Tempo de Mercado" field="tempoMercado" placeholder="Ex: 3 anos" />
+      <Field label="Região de Atuação" field="regiaoAtuacao" placeholder="Ex: São Paulo - SP" />
+      <Field label="Instagram" field="instagramEmpresa" placeholder="@empresa" />
+      <Field label="Site" field="siteEmpresa" placeholder="https://..." />
     </div>,
+
+    // Step 1: Financeiro
     <div key={1} className="space-y-4 animate-fade-in">
       <h3 className="font-display text-lg font-semibold">Dados Financeiros</h3>
-      <Field label="Faturamento Mensal Atual" field="faturamento" placeholder="Ex: R$ 50.000" />
-      <Field label="Meta de Faturamento" field="meta" placeholder="Ex: R$ 100.000" />
-      <Field label="Ticket Médio" field="ticket" placeholder="Ex: R$ 150" />
-      <Field label="Orçamento para Ads" field="ads" placeholder="Ex: R$ 3.000/mês" />
+      <Field label="Faturamento Mensal Atual *" field="faturamentoAtual" placeholder="Ex: R$ 50.000" />
+      <Field label="Meta de Faturamento *" field="metaFaturamento" placeholder="Ex: R$ 100.000" />
+      <Field label="Ticket Médio *" field="ticketMedio" placeholder="Ex: R$ 150" />
+      <Field label="Orçamento para Anúncios" field="orcamentoAnuncios" placeholder="Ex: R$ 3.000/mês" />
     </div>,
+
+    // Step 2: Produto
     <div key={2} className="space-y-4 animate-fade-in">
       <h3 className="font-display text-lg font-semibold">Produto e Público</h3>
-      <Field label="Produto/Serviço Principal" field="produto" placeholder="Descreva seu produto" />
-      <Field label="Faixa de Preço" field="preco" placeholder="Ex: R$ 99 - R$ 299" />
-      <Field label="Perfil do Cliente Ideal" field="perfil" placeholder="Idade, gênero, localização..." textarea />
-      <Field label="Dores do Cliente" field="dores" placeholder="Principais problemas que resolve" textarea />
-      <Field label="Desejos do Cliente" field="desejos" placeholder="O que o cliente deseja alcançar" textarea />
+      <Field label="Nome do Produto/Serviço Principal *" field="nomeProduto" placeholder="Ex: Plano Premium Anual" />
+      <Field label="Preço do Produto *" field="precoProduto" placeholder="Ex: R$ 299/mês" />
+      <Field label="Garantia" field="garantia" placeholder="Ex: 30 dias de garantia" />
+      <ArrayField label="Diferenciais" field="diferenciais" placeholder="Diferencial" />
+      <Field label="Perfil do Cliente Ideal *" field="perfilClienteIdeal" placeholder="Idade, gênero, localização, interesses..." textarea />
+      <ArrayField label="Dores do Público *" field="doresPublico" placeholder="Dor" />
+      <ArrayField label="Desejos do Público *" field="desejosPublico" placeholder="Desejo" />
     </div>,
+
+    // Step 3: Concorrentes
     <div key={3} className="space-y-4 animate-fade-in">
       <h3 className="font-display text-lg font-semibold">Análise de Concorrentes</h3>
-      {[1, 2, 3].map(n => (
-        <GlassCard key={n} className="space-y-3 p-4">
-          <p className="text-sm font-semibold text-primary">Concorrente {n}</p>
-          <Field label="Nome" field={`conc${n}_nome`} placeholder="Nome do concorrente" />
-          <Field label="Pontos Fortes" field={`conc${n}_fortes`} placeholder="O que fazem bem" />
-          <Field label="Pontos Fracos" field={`conc${n}_fracos`} placeholder="Onde falham" />
-          <Field label="Preço" field={`conc${n}_preco`} placeholder="Faixa de preço" />
+      {data.concorrentes.map((conc, i) => (
+        <GlassCard key={i} className="space-y-3 p-4">
+          <div className="flex items-center justify-between">
+            <p className="text-sm font-semibold text-primary">Concorrente {i + 1}</p>
+            {data.concorrentes.length > 1 && (
+              <Button variant="ghost" size="sm" onClick={() => set("concorrentes", data.concorrentes.filter((_, j) => j !== i))}>
+                <Trash2 className="h-3 w-3" />
+              </Button>
+            )}
+          </div>
+          <Input value={conc.nome} onChange={e => setConcorrente(i, "nome", e.target.value)} placeholder="Nome do concorrente" className="bg-muted/50 border-border/60" />
+          <Input value={conc.pontoForte} onChange={e => setConcorrente(i, "pontoForte", e.target.value)} placeholder="Pontos Fortes" className="bg-muted/50 border-border/60" />
+          <Input value={conc.pontoFraco} onChange={e => setConcorrente(i, "pontoFraco", e.target.value)} placeholder="Pontos Fracos" className="bg-muted/50 border-border/60" />
+          <Input value={conc.precoEstimado} onChange={e => setConcorrente(i, "precoEstimado", e.target.value)} placeholder="Preço Estimado" className="bg-muted/50 border-border/60" />
+          <Input value={conc.siteConcorrente} onChange={e => setConcorrente(i, "siteConcorrente", e.target.value)} placeholder="Site do concorrente" className="bg-muted/50 border-border/60" />
         </GlassCard>
       ))}
+      <Button variant="ghost" size="sm" onClick={() => set("concorrentes", [...data.concorrentes, { nome: "", pontoFraco: "", pontoForte: "", precoEstimado: "", siteConcorrente: "" }])} className="gap-1">
+        <Plus className="h-3 w-3" /> Adicionar Concorrente
+      </Button>
     </div>,
+
+    // Step 4: Operacional
     <div key={4} className="space-y-4 animate-fade-in">
       <h3 className="font-display text-lg font-semibold">Operacional</h3>
-      <Field label="Tamanho da Equipe" field="equipe" placeholder="Ex: 5 pessoas" />
-      <Field label="Ferramentas Utilizadas" field="ferramentas" placeholder="CRM, email, etc." textarea />
-      <Field label="Principal Gargalo" field="gargalo" placeholder="Maior dificuldade operacional" textarea />
-      <Field label="Objeções Comuns dos Clientes" field="objecoes" placeholder="O que os clientes costumam questionar" textarea />
-      <Field label="Tom de Voz da Marca" field="tom" placeholder="Ex: Profissional mas acessível" />
+      <Field label="Equipe de Vendas" field="equipeVendas" placeholder="Ex: 5 vendedores + 1 gerente" />
+      <Field label="Ferramentas Utilizadas" field="ferramentas" placeholder="CRM, email marketing, etc." textarea />
+      <Field label="Principal Gargalo *" field="gargalo" placeholder="Maior dificuldade operacional" textarea />
+      <ArrayField label="Objeções Frequentes dos Clientes" field="objecoes" placeholder="Objeção" />
+      <Field label="Tom de Voz da Marca *" field="tomDeVoz" placeholder="Ex: Profissional mas acessível, direto e confiante" />
+      <div className="space-y-2">
+        <Label className="text-sm">Canais de Atendimento</Label>
+        <div className="flex flex-wrap gap-2">
+          {canaisOptions.map(c => (
+            <Button key={c} type="button" variant={data.canaisAtendimento.includes(c) ? "default" : "outline"} size="sm"
+              onClick={() => toggleArray("canaisAtendimento", c)} className="text-xs">
+              {c}
+            </Button>
+          ))}
+        </div>
+      </div>
     </div>,
+
+    // Step 5: Mídia
     <div key={5} className="space-y-4 animate-fade-in">
       <h3 className="font-display text-lg font-semibold">Mídia e Marca</h3>
-      <Field label="Plataformas Ativas" field="plataformas" placeholder="Instagram, Google, TikTok..." />
-      <Field label="Investimento em Marketing" field="investimento" placeholder="Ex: R$ 5.000/mês" />
-      <Field label="Cores da Marca" field="cores" placeholder="Ex: Azul marinho, dourado" />
-      <Field label="Prova Social" field="prova" placeholder="Depoimentos, cases, números" textarea />
+      <Field label="Objetivo da Campanha" field="objetivoCampanha" placeholder="Ex: Gerar leads qualificados para vendas" />
+      <div className="space-y-2">
+        <Label className="text-sm">Plataformas de Anúncio</Label>
+        <div className="flex flex-wrap gap-2">
+          {plataformasOptions.map(p => (
+            <Button key={p} type="button" variant={data.plataformasAnuncio.includes(p) ? "default" : "outline"} size="sm"
+              onClick={() => toggleArray("plataformasAnuncio", p)} className="text-xs">
+              {p}
+            </Button>
+          ))}
+        </div>
+      </div>
+      <div className="space-y-2">
+        <Label className="text-sm">Já investe em anúncios?</Label>
+        <div className="flex gap-2">
+          {["sim", "não"].map(v => (
+            <Button key={v} type="button" variant={data.jaInvesteAnuncios === v ? "default" : "outline"} size="sm"
+              onClick={() => set("jaInvesteAnuncios", v)} className="text-xs capitalize">
+              {v}
+            </Button>
+          ))}
+        </div>
+      </div>
+      <Field label="Investimento Mensal em Mídia" field="investimentoMidia" placeholder="Ex: R$ 5.000/mês" />
+      {data.jaInvesteAnuncios === "sim" && (
+        <Field label="Resultados Atuais com Anúncios" field="resultadosAtuais" placeholder="CPL, ROAS, volume de leads..." textarea />
+      )}
+      <Field label="Cores da Marca" field="coresMarca" placeholder="Ex: Azul marinho, dourado" />
+      <Field label="Prova Social" field="provaSocial" placeholder="Depoimentos, cases, números" textarea />
     </div>,
+
+    // Step 6: Revisão
     <div key={6} className="space-y-4 animate-fade-in">
       <h3 className="font-display text-lg font-semibold">Revisão e Confirmação</h3>
       <GlassCard className="space-y-3">
-        {Object.entries(data).filter(([, v]) => v).map(([k, v]) => (
-          <div key={k} className="flex justify-between gap-4 text-sm py-1.5 border-b border-border/20 last:border-0">
-            <span className="text-muted-foreground capitalize">{k.replace(/_/g, " ")}</span>
-            <span className="text-right font-medium max-w-[60%] truncate">{v}</span>
-          </div>
-        ))}
-        {Object.keys(data).filter(k => data[k]).length === 0 && (
-          <p className="text-sm text-muted-foreground text-center py-6">Nenhum dado preenchido ainda.</p>
-        )}
+        <ReviewItem label="Empresa" value={data.nomeEmpresa} />
+        <ReviewItem label="Nicho" value={data.nichoAtuacao} />
+        <ReviewItem label="Região" value={data.regiaoAtuacao} />
+        <ReviewItem label="Faturamento Atual" value={data.faturamentoAtual} />
+        <ReviewItem label="Meta" value={data.metaFaturamento} />
+        <ReviewItem label="Ticket Médio" value={data.ticketMedio} />
+        <ReviewItem label="Produto" value={`${data.nomeProduto} — ${data.precoProduto}`} />
+        <ReviewItem label="Garantia" value={data.garantia} />
+        <ReviewItem label="Diferenciais" value={data.diferenciais.filter(Boolean).join(", ")} />
+        <ReviewItem label="Perfil Cliente Ideal" value={data.perfilClienteIdeal} />
+        <ReviewItem label="Dores" value={data.doresPublico.filter(Boolean).join(", ")} />
+        <ReviewItem label="Desejos" value={data.desejosPublico.filter(Boolean).join(", ")} />
+        <ReviewItem label="Concorrentes" value={data.concorrentes.filter(c => c.nome).map(c => c.nome).join(", ")} />
+        <ReviewItem label="Gargalo" value={data.gargalo} />
+        <ReviewItem label="Tom de Voz" value={data.tomDeVoz} />
+        <ReviewItem label="Plataformas" value={data.plataformasAnuncio.join(", ")} />
+        <ReviewItem label="Canais" value={data.canaisAtendimento.join(", ")} />
       </GlassCard>
-      <GlassCard className="flex items-center gap-3 p-4">
-        <Upload className="h-5 w-5 text-muted-foreground" />
-        <div>
-          <p className="text-sm font-medium">Upload de Arquivo</p>
-          <p className="text-xs text-muted-foreground">Importe briefing em YAML, JSON, PDF ou DOCX</p>
+      <GlassCard className="p-4">
+        <p className="text-sm font-semibold mb-2">Documentos que serão gerados:</p>
+        <div className="grid grid-cols-2 gap-2">
+          {DOC_TYPES.map(t => (
+            <span key={t} className="text-xs text-muted-foreground bg-muted/50 px-3 py-1.5 rounded-md">
+              {DOC_TITLES[t]}
+            </span>
+          ))}
         </div>
-        <Button variant="outline" size="sm" className="ml-auto border-border/60">Importar</Button>
       </GlassCard>
     </div>,
   ];
@@ -214,4 +417,69 @@ export default function NovoBriefing() {
       </div>
     </div>
   );
+}
+
+function ReviewItem({ label, value }: { label: string; value: string }) {
+  if (!value) return null;
+  return (
+    <div className="flex justify-between gap-4 text-sm py-1.5 border-b border-border/20 last:border-0">
+      <span className="text-muted-foreground">{label}</span>
+      <span className="text-right font-medium max-w-[60%] truncate">{value}</span>
+    </div>
+  );
+}
+
+async function triggerGeneration(packageId: string, docType: string, briefingData: BriefingFormData, userId: string) {
+  try {
+    const resp = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-document`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+      },
+      body: JSON.stringify({ briefingData, docType }),
+    });
+
+    if (!resp.ok || !resp.body) {
+      await supabase.from("documents").update({ status: "error" }).eq("package_id", packageId).eq("doc_type", docType);
+      return;
+    }
+
+    // Read SSE stream and collect content
+    const reader = resp.body.getReader();
+    const decoder = new TextDecoder();
+    let content = "";
+    let buffer = "";
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+
+      let newlineIndex: number;
+      while ((newlineIndex = buffer.indexOf("\n")) !== -1) {
+        let line = buffer.slice(0, newlineIndex);
+        buffer = buffer.slice(newlineIndex + 1);
+        if (line.endsWith("\r")) line = line.slice(0, -1);
+        if (!line.startsWith("data: ")) continue;
+        const jsonStr = line.slice(6).trim();
+        if (jsonStr === "[DONE]") break;
+        try {
+          const parsed = JSON.parse(jsonStr);
+          const delta = parsed.choices?.[0]?.delta?.content;
+          if (delta) content += delta;
+        } catch { /* partial chunk */ }
+      }
+    }
+
+    // Update document with generated content
+    await supabase
+      .from("documents")
+      .update({ content, status: "ready" })
+      .eq("package_id", packageId)
+      .eq("doc_type", docType);
+  } catch (e) {
+    console.error(`Error generating ${docType}:`, e);
+    await supabase.from("documents").update({ status: "error" }).eq("package_id", packageId).eq("doc_type", docType);
+  }
 }
