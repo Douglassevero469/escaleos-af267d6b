@@ -391,10 +391,10 @@ export default function FormRenderer({
 
   // Default: List
   return (
-    <div className="flex items-center justify-center p-4 min-h-[300px]">
+    <div className="flex items-center justify-center p-6 min-h-[300px]" style={themeStyle}>
       <div className="w-full max-w-lg space-y-4">
         <h1 className="text-xl font-bold text-center">{formName}</h1>
-        {formDescription && <p className="text-sm text-muted-foreground text-center">{formDescription}</p>}
+        {formDescription && <p className="text-sm text-center" style={mutedStyle}>{formDescription}</p>}
         <div className="space-y-4">
           {fields.map(f => <div key={f.id}>{renderField(f)}</div>)}
         </div>
