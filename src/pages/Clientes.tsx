@@ -2,7 +2,7 @@ import { useState } from "react";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, Users, Package, ArrowRight } from "lucide-react";
+import { Search, Users, Package, ArrowUpRight } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const mockClients = [
