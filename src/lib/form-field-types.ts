@@ -72,7 +72,7 @@ export const FIELD_TYPE_CATEGORIES = [
       { type: "spacer", label: "Espaçador", icon: "MoveVertical" },
     ],
   },
-] as const;
+];
 
 // Flat list for backwards compat
 export const FIELD_TYPES = FIELD_TYPE_CATEGORIES.flatMap(c => c.types);
