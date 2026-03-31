@@ -274,6 +274,30 @@ export default function FormBuilder() {
               ))}
             </div>
           </div>
+          <div className="pt-2 border-t border-border">
+            <h5 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Webhook (Notificação Externa)</h5>
+            <div className="grid gap-3 md:grid-cols-2">
+              <div>
+                <Label className="text-xs">URL do Webhook</Label>
+                <Input
+                  value={(settings as any)?.webhookUrl || ""}
+                  onChange={e => setSettings((s: any) => ({ ...s, webhookUrl: e.target.value }))}
+                  placeholder="https://hooks.zapier.com/..."
+                />
+                <p className="text-[10px] text-muted-foreground mt-1">Recebe um POST JSON a cada nova submissão</p>
+              </div>
+              <div>
+                <Label className="text-xs">Secret (opcional)</Label>
+                <Input
+                  value={(settings as any)?.webhookSecret || ""}
+                  onChange={e => setSettings((s: any) => ({ ...s, webhookSecret: e.target.value }))}
+                  placeholder="whsec_..."
+                  type="password"
+                />
+                <p className="text-[10px] text-muted-foreground mt-1">Enviado no header X-Webhook-Secret</p>
+              </div>
+            </div>
+          </div>
         </GlassCard>
       )}
 
