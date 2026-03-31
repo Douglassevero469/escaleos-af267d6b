@@ -669,6 +669,12 @@ export default function PacoteDocumentos() {
                       {wordCount.toLocaleString()} palavras...
                     </p>
                   )}
+                  {(status === "pending" || status === "generating") && !isActive && (
+                    <p className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
+                      <Clock className="h-3 w-3" />
+                      ~{["planejamento","playbook","funil","script"].includes(doc.doc_type) ? "2-4 min" : "1-2 min"}
+                    </p>
+                  )}
                   {isDocReady(status) && wordCount > 0 && (
                     <div className="flex items-center gap-2 mt-1">
                       <p className="text-xs text-muted-foreground">{wordCount.toLocaleString()} palavras</p>
