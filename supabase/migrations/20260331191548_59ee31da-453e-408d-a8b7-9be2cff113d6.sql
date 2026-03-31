@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX IF NOT EXISTS forms_slug_unique ON public.forms (slug);

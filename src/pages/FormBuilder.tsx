@@ -127,6 +127,16 @@ export default function FormBuilder() {
       const finalStatus = newStatus || status;
       const sanitizedSlug = slug.toLowerCase().replace(/[^a-z0-9-]/g, "").slice(0, 50);
       if (!sanitizedSlug) throw new Error("Slug não pode ficar vazio");
+      // Check slug uniqueness
+      const { data: existing } = await supabase
+        .from("forms")
+        .select("id")
+        .eq("slug", sanitizedSlug)
+        .neq("id", id!)
+        .limit(1);
+      if (existing && existing.length > 0) {
+        throw new Error("Este slug já está em uso por outro formulário. Escolha outro.");
+      }
       const { error } = await supabase
         .from("forms")
         .update({
