@@ -5,6 +5,48 @@ import { Loader2 } from "lucide-react";
 import { FormField } from "@/lib/form-field-types";
 import FormRenderer from "@/components/forms/FormRenderer";
 
+function parseDeviceInfo() {
+  const ua = navigator.userAgent;
+  let deviceType = "Desktop";
+  if (/Mobi|Android/i.test(ua)) deviceType = "Mobile";
+  else if (/Tablet|iPad/i.test(ua)) deviceType = "Tablet";
+
+  let browser = "Outro";
+  if (/Edg\//i.test(ua)) browser = "Edge";
+  else if (/OPR|Opera/i.test(ua)) browser = "Opera";
+  else if (/Chrome/i.test(ua)) browser = "Chrome";
+  else if (/Safari/i.test(ua)) browser = "Safari";
+  else if (/Firefox/i.test(ua)) browser = "Firefox";
+
+  let os = "Outro";
+  if (/Windows/i.test(ua)) os = "Windows";
+  else if (/Mac OS/i.test(ua)) os = "macOS";
+  else if (/Android/i.test(ua)) os = "Android";
+  else if (/iPhone|iPad|iPod/i.test(ua)) os = "iOS";
+  else if (/Linux/i.test(ua)) os = "Linux";
+
+  // Try to extract device model
+  let model = "";
+  const androidMatch = ua.match(/;\s*([^;)]+)\s*Build\//);
+  if (androidMatch) model = androidMatch[1].trim();
+  const iphoneMatch = ua.match(/(iPhone|iPad|iPod)/);
+  if (iphoneMatch) model = iphoneMatch[1];
+  if (!model && deviceType === "Desktop") model = os;
+
+  return { deviceType, browser, os, model };
+}
+
+async function fetchGeoInfo(): Promise<{ country?: string; region?: string; city?: string }> {
+  try {
+    const res = await fetch("https://ipapi.co/json/", { signal: AbortSignal.timeout(3000) });
+    if (!res.ok) return {};
+    const data = await res.json();
+    return { country: data.country_name, region: data.region, city: data.city };
+  } catch {
+    return {};
+  }
+}
+
 function getSessionId(): string {
   const key = "form_session_id";
   let id = sessionStorage.getItem(key);
