@@ -1051,7 +1051,9 @@ export default function FormAnalytics({ formId, formName, formFields = [] }: Pro
                   <XAxis type="number" allowDecimals={false} tick={{ fontSize: 10 }} />
                   <YAxis type="category" dataKey="name" tick={{ fontSize: 10 }} width={120} />
                   <ChartTooltip content={<ChartTooltipContent />} />
-                  <Bar dataKey="value" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} name="Respostas" />
+                  <Bar dataKey="value" radius={[0, 4, 4, 0]} name="Respostas">
+                    {chartData.map((_, i) => <Cell key={i} fill={BAR_COLORS[i % BAR_COLORS.length]} />)}
+                  </Bar>
                 </BarChart>
               </ChartContainer>
             )}
