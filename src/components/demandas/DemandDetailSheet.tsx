@@ -52,8 +52,21 @@ export function DemandDetailSheet({ open, onOpenChange, item, columns, onUpdate,
   }, [item]);
 
   const loadComments = async (itemId: string) => {
-    const { data } = await supabase.from("demand_comments").select("*").eq("item_id", itemId).order("created_at", { ascending: true });
-    if (data) setComments(data);
+    const { data } = await supabase
+      .from("demand_comments")
+      .select("*, profiles!demand_comments_user_id_fkey(display_name, avatar_url)")
+      .eq("item_id", itemId)
+      .order("created_at", { ascending: true });
+    if (data) {
+      setComments(data.map((c: any) => ({
+        id: c.id,
+        content: c.content,
+        created_at: c.created_at,
+        user_id: c.user_id,
+        display_name: c.profiles?.display_name || null,
+        avatar_url: c.profiles?.avatar_url || null,
+      })));
+    }
   };
 
   const loadSubtasks = async (itemId: string) => {
