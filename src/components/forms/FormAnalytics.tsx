@@ -873,9 +873,25 @@ export default function FormAnalytics({ formId, formName, formFields = [] }: Pro
               <XAxis type="number" allowDecimals={false} tick={{ fontSize: 10 }} />
               <YAxis dataKey="field" type="category" width={120} tick={{ fontSize: 10 }} />
               <ChartTooltip content={<ChartTooltipContent />} />
-              <Bar dataKey="abandonos" fill="hsl(var(--destructive))" radius={[0, 4, 4, 0]} name="Abandonos" />
+              <Bar dataKey="abandonos" radius={[0, 4, 4, 0]} name="Abandonos">
+                {abandonByField.map((_, i) => {
+                  const reds = ["#ef4444", "#f87171", "#dc2626", "#fb923c", "#e11d48"];
+                  return <Cell key={i} fill={reds[i % reds.length]} />;
+                })}
+              </Bar>
             </BarChart>
           </ChartContainer>
+          <div className="flex flex-wrap gap-2 mt-2 px-1">
+            {abandonByField.map((d, i) => {
+              const reds = ["#ef4444", "#f87171", "#dc2626", "#fb923c", "#e11d48"];
+              return (
+                <div key={d.field} className="flex items-center gap-1">
+                  <div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: reds[i % reds.length] }} />
+                  <span className="text-[10px] text-muted-foreground">{d.field}: {d.abandonos}</span>
+                </div>
+              );
+            })}
+          </div>
         </GlassCard>
       )}
 
