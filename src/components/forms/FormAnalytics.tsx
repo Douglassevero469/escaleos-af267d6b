@@ -37,6 +37,7 @@ export default function FormAnalytics({ formId, formName }: Props) {
   const [customFrom, setCustomFrom] = useState<Date | undefined>();
   const [customTo, setCustomTo] = useState<Date | undefined>();
   const [exporting, setExporting] = useState(false);
+  const [pdfOrientation, setPdfOrientation] = useState<"portrait" | "landscape">("portrait");
   const chartsRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
