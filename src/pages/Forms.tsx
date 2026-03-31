@@ -37,6 +37,9 @@ export default function Forms() {
   const [createOpen, setCreateOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [form, setForm] = useState({ name: "", description: "", layout: "list" });
+  const [useAI, setUseAI] = useState(false);
+  const [aiPrompt, setAiPrompt] = useState("");
+  const [aiGenerating, setAiGenerating] = useState(false);
   const [viewSubmissions, setViewSubmissions] = useState<{ id: string; name: string } | null>(null);
 
   const { data: forms = [], isLoading } = useQuery({
