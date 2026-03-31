@@ -204,6 +204,7 @@ export type Database = {
           form_id: string
           id: string
           ip_address: string | null
+          metadata: Json | null
           notes: string | null
           status: string
           tags: string[] | null
@@ -214,6 +215,7 @@ export type Database = {
           form_id: string
           id?: string
           ip_address?: string | null
+          metadata?: Json | null
           notes?: string | null
           status?: string
           tags?: string[] | null
@@ -224,6 +226,7 @@ export type Database = {
           form_id?: string
           id?: string
           ip_address?: string | null
+          metadata?: Json | null
           notes?: string | null
           status?: string
           tags?: string[] | null
