@@ -261,6 +261,16 @@ export default function Forms() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Submissions Dialog */}
+      {viewSubmissions && (
+        <SubmissionsDialog
+          formId={viewSubmissions.id}
+          formName={viewSubmissions.name}
+          open={!!viewSubmissions}
+          onOpenChange={(open) => !open && setViewSubmissions(null)}
+        />
+      )}
     </div>
   );
 }
