@@ -574,7 +574,7 @@ export default function FormAnalytics({ formId, formName }: Props) {
 
           {/* Hourly */}
           {hourlyData.some(h => h.count > 0) && (
-            <GlassCard className="p-4">
+            <GlassCard className="p-4" data-chart-section data-chart-title="Horário das Submissões">
               <h3 className="text-sm font-semibold mb-3">Horário das Submissões</h3>
               <ChartContainer config={{ count: { label: "Submissões", color: "hsl(var(--primary))" } }} className="h-[180px] w-full">
                 <BarChart data={hourlyData}>
