@@ -569,8 +569,8 @@ export default function FormRenderer({
   // Inline
   if (layout === "inline") {
     return (
-      <div className={`flex items-center justify-center p-6 ${wrapperHeight}`} style={themeStyle}>
-        <div className="w-full max-w-2xl space-y-4">
+      <div className={`flex items-center justify-center px-4 py-6 sm:p-6 ${wrapperHeight}`} style={themeStyle}>
+        <div className="w-full max-w-2xl space-y-3 sm:space-y-4">
           {formHeader}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {fields.map(f => (
