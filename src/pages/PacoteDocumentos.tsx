@@ -669,10 +669,23 @@ export default function PacoteDocumentos() {
         </div>
         {completedCount > 0 && !isGenerating && (
           <Button
-            onClick={() => downloadAllAsZip(docs, (pkg as any)?.clients?.name || "cliente")}
+            onClick={async () => {
+              setIsZipping(true);
+              await downloadAllAsZip(docs, (pkg as any)?.clients?.name || "cliente", setZipProgress);
+              setIsZipping(false);
+            }}
+            disabled={isZipping}
             className="gap-2 btn-primary-glow font-semibold"
           >
-            <Archive className="h-4 w-4" /> Baixar Todos (ZIP)
+            {isZipping ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" /> Gerando PDFs... {zipProgress}%
+              </>
+            ) : (
+              <>
+                <Archive className="h-4 w-4" /> Baixar Todos (ZIP)
+              </>
+            )}
           </Button>
         )}
       </div>
