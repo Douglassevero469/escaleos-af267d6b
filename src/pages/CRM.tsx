@@ -40,7 +40,18 @@ export default function CRM() {
     return (pipeline.stages as any[]).sort((a, b) => a.order - b.order);
   }, [pipeline]);
 
-  const { data: leads = [] } = useQuery({
+  // Fetch all forms to map form_id -> form name
+  const { data: formsMap = {} } = useQuery({
+    queryKey: ["crm-forms-map"],
+    queryFn: async () => {
+      const { data } = await supabase.from("forms").select("id, name");
+      const map: Record<string, string> = {};
+      (data || []).forEach((f: any) => { map[f.id] = f.name; });
+      return map;
+    },
+  });
+
+  const { data: rawLeads = [] } = useQuery({
     queryKey: ["crm-leads", pipelineId],
     queryFn: async () => {
       if (!pipelineId) return [];
@@ -53,6 +64,14 @@ export default function CRM() {
     },
     enabled: !!pipelineId,
   });
+
+  // Enrich leads with form_name
+  const leads = useMemo(() => {
+    return rawLeads.map(l => ({
+      ...l,
+      form_name: l.form_id ? formsMap[l.form_id] || null : null,
+    }));
+  }, [rawLeads, formsMap]);
 
   const filteredLeads = useMemo(() => {
     let result = leads;
