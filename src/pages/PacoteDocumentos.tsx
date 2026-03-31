@@ -215,12 +215,12 @@ const ESCALE_BRAND_CSS = `
     width: 100%;
     border-collapse: separate;
     border-spacing: 0;
-    margin: 16px 0 24px;
-    font-size: 8.5pt;
-    line-height: 1.45;
-    border-radius: 8px;
+    margin: 12px 0 20px;
+    font-size: 7.5pt;
+    line-height: 1.35;
+    border-radius: 6px;
     overflow: hidden;
-    table-layout: auto;
+    table-layout: fixed;
     word-wrap: break-word;
     page-break-inside: auto;
   }
@@ -230,38 +230,33 @@ const ESCALE_BRAND_CSS = `
   }
 
   th {
-    padding: 8px 10px;
+    padding: 6px 6px;
     text-align: left;
     font-weight: 600;
     color: white;
-    font-size: 7.5pt;
+    font-size: 6.5pt;
     text-transform: uppercase;
-    letter-spacing: 0.4px;
-    white-space: nowrap;
+    letter-spacing: 0.3px;
     vertical-align: middle;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   td {
-    padding: 8px 10px;
+    padding: 5px 6px;
     border-bottom: 1px solid var(--brand-border);
     color: #2A2A4A;
     vertical-align: top;
+    overflow-wrap: break-word;
+    word-break: break-word;
     hyphens: auto;
     -webkit-hyphens: auto;
   }
 
-  /* First column (label) stays compact */
+  /* First column compact */
   td:first-child {
     font-weight: 600;
-    white-space: nowrap;
     color: var(--brand-dark);
-    min-width: 80px;
-    max-width: 120px;
-  }
-
-  /* Even distribution for remaining columns */
-  td:not(:first-child) {
-    min-width: 100px;
   }
 
   tbody tr:nth-child(even) {
@@ -272,18 +267,10 @@ const ESCALE_BRAND_CSS = `
     page-break-inside: avoid;
   }
 
-  tbody tr:hover {
-    background: #F0F0FF;
-  }
-
-  /* Card-style for very long table cells - convert to vertical layout on narrow tables */
   @media print {
-    table {
-      font-size: 8pt;
-    }
-    th {
-      font-size: 7pt;
-    }
+    table { font-size: 7pt; }
+    th { font-size: 6pt; padding: 4px 5px; }
+    td { padding: 4px 5px; }
   }
 
   /* ── Blockquotes ── */
