@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { GlassCard } from "@/components/ui/GlassCard";
-import { ClipboardList, Plus, Copy, Trash2, Loader2, Edit2, ExternalLink, MoreVertical } from "lucide-react";
+import { ClipboardList, Plus, Copy, Trash2, Loader2, Edit2, ExternalLink, MoreVertical, Inbox } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
+import SubmissionsDialog from "@/components/forms/SubmissionsDialog";
 
 const LAYOUT_LABELS: Record<string, string> = {
   list: "Lista",
@@ -36,6 +37,7 @@ export default function Forms() {
   const [createOpen, setCreateOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [form, setForm] = useState({ name: "", description: "", layout: "list" });
+  const [viewSubmissions, setViewSubmissions] = useState<{ id: string; name: string } | null>(null);
 
   const { data: forms = [], isLoading } = useQuery({
     queryKey: ["forms"],
@@ -185,13 +187,19 @@ export default function Forms() {
                   {f.status === "published" ? "Publicado" : "Rascunho"}
                 </Badge>
                 <Badge variant="outline">{LAYOUT_LABELS[f.layout] || f.layout}</Badge>
-                <span className="text-xs text-muted-foreground ml-auto">
+                <button
+                  className="text-xs text-primary hover:underline ml-auto cursor-pointer"
+                  onClick={() => setViewSubmissions({ id: f.id, name: f.name })}
+                >
                   {(submissionCounts as any)[f.id] || 0} respostas
-                </span>
+                </button>
               </div>
               <div className="flex gap-2 mt-auto pt-2 border-t border-border">
                 <Button variant="outline" size="sm" className="flex-1" onClick={() => navigate(`/forms/${f.id}`)}>
                   <Edit2 className="h-3 w-3 mr-1" /> Editar
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => setViewSubmissions({ id: f.id, name: f.name })}>
+                  <Inbox className="h-3 w-3 mr-1" /> Respostas
                 </Button>
                 <Button variant="outline" size="sm" onClick={() => copyLink(f.slug)}>
                   <ExternalLink className="h-3 w-3" />
@@ -253,6 +261,16 @@ export default function Forms() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Submissions Dialog */}
+      {viewSubmissions && (
+        <SubmissionsDialog
+          formId={viewSubmissions.id}
+          formName={viewSubmissions.name}
+          open={!!viewSubmissions}
+          onOpenChange={(open) => !open && setViewSubmissions(null)}
+        />
+      )}
     </div>
   );
 }

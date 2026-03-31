@@ -204,7 +204,9 @@ export type Database = {
           form_id: string
           id: string
           ip_address: string | null
+          notes: string | null
           status: string
+          tags: string[] | null
         }
         Insert: {
           created_at?: string
@@ -212,7 +214,9 @@ export type Database = {
           form_id: string
           id?: string
           ip_address?: string | null
+          notes?: string | null
           status?: string
+          tags?: string[] | null
         }
         Update: {
           created_at?: string
@@ -220,7 +224,9 @@ export type Database = {
           form_id?: string
           id?: string
           ip_address?: string | null
+          notes?: string | null
           status?: string
+          tags?: string[] | null
         }
         Relationships: [
           {
