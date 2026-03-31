@@ -335,7 +335,25 @@ export default function FormAnalytics({ formId, formName, formFields = [] }: Pro
     };
   }, [submissions]);
 
-  // Dynamic field response charts
+  // Location points for heatmap
+  const locationPoints = useMemo(() => {
+    const pointMap: Record<string, { lat: number; lng: number; count: number; label: string }> = {};
+    submissions.forEach((s: any) => {
+      const meta = (typeof s.metadata === "object" && s.metadata) ? s.metadata : {};
+      const lat = meta.lat || meta.latitude;
+      const lng = meta.lng || meta.lon || meta.longitude;
+      if (!lat || !lng) return;
+      const city = meta.city || "";
+      const region = meta.region || "";
+      const label = city && region ? `${city}, ${region}` : city || region || "Desconhecido";
+      const key = `${Math.round(lat * 100)}_${Math.round(lng * 100)}`;
+      if (!pointMap[key]) pointMap[key] = { lat: Number(lat), lng: Number(lng), count: 0, label };
+      pointMap[key].count++;
+    });
+    return Object.values(pointMap);
+  }, [submissions]);
+
+
   const fieldResponseCharts = useMemo(() => {
     const results: Record<string, { name: string; value: number }[]> = {};
 
