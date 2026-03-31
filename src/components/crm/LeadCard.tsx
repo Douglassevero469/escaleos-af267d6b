@@ -2,7 +2,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { Mail, Phone, DollarSign } from "lucide-react";
+import { Mail, Phone, DollarSign, FileText } from "lucide-react";
 
 export interface CrmLead {
   id: string;
