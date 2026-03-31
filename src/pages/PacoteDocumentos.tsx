@@ -614,7 +614,7 @@ export default function PacoteDocumentos() {
                       {wordCount.toLocaleString()} palavras...
                     </p>
                   )}
-                  {status === "ready" && wordCount > 0 && (
+                  {isDocReady(status) && wordCount > 0 && (
                     <p className="text-xs text-muted-foreground mt-1">{wordCount.toLocaleString()} palavras</p>
                   )}
                 </div>
