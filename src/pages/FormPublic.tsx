@@ -41,7 +41,7 @@ export default function FormPublic() {
       .then(({ data }) => {
         if (data) {
           setForm(data);
-          fieldsRef.current = Array.isArray(data.fields) ? data.fields : [];
+          fieldsRef.current = Array.isArray(data.fields) ? (data.fields as unknown as FormField[]) : [];
           if (!viewTracked.current) {
             viewTracked.current = true;
             trackEvent(data.id, "view");
