@@ -29,39 +29,332 @@ function downloadAsText(filename: string, content: string) {
 }
 
 function markdownToHtml(md: string): string {
-  return md
+  let html = md
+    // Tables: convert markdown tables to HTML
+    .replace(/^\|(.+)\|\s*\n\|[-| :]+\|\s*\n((?:\|.+\|\s*\n?)*)/gm, (_match, header, body) => {
+      const ths = header.split("|").map((h: string) => h.trim()).filter(Boolean).map((h: string) => `<th>${h}</th>`).join("");
+      const rows = body.trim().split("\n").map((row: string) => {
+        const tds = row.split("|").map((c: string) => c.trim()).filter(Boolean).map((c: string) => `<td>${c}</td>`).join("");
+        return `<tr>${tds}</tr>`;
+      }).join("");
+      return `<table><thead><tr>${ths}</tr></thead><tbody>${rows}</tbody></table>`;
+    })
+    // Headers
+    .replace(/^#### (.+)$/gm, "<h4>$1</h4>")
     .replace(/^### (.+)$/gm, "<h3>$1</h3>")
     .replace(/^## (.+)$/gm, "<h2>$1</h2>")
     .replace(/^# (.+)$/gm, "<h1>$1</h1>")
+    // Bold & italic
     .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
     .replace(/\*(.+?)\*/g, "<em>$1</em>")
+    // Horizontal rules
+    .replace(/^---$/gm, "<hr/>")
+    // List items
     .replace(/^- (.+)$/gm, "<li>$1</li>")
-    .replace(/(<li>.*<\/li>\n?)+/g, (m) => `<ul>${m}</ul>`)
+    .replace(/((?:<li>.*<\/li>\s*)+)/g, (m) => `<ul>${m}</ul>`)
+    // Numbered lists
+    .replace(/^\d+\.\s+(.+)$/gm, "<li>$1</li>")
+    // Paragraphs - wrap remaining lines
     .replace(/\n{2,}/g, "</p><p>")
-    .replace(/^(?!<[hulo])/gm, (line) => line ? `<p>${line}</p>` : "");
+    .replace(/^(?!<[htulo])/gm, (line) => line ? `<p>${line}</p>` : "");
+
+  return html;
+}
+
+const ESCALE_BRAND_CSS = `
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+  :root {
+    --brand-blue: #0000FF;
+    --brand-dark: #0A0A14;
+    --brand-gray: #8A8A9A;
+    --brand-light: #F0F0F5;
+    --brand-border: #E0E0EA;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  @page {
+    size: A4;
+    margin: 0;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: #1A1A2E;
+    line-height: 1.7;
+    font-size: 10.5pt;
+    background: white;
+  }
+
+  .page {
+    padding: 48px 56px 80px;
+    max-width: 100%;
+    position: relative;
+    min-height: 100vh;
+  }
+
+  /* ── Header ── */
+  .doc-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 20px;
+    margin-bottom: 32px;
+    border-bottom: 2px solid var(--brand-blue);
+  }
+
+  .logo-mark {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .logo-mark .logo-text {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--brand-dark);
+    letter-spacing: -0.5px;
+  }
+
+  .logo-mark .logo-arrow {
+    color: var(--brand-blue);
+    font-size: 16px;
+    font-weight: 700;
+    margin-left: -4px;
+    transform: rotate(-45deg);
+    display: inline-block;
+  }
+
+  .doc-meta {
+    text-align: right;
+    font-size: 8.5pt;
+    color: var(--brand-gray);
+    line-height: 1.5;
+  }
+
+  /* ── Title area ── */
+  .doc-title-area {
+    margin-bottom: 36px;
+    padding: 28px 32px;
+    background: linear-gradient(135deg, #F5F5FF 0%, #EBEBFF 100%);
+    border-radius: 12px;
+    border-left: 4px solid var(--brand-blue);
+  }
+
+  .doc-title-area h1 {
+    font-size: 22pt;
+    font-weight: 800;
+    color: var(--brand-dark);
+    margin: 0 0 4px;
+    letter-spacing: -0.5px;
+    border: none;
+    padding: 0;
+  }
+
+  .doc-title-area .subtitle {
+    font-size: 10pt;
+    color: var(--brand-gray);
+    font-weight: 400;
+  }
+
+  /* ── Content ── */
+  h1 {
+    font-size: 17pt;
+    font-weight: 700;
+    color: var(--brand-dark);
+    margin: 32px 0 12px;
+    padding-bottom: 8px;
+    border-bottom: 1.5px solid var(--brand-border);
+    letter-spacing: -0.3px;
+  }
+
+  h2 {
+    font-size: 14pt;
+    font-weight: 700;
+    color: var(--brand-blue);
+    margin: 28px 0 10px;
+    letter-spacing: -0.2px;
+  }
+
+  h3 {
+    font-size: 12pt;
+    font-weight: 600;
+    color: #2A2A4A;
+    margin: 22px 0 8px;
+  }
+
+  h4 {
+    font-size: 10.5pt;
+    font-weight: 600;
+    color: #3A3A5A;
+    margin: 18px 0 6px;
+  }
+
+  p {
+    margin: 0 0 10px;
+    color: #2A2A4A;
+  }
+
+  strong {
+    font-weight: 600;
+    color: var(--brand-dark);
+  }
+
+  em { color: #4A4A6A; }
+
+  ul, ol {
+    padding-left: 22px;
+    margin: 8px 0 16px;
+  }
+
+  li {
+    margin: 5px 0;
+    color: #2A2A4A;
+    line-height: 1.6;
+  }
+
+  li::marker {
+    color: var(--brand-blue);
+    font-weight: 700;
+  }
+
+  /* ── Tables ── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0 24px;
+    font-size: 9.5pt;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  thead tr {
+    background: var(--brand-blue);
+  }
+
+  th {
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 600;
+    color: white;
+    font-size: 9pt;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  td {
+    padding: 9px 14px;
+    border-bottom: 1px solid var(--brand-border);
+    color: #2A2A4A;
+  }
+
+  tbody tr:nth-child(even) {
+    background: #F8F8FC;
+  }
+
+  tbody tr:hover {
+    background: #F0F0FF;
+  }
+
+  /* ── Blockquotes ── */
+  blockquote {
+    border-left: 3px solid var(--brand-blue);
+    padding: 12px 16px;
+    margin: 16px 0;
+    background: #F8F8FC;
+    border-radius: 0 6px 6px 0;
+    color: #3A3A5A;
+    font-style: italic;
+  }
+
+  hr {
+    border: none;
+    height: 1px;
+    background: var(--brand-border);
+    margin: 24px 0;
+  }
+
+  /* ── Footer ── */
+  .doc-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 56px;
+    background: var(--brand-dark);
+    color: rgba(255,255,255,0.5);
+    font-size: 7.5pt;
+    letter-spacing: 0.3px;
+  }
+
+  .doc-footer .brand {
+    color: rgba(255,255,255,0.8);
+    font-weight: 600;
+  }
+
+  @media print {
+    .doc-footer { position: fixed; }
+    .page { padding-bottom: 60px; }
+  }
+`;
+
+function buildBrandedHtml(title: string, content: string): string {
+  const today = new Date().toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" });
+
+  return `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>${title} — EscaleOS</title>
+  <style>${ESCALE_BRAND_CSS}</style>
+</head>
+<body>
+  <div class="page">
+    <div class="doc-header">
+      <div class="logo-mark">
+        <span class="logo-text">escale</span><span class="logo-arrow">↗</span>
+      </div>
+      <div class="doc-meta">
+        <div>EscaleOS · Documento Gerado por IA</div>
+        <div>${today}</div>
+      </div>
+    </div>
+
+    <div class="doc-title-area">
+      <h1 style="border:none;margin:0;padding:0;">${title}</h1>
+      <div class="subtitle">Documento gerado automaticamente pelo EscaleOS</div>
+    </div>
+
+    <div class="doc-content">
+      ${markdownToHtml(content)}
+    </div>
+  </div>
+
+  <div class="doc-footer">
+    <span class="brand">escale↗</span>
+    <span>Documento confidencial · Gerado pelo EscaleOS</span>
+    <span>${today}</span>
+  </div>
+</body>
+</html>`;
 }
 
 function downloadAsPdf(title: string, content: string) {
-  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${title}</title>
-<style>body{font-family:Arial,Helvetica,sans-serif;max-width:700px;margin:40px auto;padding:20px;color:#222;line-height:1.6}
-h1{font-size:22px;border-bottom:2px solid #333;padding-bottom:8px}h2{font-size:18px;margin-top:24px}h3{font-size:15px}
-table{width:100%;border-collapse:collapse;margin:16px 0}th,td{border:1px solid #ccc;padding:8px;text-align:left}
-th{background:#f5f5f5;font-weight:600}ul{padding-left:20px}li{margin:4px 0}blockquote{border-left:3px solid #666;padding-left:12px;color:#555}</style>
-</head><body>${markdownToHtml(content)}</body></html>`;
+  const html = buildBrandedHtml(title, content);
   const w = window.open("", "_blank");
   if (w) {
     w.document.write(html);
     w.document.close();
-    setTimeout(() => { w.print(); }, 500);
+    setTimeout(() => { w.print(); }, 600);
   }
 }
 
 function downloadAsDocx(title: string, content: string) {
-  const html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
-<head><meta charset="utf-8"><title>${title}</title>
-<style>body{font-family:Arial;font-size:11pt;line-height:1.5}h1{font-size:16pt}h2{font-size:13pt}h3{font-size:11pt}
-table{border-collapse:collapse;width:100%}th,td{border:1px solid #999;padding:6px}th{background:#eee}</style>
-</head><body>${markdownToHtml(content)}</body></html>`;
+  const html = buildBrandedHtml(title, content);
   const blob = new Blob(["\ufeff", html], { type: "application/msword" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
