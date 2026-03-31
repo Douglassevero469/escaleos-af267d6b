@@ -324,6 +324,30 @@ export default function FormBuilder() {
               <p className="text-[10px] text-muted-foreground">Exibida no topo do formulário público</p>
             </div>
           </div>
+          <div className="grid gap-3 md:grid-cols-2">
+            <div>
+              <Label className="text-xs">Slug (URL pública)</Label>
+              <div className="flex gap-2 items-center">
+                <span className="text-xs text-muted-foreground whitespace-nowrap">/f/</span>
+                <Input
+                  value={slug}
+                  onChange={e => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))}
+                  placeholder="meu-formulario"
+                  className="font-mono text-xs"
+                  maxLength={50}
+                />
+              </div>
+              <p className="text-[10px] text-muted-foreground mt-1">Apenas letras minúsculas, números e hífens</p>
+            </div>
+            <div>
+              <Label className="text-xs">Descrição</Label>
+              <Input
+                value={formDesc}
+                onChange={e => setFormDesc(e.target.value)}
+                placeholder="Descrição do formulário"
+              />
+            </div>
+          </div>
           <div className="grid gap-3 md:grid-cols-3">
             <div>
               <Label className="text-xs">Mensagem de Sucesso</Label>
