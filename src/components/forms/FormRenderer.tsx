@@ -276,6 +276,161 @@ export default function FormRenderer({
             {error && <p className="text-xs text-destructive mt-1">{error}</p>}
           </div>
         );
+      case "url":
+        return (
+          <div>
+            <Label>{field.label}{field.required && <span className="text-destructive"> *</span>}</Label>
+            <Input type="url" value={values[field.id] || ""} onChange={e => setValue(field.id, e.target.value)} placeholder={field.placeholder} />
+            {error && <p className="text-xs text-destructive mt-1">{error}</p>}
+          </div>
+        );
+      case "cpf":
+        return (
+          <div>
+            <Label>{field.label}{field.required && <span className="text-destructive"> *</span>}</Label>
+            <Input
+              value={values[field.id] || ""}
+              onChange={e => {
+                const v = e.target.value.replace(/\D/g, "").slice(0, 11);
+                const formatted = v.replace(/(\d{3})(\d{3})?(\d{3})?(\d{2})?/, (_, a, b, c, d) =>
+                  [a, b, c].filter(Boolean).join(".") + (d ? `-${d}` : "")
+                );
+                setValue(field.id, formatted);
+              }}
+              placeholder={field.placeholder}
+            />
+            {error && <p className="text-xs text-destructive mt-1">{error}</p>}
+          </div>
+        );
+      case "currency":
+        return (
+          <div>
+            <Label>{field.label}{field.required && <span className="text-destructive"> *</span>}</Label>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">R$</span>
+              <Input
+                className="pl-9"
+                value={values[field.id] || ""}
+                onChange={e => setValue(field.id, e.target.value.replace(/[^0-9.,]/g, ""))}
+                placeholder={field.placeholder}
+              />
+            </div>
+            {error && <p className="text-xs text-destructive mt-1">{error}</p>}
+          </div>
+        );
+      case "rating": {
+        const maxStars = field.validations?.max || 5;
+        const currentRating = values[field.id] || 0;
+        return (
+          <div>
+            <Label>{field.label}{field.required && <span className="text-destructive"> *</span>}</Label>
+            <div className="flex gap-1 mt-2">
+              {Array.from({ length: maxStars }, (_, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => setValue(field.id, i + 1)}
+                  className="p-0.5 transition-transform hover:scale-110"
+                >
+                  <Star
+                    className={`h-7 w-7 ${i < currentRating ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground/40"}`}
+                  />
+                </button>
+              ))}
+            </div>
+            {error && <p className="text-xs text-destructive mt-1">{error}</p>}
+          </div>
+        );
+      }
+      case "slider": {
+        const min = field.validations?.min ?? 0;
+        const max = field.validations?.max ?? 100;
+        const val = values[field.id] ?? min;
+        return (
+          <div>
+            <Label>{field.label}{field.required && <span className="text-destructive"> *</span>}</Label>
+            <div className="flex items-center gap-3 mt-2">
+              <span className="text-xs text-muted-foreground w-8 text-right">{min}</span>
+              <Slider
+                value={[val]}
+                min={min}
+                max={max}
+                step={1}
+                onValueChange={([v]) => setValue(field.id, v)}
+                className="flex-1"
+              />
+              <span className="text-xs text-muted-foreground w-8">{max}</span>
+            </div>
+            <p className="text-center text-sm font-medium mt-1">{val}</p>
+            {error && <p className="text-xs text-destructive mt-1">{error}</p>}
+          </div>
+        );
+      }
+      case "radio_cards":
+        return (
+          <div>
+            <Label>{field.label}{field.required && <span className="text-destructive"> *</span>}</Label>
+            <div className="grid grid-cols-2 gap-2 mt-2">
+              {(field.options || []).map(opt => (
+                <button
+                  key={opt}
+                  type="button"
+                  onClick={() => setValue(field.id, opt)}
+                  className={`p-3 rounded-lg border-2 text-sm font-medium text-left transition-all ${
+                    values[field.id] === opt
+                      ? "border-primary bg-primary/10"
+                      : "border-border hover:border-primary/40"
+                  }`}
+                >
+                  {opt}
+                </button>
+              ))}
+            </div>
+            {error && <p className="text-xs text-destructive mt-1">{error}</p>}
+          </div>
+        );
+      case "image_choice":
+        return (
+          <div>
+            <Label>{field.label}{field.required && <span className="text-destructive"> *</span>}</Label>
+            <div className="grid grid-cols-2 gap-2 mt-2">
+              {(field.options || []).map(opt => (
+                <button
+                  key={opt}
+                  type="button"
+                  onClick={() => setValue(field.id, opt)}
+                  className={`p-3 rounded-lg border-2 text-center text-sm font-medium transition-all ${
+                    values[field.id] === opt
+                      ? "border-primary bg-primary/10"
+                      : "border-border hover:border-primary/40"
+                  }`}
+                >
+                  <div className="w-full h-16 rounded bg-muted/50 flex items-center justify-center mb-2 text-muted-foreground text-xs">
+                    📷
+                  </div>
+                  {opt}
+                </button>
+              ))}
+            </div>
+            {error && <p className="text-xs text-destructive mt-1">{error}</p>}
+          </div>
+        );
+      case "time":
+        return (
+          <div>
+            <Label>{field.label}{field.required && <span className="text-destructive"> *</span>}</Label>
+            <Input type="time" value={values[field.id] || ""} onChange={e => setValue(field.id, e.target.value)} />
+            {error && <p className="text-xs text-destructive mt-1">{error}</p>}
+          </div>
+        );
+      case "datetime":
+        return (
+          <div>
+            <Label>{field.label}{field.required && <span className="text-destructive"> *</span>}</Label>
+            <Input type="datetime-local" value={values[field.id] || ""} onChange={e => setValue(field.id, e.target.value)} />
+            {error && <p className="text-xs text-destructive mt-1">{error}</p>}
+          </div>
+        );
       default:
         return null;
     }
