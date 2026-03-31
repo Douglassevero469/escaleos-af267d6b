@@ -607,7 +607,7 @@ export default function FormBuilder() {
                     const base = window.location.hostname.includes("lovableproject.com") || window.location.hostname.includes("lovable.app")
                       ? "https://escaleos.lovable.app"
                       : window.location.origin;
-                    return `${base}/f/${formData?.slug || "..."}`;
+                    return `${base}/f/${slug || "..."}`;
                   })()}
                 </span>
               </div>
