@@ -14,6 +14,7 @@ import ClientePacotes from "./pages/ClientePacotes";
 import PacoteDocumentos from "./pages/PacoteDocumentos";
 import Templates from "./pages/Templates";
 import Admin from "./pages/Admin";
+import Perfil from "./pages/Perfil";
 import NotFound from "./pages/NotFound";
 import { AppLayout } from "./components/Layout/AppLayout";
 
@@ -37,6 +38,7 @@ const App = () => (
               <Route path="/pacote/:id" element={<PacoteDocumentos />} />
               <Route path="/templates" element={<Templates />} />
               <Route path="/admin" element={<Admin />} />
+              <Route path="/perfil" element={<Perfil />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
