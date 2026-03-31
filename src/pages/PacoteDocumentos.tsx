@@ -11,6 +11,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Progress } from "@/components/ui/progress";
 import ReactMarkdown from "react-markdown";
 import JSZip from "jszip";
+import { ESCALE_LOGO_BASE64 } from "@/lib/escale-logo-b64";
 
 const statusConfig = {
   ready: { icon: CheckCircle, color: "text-success", bg: "bg-success/10", label: "Pronto" },
@@ -109,23 +110,11 @@ const ESCALE_BRAND_CSS = `
   .logo-mark {
     display: flex;
     align-items: center;
-    gap: 8px;
   }
 
-  .logo-mark .logo-text {
-    font-size: 20px;
-    font-weight: 800;
-    color: var(--brand-dark);
-    letter-spacing: -0.5px;
-  }
-
-  .logo-mark .logo-arrow {
-    color: var(--brand-blue);
-    font-size: 16px;
-    font-weight: 700;
-    margin-left: -4px;
-    transform: rotate(-45deg);
-    display: inline-block;
+  .logo-mark img {
+    height: 28px;
+    width: auto;
   }
 
   .doc-meta {
@@ -318,7 +307,7 @@ function buildBrandedHtml(title: string, content: string): string {
   <div class="page">
     <div class="doc-header">
       <div class="logo-mark">
-        <span class="logo-text">escale</span><span class="logo-arrow">↗</span>
+        <img src="data:image/png;base64,${ESCALE_LOGO_BASE64}" alt="Escale" />
       </div>
       <div class="doc-meta">
         <div>EscaleOS · Documento Gerado por IA</div>
