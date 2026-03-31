@@ -241,13 +241,13 @@ export default function Dashboard() {
             </div>
             <div>
               <p className="text-2xl font-bold font-display">
-                R$ {((usageStats.totalTokens / 1_000_000) * 0.60 * 5.70).toFixed(2)}
+                R$ {((usageStats.totalTokens / 1_000_000) * 10.00 * 5.70).toFixed(2)}
               </p>
               <p className="text-xs text-muted-foreground">Custo estimado</p>
             </div>
           </div>
         </div>
-        <p className="text-[10px] text-muted-foreground/60 mt-3">* Estimativa baseada no preço de output do Gemini 2.5 Flash (US$ 0,60/1M tokens) × câmbio ~R$ 5,70</p>
+        <p className="text-[10px] text-muted-foreground/60 mt-3">* Estimativa baseada no preço de output do Gemini 2.5 Pro (US$ 10,00/1M tokens) × câmbio ~R$ 5,70</p>
       </GlassCard>
 
       {/* AI Usage Evolution Chart */}
