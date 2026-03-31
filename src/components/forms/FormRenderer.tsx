@@ -489,7 +489,13 @@ export default function FormRenderer({
       <div className={`flex items-center justify-center px-4 py-6 sm:p-6 ${wrapperHeight}`} style={themeStyle}>
         <div className="w-full max-w-md space-y-5 sm:space-y-6">
           {formHeader}
-          <p className="text-xs text-center text-muted-foreground">{chatStep + 1} de {chatFields.length}</p>
+          {/* Progress bar */}
+          <div className="space-y-1">
+            <div className="h-1.5 w-full rounded-full" style={{ backgroundColor: theme.vars["--form-border"] }}>
+              <div className="h-full rounded-full transition-all duration-500 ease-out" style={{ width: `${chatFields.length > 0 ? ((chatStep + 1) / chatFields.length) * 100 : 0}%`, backgroundColor: settings.buttonColor || theme.vars["--form-accent"] }} />
+            </div>
+            <p className="text-xs text-center" style={mutedStyle}>{chatStep + 1} de {chatFields.length}</p>
+          </div>
           {currentField && (
             <div className="animate-fade-in space-y-4">
               {renderField(currentField)}
