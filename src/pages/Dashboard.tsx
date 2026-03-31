@@ -81,7 +81,48 @@ export default function Dashboard() {
     },
   });
 
-  // Usage stats from generation_logs
+  const { data: weeklyDemands = [] } = useQuery({
+    queryKey: ["chart-weekly-demands"],
+    queryFn: async () => {
+      const now = new Date();
+      const start = new Date(now);
+      start.setDate(start.getDate() - 11 * 7); // last 12 weeks
+      const { data: items } = await supabase
+        .from("demand_items")
+        .select("created_at")
+        .gte("created_at", start.toISOString())
+        .order("created_at");
+      if (!items || items.length === 0) return [];
+
+      // Group by ISO week
+      const weekMap: Record<string, number> = {};
+      const getWeekLabel = (d: Date) => {
+        const day = d.getDate();
+        const month = d.toLocaleString("pt-BR", { month: "short" });
+        return `${day} ${month}`;
+      };
+      // Create 12 week buckets
+      const buckets: { start: Date; label: string }[] = [];
+      for (let i = 11; i >= 0; i--) {
+        const s = new Date(now);
+        s.setDate(s.getDate() - i * 7);
+        s.setHours(0, 0, 0, 0);
+        buckets.push({ start: s, label: getWeekLabel(s) });
+      }
+      buckets.forEach(b => { weekMap[b.label] = 0; });
+      items.forEach(item => {
+        const d = new Date(item.created_at);
+        // Find the right bucket
+        for (let i = buckets.length - 1; i >= 0; i--) {
+          if (d >= buckets[i].start) {
+            weekMap[buckets[i].label]++;
+            break;
+          }
+        }
+      });
+      return buckets.map(b => ({ semana: b.label, demandas: weekMap[b.label] }));
+    },
+  });
   const { data: usageStats = { generations: 0, regenerations: 0, totalTokens: 0, totalWords: 0 } } = useQuery({
     queryKey: ["stats-usage"],
     queryFn: async () => {
