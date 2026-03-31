@@ -18,7 +18,7 @@ import {
   Type, AlignLeft, Mail, Phone, Hash, ChevronDown, CheckSquare, Circle, ToggleLeft,
   ThumbsUp, List, Calendar, Upload, Heading, FileText, Minus, MoveVertical, Settings,
   ImageIcon, Link, Fingerprint, DollarSign, Star, SlidersHorizontal, LayoutGrid,
-  Clock, CalendarClock, Copy, ExternalLink,
+  Clock, CalendarClock, Copy, ExternalLink, TrendingUp,
 } from "lucide-react";
 import { FormField, FIELD_TYPES, FIELD_TYPE_CATEGORIES, createField } from "@/lib/form-field-types";
 import { FORM_THEMES } from "@/lib/form-themes";
