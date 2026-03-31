@@ -9,17 +9,22 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Loader2, Eye, MousePointerClick, Send, TrendingUp, Users, LogOut, CalendarIcon, Clock, Percent, FileDown, FileText, Columns } from "lucide-react";
+import { Loader2, Eye, MousePointerClick, Send, TrendingUp, Users, LogOut, CalendarIcon, Clock, Percent, FileDown, FileText, Columns, Settings2, X, Plus, BarChart3 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Checkbox } from "@/components/ui/checkbox";
 import { exportAnalyticsPDF, captureChartAsImage } from "@/lib/analytics-pdf-export";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, LineChart, Line, PieChart, Pie, Cell, AreaChart, Area } from "recharts";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
+import { FormField } from "@/lib/form-field-types";
 
 interface Props {
   formId: string;
   formName?: string;
+  formFields?: FormField[];
 }
 
 type PeriodPreset = "7d" | "30d" | "90d" | "all" | "custom";
@@ -30,9 +35,50 @@ const PIE_COLORS = [
   "hsl(var(--chart-3))",
   "hsl(var(--chart-4))",
   "hsl(var(--destructive))",
+  "#8b5cf6",
+  "#06b6d4",
+  "#f59e0b",
 ];
 
-export default function FormAnalytics({ formId, formName }: Props) {
+// Built-in chart IDs
+type BuiltInChart =
+  | "kpis"
+  | "rates"
+  | "respondents"
+  | "funnel"
+  | "statusPie"
+  | "conversionTrend"
+  | "dayOfWeek"
+  | "hourly"
+  | "fieldFunnel"
+  | "abandonByField"
+  | "dailyActivity"
+  | "deviceType"
+  | "browser"
+  | "deviceModel"
+  | "region";
+
+const BUILTIN_CHART_LABELS: Record<BuiltInChart, string> = {
+  kpis: "KPIs Principais",
+  rates: "Taxas de Conversão",
+  respondents: "Tabela de Respondentes",
+  funnel: "Funil de Conversão",
+  statusPie: "Status das Respostas",
+  conversionTrend: "Taxa de Conversão no Tempo",
+  dayOfWeek: "Respostas por Dia da Semana",
+  hourly: "Horário das Submissões",
+  fieldFunnel: "Funil por Campo",
+  abandonByField: "Abandono por Campo",
+  dailyActivity: "Atividade por Dia",
+  deviceType: "Tipo de Dispositivo",
+  browser: "Navegador",
+  deviceModel: "Modelo / Sistema Operacional",
+  region: "Respostas por Região",
+};
+
+const ALL_BUILTIN_CHARTS = Object.keys(BUILTIN_CHART_LABELS) as BuiltInChart[];
+
+export default function FormAnalytics({ formId, formName, formFields = [] }: Props) {
   const [period, setPeriod] = useState<PeriodPreset>("30d");
   const [customFrom, setCustomFrom] = useState<Date | undefined>();
   const [customTo, setCustomTo] = useState<Date | undefined>();
@@ -41,7 +87,34 @@ export default function FormAnalytics({ formId, formName }: Props) {
   const chartsRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
+  // Visibility state
+  const [visibleCharts, setVisibleCharts] = useState<Set<string>>(() => new Set(ALL_BUILTIN_CHARTS));
+  const [activeFieldCharts, setActiveFieldCharts] = useState<Set<string>>(new Set());
 
+  const toggleChart = (id: string) => {
+    setVisibleCharts(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleFieldChart = (fieldId: string) => {
+    setActiveFieldCharts(prev => {
+      const next = new Set(prev);
+      if (next.has(fieldId)) { next.delete(fieldId); setVisibleCharts(p => { const n = new Set(p); n.delete(`field_${fieldId}`); return n; }); }
+      else { next.add(fieldId); setVisibleCharts(p => new Set(p).add(`field_${fieldId}`)); }
+      return next;
+    });
+  };
+
+  const isVisible = (id: string) => visibleCharts.has(id);
+
+  // Chartable form fields (selection types with options)
+  const chartableFields = useMemo(() => {
+    const selectionTypes = ["select", "radio", "radio_cards", "checkbox", "selection", "image_choice", "yes_no", "switch", "rating"];
+    return formFields.filter(f => selectionTypes.includes(f.type) && f.label);
+  }, [formFields]);
 
   const { data: allEvents = [], isLoading } = useQuery({
     queryKey: ["form-events", formId],
@@ -107,7 +180,6 @@ export default function FormAnalytics({ formId, formName }: Props) {
     };
   }, [events, submissions]);
 
-  // Daily chart data
   const dailyData = useMemo(() => {
     const dayMap: Record<string, { date: string; views: number; starts: number; submits: number }> = {};
     events.forEach((e: any) => {
@@ -120,22 +192,6 @@ export default function FormAnalytics({ formId, formName }: Props) {
     return Object.values(dayMap).slice(-30);
   }, [events]);
 
-  // Conversion rate over time
-  const conversionTrend = useMemo(() => {
-    const dayMap: Record<string, { date: string; views: number; submits: number }> = {};
-    events.forEach((e: any) => {
-      const day = new Date(e.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
-      if (!dayMap[day]) dayMap[day] = { date: day, views: 0, submits: 0 };
-      if (e.event_type === "view") dayMap[day].views++;
-      if (e.event_type === "submit") dayMap[day].submits++;
-    });
-    return Object.values(dayMap).slice(-30).map(d => ({
-      ...d,
-      taxa: d.views > 0 ? Number(((d.submits / d.views) * 100).toFixed(1)) : 0,
-    }));
-  }, [events]);
-
-  // Funnel data
   const funnelData = useMemo(() => [
     { name: "Visualizações", value: stats.views, fill: "hsl(var(--primary))" },
     { name: "Iniciaram", value: stats.starts, fill: "hsl(var(--chart-2))" },
@@ -143,101 +199,96 @@ export default function FormAnalytics({ formId, formName }: Props) {
     { name: "Abandonaram", value: stats.abandons, fill: "hsl(var(--destructive))" },
   ], [stats]);
 
-  // Hourly distribution
-  const hourlyData = useMemo(() => {
-    const hours = Array.from({ length: 24 }, (_, i) => ({ hour: `${i}h`, count: 0 }));
-    events.filter((e: any) => e.event_type === "submit").forEach((e: any) => {
-      const h = new Date(e.created_at).getHours();
-      hours[h].count++;
-    });
-    return hours;
-  }, [events]);
-
-  // Abandon by field
-  const abandonByField = useMemo(() => {
-    const abandonEvents = events.filter((e: any) => e.event_type === "abandon" && e.metadata);
-    const fieldMap: Record<string, { label: string; count: number }> = {};
-    abandonEvents.forEach((e: any) => {
-      const meta = typeof e.metadata === "object" ? e.metadata : {};
-      const label = (meta as any).last_field_label || "Desconhecido";
-      const id = (meta as any).last_field_id || label;
-      if (!fieldMap[id]) fieldMap[id] = { label, count: 0 };
-      fieldMap[id].count++;
-    });
-    return Object.values(fieldMap).sort((a, b) => b.count - a.count).map(item => ({ field: item.label, abandonos: item.count }));
-  }, [events]);
-
-  // Field funnel
-  const fieldFunnel = useMemo(() => {
-    const focusEvents = events.filter((e: any) => e.event_type === "field_focus" && e.metadata);
-    const fieldSessions: Record<string, Set<string>> = {};
-    const fieldOrder: string[] = [];
-    focusEvents.forEach((e: any) => {
-      const meta = typeof e.metadata === "object" ? e.metadata : {};
-      const label = (meta as any).field_label || "?";
-      const session = e.session_id || "?";
-      if (!fieldSessions[label]) { fieldSessions[label] = new Set(); fieldOrder.push(label); }
-      fieldSessions[label].add(session);
-    });
-    const seen = new Set<string>();
-    return fieldOrder
-      .filter(label => { if (seen.has(label)) return false; seen.add(label); return true; })
-      .map(label => ({ field: label.length > 18 ? label.slice(0, 16) + "…" : label, sessoes: fieldSessions[label].size }));
-  }, [events]);
-
-  // Status pie data
   const statusPie = useMemo(() => {
     if (!submissions.length) return [];
     return [
-      { name: "Completas", value: stats.completeCount, fill: "hsl(var(--chart-3))" },
+      { name: "Completas", value: stats.completeCount, fill: "hsl(var(--primary))" },
       { name: "Incompletas", value: stats.incompleteCount, fill: "hsl(var(--destructive))" },
     ].filter(d => d.value > 0);
-  }, [submissions, stats]);
+  }, [stats, submissions]);
 
-  // Day of week distribution
-  const dayOfWeekData = useMemo(() => {
-    const days = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
-    const counts = Array(7).fill(0);
-    submissions.forEach((s: any) => {
-      counts[new Date(s.created_at).getDay()]++;
-    });
-    return days.map((d, i) => ({ dia: d, respostas: counts[i] }));
-  }, [submissions]);
-
-  // Avg time between view and submit per session
-  const avgCompletionTime = useMemo(() => {
-    const sessionViews: Record<string, number> = {};
-    const sessionSubmits: Record<string, number> = {};
+  const conversionTrend = useMemo(() => {
+    const dayMap: Record<string, { views: number; submits: number }> = {};
     events.forEach((e: any) => {
-      if (!e.session_id) return;
-      const t = new Date(e.created_at).getTime();
-      if (e.event_type === "view" && (!sessionViews[e.session_id] || t < sessionViews[e.session_id])) {
-        sessionViews[e.session_id] = t;
-      }
-      if (e.event_type === "submit" && (!sessionSubmits[e.session_id] || t > sessionSubmits[e.session_id])) {
-        sessionSubmits[e.session_id] = t;
-      }
+      const day = format(new Date(e.created_at), "dd/MM");
+      if (!dayMap[day]) dayMap[day] = { views: 0, submits: 0 };
+      if (e.event_type === "view") dayMap[day].views++;
+      if (e.event_type === "submit") dayMap[day].submits++;
     });
-    const diffs: number[] = [];
-    Object.keys(sessionSubmits).forEach(sid => {
-      if (sessionViews[sid]) diffs.push((sessionSubmits[sid] - sessionViews[sid]) / 1000);
-    });
-    if (!diffs.length) return null;
-    const avg = diffs.reduce((a, b) => a + b, 0) / diffs.length;
-    if (avg < 60) return `${Math.round(avg)}s`;
-    if (avg < 3600) return `${Math.round(avg / 60)}min`;
-    return `${(avg / 3600).toFixed(1)}h`;
+    return Object.entries(dayMap).map(([date, d]) => ({
+      date,
+      taxa: d.views > 0 ? Math.round((d.submits / d.views) * 100) : 0,
+    }));
   }, [events]);
 
-  // Recent respondents table data
+  const dayOfWeekData = useMemo(() => {
+    const days = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+    const counts = [0, 0, 0, 0, 0, 0, 0];
+    submissions.forEach((s: any) => { counts[new Date(s.created_at).getDay()]++; });
+    return days.map((dia, i) => ({ dia, respostas: counts[i] }));
+  }, [submissions]);
+
+  const hourlyData = useMemo(() => {
+    const hours = Array.from({ length: 24 }, (_, i) => ({ hour: `${i}h`, count: 0 }));
+    submissions.forEach((s: any) => { hours[new Date(s.created_at).getHours()].count++; });
+    return hours;
+  }, [submissions]);
+
+  const fieldFunnel = useMemo(() => {
+    const fieldFocusEvents = events.filter((e: any) => e.event_type === "field_focus");
+    const fieldMap: Record<string, Set<string>> = {};
+    fieldFocusEvents.forEach((e: any) => {
+      const label = e.metadata?.field_label || e.metadata?.field_id;
+      const session = e.session_id;
+      if (label && session) {
+        if (!fieldMap[label]) fieldMap[label] = new Set();
+        fieldMap[label].add(session);
+      }
+    });
+    return Object.entries(fieldMap)
+      .map(([field, sessions]) => ({ field, sessoes: sessions.size }))
+      .sort((a, b) => b.sessoes - a.sessoes);
+  }, [events]);
+
+  const abandonByField = useMemo(() => {
+    const abandonEvents = events.filter((e: any) => e.event_type === "abandon");
+    const fieldMap: Record<string, number> = {};
+    abandonEvents.forEach((e: any) => {
+      const label = e.metadata?.last_field_label || e.metadata?.last_field_id || "Desconhecido";
+      fieldMap[label] = (fieldMap[label] || 0) + 1;
+    });
+    return Object.entries(fieldMap)
+      .map(([field, abandonos]) => ({ field, abandonos }))
+      .sort((a, b) => b.abandonos - a.abandonos);
+  }, [events]);
+
+  const avgCompletionTime = useMemo(() => {
+    const sessionTimes: Record<string, { start?: number; submit?: number }> = {};
+    events.forEach((e: any) => {
+      if (!e.session_id) return;
+      if (!sessionTimes[e.session_id]) sessionTimes[e.session_id] = {};
+      const t = new Date(e.created_at).getTime();
+      if (e.event_type === "start") sessionTimes[e.session_id].start = t;
+      if (e.event_type === "submit") sessionTimes[e.session_id].submit = t;
+    });
+    const durations = Object.values(sessionTimes)
+      .filter(s => s.start && s.submit)
+      .map(s => (s.submit! - s.start!) / 1000);
+    if (!durations.length) return null;
+    const avg = durations.reduce((a, b) => a + b, 0) / durations.length;
+    if (avg < 60) return `${Math.round(avg)}s`;
+    return `${Math.floor(avg / 60)}m ${Math.round(avg % 60)}s`;
+  }, [events]);
+
   const recentRespondents = useMemo(() => {
     return submissions.slice(0, 20).map((s: any) => {
-      const data = typeof s.data === "object" && s.data ? s.data : {};
-      const keys = Object.keys(data);
-      const name = data["Nome"] || data["nome"] || data["name"] || data["Name"] || keys.length > 0 ? String(data[keys[0]] || "") : "";
-      const email = data["Email"] || data["email"] || data["E-mail"] || data["e-mail"] || "";
-      const phone = data["Telefone"] || data["telefone"] || data["phone"] || data["Phone"] || data["WhatsApp"] || data["whatsapp"] || "";
-      const tags = (s.tags as string[]) || [];
+      const d = typeof s.data === "object" && s.data ? s.data : {};
+      const keys = Object.keys(d);
+      const name = d["Nome"] || d["nome"] || d["Name"] || d["name"] || keys[0] ? d[keys[0]] : "—";
+      const email = d["Email"] || d["email"] || d["E-mail"] || "—";
+      const phone = d["Telefone"] || d["telefone"] || d["Phone"] || d["phone"] || d["Whatsapp"] || d["whatsapp"] || "—";
+      const rawTags: string[] = Array.isArray(s.tags) ? s.tags : [];
+      const tags = rawTags.map((t: any) => typeof t === "string" ? (t.startsWith("{") ? JSON.parse(t)?.text || t : t) : t?.text || String(t));
       return {
         id: s.id,
         name: name || "—",
@@ -278,6 +329,36 @@ export default function FormAnalytics({ formId, formName }: Props) {
       regions: Object.entries(regionCounts).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value).slice(0, 10),
     };
   }, [submissions]);
+
+  // Dynamic field response charts
+  const fieldResponseCharts = useMemo(() => {
+    const results: Record<string, { name: string; value: number }[]> = {};
+
+    activeFieldCharts.forEach(fieldId => {
+      const field = formFields.find(f => f.id === fieldId);
+      if (!field) return;
+      const counts: Record<string, number> = {};
+
+      submissions.forEach((s: any) => {
+        const d = typeof s.data === "object" && s.data ? s.data : {};
+        const val = d[field.label];
+        if (val === undefined || val === null || val === "") return;
+
+        if (Array.isArray(val)) {
+          val.forEach(v => { const sv = String(v); counts[sv] = (counts[sv] || 0) + 1; });
+        } else {
+          const sv = String(val);
+          counts[sv] = (counts[sv] || 0) + 1;
+        }
+      });
+
+      results[fieldId] = Object.entries(counts)
+        .map(([name, value]) => ({ name, value }))
+        .sort((a, b) => b.value - a.value);
+    });
+
+    return results;
+  }, [activeFieldCharts, submissions, formFields]);
 
   const exportPDF = useCallback(async () => {
     setExporting(true);
@@ -332,7 +413,7 @@ export default function FormAnalytics({ formId, formName }: Props) {
     } finally {
       setExporting(false);
     }
-  }, [formId, formName, dateRange, stats, avgCompletionTime, recentRespondents, toast]);
+  }, [formId, formName, dateRange, stats, avgCompletionTime, recentRespondents, toast, pdfOrientation]);
 
   if (isLoading) {
     return <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>;
@@ -363,7 +444,7 @@ export default function FormAnalytics({ formId, formName }: Props) {
 
   return (
     <div className="space-y-4">
-      {/* Period filter */}
+      {/* Period filter + settings */}
       <GlassCard className="p-3">
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-xs font-medium text-muted-foreground mr-1">Período:</span>
@@ -399,6 +480,73 @@ export default function FormAnalytics({ formId, formName }: Props) {
             </span>
           )}
           <div className="flex items-center gap-2 ml-auto">
+            {/* Settings Sheet */}
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="outline" size="sm" className="h-7 text-xs">
+                  <Settings2 className="h-3 w-3 mr-1" />
+                  Personalizar
+                </Button>
+              </SheetTrigger>
+              <SheetContent className="w-[360px] sm:w-[400px] overflow-y-auto">
+                <SheetHeader>
+                  <SheetTitle className="flex items-center gap-2">
+                    <Settings2 className="h-4 w-4" />
+                    Personalizar Dashboard
+                  </SheetTitle>
+                </SheetHeader>
+                <div className="mt-6 space-y-6">
+                  {/* Built-in charts */}
+                  <div>
+                    <h4 className="text-sm font-semibold mb-3 text-foreground">Gráficos do Sistema</h4>
+                    <div className="space-y-2">
+                      {ALL_BUILTIN_CHARTS.map(id => (
+                        <label key={id} className="flex items-center justify-between py-1.5 px-2 rounded-md hover:bg-muted/50 cursor-pointer">
+                          <span className="text-sm">{BUILTIN_CHART_LABELS[id]}</span>
+                          <Switch
+                            checked={isVisible(id)}
+                            onCheckedChange={() => toggleChart(id)}
+                          />
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Field response charts */}
+                  {chartableFields.length > 0 && (
+                    <div>
+                      <h4 className="text-sm font-semibold mb-1 text-foreground">Gráficos por Resposta</h4>
+                      <p className="text-xs text-muted-foreground mb-3">Adicione gráficos baseados nas respostas dos campos do formulário</p>
+                      <div className="space-y-2">
+                        {chartableFields.map(field => (
+                          <label key={field.id} className="flex items-center justify-between py-1.5 px-2 rounded-md hover:bg-muted/50 cursor-pointer">
+                            <div className="flex-1 min-w-0">
+                              <span className="text-sm block truncate">{field.label}</span>
+                              <span className="text-[10px] text-muted-foreground">{field.type} {field.options ? `• ${field.options.length} opções` : ""}</span>
+                            </div>
+                            <Switch
+                              checked={activeFieldCharts.has(field.id)}
+                              onCheckedChange={() => toggleFieldChart(field.id)}
+                            />
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Quick actions */}
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" className="text-xs flex-1" onClick={() => setVisibleCharts(new Set(ALL_BUILTIN_CHARTS))}>
+                      Mostrar todos
+                    </Button>
+                    <Button variant="outline" size="sm" className="text-xs flex-1" onClick={() => setVisibleCharts(new Set(["kpis", "rates"]))}>
+                      Apenas KPIs
+                    </Button>
+                  </div>
+                </div>
+              </SheetContent>
+            </Sheet>
+
             <Select value={pdfOrientation} onValueChange={(v) => setPdfOrientation(v as "portrait" | "landscape")}>
               <SelectTrigger className="h-7 w-[130px] text-xs">
                 <SelectValue />
@@ -422,6 +570,7 @@ export default function FormAnalytics({ formId, formName }: Props) {
 
       <div ref={chartsRef} className="space-y-4">
       {/* KPI Cards */}
+      {isVisible("kpis") && (
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
         <GlassCard className="p-4 text-center">
           <Eye className="h-5 w-5 mx-auto mb-1 text-primary" />
@@ -456,8 +605,10 @@ export default function FormAnalytics({ formId, formName }: Props) {
           </GlassCard>
         )}
       </div>
+      )}
 
       {/* Conversion rates */}
+      {isVisible("rates") && (
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <GlassCard className="p-4 text-center">
           <p className="text-xl font-bold text-primary">{stats.startRate}%</p>
@@ -476,9 +627,10 @@ export default function FormAnalytics({ formId, formName }: Props) {
           <p className="text-xs text-muted-foreground">Taxa de abandono</p>
         </GlassCard>
       </div>
+      )}
 
       {/* Respondents Table */}
-      {recentRespondents.length > 0 && (
+      {isVisible("respondents") && recentRespondents.length > 0 && (
         <GlassCard className="p-4">
           <h3 className="text-sm font-semibold mb-3">Últimos Respondentes</h3>
           <div className="overflow-auto max-h-[320px]">
@@ -526,7 +678,7 @@ export default function FormAnalytics({ formId, formName }: Props) {
 
       {/* Two-column charts */}
       <div className="grid md:grid-cols-2 gap-4">
-        {/* Funnel */}
+        {isVisible("funnel") && (
         <GlassCard className="p-4">
           <h3 className="text-sm font-semibold mb-3">Funil de Conversão</h3>
           <div className="space-y-2">
@@ -547,8 +699,9 @@ export default function FormAnalytics({ formId, formName }: Props) {
             })}
           </div>
         </GlassCard>
+        )}
 
-        {/* Status Pie + Day of Week */}
+        {isVisible("statusPie") && (
         <GlassCard className="p-4">
           <h3 className="text-sm font-semibold mb-3">Status das Respostas</h3>
           {statusPie.length > 0 ? (
@@ -570,19 +723,18 @@ export default function FormAnalytics({ formId, formName }: Props) {
                     <span className="text-xs">{d.name}: <strong>{d.value}</strong></span>
                   </div>
                 ))}
-                <p className="text-xs text-muted-foreground mt-1">
-                  Total: {submissions.length} respostas
-                </p>
+                <p className="text-xs text-muted-foreground mt-1">Total: {submissions.length} respostas</p>
               </div>
             </div>
           ) : (
             <p className="text-xs text-muted-foreground">Nenhuma resposta no período</p>
           )}
         </GlassCard>
+        )}
       </div>
 
       {/* Conversion rate trend */}
-      {conversionTrend.length > 1 && (
+      {isVisible("conversionTrend") && conversionTrend.length > 1 && (
         <GlassCard className="p-4" data-chart-section data-chart-title="Taxa de Conversão ao Longo do Tempo">
           <h3 className="text-sm font-semibold mb-3">Taxa de Conversão ao Longo do Tempo</h3>
           <ChartContainer config={{ taxa: { label: "Conversão %", color: "hsl(var(--primary))" } }} className="h-[200px] w-full">
@@ -603,9 +755,10 @@ export default function FormAnalytics({ formId, formName }: Props) {
         </GlassCard>
       )}
 
-      {/* Day of week */}
-      {dayOfWeekData.some(d => d.respostas > 0) && (
+      {/* Day of week + Hourly */}
+      {(isVisible("dayOfWeek") || isVisible("hourly")) && dayOfWeekData.some(d => d.respostas > 0) && (
         <div className="grid md:grid-cols-2 gap-4">
+          {isVisible("dayOfWeek") && (
           <GlassCard className="p-4" data-chart-section data-chart-title="Respostas por Dia da Semana">
             <h3 className="text-sm font-semibold mb-3">Respostas por Dia da Semana</h3>
             <ChartContainer config={{ respostas: { label: "Respostas", color: "hsl(var(--chart-2))" } }} className="h-[180px] w-full">
@@ -617,26 +770,26 @@ export default function FormAnalytics({ formId, formName }: Props) {
               </BarChart>
             </ChartContainer>
           </GlassCard>
+          )}
 
-          {/* Hourly */}
-          {hourlyData.some(h => h.count > 0) && (
-            <GlassCard className="p-4" data-chart-section data-chart-title="Horário das Submissões">
-              <h3 className="text-sm font-semibold mb-3">Horário das Submissões</h3>
-              <ChartContainer config={{ count: { label: "Submissões", color: "hsl(var(--primary))" } }} className="h-[180px] w-full">
-                <BarChart data={hourlyData}>
-                  <XAxis dataKey="hour" tick={{ fontSize: 9 }} />
-                  <YAxis allowDecimals={false} tick={{ fontSize: 10 }} />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <Bar dataKey="count" fill="hsl(var(--primary))" radius={[3, 3, 0, 0]} name="Submissões" />
-                </BarChart>
-              </ChartContainer>
-            </GlassCard>
+          {isVisible("hourly") && hourlyData.some(h => h.count > 0) && (
+          <GlassCard className="p-4" data-chart-section data-chart-title="Horário das Submissões">
+            <h3 className="text-sm font-semibold mb-3">Horário das Submissões</h3>
+            <ChartContainer config={{ count: { label: "Submissões", color: "hsl(var(--primary))" } }} className="h-[180px] w-full">
+              <BarChart data={hourlyData}>
+                <XAxis dataKey="hour" tick={{ fontSize: 9 }} />
+                <YAxis allowDecimals={false} tick={{ fontSize: 10 }} />
+                <ChartTooltip content={<ChartTooltipContent />} />
+                <Bar dataKey="count" fill="hsl(var(--primary))" radius={[3, 3, 0, 0]} name="Submissões" />
+              </BarChart>
+            </ChartContainer>
+          </GlassCard>
           )}
         </div>
       )}
 
       {/* Field Interaction Funnel */}
-      {fieldFunnel.length > 0 && (
+      {isVisible("fieldFunnel") && fieldFunnel.length > 0 && (
         <GlassCard className="p-4" data-chart-section data-chart-title="Funil por Campo" data-chart-subtitle="Sessões únicas que interagiram com cada campo">
           <h3 className="text-sm font-semibold mb-1">Funil por Campo</h3>
           <p className="text-xs text-muted-foreground mb-3">Sessões únicas que interagiram com cada campo</p>
@@ -653,7 +806,7 @@ export default function FormAnalytics({ formId, formName }: Props) {
       )}
 
       {/* Abandonment by field */}
-      {abandonByField.length > 0 && (
+      {isVisible("abandonByField") && abandonByField.length > 0 && (
         <GlassCard className="p-4" data-chart-section data-chart-title="Abandono por Campo" data-chart-subtitle="Em qual campo o lead desistiu do formulário">
           <h3 className="text-sm font-semibold mb-1">Abandono por Campo</h3>
           <p className="text-xs text-muted-foreground mb-3">Em qual campo o lead desistiu do formulário</p>
@@ -670,7 +823,7 @@ export default function FormAnalytics({ formId, formName }: Props) {
       )}
 
       {/* Daily Chart */}
-      {dailyData.length > 0 && (
+      {isVisible("dailyActivity") && dailyData.length > 0 && (
         <GlassCard className="p-4" data-chart-section data-chart-title="Atividade por Dia">
           <h3 className="text-sm font-semibold mb-3">Atividade por Dia</h3>
           <ChartContainer config={chartConfig} className="h-[220px] w-full">
@@ -689,8 +842,7 @@ export default function FormAnalytics({ formId, formName }: Props) {
 
       {/* Device, Browser, Region Charts */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Device Type Pie */}
-        {deviceData.deviceTypes.length > 0 && (
+        {isVisible("deviceType") && deviceData.deviceTypes.length > 0 && (
           <GlassCard className="p-4" data-chart-section data-chart-title="Tipo de Dispositivo">
             <h3 className="text-sm font-semibold mb-3">Tipo de Dispositivo</h3>
             <ChartContainer config={{ device: { label: "Dispositivo", color: "hsl(var(--primary))" } }} className="h-[220px] w-full">
@@ -706,8 +858,7 @@ export default function FormAnalytics({ formId, formName }: Props) {
           </GlassCard>
         )}
 
-        {/* Browser Pie */}
-        {deviceData.browsers.length > 0 && (
+        {isVisible("browser") && deviceData.browsers.length > 0 && (
           <GlassCard className="p-4" data-chart-section data-chart-title="Navegador">
             <h3 className="text-sm font-semibold mb-3">Navegador</h3>
             <ChartContainer config={{ browser: { label: "Navegador", color: "hsl(var(--chart-2))" } }} className="h-[220px] w-full">
@@ -725,8 +876,7 @@ export default function FormAnalytics({ formId, formName }: Props) {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Device Model Bar */}
-        {deviceData.models.length > 0 && (
+        {isVisible("deviceModel") && deviceData.models.length > 0 && (
           <GlassCard className="p-4" data-chart-section data-chart-title="Modelo / Sistema Operacional">
             <h3 className="text-sm font-semibold mb-3">Modelo / Sistema Operacional</h3>
             <ChartContainer config={{ model: { label: "Modelo", color: "hsl(var(--chart-3))" } }} className="h-[220px] w-full">
@@ -741,8 +891,7 @@ export default function FormAnalytics({ formId, formName }: Props) {
           </GlassCard>
         )}
 
-        {/* Region Bar */}
-        {deviceData.regions.length > 0 && (
+        {isVisible("region") && deviceData.regions.length > 0 && (
           <GlassCard className="p-4" data-chart-section data-chart-title="Respostas por Região">
             <h3 className="text-sm font-semibold mb-3">Respostas por Região</h3>
             <ChartContainer config={{ region: { label: "Região", color: "hsl(var(--chart-4))" } }} className="h-[220px] w-full">
@@ -757,6 +906,54 @@ export default function FormAnalytics({ formId, formName }: Props) {
           </GlassCard>
         )}
       </div>
+
+      {/* Dynamic Field Response Charts */}
+      {Object.entries(fieldResponseCharts).map(([fieldId, chartData]) => {
+        const field = formFields.find(f => f.id === fieldId);
+        if (!field || !isVisible(`field_${fieldId}`) || chartData.length === 0) return null;
+
+        const usesPie = chartData.length <= 6;
+
+        return (
+          <GlassCard key={fieldId} className="p-4" data-chart-section data-chart-title={`Respostas: ${field.label}`}>
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <h3 className="text-sm font-semibold flex items-center gap-2">
+                  <BarChart3 className="h-4 w-4 text-primary" />
+                  {field.label}
+                </h3>
+                <p className="text-[10px] text-muted-foreground">Distribuição das respostas • {chartData.reduce((s, d) => s + d.value, 0)} total</p>
+              </div>
+              <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => toggleFieldChart(fieldId)}>
+                <X className="h-3 w-3" />
+              </Button>
+            </div>
+
+            {usesPie ? (
+              <ChartContainer config={{ value: { label: "Respostas", color: "hsl(var(--primary))" } }} className="h-[220px] w-full">
+                <PieChart>
+                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <Pie data={chartData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} innerRadius={35} label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}>
+                    {chartData.map((_, i) => (
+                      <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
+                    ))}
+                  </Pie>
+                </PieChart>
+              </ChartContainer>
+            ) : (
+              <ChartContainer config={{ value: { label: "Respostas", color: "hsl(var(--primary))" } }} className="h-[220px] w-full">
+                <BarChart data={chartData} layout="vertical">
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                  <XAxis type="number" allowDecimals={false} tick={{ fontSize: 10 }} />
+                  <YAxis type="category" dataKey="name" tick={{ fontSize: 10 }} width={120} />
+                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <Bar dataKey="value" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} name="Respostas" />
+                </BarChart>
+              </ChartContainer>
+            )}
+          </GlassCard>
+        );
+      })}
       </div>
     </div>
   );
