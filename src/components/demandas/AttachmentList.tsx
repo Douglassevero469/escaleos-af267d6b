@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { Paperclip, Upload, Trash2, FileText, Image, File, X, Download, ZoomIn, ZoomOut } from "lucide-react";
+import { Paperclip, Upload, Trash2, FileText, Image, File, X, Download, ZoomIn, ZoomOut, Video } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
@@ -19,6 +19,7 @@ interface Attachment {
 
 function getFileIcon(type: string) {
   if (type.startsWith("image")) return Image;
+  if (type.startsWith("video")) return Video;
   if (type.includes("pdf")) return FileText;
   return File;
 }
@@ -30,7 +31,7 @@ function formatSize(bytes: number) {
 }
 
 function isPreviewable(type: string) {
-  return type.startsWith("image") || type.includes("pdf");
+  return type.startsWith("image") || type.includes("pdf") || type.startsWith("video");
 }
 
 interface AttachmentListProps {
@@ -208,6 +209,15 @@ export function AttachmentList({ itemId, onActivityLog }: AttachmentListProps) {
                   className="w-full h-full rounded border-0"
                   title={preview.file_name}
                 />
+              ) : preview.file_type.startsWith("video") ? (
+                <video
+                  src={preview.file_url}
+                  controls
+                  autoPlay
+                  className="max-w-full max-h-full rounded"
+                >
+                  Seu navegador não suporta este vídeo.
+                </video>
               ) : null}
             </div>
           </div>
