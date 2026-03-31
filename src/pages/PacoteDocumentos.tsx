@@ -365,6 +365,28 @@ function downloadAsDocx(title: string, content: string) {
   URL.revokeObjectURL(url);
 }
 
+async function downloadAllAsZip(docs: any[], clientName: string) {
+  const zip = new JSZip();
+  const readyDocs = docs.filter((d: any) => d.status === "ready" && d.content);
+
+  for (const doc of readyDocs) {
+    const safeTitle = doc.title.replace(/[^a-zA-Z0-9À-ÿ\s-]/g, "").replace(/\s+/g, "_");
+    // Add markdown
+    zip.file(`${safeTitle}.md`, doc.content);
+    // Add branded HTML (for opening in browser / printing as PDF)
+    zip.file(`${safeTitle}.html`, buildBrandedHtml(doc.title, doc.content));
+  }
+
+  const blob = await zip.generateAsync({ type: "blob" });
+  const safeName = clientName.replace(/\s+/g, "_");
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `Pacote_${safeName}.zip`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 export default function PacoteDocumentos() {
   const { id } = useParams();
   const [viewDoc, setViewDoc] = useState<any>(null);
