@@ -1,5 +1,5 @@
 import { GlassCard } from "@/components/ui/GlassCard";
-import { FileText, Eye, CheckCircle, Loader2, AlertCircle, RefreshCw, Download } from "lucide-react";
+import { FileText, Eye, CheckCircle, Loader2, AlertCircle, RefreshCw, Download, Archive } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { useParams } from "react-router-dom";
@@ -10,6 +10,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Progress } from "@/components/ui/progress";
 import ReactMarkdown from "react-markdown";
+import JSZip from "jszip";
 
 const statusConfig = {
   ready: { icon: CheckCircle, color: "text-success", bg: "bg-success/10", label: "Pronto" },
@@ -364,6 +365,28 @@ function downloadAsDocx(title: string, content: string) {
   URL.revokeObjectURL(url);
 }
 
+async function downloadAllAsZip(docs: any[], clientName: string) {
+  const zip = new JSZip();
+  const readyDocs = docs.filter((d: any) => d.status === "ready" && d.content);
+
+  for (const doc of readyDocs) {
+    const safeTitle = doc.title.replace(/[^a-zA-Z0-9À-ÿ\s-]/g, "").replace(/\s+/g, "_");
+    // Add markdown
+    zip.file(`${safeTitle}.md`, doc.content);
+    // Add branded HTML (for opening in browser / printing as PDF)
+    zip.file(`${safeTitle}.html`, buildBrandedHtml(doc.title, doc.content));
+  }
+
+  const blob = await zip.generateAsync({ type: "blob" });
+  const safeName = clientName.replace(/\s+/g, "_");
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `Pacote_${safeName}.zip`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 export default function PacoteDocumentos() {
   const { id } = useParams();
   const [viewDoc, setViewDoc] = useState<any>(null);
@@ -529,6 +552,14 @@ export default function PacoteDocumentos() {
             {(pkg as any)?.clients?.name ?? "..."} · {docs.length} documentos
           </p>
         </div>
+        {completedCount > 0 && !isGenerating && (
+          <Button
+            onClick={() => downloadAllAsZip(docs, (pkg as any)?.clients?.name || "cliente")}
+            className="gap-2 btn-primary-glow font-semibold"
+          >
+            <Archive className="h-4 w-4" /> Baixar Todos (ZIP)
+          </Button>
+        )}
       </div>
 
       {/* Progress bar */}
