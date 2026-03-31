@@ -75,17 +75,20 @@ export default function FormPublic() {
         });
 
         if (Object.keys(data).length > 0) {
-          // Use sendBeacon for reliable delivery on page unload
-          const payload = JSON.stringify({
-            form_id: form.id,
-            data,
-            status: "incomplete",
-          });
+          // Use fetch with keepalive for reliable delivery on page unload
           const url = `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/form_submissions`;
-          navigator.sendBeacon(
-            url + `?apikey=${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-            new Blob([payload], { type: "application/json" })
-          );
+          const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+          fetch(url, {
+            method: "POST",
+            keepalive: true,
+            headers: {
+              "Content-Type": "application/json",
+              "apikey": anonKey,
+              "Authorization": `Bearer ${anonKey}`,
+              "Prefer": "return=minimal",
+            },
+            body: JSON.stringify({ form_id: form.id, data, status: "incomplete" }),
+          }).catch(() => {});
         }
       }
 
