@@ -608,7 +608,7 @@ export default function FormAnalytics({ formId, formName }: Props) {
 
       {/* Abandonment by field */}
       {abandonByField.length > 0 && (
-        <GlassCard className="p-4">
+        <GlassCard className="p-4" data-chart-section data-chart-title="Abandono por Campo" data-chart-subtitle="Em qual campo o lead desistiu do formulário">
           <h3 className="text-sm font-semibold mb-1">Abandono por Campo</h3>
           <p className="text-xs text-muted-foreground mb-3">Em qual campo o lead desistiu do formulário</p>
           <ChartContainer config={{ abandonos: { label: "Abandonos", color: "hsl(var(--destructive))" } }} className="h-[220px] w-full">
