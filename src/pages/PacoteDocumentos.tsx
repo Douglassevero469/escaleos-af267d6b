@@ -692,7 +692,7 @@ export default function PacoteDocumentos() {
       )}
 
       {/* Document viewer dialog with markdown */}
-      <Dialog open={!!viewDoc} onOpenChange={() => setViewDoc(null)}>
+      <Dialog open={!!viewDoc} onOpenChange={() => { setViewDoc(null); setIsEditing(false); }}>
         <DialogContent className="max-w-3xl max-h-[85vh]">
           <DialogHeader>
             <div className="flex items-center justify-between">
@@ -702,30 +702,55 @@ export default function PacoteDocumentos() {
                   <Loader2 className="h-4 w-4 animate-spin text-accent" />
                 )}
               </DialogTitle>
-              {viewDoc?.content && (viewDoc?.status === "ready" || viewDoc?.status === "completed") && (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="sm" className="gap-1">
-                      <Download className="h-3.5 w-3.5" /> Baixar
+              <div className="flex items-center gap-2">
+                {viewDoc?.content && (viewDoc?.status === "ready" || viewDoc?.status === "completed") && !isEditing && (
+                  <>
+                    <Button variant="outline" size="sm" className="gap-1" onClick={startEditing}>
+                      <Pencil className="h-3.5 w-3.5" /> Editar
                     </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => downloadAsPdf(viewDoc.title, getDocContent(viewDoc))}>PDF</DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => downloadAsDocx(viewDoc.title, getDocContent(viewDoc))}>DOCX</DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => downloadAsText(`${viewDoc.title.replace(/\s+/g, "_")}.md`, getDocContent(viewDoc))}>Markdown</DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              )}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="outline" size="sm" className="gap-1">
+                          <Download className="h-3.5 w-3.5" /> Baixar
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => downloadAsPdf(viewDoc.title, getDocContent(viewDoc))}>PDF</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => downloadAsDocx(viewDoc.title, getDocContent(viewDoc))}>DOCX</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => downloadAsText(`${viewDoc.title.replace(/\s+/g, "_")}.md`, getDocContent(viewDoc))}>Markdown</DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </>
+                )}
+                {isEditing && (
+                  <>
+                    <Button variant="ghost" size="sm" onClick={cancelEditing}>Cancelar</Button>
+                    <Button size="sm" className="gap-1" onClick={saveEdit} disabled={savingEdit}>
+                      {savingEdit ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+                      Salvar
+                    </Button>
+                  </>
+                )}
+              </div>
             </div>
           </DialogHeader>
           <ScrollArea className="max-h-[70vh]">
-            <div className="prose prose-invert prose-sm max-w-none">
-              <StreamingMarkdown
-                content={viewDoc ? getDocContent(viewDoc) : ""}
-                docId={viewDoc?.id}
-                streamingContent={streamingContent}
+            {isEditing ? (
+              <textarea
+                value={editContent}
+                onChange={(e) => setEditContent(e.target.value)}
+                className="w-full min-h-[60vh] bg-muted/30 border border-border/50 rounded-lg p-4 text-sm font-mono text-foreground resize-none focus:outline-none focus:ring-1 focus:ring-primary/50"
+                spellCheck={false}
               />
-            </div>
+            ) : (
+              <div className="prose prose-invert prose-sm max-w-none">
+                <StreamingMarkdown
+                  content={viewDoc ? getDocContent(viewDoc) : ""}
+                  docId={viewDoc?.id}
+                  streamingContent={streamingContent}
+                />
+              </div>
+            )}
           </ScrollArea>
         </DialogContent>
       </Dialog>
