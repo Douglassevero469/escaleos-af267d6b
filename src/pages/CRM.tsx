@@ -11,11 +11,12 @@ import { NewLeadDialog } from "@/components/crm/NewLeadDialog";
 import type { CrmLead } from "@/components/crm/LeadCard";
 import type { StageDef } from "@/components/crm/KanbanStageColumn";
 import { Button } from "@/components/ui/button";
-import { Settings, LayoutGrid, List } from "lucide-react";
+import { Settings, LayoutGrid, List, BarChart3 } from "lucide-react";
+import { CrmAnalytics } from "@/components/crm/CrmAnalytics";
 
 export default function CRM() {
   const [pipelineId, setPipelineId] = useState<string | null>(null);
-  const [view, setView] = useState<"kanban" | "list">("kanban");
+  const [view, setView] = useState<"kanban" | "list" | "analytics">("kanban");
   const [selectedLead, setSelectedLead] = useState<CrmLead | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -112,6 +113,9 @@ export default function CRM() {
             <Button variant={view === "list" ? "default" : "ghost"} size="sm" onClick={() => setView("list")}>
               <List className="h-4 w-4 mr-1" /> Lista
             </Button>
+            <Button variant={view === "analytics" ? "default" : "ghost"} size="sm" onClick={() => setView("analytics")}>
+              <BarChart3 className="h-4 w-4 mr-1" /> Analytics
+            </Button>
           </div>
         </div>
       )}
@@ -122,6 +126,10 @@ export default function CRM() {
 
       {pipelineId && view === "list" && (
         <CrmListView leads={filteredLeads} stages={stages} onLeadClick={openLead} />
+      )}
+
+      {pipelineId && view === "analytics" && (
+        <CrmAnalytics leads={leads} stages={stages} />
       )}
 
       {!pipelineId && (
