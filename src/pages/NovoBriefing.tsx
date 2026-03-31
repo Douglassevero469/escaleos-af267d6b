@@ -450,17 +450,44 @@ export default function NovoBriefing() {
         <Button variant="outline" onClick={prev} disabled={step === 0} className="gap-2 border-border/60">
           <ArrowLeft className="h-4 w-4" /> Anterior
         </Button>
-        {step < 6 ? (
-          <Button onClick={next} className="gap-2 btn-primary-glow font-semibold">
-            Próximo <ArrowRight className="h-4 w-4" />
-          </Button>
-        ) : (
-          <Button onClick={submit} disabled={submitting} className="gap-2 btn-primary-glow font-semibold">
-            {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
-            Gerar Pacote <Send className="h-4 w-4" />
-          </Button>
-        )}
+        <div className="flex gap-2">
+          {step === 6 && (
+            <Button variant="outline" onClick={() => setSaveTemplateOpen(true)} className="gap-2 border-border/60">
+              <Save className="h-4 w-4" /> Salvar Template
+            </Button>
+          )}
+          {step < 6 ? (
+            <Button onClick={next} className="gap-2 btn-primary-glow font-semibold">
+              Próximo <ArrowRight className="h-4 w-4" />
+            </Button>
+          ) : (
+            <Button onClick={submit} disabled={submitting} className="gap-2 btn-primary-glow font-semibold">
+              {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
+              Gerar Pacote <Send className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
       </div>
+
+      {/* Save as Template Dialog */}
+      <Dialog open={saveTemplateOpen} onOpenChange={setSaveTemplateOpen}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Salvar como Template</DialogTitle></DialogHeader>
+          <div className="space-y-4 pt-2">
+            <div className="space-y-2">
+              <Label>Nome do Template *</Label>
+              <Input value={templateName} onChange={e => setTemplateName(e.target.value)} placeholder="Ex: Template Academia Premium" />
+            </div>
+            <div className="space-y-2">
+              <Label>Descrição</Label>
+              <Textarea value={templateDesc} onChange={e => setTemplateDesc(e.target.value)} placeholder="Descreva para que serve..." className="min-h-[80px]" />
+            </div>
+            <Button onClick={saveAsTemplate} disabled={!templateName} className="w-full btn-primary-glow">
+              <Save className="h-4 w-4 mr-2" /> Salvar Template
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
