@@ -124,6 +124,23 @@ export default function Demandas() {
     }
   };
 
+  const duplicateBoard = async (board: Board) => {
+    if (!user) return;
+    const cols = boards.find(b => b.id === board.id)?.columns || DEFAULT_COLUMNS;
+    const { data } = await supabase.from("demand_boards").insert({
+      user_id: user.id,
+      name: `${board.name} (Cópia)`,
+      description: board.description,
+      columns: cols as unknown as Json,
+    }).select().single();
+    if (data) {
+      const parsed = { ...data, columns: cols };
+      setBoards(prev => [...prev, parsed]);
+      setCurrentBoard(parsed);
+      toast.success("Board duplicado!");
+    }
+  };
+
   const createItem = async (data: { title: string; description: string; priority: string; status: string; assignee_name: string; due_date: string }) => {
     if (!user || !currentBoard) return;
     const maxPos = items.filter(i => i.status === data.status).reduce((max, i) => Math.max(max, i.position), -1);
@@ -288,7 +305,7 @@ export default function Demandas() {
           <p className="text-sm text-muted-foreground">Gerencie as tarefas e demandas do time</p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
-          <BoardSelector boards={boards} currentBoard={currentBoard} onSelect={(b) => setCurrentBoard(b as Board)} onCreate={createBoard} />
+          <BoardSelector boards={boards} currentBoard={currentBoard} onSelect={(b) => setCurrentBoard(b as Board)} onCreate={createBoard} onDuplicate={duplicateBoard} />
           <Button variant="outline" size="sm" onClick={() => setSettingsOpen(true)} className="gap-1">
             <Settings className="h-4 w-4" />
           </Button>

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, ChevronDown, Settings } from "lucide-react";
+import { Plus, ChevronDown, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -17,9 +17,10 @@ interface BoardSelectorProps {
   currentBoard: Board | null;
   onSelect: (board: Board) => void;
   onCreate: (name: string, description: string) => void;
+  onDuplicate?: (board: Board) => void;
 }
 
-export function BoardSelector({ boards, currentBoard, onSelect, onCreate }: BoardSelectorProps) {
+export function BoardSelector({ boards, currentBoard, onSelect, onCreate, onDuplicate }: BoardSelectorProps) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [name, setName] = useState("");
   const [desc, setDesc] = useState("");
@@ -47,6 +48,11 @@ export function BoardSelector({ boards, currentBoard, onSelect, onCreate }: Boar
             </DropdownMenuItem>
           ))}
           <DropdownMenuSeparator />
+          {currentBoard && onDuplicate && (
+            <DropdownMenuItem onClick={() => onDuplicate(currentBoard)}>
+              <Copy className="h-4 w-4 mr-2" /> Duplicar Board Atual
+            </DropdownMenuItem>
+          )}
           <DropdownMenuItem onClick={() => setDialogOpen(true)}>
             <Plus className="h-4 w-4 mr-2" /> Novo Board
           </DropdownMenuItem>
