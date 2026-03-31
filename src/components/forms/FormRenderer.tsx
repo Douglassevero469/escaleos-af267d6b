@@ -35,6 +35,7 @@ export default function FormRenderer({
   settings = {},
   isPreview = false,
   onSubmit,
+  onFieldFocus,
 }: FormRendererProps) {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
