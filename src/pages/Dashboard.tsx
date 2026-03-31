@@ -323,7 +323,44 @@ export default function Dashboard() {
         </GlassCard>
       )}
 
-      {/* Usage Stats - Current Month */}
+      {/* Demandas por Semana */}
+      <GlassCard>
+        <div className="flex items-center gap-2 mb-4">
+          <Clock className="h-5 w-5 text-primary" />
+          <h3 className="font-display font-semibold">Demandas Criadas por Semana</h3>
+        </div>
+        {weeklyDemands.length > 0 && weeklyDemands.some(w => w.demandas > 0) ? (
+          <ResponsiveContainer width="100%" height={260}>
+            <BarChart data={weeklyDemands}>
+              <defs>
+                <linearGradient id="gradDemands" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="hsla(240,100%,60%,0.8)" />
+                  <stop offset="100%" stopColor="hsla(240,100%,60%,0.2)" />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="hsla(240,12%,20%,0.3)" />
+              <XAxis dataKey="semana" stroke="hsla(240,8%,50%,1)" fontSize={10} tickLine={false} interval={0} angle={-30} textAnchor="end" height={50} />
+              <YAxis stroke="hsla(240,8%,50%,1)" fontSize={10} tickLine={false} axisLine={false} allowDecimals={false} />
+              <Tooltip
+                contentStyle={{
+                  background: "hsla(240,18%,8%,0.95)",
+                  border: "1px solid hsla(240,12%,22%,0.5)",
+                  borderRadius: "8px",
+                  color: "hsla(0,0%,95%,1)",
+                  fontSize: "12px",
+                }}
+                labelFormatter={(v) => `Semana de ${v}`}
+              />
+              <Bar dataKey="demandas" fill="url(#gradDemands)" radius={[6, 6, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        ) : (
+          <div className="h-[260px] flex items-center justify-center text-muted-foreground text-sm">
+            Nenhuma demanda criada nas últimas 12 semanas
+          </div>
+        )}
+      </GlassCard>
+
       <GlassCard>
         <div className="flex items-center gap-2 mb-4">
           <Brain className="h-5 w-5 text-primary" />
