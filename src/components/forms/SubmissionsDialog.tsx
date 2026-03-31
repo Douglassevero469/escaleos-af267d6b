@@ -1,16 +1,17 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useToast } from "@/hooks/use-toast";
 import {
-  Loader2, Inbox, Download, Tag, X, Save, Edit2, ChevronLeft, MessageSquare, Plus,
+  Loader2, Inbox, Download, Tag, X, Save, Edit2, ChevronLeft, MessageSquare, Plus, ArrowLeft, Palette,
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface Props {
   formId: string;
@@ -19,19 +20,38 @@ interface Props {
   onOpenChange: (open: boolean) => void;
 }
 
-const TAG_COLORS = [
-  "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
-  "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
-  "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300",
-  "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300",
-  "bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-300",
-  "bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-300",
+interface TagItem {
+  text: string;
+  color: string;
+}
+
+const COLOR_OPTIONS = [
+  { name: "Azul", bg: "bg-blue-100 dark:bg-blue-900/40", text: "text-blue-800 dark:text-blue-300", dot: "bg-blue-500", value: "blue" },
+  { name: "Verde", bg: "bg-green-100 dark:bg-green-900/40", text: "text-green-800 dark:text-green-300", dot: "bg-green-500", value: "green" },
+  { name: "Roxo", bg: "bg-purple-100 dark:bg-purple-900/40", text: "text-purple-800 dark:text-purple-300", dot: "bg-purple-500", value: "purple" },
+  { name: "Laranja", bg: "bg-orange-100 dark:bg-orange-900/40", text: "text-orange-800 dark:text-orange-300", dot: "bg-orange-500", value: "orange" },
+  { name: "Rosa", bg: "bg-pink-100 dark:bg-pink-900/40", text: "text-pink-800 dark:text-pink-300", dot: "bg-pink-500", value: "pink" },
+  { name: "Ciano", bg: "bg-cyan-100 dark:bg-cyan-900/40", text: "text-cyan-800 dark:text-cyan-300", dot: "bg-cyan-500", value: "cyan" },
+  { name: "Vermelho", bg: "bg-red-100 dark:bg-red-900/40", text: "text-red-800 dark:text-red-300", dot: "bg-red-500", value: "red" },
+  { name: "Amarelo", bg: "bg-yellow-100 dark:bg-yellow-900/40", text: "text-yellow-800 dark:text-yellow-300", dot: "bg-yellow-500", value: "yellow" },
 ];
 
-function getTagColor(tag: string) {
-  let hash = 0;
-  for (let i = 0; i < tag.length; i++) hash = tag.charCodeAt(i) + ((hash << 5) - hash);
-  return TAG_COLORS[Math.abs(hash) % TAG_COLORS.length];
+function getColorClasses(colorValue: string) {
+  return COLOR_OPTIONS.find(c => c.value === colorValue) || COLOR_OPTIONS[0];
+}
+
+/** Parse tags — supports both legacy string[] and new {text, color}[] */
+function parseTags(raw: any): TagItem[] {
+  if (!Array.isArray(raw)) return [];
+  return raw.map((t: any) => {
+    if (typeof t === "string") return { text: t, color: "blue" };
+    if (typeof t === "object" && t?.text) return { text: t.text, color: t.color || "blue" };
+    return null;
+  }).filter(Boolean) as TagItem[];
+}
+
+function serializeTags(tags: TagItem[]): any[] {
+  return tags.map(t => ({ text: t.text, color: t.color }));
 }
 
 export default function SubmissionsDialog({ formId, formName, open, onOpenChange }: Props) {
@@ -40,6 +60,7 @@ export default function SubmissionsDialog({ formId, formName, open, onOpenChange
   const [filter, setFilter] = useState<"all" | "complete" | "incomplete">("all");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [newTag, setNewTag] = useState("");
+  const [newTagColor, setNewTagColor] = useState("blue");
 
   const { data: submissions = [], isLoading } = useQuery({
     queryKey: ["form-submissions", formId],
@@ -80,16 +101,21 @@ export default function SubmissionsDialog({ formId, formName, open, onOpenChange
   const completeCount = submissions.filter((s: any) => (s.status || "complete") === "complete").length;
   const incompleteCount = submissions.filter((s: any) => s.status === "incomplete").length;
 
-  const addTag = (submissionId: string, currentTags: string[]) => {
+  const addTag = (submissionId: string, currentTags: TagItem[]) => {
     if (!newTag.trim()) return;
-    const tags = [...(currentTags || []), newTag.trim()];
+    const tags = serializeTags([...currentTags, { text: newTag.trim(), color: newTagColor }]);
     updateMutation.mutate({ id: submissionId, updates: { tags } });
     setNewTag("");
   };
 
-  const removeTag = (submissionId: string, currentTags: string[], tagToRemove: string) => {
-    const tags = (currentTags || []).filter((t) => t !== tagToRemove);
-    updateMutation.mutate({ id: submissionId, updates: { tags } });
+  const removeTag = (submissionId: string, currentTags: TagItem[], index: number) => {
+    const updated = currentTags.filter((_, i) => i !== index);
+    updateMutation.mutate({ id: submissionId, updates: { tags: serializeTags(updated) } });
+  };
+
+  const changeTagColor = (submissionId: string, currentTags: TagItem[], index: number, color: string) => {
+    const updated = currentTags.map((t, i) => i === index ? { ...t, color } : t);
+    updateMutation.mutate({ id: submissionId, updates: { tags: serializeTags(updated) } });
   };
 
   const exportCSV = () => {
@@ -97,10 +123,11 @@ export default function SubmissionsDialog({ formId, formName, open, onOpenChange
     const headers = ["Data", "Status", "Etiquetas", ...allKeys];
     const rows = filtered.map((s: any) => {
       const d = typeof s.data === "object" && s.data ? s.data : {};
+      const tags = parseTags(s.tags);
       return [
         new Date(s.created_at).toLocaleString("pt-BR"),
         (s.status || "complete") === "complete" ? "Completo" : "Incompleto",
-        ((s.tags as string[]) || []).join("; "),
+        tags.map(t => t.text).join("; "),
         ...allKeys.map((k) => (d as any)[k] ?? ""),
       ];
     });
@@ -114,20 +141,41 @@ export default function SubmissionsDialog({ formId, formName, open, onOpenChange
     URL.revokeObjectURL(url);
   };
 
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[85vh] flex flex-col">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            {selected && (
-              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setSelectedId(null)}>
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-            )}
-            {selected ? "Detalhes da Resposta" : `Respostas — ${formName}`}
-          </DialogTitle>
-        </DialogHeader>
+  if (!open) return null;
 
+  return (
+    <div className="fixed inset-0 z-50 bg-background flex flex-col animate-fade-in">
+      {/* Header */}
+      <div className="border-b px-6 py-4 flex items-center gap-3 shrink-0">
+        {selected ? (
+          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setSelectedId(null)}>
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+        ) : (
+          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onOpenChange(false)}>
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+        )}
+        <h1 className="text-lg font-semibold">
+          {selected ? "Detalhes da Resposta" : `Respostas — ${formName}`}
+        </h1>
+        <span className="text-sm text-muted-foreground">
+          {submissions.length} resposta{submissions.length !== 1 ? "s" : ""}
+        </span>
+        <div className="ml-auto flex items-center gap-2">
+          {!selected && (
+            <Button variant="outline" size="sm" onClick={exportCSV}>
+              <Download className="h-4 w-4 mr-1" /> CSV
+            </Button>
+          )}
+          <Button variant="ghost" size="sm" onClick={() => onOpenChange(false)}>
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="flex-1 overflow-auto p-6">
         {isLoading ? (
           <div className="flex justify-center py-12">
             <Loader2 className="h-6 w-6 animate-spin text-primary" />
@@ -142,28 +190,26 @@ export default function SubmissionsDialog({ formId, formName, open, onOpenChange
             submission={selected}
             newTag={newTag}
             setNewTag={setNewTag}
+            newTagColor={newTagColor}
+            setNewTagColor={setNewTagColor}
             onAddTag={addTag}
             onRemoveTag={removeTag}
+            onChangeTagColor={changeTagColor}
             onUpdate={updateMutation.mutate}
             isPending={updateMutation.isPending}
           />
         ) : (
-          <div className="space-y-3 overflow-auto flex-1">
+          <div className="space-y-4">
             {/* Filters */}
-            <div className="flex items-center justify-between flex-wrap gap-2">
-              <div className="flex items-center gap-2">
-                <Button variant={filter === "all" ? "default" : "outline"} size="sm" onClick={() => setFilter("all")}>
-                  Todas ({submissions.length})
-                </Button>
-                <Button variant={filter === "complete" ? "default" : "outline"} size="sm" onClick={() => setFilter("complete")}>
-                  Completas ({completeCount})
-                </Button>
-                <Button variant={filter === "incomplete" ? "default" : "outline"} size="sm" onClick={() => setFilter("incomplete")}>
-                  Incompletas ({incompleteCount})
-                </Button>
-              </div>
-              <Button variant="outline" size="sm" onClick={exportCSV}>
-                <Download className="h-4 w-4 mr-1" /> CSV
+            <div className="flex items-center gap-2 flex-wrap">
+              <Button variant={filter === "all" ? "default" : "outline"} size="sm" onClick={() => setFilter("all")}>
+                Todas ({submissions.length})
+              </Button>
+              <Button variant={filter === "complete" ? "default" : "outline"} size="sm" onClick={() => setFilter("complete")}>
+                Completas ({completeCount})
+              </Button>
+              <Button variant={filter === "incomplete" ? "default" : "outline"} size="sm" onClick={() => setFilter("incomplete")}>
+                Incompletas ({incompleteCount})
               </Button>
             </div>
 
@@ -175,7 +221,7 @@ export default function SubmissionsDialog({ formId, formName, open, onOpenChange
                     <TableHead>Data</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Etiquetas</TableHead>
-                    {allKeys.slice(0, 3).map((k) => (
+                    {allKeys.slice(0, 4).map((k) => (
                       <TableHead key={k}>{k}</TableHead>
                     ))}
                     <TableHead className="text-right">Ações</TableHead>
@@ -185,7 +231,7 @@ export default function SubmissionsDialog({ formId, formName, open, onOpenChange
                   {filtered.map((s: any) => {
                     const d = typeof s.data === "object" && s.data ? s.data : {};
                     const isComplete = (s.status || "complete") === "complete";
-                    const tags = (s.tags as string[]) || [];
+                    const tags = parseTags(s.tags);
                     return (
                       <TableRow key={s.id} className="cursor-pointer hover:bg-muted/60" onClick={() => setSelectedId(s.id)}>
                         <TableCell className="text-xs whitespace-nowrap">
@@ -201,18 +247,21 @@ export default function SubmissionsDialog({ formId, formName, open, onOpenChange
                         </TableCell>
                         <TableCell>
                           <div className="flex gap-1 flex-wrap">
-                            {tags.slice(0, 2).map((t) => (
-                              <span key={t} className={`text-[10px] px-1.5 py-0.5 rounded-full ${getTagColor(t)}`}>
-                                {t}
-                              </span>
-                            ))}
-                            {tags.length > 2 && (
-                              <span className="text-[10px] text-muted-foreground">+{tags.length - 2}</span>
+                            {tags.slice(0, 3).map((t, i) => {
+                              const c = getColorClasses(t.color);
+                              return (
+                                <span key={i} className={cn("text-[10px] px-1.5 py-0.5 rounded-full font-medium", c.bg, c.text)}>
+                                  {t.text}
+                                </span>
+                              );
+                            })}
+                            {tags.length > 3 && (
+                              <span className="text-[10px] text-muted-foreground">+{tags.length - 3}</span>
                             )}
                           </div>
                         </TableCell>
-                        {allKeys.slice(0, 3).map((k) => (
-                          <TableCell key={k} className="text-sm max-w-[150px] truncate">
+                        {allKeys.slice(0, 4).map((k) => (
+                          <TableCell key={k} className="text-sm max-w-[160px] truncate">
                             {String((d as any)[k] ?? "")}
                           </TableCell>
                         ))}
@@ -229,26 +278,32 @@ export default function SubmissionsDialog({ formId, formName, open, onOpenChange
             </div>
           </div>
         )}
-      </DialogContent>
-    </Dialog>
+      </div>
+    </div>
   );
 }
 
-/* ─── Submission detail view ─── */
+/* ─── Submission detail ─── */
 function SubmissionDetail({
   submission,
   newTag,
   setNewTag,
+  newTagColor,
+  setNewTagColor,
   onAddTag,
   onRemoveTag,
+  onChangeTagColor,
   onUpdate,
   isPending,
 }: {
   submission: any;
   newTag: string;
   setNewTag: (v: string) => void;
-  onAddTag: (id: string, tags: string[]) => void;
-  onRemoveTag: (id: string, tags: string[], tag: string) => void;
+  newTagColor: string;
+  setNewTagColor: (v: string) => void;
+  onAddTag: (id: string, tags: TagItem[]) => void;
+  onRemoveTag: (id: string, tags: TagItem[], index: number) => void;
+  onChangeTagColor: (id: string, tags: TagItem[], index: number, color: string) => void;
   onUpdate: (args: { id: string; updates: Record<string, any> }) => void;
   isPending: boolean;
 }) {
@@ -256,7 +311,7 @@ function SubmissionDetail({
   const [editData, setEditData] = useState<Record<string, string>>({});
   const [notes, setNotes] = useState(submission.notes || "");
   const data = typeof submission.data === "object" && submission.data ? submission.data : {};
-  const tags = (submission.tags as string[]) || [];
+  const tags = parseTags(submission.tags);
   const isComplete = (submission.status || "complete") === "complete";
 
   const startEditing = () => {
@@ -274,8 +329,8 @@ function SubmissionDetail({
   };
 
   return (
-    <div className="space-y-4 overflow-auto flex-1">
-      {/* Header info */}
+    <div className="max-w-3xl mx-auto space-y-6">
+      {/* Header */}
       <div className="flex items-center gap-3 flex-wrap">
         <Badge
           variant={isComplete ? "default" : "secondary"}
@@ -283,48 +338,100 @@ function SubmissionDetail({
         >
           {isComplete ? "Completo" : "Incompleto"}
         </Badge>
-        <span className="text-xs text-muted-foreground">
+        <span className="text-sm text-muted-foreground">
           {new Date(submission.created_at).toLocaleString("pt-BR")}
         </span>
         {submission.ip_address && (
-          <span className="text-xs text-muted-foreground">IP: {submission.ip_address}</span>
+          <span className="text-sm text-muted-foreground">IP: {submission.ip_address}</span>
         )}
       </div>
 
       {/* Tags */}
-      <div className="space-y-2">
+      <div className="space-y-3 p-4 border rounded-lg bg-muted/20">
         <div className="flex items-center gap-2">
           <Tag className="h-4 w-4 text-muted-foreground" />
-          <span className="text-sm font-medium">Etiquetas</span>
+          <span className="text-sm font-semibold">Etiquetas</span>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
-          {tags.map((t) => (
-            <span key={t} className={`inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full ${getTagColor(t)}`}>
-              {t}
-              <button onClick={() => onRemoveTag(submission.id, tags, t)} className="hover:opacity-70">
-                <X className="h-3 w-3" />
-              </button>
-            </span>
-          ))}
+          {tags.map((t, i) => {
+            const c = getColorClasses(t.color);
+            return (
+              <Popover key={i}>
+                <PopoverTrigger asChild>
+                  <span className={cn("inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full font-medium cursor-pointer hover:opacity-80 transition-opacity", c.bg, c.text)}>
+                    {t.text}
+                    <button
+                      onClick={(e) => { e.stopPropagation(); onRemoveTag(submission.id, tags, i); }}
+                      className="hover:opacity-60"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </span>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-2" align="start">
+                  <p className="text-xs font-medium mb-2 text-muted-foreground">Alterar cor</p>
+                  <div className="flex gap-1.5 flex-wrap max-w-[180px]">
+                    {COLOR_OPTIONS.map(co => (
+                      <button
+                        key={co.value}
+                        onClick={() => onChangeTagColor(submission.id, tags, i, co.value)}
+                        className={cn(
+                          "w-6 h-6 rounded-full border-2 transition-all",
+                          co.dot,
+                          t.color === co.value ? "border-foreground scale-110" : "border-transparent hover:scale-105"
+                        )}
+                        title={co.name}
+                      />
+                    ))}
+                  </div>
+                </PopoverContent>
+              </Popover>
+            );
+          })}
+          {/* Add new tag */}
           <div className="flex items-center gap-1">
+            <Popover>
+              <PopoverTrigger asChild>
+                <button className={cn("w-6 h-6 rounded-full border-2 border-dashed border-muted-foreground/40 flex items-center justify-center hover:border-muted-foreground transition-colors", getColorClasses(newTagColor).dot)}>
+                  <Palette className="h-3 w-3 text-white" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-2" align="start">
+                <p className="text-xs font-medium mb-2 text-muted-foreground">Cor da etiqueta</p>
+                <div className="flex gap-1.5 flex-wrap max-w-[180px]">
+                  {COLOR_OPTIONS.map(co => (
+                    <button
+                      key={co.value}
+                      onClick={() => setNewTagColor(co.value)}
+                      className={cn(
+                        "w-6 h-6 rounded-full border-2 transition-all",
+                        co.dot,
+                        newTagColor === co.value ? "border-foreground scale-110" : "border-transparent hover:scale-105"
+                      )}
+                      title={co.name}
+                    />
+                  ))}
+                </div>
+              </PopoverContent>
+            </Popover>
             <Input
               value={newTag}
               onChange={(e) => setNewTag(e.target.value)}
               placeholder="Nova etiqueta..."
-              className="h-7 w-32 text-xs"
+              className="h-8 w-36 text-xs"
               onKeyDown={(e) => e.key === "Enter" && onAddTag(submission.id, tags)}
             />
-            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => onAddTag(submission.id, tags)}>
-              <Plus className="h-3 w-3" />
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onAddTag(submission.id, tags)}>
+              <Plus className="h-3.5 w-3.5" />
             </Button>
           </div>
         </div>
       </div>
 
       {/* Data fields */}
-      <div className="space-y-2">
+      <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <span className="text-sm font-medium">Dados do Lead</span>
+          <span className="text-sm font-semibold">Dados do Lead</span>
           {!editing ? (
             <Button variant="outline" size="sm" onClick={startEditing}>
               <Edit2 className="h-3 w-3 mr-1" /> Editar
@@ -340,7 +447,7 @@ function SubmissionDetail({
         </div>
         <div className="border rounded-lg divide-y">
           {Object.entries(editing ? editData : data).map(([key, value]) => (
-            <div key={key} className="flex items-center gap-3 px-4 py-2.5">
+            <div key={key} className="flex items-center gap-4 px-4 py-3">
               <span className="text-sm font-medium text-muted-foreground w-1/3 shrink-0">{key}</span>
               {editing ? (
                 <Input
@@ -357,16 +464,16 @@ function SubmissionDetail({
       </div>
 
       {/* Notes */}
-      <div className="space-y-2">
+      <div className="space-y-3">
         <div className="flex items-center gap-2">
           <MessageSquare className="h-4 w-4 text-muted-foreground" />
-          <span className="text-sm font-medium">Notas internas</span>
+          <span className="text-sm font-semibold">Notas internas</span>
         </div>
         <Textarea
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
           placeholder="Adicione notas sobre este lead..."
-          className="min-h-[80px] text-sm"
+          className="min-h-[100px] text-sm"
         />
         <Button variant="outline" size="sm" onClick={saveNotes} disabled={isPending || notes === (submission.notes || "")}>
           <Save className="h-3 w-3 mr-1" /> Salvar notas
