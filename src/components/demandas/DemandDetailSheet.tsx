@@ -54,18 +54,23 @@ export function DemandDetailSheet({ open, onOpenChange, item, columns, onUpdate,
   const loadComments = async (itemId: string) => {
     const { data } = await supabase
       .from("demand_comments")
-      .select("*, profiles!demand_comments_user_id_fkey(display_name, avatar_url)")
+      .select("*")
       .eq("item_id", itemId)
       .order("created_at", { ascending: true });
-    if (data) {
-      setComments(data.map((c: any) => ({
-        id: c.id,
-        content: c.content,
-        created_at: c.created_at,
-        user_id: c.user_id,
-        display_name: c.profiles?.display_name || null,
-        avatar_url: c.profiles?.avatar_url || null,
+    if (data && data.length > 0) {
+      const userIds = [...new Set(data.map(c => c.user_id))];
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("user_id, display_name, avatar_url")
+        .in("user_id", userIds);
+      const profileMap = new Map((profiles || []).map(p => [p.user_id, p]));
+      setComments(data.map(c => ({
+        ...c,
+        display_name: profileMap.get(c.user_id)?.display_name || null,
+        avatar_url: profileMap.get(c.user_id)?.avatar_url || null,
       })));
+    } else {
+      setComments([]);
     }
   };
 
