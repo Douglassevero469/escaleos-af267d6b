@@ -662,25 +662,33 @@ export default function PacoteDocumentos() {
                         onClick={() => setViewDoc({ ...doc, content: getDocContent(doc) })}>
                         <Eye className="h-3 w-3" /> {isActive ? "Ver ao vivo" : "Ver"}
                       </Button>
-                      {isDocReady(status) && content && (
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="outline" size="sm" className="gap-1 px-2">
-                              <Download className="h-3 w-3" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => downloadAsPdf(doc.title, content)}>
-                              Baixar PDF
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => downloadAsDocx(doc.title, content)}>
-                              Baixar DOCX
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => downloadAsText(`${doc.title.replace(/\s+/g, "_")}.md`, content)}>
-                              Baixar Markdown
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                      {isDocReady(status) && (
+                        <>
+                          <Button variant="outline" size="sm" className="gap-1 px-2" title="Regenerar com IA"
+                            onClick={() => retryDoc(doc)} disabled={isActive}>
+                            <RefreshCw className="h-3 w-3" />
+                          </Button>
+                          {content && (
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="outline" size="sm" className="gap-1 px-2">
+                                  <Download className="h-3 w-3" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => downloadAsPdf(doc.title, content)}>
+                                  Baixar PDF
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => downloadAsDocx(doc.title, content)}>
+                                  Baixar DOCX
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => downloadAsText(`${doc.title.replace(/\s+/g, "_")}.md`, content)}>
+                                  Baixar Markdown
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          )}
+                        </>
                       )}
                     </>
                   )}
