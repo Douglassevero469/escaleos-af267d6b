@@ -14,6 +14,7 @@ import JSZip from "jszip";
 
 const statusConfig = {
   ready: { icon: CheckCircle, color: "text-success", bg: "bg-success/10", label: "Pronto" },
+  completed: { icon: CheckCircle, color: "text-success", bg: "bg-success/10", label: "Pronto" },
   pending: { icon: Loader2, color: "text-warning", bg: "bg-warning/10", label: "Na fila..." },
   generating: { icon: Loader2, color: "text-accent", bg: "bg-accent/10", label: "Gerando..." },
   error: { icon: AlertCircle, color: "text-destructive", bg: "bg-destructive/10", label: "Erro" },
@@ -367,7 +368,7 @@ function downloadAsDocx(title: string, content: string) {
 
 async function downloadAllAsZip(docs: any[], clientName: string) {
   const zip = new JSZip();
-  const readyDocs = docs.filter((d: any) => d.status === "ready" && d.content);
+  const readyDocs = docs.filter((d: any) => (d.status === "ready" || d.status === "completed") && d.content);
 
   for (const doc of readyDocs) {
     const safeTitle = doc.title.replace(/[^a-zA-Z0-9À-ÿ\s-]/g, "").replace(/\s+/g, "_");
@@ -476,7 +477,7 @@ export default function PacoteDocumentos() {
       }
 
       // Save to DB
-      await supabase.from("documents").update({ content, status: "ready" }).eq("id", docId);
+      await supabase.from("documents").update({ content, status: "completed" }).eq("id", docId);
       queryClient.invalidateQueries({ queryKey: ["package-documents", id] });
     } catch (e) {
       console.error(`Error generating ${docType}:`, e);
@@ -515,17 +516,19 @@ export default function PacoteDocumentos() {
       await Promise.all(workers);
 
       // Update package status
-      await supabase.from("packages").update({ status: "ready" }).eq("id", id!);
+      await supabase.from("packages").update({ status: "completed" }).eq("id", id!);
       queryClient.invalidateQueries({ queryKey: ["package", id] });
     };
 
     generateSequentially();
   }, [docs, pkg, streamDocument, id, queryClient]);
 
-  const completedCount = docs.filter((d: any) => d.status === "ready").length;
+  const completedCount = docs.filter((d: any) => d.status === "ready" || d.status === "completed").length;
   const totalCount = docs.length;
   const progress = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
   const isGenerating = generatingDocs.size > 0 || docs.some((d: any) => d.status === "pending" || d.status === "generating");
+
+  const isDocReady = (status: string) => status === "ready" || status === "completed";
 
   const getDocContent = (doc: any) => {
     if (streamingContent[doc.id]) return streamingContent[doc.id];
@@ -611,7 +614,7 @@ export default function PacoteDocumentos() {
                       {wordCount.toLocaleString()} palavras...
                     </p>
                   )}
-                  {status === "ready" && wordCount > 0 && (
+                  {isDocReady(status) && wordCount > 0 && (
                     <p className="text-xs text-muted-foreground mt-1">{wordCount.toLocaleString()} palavras</p>
                   )}
                 </div>
@@ -631,11 +634,11 @@ export default function PacoteDocumentos() {
                   ) : (
                     <>
                       <Button variant="outline" size="sm" className="flex-1 gap-1"
-                        disabled={status !== "ready" && !isActive}
+                        disabled={!isDocReady(status) && !isActive}
                         onClick={() => setViewDoc({ ...doc, content: getDocContent(doc) })}>
                         <Eye className="h-3 w-3" /> {isActive ? "Ver ao vivo" : "Ver"}
                       </Button>
-                      {status === "ready" && content && (
+                      {isDocReady(status) && content && (
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button variant="outline" size="sm" className="gap-1 px-2">
@@ -675,7 +678,7 @@ export default function PacoteDocumentos() {
                   <Loader2 className="h-4 w-4 animate-spin text-accent" />
                 )}
               </DialogTitle>
-              {viewDoc?.content && viewDoc?.status === "ready" && (
+              {viewDoc?.content && (viewDoc?.status === "ready" || viewDoc?.status === "completed") && (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="outline" size="sm" className="gap-1">
