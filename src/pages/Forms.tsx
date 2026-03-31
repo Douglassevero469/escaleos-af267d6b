@@ -220,7 +220,7 @@ export default function Forms() {
                 <Badge variant="outline">{LAYOUT_LABELS[f.layout] || f.layout}</Badge>
                 <button
                   className="text-xs text-primary hover:underline ml-auto cursor-pointer"
-                  onClick={() => setViewSubmissions({ id: f.id, name: f.name })}
+                  onClick={() => navigate(`/forms/${f.id}/respostas`)}
                 >
                   {(submissionCounts as any)[f.id] || 0} respostas
                 </button>
