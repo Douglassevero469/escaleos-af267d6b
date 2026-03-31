@@ -523,7 +523,7 @@ export default function PacoteDocumentos() {
     generateSequentially();
   }, [docs, pkg, streamDocument, id, queryClient]);
 
-  const completedCount = docs.filter((d: any) => d.status === "ready").length;
+  const completedCount = docs.filter((d: any) => d.status === "ready" || d.status === "completed").length;
   const totalCount = docs.length;
   const progress = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
   const isGenerating = generatingDocs.size > 0 || docs.some((d: any) => d.status === "pending" || d.status === "generating");
