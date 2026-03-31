@@ -628,8 +628,19 @@ export default function PacoteDocumentos() {
       const workers = Array.from({ length: Math.min(concurrency, queue.length) }, () => runNext());
       await Promise.all(workers);
 
-      // Update package status
+      // Update package status & notify
       await supabase.from("packages").update({ status: "completed" }).eq("id", id!);
+      const clientName = (pkg as any)?.clients?.name || "cliente";
+      const { data: { user: pkgUser } } = await supabase.auth.getUser();
+      if (pkgUser) {
+        await supabase.from("notifications").insert({
+          user_id: pkgUser.id,
+          type: "package_complete",
+          title: `Pacote finalizado: ${clientName}`,
+          message: `Todos os documentos do pacote foram gerados com sucesso.`,
+          link: `/pacote/${id}`,
+        } as any);
+      }
       queryClient.invalidateQueries({ queryKey: ["package", id] });
     };
 
