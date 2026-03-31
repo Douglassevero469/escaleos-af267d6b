@@ -41,14 +41,10 @@ const ICON_MAP: Record<string, any> = {
 };
 
 function SortableField({
-  field, isSelected, onSelect, onRemove, isDragging,
-}: { field: FormField; isSelected: boolean; onSelect: () => void; onRemove: () => void; isDragging?: boolean }) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging: isSortableDragging } = useSortable({ id: field.id });
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isSortableDragging ? 0.3 : 1,
-  };
+  field, isSelected, onSelect, onRemove,
+}: { field: FormField; isSelected: boolean; onSelect: () => void; onRemove: () => void }) {
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: field.id });
+  const style = { transform: CSS.Transform.toString(transform), transition };
 
   return (
     <div
@@ -56,7 +52,6 @@ function SortableField({
       style={style}
       onClick={onSelect}
       className={`group relative flex items-center gap-2 p-3 rounded-lg border cursor-pointer transition-all ${
-        isSortableDragging ? "border-primary/40 bg-primary/5 border-dashed" :
         isSelected ? "border-primary bg-primary/5 ring-1 ring-primary" : "border-border hover:border-primary/50"
       }`}
     >
@@ -78,23 +73,6 @@ function SortableField({
       >
         <Trash2 className="h-3.5 w-3.5" />
       </button>
-    </div>
-  );
-}
-
-function DragOverlayField({ field }: { field: FormField }) {
-  return (
-    <div className="flex items-center gap-2 p-3 rounded-lg border-2 border-primary bg-background shadow-lg shadow-primary/10 cursor-grabbing">
-      <GripVertical className="h-4 w-4 text-primary" />
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2">
-          <Badge variant="outline" className="text-[10px] shrink-0">
-            {FIELD_TYPES.find(f => f.type === field.type)?.label || field.type}
-          </Badge>
-          <span className="text-sm font-medium truncate">{field.label}</span>
-          {field.required && <span className="text-destructive text-xs">*</span>}
-        </div>
-      </div>
     </div>
   );
 }
