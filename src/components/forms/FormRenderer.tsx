@@ -84,11 +84,11 @@ export default function FormRenderer({
   const inputFields = fields.filter(f => !["heading", "paragraph", "divider", "spacer"].includes(f.type));
 
   const formHeader = (
-    <div className="text-center space-y-3">
+    <div className="text-center space-y-2 sm:space-y-3">
       {settings.logoUrl && (
-        <img src={settings.logoUrl} alt="Logo" className="h-12 max-w-[180px] object-contain mx-auto" />
+        <img src={settings.logoUrl} alt="Logo" className="h-10 sm:h-12 max-w-[160px] sm:max-w-[180px] object-contain mx-auto" />
       )}
-      <h1 className="text-xl font-bold">{formName}</h1>
+      <h1 className="text-lg sm:text-xl font-bold leading-tight">{formName}</h1>
     </div>
   );
 
