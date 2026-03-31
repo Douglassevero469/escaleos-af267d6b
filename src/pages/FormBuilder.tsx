@@ -87,6 +87,7 @@ export default function FormBuilder() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [formName, setFormName] = useState("");
   const [formDesc, setFormDesc] = useState("");
+  const [slug, setSlug] = useState("");
   const [layout, setLayout] = useState("list");
   const [status, setStatus] = useState("draft");
   const [previewMode, setPreviewMode] = useState<"desktop" | "mobile">("desktop");
@@ -113,6 +114,7 @@ export default function FormBuilder() {
     if (formData) {
       setFormName(formData.name);
       setFormDesc(formData.description || "");
+      setSlug(formData.slug || "");
       setLayout(formData.layout);
       setStatus(formData.status);
       setFields(Array.isArray(formData.fields) ? (formData.fields as any as FormField[]) : []);
@@ -123,11 +125,14 @@ export default function FormBuilder() {
   const saveMutation = useMutation({
     mutationFn: async (newStatus: string | null = null) => {
       const finalStatus = newStatus || status;
+      const sanitizedSlug = slug.toLowerCase().replace(/[^a-z0-9-]/g, "").slice(0, 50);
+      if (!sanitizedSlug) throw new Error("Slug não pode ficar vazio");
       const { error } = await supabase
         .from("forms")
         .update({
           name: formName,
           description: formDesc || null,
+          slug: sanitizedSlug,
           layout,
           fields: fields as any,
           settings: settings as any,
@@ -233,11 +238,11 @@ export default function FormBuilder() {
       </div>
 
       {/* Published Link Banner */}
-      {status === "published" && formData?.slug && (() => {
+      {status === "published" && slug && (() => {
         const baseUrl = window.location.hostname.includes("lovableproject.com") || window.location.hostname.includes("lovable.app")
           ? "https://escaleos.lovable.app"
           : window.location.origin;
-        const publicLink = `${baseUrl}/f/${formData.slug}`;
+        const publicLink = `${baseUrl}/f/${slug}`;
         return (
           <div className="flex items-center gap-3 px-4 py-3 rounded-lg border border-primary/30 bg-primary/5">
             <Globe className="h-4 w-4 text-primary shrink-0" />
@@ -317,6 +322,30 @@ export default function FormBuilder() {
                 )}
               </div>
               <p className="text-[10px] text-muted-foreground">Exibida no topo do formulário público</p>
+            </div>
+          </div>
+          <div className="grid gap-3 md:grid-cols-2">
+            <div>
+              <Label className="text-xs">Slug (URL pública)</Label>
+              <div className="flex gap-2 items-center">
+                <span className="text-xs text-muted-foreground whitespace-nowrap">/f/</span>
+                <Input
+                  value={slug}
+                  onChange={e => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))}
+                  placeholder="meu-formulario"
+                  className="font-mono text-xs"
+                  maxLength={50}
+                />
+              </div>
+              <p className="text-[10px] text-muted-foreground mt-1">Apenas letras minúsculas, números e hífens</p>
+            </div>
+            <div>
+              <Label className="text-xs">Descrição</Label>
+              <Input
+                value={formDesc}
+                onChange={e => setFormDesc(e.target.value)}
+                placeholder="Descrição do formulário"
+              />
             </div>
           </div>
           <div className="grid gap-3 md:grid-cols-3">
@@ -578,7 +607,7 @@ export default function FormBuilder() {
                     const base = window.location.hostname.includes("lovableproject.com") || window.location.hostname.includes("lovable.app")
                       ? "https://escaleos.lovable.app"
                       : window.location.origin;
-                    return `${base}/f/${formData?.slug || "..."}`;
+                    return `${base}/f/${slug || "..."}`;
                   })()}
                 </span>
               </div>
