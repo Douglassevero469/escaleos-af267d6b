@@ -17,6 +17,7 @@ import {
   ArrowLeft, Save, Eye, Smartphone, Monitor, Globe, Loader2, Trash2, GripVertical, Plus,
   Type, AlignLeft, Mail, Phone, Hash, ChevronDown, CheckSquare, Circle, ToggleLeft,
   ThumbsUp, List, Calendar, Upload, Heading, FileText, Minus, MoveVertical, Settings,
+  ImageIcon,
 } from "lucide-react";
 import { FormField, FIELD_TYPES, createField } from "@/lib/form-field-types";
 import { FORM_THEMES } from "@/lib/form-themes";
@@ -226,6 +227,57 @@ export default function FormBuilder() {
       {settingsOpen && (
         <GlassCard className="p-4 space-y-4">
           <h4 className="font-semibold text-sm">Configurações do Formulário</h4>
+          {/* Logo Upload */}
+          <div className="flex items-center gap-4">
+            <div className="shrink-0">
+              {(settings as any)?.logoUrl ? (
+                <img
+                  src={(settings as any).logoUrl}
+                  alt="Logo"
+                  className="w-16 h-16 object-contain rounded-lg border border-border bg-muted/30"
+                />
+              ) : (
+                <div className="w-16 h-16 rounded-lg border border-dashed border-border flex items-center justify-center bg-muted/20">
+                  <ImageIcon className="h-5 w-5 text-muted-foreground" />
+                </div>
+              )}
+            </div>
+            <div className="flex-1 space-y-1">
+              <Label className="text-xs">Logo do Formulário</Label>
+              <div className="flex gap-2">
+                <Input
+                  type="file"
+                  accept="image/*"
+                  className="text-xs"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file || !user) return;
+                    const ext = file.name.split(".").pop();
+                    const path = `${user.id}/${id}/logo-${Date.now()}.${ext}`;
+                    const { error } = await supabase.storage.from("form-assets").upload(path, file, { upsert: true });
+                    if (error) {
+                      toast({ title: "Erro ao enviar logo", description: error.message, variant: "destructive" });
+                      return;
+                    }
+                    const { data: urlData } = supabase.storage.from("form-assets").getPublicUrl(path);
+                    setSettings((s: any) => ({ ...s, logoUrl: urlData.publicUrl }));
+                    toast({ title: "Logo enviada!" });
+                  }}
+                />
+                {(settings as any)?.logoUrl && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="shrink-0 h-9 w-9 text-destructive"
+                    onClick={() => setSettings((s: any) => ({ ...s, logoUrl: "" }))}
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
+                )}
+              </div>
+              <p className="text-[10px] text-muted-foreground">Exibida no topo do formulário público</p>
+            </div>
+          </div>
           <div className="grid gap-3 md:grid-cols-3">
             <div>
               <Label className="text-xs">Mensagem de Sucesso</Label>

@@ -76,6 +76,15 @@ export default function FormRenderer({
 
   const inputFields = fields.filter(f => !["heading", "paragraph", "divider", "spacer"].includes(f.type));
 
+  const formHeader = (
+    <div className="text-center space-y-3">
+      {settings.logoUrl && (
+        <img src={settings.logoUrl} alt="Logo" className="h-12 max-w-[180px] object-contain mx-auto" />
+      )}
+      <h1 className="text-xl font-bold">{formName}</h1>
+    </div>
+  );
+
   const setValue = (id: string, val: any) => setValues(v => ({ ...v, [id]: val }));
 
   const validate = () => {
@@ -291,7 +300,7 @@ export default function FormRenderer({
     return (
       <div className="flex items-center justify-center p-6 min-h-[300px]" style={themeStyle}>
         <div className="w-full max-w-md space-y-6">
-          <h1 className="text-xl font-bold text-center">{formName}</h1>
+          {formHeader}
           <p className="text-xs text-center text-muted-foreground">{chatStep + 1} de {chatFields.length}</p>
           {currentField && (
             <div className="animate-fade-in space-y-4">
@@ -336,7 +345,7 @@ export default function FormRenderer({
     return (
       <div className="flex items-center justify-center p-6 min-h-[300px]" style={themeStyle}>
         <div className="w-full max-w-lg space-y-6">
-          <h1 className="text-xl font-bold text-center">{formName}</h1>
+          {formHeader}
           <StepIndicator steps={Array.from({ length: totalSteps }, (_, i) => `Etapa ${i + 1}`)} currentStep={stepperStep} />
           <div className="space-y-4">
             {currentFields.map(f => <div key={f.id}>{renderField(f)}</div>)}
@@ -362,7 +371,7 @@ export default function FormRenderer({
     return (
       <div className="flex items-center justify-center p-6 min-h-[300px]" style={themeStyle}>
         <div className="w-full max-w-lg space-y-4">
-          <h1 className="text-xl font-bold text-center">{formName}</h1>
+          {formHeader}
           {fields.map(f => (
             <div key={f.id} className="rounded-xl border p-4 shadow-sm" style={cardStyle}>{renderField(f)}</div>
           ))}
@@ -377,7 +386,7 @@ export default function FormRenderer({
     return (
       <div className="flex items-center justify-center p-6 min-h-[300px]" style={themeStyle}>
         <div className="w-full max-w-2xl space-y-4">
-          <h1 className="text-xl font-bold text-center">{formName}</h1>
+          {formHeader}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {fields.map(f => (
               <div key={f.id} className={f.width === "half" ? "" : "md:col-span-2"}>{renderField(f)}</div>
@@ -393,7 +402,7 @@ export default function FormRenderer({
   return (
     <div className="flex items-center justify-center p-6 min-h-[300px]" style={themeStyle}>
       <div className="w-full max-w-lg space-y-4">
-        <h1 className="text-xl font-bold text-center">{formName}</h1>
+        {formHeader}
         {formDescription && <p className="text-sm text-center" style={mutedStyle}>{formDescription}</p>}
         <div className="space-y-4">
           {fields.map(f => <div key={f.id}>{renderField(f)}</div>)}
