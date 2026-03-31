@@ -1,5 +1,5 @@
 import { GlassCard } from "@/components/ui/GlassCard";
-import { FileText, Eye, CheckCircle, Loader2, AlertCircle, RefreshCw, Download, Archive, Pencil, Save } from "lucide-react";
+import { FileText, Eye, CheckCircle, Loader2, AlertCircle, RefreshCw, Download, Archive, Pencil, Save, Sparkles } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { useParams } from "react-router-dom";
