@@ -209,6 +209,15 @@ export function AttachmentList({ itemId, onActivityLog }: AttachmentListProps) {
                   className="w-full h-full rounded border-0"
                   title={preview.file_name}
                 />
+              ) : preview.file_type.startsWith("video") ? (
+                <video
+                  src={preview.file_url}
+                  controls
+                  autoPlay
+                  className="max-w-full max-h-full rounded"
+                >
+                  Seu navegador não suporta este vídeo.
+                </video>
               ) : null}
             </div>
           </div>
