@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { MultiAssigneeInput, joinAssignees } from "./AssigneeAvatars";
 
 interface NewDemandDialogProps {
   open: boolean;
@@ -17,13 +18,13 @@ export function NewDemandDialog({ open, onOpenChange, defaultStatus, onSubmit }:
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState("medium");
-  const [assignee, setAssignee] = useState("");
+  const [assignees, setAssignees] = useState<string[]>([]);
   const [dueDate, setDueDate] = useState("");
 
   const handleSubmit = () => {
     if (!title.trim()) return;
-    onSubmit({ title, description, priority, status: defaultStatus, assignee_name: assignee, due_date: dueDate });
-    setTitle(""); setDescription(""); setPriority("medium"); setAssignee(""); setDueDate("");
+    onSubmit({ title, description, priority, status: defaultStatus, assignee_name: joinAssignees(assignees), due_date: dueDate });
+    setTitle(""); setDescription(""); setPriority("medium"); setAssignees([]); setDueDate("");
     onOpenChange(false);
   };
 
@@ -61,8 +62,8 @@ export function NewDemandDialog({ open, onOpenChange, defaultStatus, onSubmit }:
             </div>
           </div>
           <div>
-            <Label>Responsável</Label>
-            <Input value={assignee} onChange={e => setAssignee(e.target.value)} placeholder="Nome do responsável" />
+            <Label>Responsáveis</Label>
+            <MultiAssigneeInput value={assignees} onChange={setAssignees} />
           </div>
         </div>
         <DialogFooter>

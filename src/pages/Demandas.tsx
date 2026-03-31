@@ -281,7 +281,7 @@ export default function Demandas() {
     return items.filter(i => {
       if (search && !i.title.toLowerCase().includes(search.toLowerCase())) return false;
       if (priorityFilter !== "all" && i.priority !== priorityFilter) return false;
-      if (assigneeFilter !== "all" && i.assignee_name !== assigneeFilter) return false;
+      if (assigneeFilter !== "all" && !(i.assignee_name || "").split(/[,;]/).map(n => n.trim()).includes(assigneeFilter)) return false;
       if (tagFilter !== "all" && !(i.tags || []).includes(tagFilter)) return false;
       return true;
     });
