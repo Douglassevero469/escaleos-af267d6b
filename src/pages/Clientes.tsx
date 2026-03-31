@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { GlassCard } from "@/components/ui/GlassCard";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, Users, Package, ArrowUpRight, Loader2, Plus, MoreVertical, Pencil, Trash2, BookmarkPlus } from "lucide-react";
@@ -17,6 +18,7 @@ export default function Clientes() {
   const [open, setOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [editClient, setEditClient] = useState<any>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<any>(null);
   const [form, setForm] = useState({ name: "", nicho: "", instagram: "", site: "" });
   const { user } = useAuth();
   const { toast } = useToast();
@@ -215,7 +217,7 @@ export default function Clientes() {
                     <DropdownMenuItem onClick={(e) => { e.preventDefault(); e.stopPropagation(); saveAsTemplate(client); }}>
                       <BookmarkPlus className="h-3.5 w-3.5 mr-2" /> Salvar como Template
                     </DropdownMenuItem>
-                    <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={(e) => { e.preventDefault(); e.stopPropagation(); deleteClient.mutate(client.id); }}>
+                    <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setDeleteConfirm(client); }}>
                       <Trash2 className="h-3.5 w-3.5 mr-2" /> Excluir
                     </DropdownMenuItem>
                   </DropdownMenuContent>
@@ -258,6 +260,24 @@ export default function Clientes() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Delete Confirmation */}
+      <AlertDialog open={!!deleteConfirm} onOpenChange={(open) => !open && setDeleteConfirm(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir cliente</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir <strong>{deleteConfirm?.name}</strong>? Esta ação não pode ser desfeita e todos os pacotes associados serão removidos.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90" onClick={() => { deleteClient.mutate(deleteConfirm.id); setDeleteConfirm(null); }}>
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
