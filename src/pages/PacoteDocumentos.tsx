@@ -638,7 +638,7 @@ export default function PacoteDocumentos() {
                         onClick={() => setViewDoc({ ...doc, content: getDocContent(doc) })}>
                         <Eye className="h-3 w-3" /> {isActive ? "Ver ao vivo" : "Ver"}
                       </Button>
-                      {status === "ready" && content && (
+                      {isDocReady(status) && content && (
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button variant="outline" size="sm" className="gap-1 px-2">
