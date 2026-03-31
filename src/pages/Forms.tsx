@@ -73,25 +73,53 @@ export default function Forms() {
   });
 
   const createMutation = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (aiFields?: any[]) => {
       if (!user) throw new Error("Not authenticated");
-      const { error } = await supabase.from("forms").insert({
+      const { data: inserted, error } = await supabase.from("forms").insert({
         user_id: user.id,
         name: form.name,
         description: form.description || null,
         layout: form.layout,
         slug: generateSlug(),
-      });
+        ...(aiFields ? { fields: aiFields } : {}),
+      }).select("id").single();
       if (error) throw error;
+      return inserted;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["forms"] });
       setCreateOpen(false);
       setForm({ name: "", description: "", layout: "list" });
-      toast({ title: "Formulário criado!" });
+      setUseAI(false);
+      setAiPrompt("");
+      if (data?.id) {
+        toast({ title: "Formulário criado com IA! Redirecionando ao editor..." });
+        navigate(`/forms/${data.id}`);
+      } else {
+        toast({ title: "Formulário criado!" });
+      }
     },
     onError: (e: any) => toast({ title: "Erro", description: e.message, variant: "destructive" }),
   });
+
+  const handleCreateWithAI = async () => {
+    if (!aiPrompt.trim() || !form.name.trim()) return;
+    setAiGenerating(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-form-fields", {
+        body: { description: aiPrompt },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      const fields = data?.fields || [];
+      if (!fields.length) throw new Error("Nenhum campo gerado");
+      createMutation.mutate(fields);
+    } catch (e: any) {
+      toast({ title: "Erro ao gerar com IA", description: e.message, variant: "destructive" });
+    } finally {
+      setAiGenerating(false);
+    }
+  };
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
