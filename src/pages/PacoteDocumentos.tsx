@@ -477,7 +477,7 @@ export default function PacoteDocumentos() {
       }
 
       // Save to DB
-      await supabase.from("documents").update({ content, status: "ready" }).eq("id", docId);
+      await supabase.from("documents").update({ content, status: "completed" }).eq("id", docId);
       queryClient.invalidateQueries({ queryKey: ["package-documents", id] });
     } catch (e) {
       console.error(`Error generating ${docType}:`, e);
