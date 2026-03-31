@@ -56,7 +56,8 @@ type BuiltInChart =
   | "deviceType"
   | "browser"
   | "deviceModel"
-  | "region";
+  | "region"
+  | "locationMap";
 
 const BUILTIN_CHART_LABELS: Record<BuiltInChart, string> = {
   kpis: "KPIs Principais",
