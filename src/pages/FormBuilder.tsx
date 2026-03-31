@@ -27,6 +27,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import FormSubmissions from "@/components/forms/FormSubmissions";
+import FormRenderer from "@/components/forms/FormRenderer";
 
 const ICON_MAP: Record<string, any> = {
   Type, AlignLeft, Mail, Phone, Hash, ChevronDown, CheckSquare, Circle, ToggleLeft,
