@@ -43,7 +43,7 @@ export default function FormAnalytics({ formId, formName }: Props) {
     try {
       const element = reportRef.current;
       const opt = {
-        margin: [10, 8, 10, 8],
+        margin: [10, 8, 10, 8] as [number, number, number, number],
         filename: `analytics-${formName || formId.slice(0, 8)}-${format(new Date(), "dd-MM-yyyy")}.pdf`,
         image: { type: "jpeg", quality: 0.95 },
         html2canvas: { scale: 2, useCORS: true, logging: false },
