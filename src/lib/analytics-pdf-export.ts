@@ -246,6 +246,10 @@ export async function captureChartAsImage(
     useCORS: true,
     logging: false,
     backgroundColor: "#ffffff",
+    width: chartElement.scrollWidth,
+    height: chartElement.scrollHeight,
+    windowWidth: chartElement.scrollWidth,
+    windowHeight: chartElement.scrollHeight,
   });
   return canvas.toDataURL("image/png");
 }
