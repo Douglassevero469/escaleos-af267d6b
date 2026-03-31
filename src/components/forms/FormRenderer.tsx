@@ -585,6 +585,99 @@ export default function FormRenderer({
     );
   }
 
+  // Focus (Typeform-style): one field at a time, full screen, big typography
+  if (layout === "focus") {
+    const focusFields = fields.filter(f => !["heading", "paragraph", "divider", "spacer"].includes(f.type));
+    const [focusStep, setFocusStep] = useState(0);
+    const currentField = focusFields[focusStep];
+    const isLast = focusStep >= focusFields.length - 1;
+    const progress = focusFields.length > 0 ? ((focusStep + 1) / focusFields.length) * 100 : 0;
+
+    return (
+      <div className={`flex flex-col ${wrapperHeight}`} style={themeStyle}>
+        {/* Progress bar */}
+        <div className="h-1 w-full" style={{ backgroundColor: theme.vars["--form-border"] }}>
+          <div className="h-full transition-all duration-500 ease-out" style={{ width: `${progress}%`, backgroundColor: settings.buttonColor || theme.vars["--form-accent"] }} />
+        </div>
+        <div className="flex-1 flex items-center justify-center px-4 py-6">
+          <div className="w-full max-w-xl space-y-8">
+            {currentField && (
+              <div className="animate-fade-in space-y-6">
+                <p className="text-xs font-medium" style={mutedStyle}>{focusStep + 1} → {focusFields.length}</p>
+                <div className="[&_label]:text-xl [&_label]:font-semibold [&_input]:text-lg [&_textarea]:text-lg [&_input]:h-14 [&_input]:border-0 [&_input]:border-b-2 [&_input]:rounded-none [&_input]:bg-transparent [&_input]:focus:ring-0 [&_textarea]:border-0 [&_textarea]:border-b-2 [&_textarea]:rounded-none [&_textarea]:bg-transparent">
+                  {renderField(currentField)}
+                </div>
+                <div className="flex gap-3 pt-4">
+                  {focusStep > 0 && (
+                    <Button variant="outline" size="lg" onClick={() => setFocusStep(s => s - 1)} style={{ borderColor: theme.vars["--form-border"], color: theme.vars["--form-fg"] }}>
+                      <ArrowLeft className="h-4 w-4 mr-1" /> Voltar
+                    </Button>
+                  )}
+                  <Button
+                    size="lg"
+                    className="flex-1"
+                    style={btnStyle}
+                    onClick={() => { if (isPreview) return; if (isLast) handleSubmit(); else setFocusStep(s => s + 1); }}
+                    disabled={submitting || isPreview}
+                  >
+                    {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : isLast ? <><Send className="h-4 w-4 mr-1" /> Enviar</> : <>OK <ArrowRight className="h-4 w-4 ml-1" /></>}
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Split: branding on left, form on right
+  if (layout === "split") {
+    return (
+      <div className={`flex flex-col md:flex-row ${wrapperHeight}`} style={themeStyle}>
+        {/* Left branding panel */}
+        <div className="md:w-2/5 p-6 sm:p-10 flex flex-col justify-center" style={{ background: settings.buttonColor || theme.vars["--form-accent"] }}>
+          <div className="space-y-4">
+            {settings.logoUrl && (
+              <img src={settings.logoUrl} alt="Logo" className="h-12 max-w-[180px] object-contain" style={{ filter: "brightness(0) invert(1)" }} />
+            )}
+            <h1 className="text-2xl sm:text-3xl font-bold" style={{ color: theme.vars["--form-accent-fg"] }}>{formName}</h1>
+            {formDescription && <p className="text-sm opacity-80" style={{ color: theme.vars["--form-accent-fg"] }}>{formDescription}</p>}
+          </div>
+        </div>
+        {/* Right form panel */}
+        <div className="flex-1 p-6 sm:p-10 flex items-start sm:items-center justify-center overflow-y-auto">
+          <div className="w-full max-w-md space-y-4">
+            <div className="space-y-4">
+              {fields.map(f => <div key={f.id}>{renderField(f)}</div>)}
+            </div>
+            {submitButton()}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Compact: dense, minimal spacing
+  if (layout === "compact") {
+    return (
+      <div className={`flex items-start justify-center px-4 py-4 ${wrapperHeight}`} style={themeStyle}>
+        <div className="w-full max-w-md space-y-1">
+          <div className="text-center mb-3">
+            {settings.logoUrl && <img src={settings.logoUrl} alt="Logo" className="h-8 max-w-[120px] object-contain mx-auto mb-1" />}
+            <h1 className="text-base font-bold">{formName}</h1>
+          </div>
+          <div className="space-y-2 [&_label]:text-xs [&_input]:h-8 [&_input]:text-xs [&_textarea]:text-xs [&_p]:text-[10px]">
+            {fields.map(f => <div key={f.id}>{renderField(f)}</div>)}
+          </div>
+          <Button className="w-full h-9 text-xs mt-2" style={btnStyle} onClick={isPreview ? undefined : handleSubmit} disabled={submitting || isPreview}>
+            {submitting ? <Loader2 className="h-3 w-3 animate-spin" /> : <><Send className="h-3 w-3 mr-1" /> Enviar</>}
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   // Default: List
   return (
     <div className={`flex items-start sm:items-center justify-center px-4 py-6 sm:p-6 ${wrapperHeight}`} style={themeStyle}>
