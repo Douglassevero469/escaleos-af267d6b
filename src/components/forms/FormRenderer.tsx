@@ -74,6 +74,8 @@ export default function FormRenderer({
   const labelStyle: React.CSSProperties = { color: theme.vars["--form-fg"] };
   const mutedStyle: React.CSSProperties = { color: theme.vars["--form-muted"] };
 
+  const inputFields = fields.filter(f => !["heading", "paragraph", "divider", "spacer"].includes(f.type));
+
   const setValue = (id: string, val: any) => setValues(v => ({ ...v, [id]: val }));
 
   const validate = () => {
