@@ -265,9 +265,8 @@ export default function SubmissionsDialog({ formId, formName, open, onOpenChange
                 )}
               </div>
             )}
-          </div>
 
-            {/* Table */}
+
             <div className="border rounded-lg overflow-auto">
               <Table>
                 <TableHeader>
