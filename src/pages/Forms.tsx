@@ -187,9 +187,12 @@ export default function Forms() {
                   {f.status === "published" ? "Publicado" : "Rascunho"}
                 </Badge>
                 <Badge variant="outline">{LAYOUT_LABELS[f.layout] || f.layout}</Badge>
-                <span className="text-xs text-muted-foreground ml-auto">
+                <button
+                  className="text-xs text-primary hover:underline ml-auto cursor-pointer"
+                  onClick={() => setViewSubmissions({ id: f.id, name: f.name })}
+                >
                   {(submissionCounts as any)[f.id] || 0} respostas
-                </span>
+                </button>
               </div>
               <div className="flex gap-2 mt-auto pt-2 border-t border-border">
                 <Button variant="outline" size="sm" className="flex-1" onClick={() => navigate(`/forms/${f.id}`)}>
