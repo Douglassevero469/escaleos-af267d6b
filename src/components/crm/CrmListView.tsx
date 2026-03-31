@@ -24,6 +24,7 @@ export function CrmListView({ leads, stages, onLeadClick }: Props) {
             <TableHead>Nome</TableHead>
             <TableHead>Email</TableHead>
             <TableHead>Origem</TableHead>
+            <TableHead>Próxima Ação</TableHead>
             <TableHead>Etapa</TableHead>
             <TableHead>Score</TableHead>
             <TableHead>Valor</TableHead>
