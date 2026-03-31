@@ -1,17 +1,29 @@
-import { useMemo } from "react";
+import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { format, subDays, startOfDay, isAfter, isBefore } from "date-fns";
+import { ptBR } from "date-fns/locale";
 import { supabase } from "@/integrations/supabase/client";
 import { GlassCard } from "@/components/ui/GlassCard";
-import { Loader2, Eye, MousePointerClick, Send, TrendingUp, Users, LogOut } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Loader2, Eye, MousePointerClick, Send, TrendingUp, Users, LogOut, CalendarIcon } from "lucide-react";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts";
+import { cn } from "@/lib/utils";
 
 interface Props {
   formId: string;
 }
 
+type PeriodPreset = "7d" | "30d" | "90d" | "all" | "custom";
+
 export default function FormAnalytics({ formId }: Props) {
-  const { data: events = [], isLoading } = useQuery({
+  const [period, setPeriod] = useState<PeriodPreset>("30d");
+  const [customFrom, setCustomFrom] = useState<Date | undefined>();
+  const [customTo, setCustomTo] = useState<Date | undefined>();
+
+  const { data: allEvents = [], isLoading } = useQuery({
     queryKey: ["form-events", formId],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -24,7 +36,7 @@ export default function FormAnalytics({ formId }: Props) {
     },
   });
 
-  const { data: submissions = [] } = useQuery({
+  const { data: allSubmissions = [] } = useQuery({
     queryKey: ["form-submissions-analytics", formId],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -37,6 +49,32 @@ export default function FormAnalytics({ formId }: Props) {
     },
   });
 
+  // Filter by period
+  const dateRange = useMemo(() => {
+    const now = new Date();
+    if (period === "7d") return { from: startOfDay(subDays(now, 7)), to: now };
+    if (period === "30d") return { from: startOfDay(subDays(now, 30)), to: now };
+    if (period === "90d") return { from: startOfDay(subDays(now, 90)), to: now };
+    if (period === "custom" && customFrom) return { from: startOfDay(customFrom), to: customTo ? new Date(customTo.getTime() + 86400000 - 1) : now };
+    return null; // all
+  }, [period, customFrom, customTo]);
+
+  const events = useMemo(() => {
+    if (!dateRange) return allEvents;
+    return allEvents.filter((e: any) => {
+      const d = new Date(e.created_at);
+      return isAfter(d, dateRange.from) && isBefore(d, dateRange.to);
+    });
+  }, [allEvents, dateRange]);
+
+  const submissions = useMemo(() => {
+    if (!dateRange) return allSubmissions;
+    return allSubmissions.filter((s: any) => {
+      const d = new Date(s.created_at);
+      return isAfter(d, dateRange.from) && isBefore(d, dateRange.to);
+    });
+  }, [allSubmissions, dateRange]);
+
   const stats = useMemo(() => {
     const views = events.filter((e: any) => e.event_type === "view").length;
     const starts = events.filter((e: any) => e.event_type === "start").length;
@@ -45,11 +83,7 @@ export default function FormAnalytics({ formId }: Props) {
     const uniqueSessions = new Set(events.map((e: any) => e.session_id).filter(Boolean)).size;
 
     return {
-      views,
-      starts,
-      submits,
-      abandons,
-      uniqueSessions,
+      views, starts, submits, abandons, uniqueSessions,
       startRate: views > 0 ? ((starts / views) * 100).toFixed(1) : "0",
       conversionRate: views > 0 ? ((submits / views) * 100).toFixed(1) : "0",
       completionRate: starts > 0 ? ((submits / starts) * 100).toFixed(1) : "0",
@@ -85,7 +119,6 @@ export default function FormAnalytics({ formId }: Props) {
     return hours;
   }, [events]);
 
-  // Abandonment by field
   const abandonByField = useMemo(() => {
     const abandonEvents = events.filter((e: any) => e.event_type === "abandon" && e.metadata);
     const fieldMap: Record<string, { label: string; count: number }> = {};
@@ -101,7 +134,6 @@ export default function FormAnalytics({ formId }: Props) {
       .map(item => ({ field: item.label, abandonos: item.count }));
   }, [events]);
 
-  // Field interaction funnel (how many unique sessions reached each field)
   const fieldFunnel = useMemo(() => {
     const focusEvents = events.filter((e: any) => e.event_type === "field_focus" && e.metadata);
     const fieldSessions: Record<string, Set<string>> = {};
@@ -118,14 +150,9 @@ export default function FormAnalytics({ formId }: Props) {
       fieldSessions[label].add(session);
     });
 
-    // Deduplicate while preserving first-seen order
     const seen = new Set<string>();
     return fieldOrder
-      .filter(label => {
-        if (seen.has(label)) return false;
-        seen.add(label);
-        return true;
-      })
+      .filter(label => { if (seen.has(label)) return false; seen.add(label); return true; })
       .map(label => ({
         field: label.length > 18 ? label.slice(0, 16) + "…" : label,
         sessoes: fieldSessions[label].size,
@@ -136,7 +163,7 @@ export default function FormAnalytics({ formId }: Props) {
     return <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>;
   }
 
-  if (!events.length && !submissions.length) {
+  if (!allEvents.length && !allSubmissions.length) {
     return (
       <GlassCard className="flex flex-col items-center py-16 text-center">
         <TrendingUp className="h-12 w-12 text-muted-foreground mb-4" />
@@ -152,8 +179,69 @@ export default function FormAnalytics({ formId }: Props) {
     submits: { label: "Enviaram", color: "hsl(var(--chart-3))" },
   };
 
+  const presetButtons: { label: string; value: PeriodPreset }[] = [
+    { label: "7 dias", value: "7d" },
+    { label: "30 dias", value: "30d" },
+    { label: "90 dias", value: "90d" },
+    { label: "Todos", value: "all" },
+  ];
+
   return (
     <div className="space-y-4">
+      {/* Period filter */}
+      <GlassCard className="p-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-xs font-medium text-muted-foreground mr-1">Período:</span>
+          {presetButtons.map(btn => (
+            <Button
+              key={btn.value}
+              variant={period === btn.value ? "default" : "outline"}
+              size="sm"
+              className="h-7 text-xs"
+              onClick={() => setPeriod(btn.value)}
+            >
+              {btn.label}
+            </Button>
+          ))}
+
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant={period === "custom" ? "default" : "outline"}
+                size="sm"
+                className="h-7 text-xs"
+              >
+                <CalendarIcon className="h-3 w-3 mr-1" />
+                {period === "custom" && customFrom
+                  ? `${format(customFrom, "dd/MM", { locale: ptBR })} – ${customTo ? format(customTo, "dd/MM", { locale: ptBR }) : "hoje"}`
+                  : "Personalizado"}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="range"
+                selected={customFrom && customTo ? { from: customFrom, to: customTo } : customFrom ? { from: customFrom, to: undefined } : undefined}
+                onSelect={(range) => {
+                  setCustomFrom(range?.from);
+                  setCustomTo(range?.to);
+                  if (range?.from) setPeriod("custom");
+                }}
+                numberOfMonths={2}
+                locale={ptBR}
+                disabled={(date) => date > new Date()}
+                className={cn("p-3 pointer-events-auto")}
+              />
+            </PopoverContent>
+          </Popover>
+
+          {dateRange && (
+            <span className="text-[10px] text-muted-foreground ml-auto">
+              {format(dateRange.from, "dd/MM/yyyy", { locale: ptBR })} – {format(dateRange.to, "dd/MM/yyyy", { locale: ptBR })}
+            </span>
+          )}
+        </div>
+      </GlassCard>
+
       {/* KPI Cards */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
         <GlassCard className="p-4 text-center">
@@ -217,10 +305,7 @@ export default function FormAnalytics({ formId }: Props) {
                   <span className="font-medium">{item.value}</span>
                 </div>
                 <div className="h-6 rounded-md bg-muted overflow-hidden">
-                  <div
-                    className="h-full rounded-md transition-all duration-500"
-                    style={{ width: `${pct}%`, backgroundColor: item.fill }}
-                  />
+                  <div className="h-full rounded-md transition-all duration-500" style={{ width: `${pct}%`, backgroundColor: item.fill }} />
                 </div>
               </div>
             );
