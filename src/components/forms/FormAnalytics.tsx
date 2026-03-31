@@ -601,6 +601,7 @@ export default function FormAnalytics({ formId, formName }: Props) {
           </ChartContainer>
         </GlassCard>
       )}
+      </div>
     </div>
   );
 }
