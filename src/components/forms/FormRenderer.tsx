@@ -95,6 +95,8 @@ export default function FormRenderer({
     if (onFieldFocus) onFieldFocus(field.id, field.label);
   };
 
+  const wrapperHeight = isPreview ? "min-h-[300px]" : "min-h-screen";
+
   const validate = () => {
     const errs: Record<string, string> = {};
     inputFields.forEach(f => {
