@@ -470,6 +470,22 @@ export default function PacoteDocumentos() {
 
       // Save to DB
       await supabase.from("documents").update({ content, status: "completed" }).eq("id", docId);
+      
+      // Log generation
+      const wordCount = content.split(/\s+/).filter(Boolean).length;
+      const tokenEstimate = Math.round(wordCount * 1.3);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase.from("generation_logs").insert({
+          user_id: user.id,
+          document_id: docId,
+          doc_type: docType,
+          action: isRegeneration ? "regenerate" : "generate",
+          word_count: wordCount,
+          token_estimate: tokenEstimate,
+        });
+      }
+      
       queryClient.invalidateQueries({ queryKey: ["package-documents", id] });
     } catch (e) {
       console.error(`Error generating ${docType}:`, e);
