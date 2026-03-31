@@ -19,6 +19,7 @@ import {
   ThumbsUp, List, Calendar, Upload, Heading, FileText, Minus, MoveVertical, Settings,
 } from "lucide-react";
 import { FormField, FIELD_TYPES, createField } from "@/lib/form-field-types";
+import { FORM_THEMES } from "@/lib/form-themes";
 import {
   DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent,
 } from "@dnd-kit/core";
