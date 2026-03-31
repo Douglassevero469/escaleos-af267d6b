@@ -21,6 +21,7 @@ import FormBuilder from "./pages/FormBuilder";
 import FormPublic from "./pages/FormPublic";
 import FormSubmissionsPage from "./pages/FormSubmissions";
 import Demandas from "./pages/Demandas";
+import CRM from "./pages/CRM";
 import NotFound from "./pages/NotFound";
 import { AppLayout } from "./components/Layout/AppLayout";
 
