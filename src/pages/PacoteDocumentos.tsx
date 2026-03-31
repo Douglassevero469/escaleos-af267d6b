@@ -11,6 +11,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Progress } from "@/components/ui/progress";
 import ReactMarkdown from "react-markdown";
 import JSZip from "jszip";
+import { ESCALE_LOGO_BASE64 } from "@/lib/escale-logo-b64";
 
 const statusConfig = {
   ready: { icon: CheckCircle, color: "text-success", bg: "bg-success/10", label: "Pronto" },
