@@ -2,9 +2,10 @@ import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
-import { Plus } from "lucide-react";
+import { Plus, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BoardSelector } from "@/components/demandas/BoardSelector";
+import { BoardSettingsDialog } from "@/components/demandas/BoardSettingsDialog";
 import { DemandFilters, type ViewMode } from "@/components/demandas/DemandFilters";
 import { KanbanView } from "@/components/demandas/KanbanView";
 import { ListView } from "@/components/demandas/ListView";
@@ -41,6 +42,7 @@ export default function Demandas() {
   const [newDialogStatus, setNewDialogStatus] = useState("todo");
   const [detailItem, setDetailItem] = useState<DemandItem | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   useEffect(() => { if (user) loadBoards(); }, [user]);
   useEffect(() => { if (currentBoard) loadItems(currentBoard.id); }, [currentBoard]);
@@ -124,6 +126,15 @@ export default function Demandas() {
     toast.success("Demanda excluída!");
   };
 
+  const updateBoardColumns = async (newColumns: ColumnDef[]) => {
+    if (!currentBoard) return;
+    await supabase.from("demand_boards").update({ columns: newColumns as unknown as Json }).eq("id", currentBoard.id);
+    const updated = { ...currentBoard, columns: newColumns };
+    setCurrentBoard(updated);
+    setBoards(prev => prev.map(b => b.id === updated.id ? updated : b));
+    toast.success("Colunas atualizadas!");
+  };
+
   const columns = currentBoard?.columns || DEFAULT_COLUMNS;
 
   const filtered = useMemo(() => {
@@ -153,6 +164,9 @@ export default function Demandas() {
         </div>
         <div className="flex items-center gap-2">
           <BoardSelector boards={boards} currentBoard={currentBoard} onSelect={(b) => setCurrentBoard(b as Board)} onCreate={createBoard} />
+          <Button variant="outline" size="sm" onClick={() => setSettingsOpen(true)} className="gap-1">
+            <Settings className="h-4 w-4" />
+          </Button>
           <Button onClick={() => { setNewDialogStatus("todo"); setNewDialogOpen(true); }} size="sm" className="gap-1">
             <Plus className="h-4 w-4" /> Nova
           </Button>
@@ -181,6 +195,7 @@ export default function Demandas() {
         onUpdate={(item) => { updateItem(item); setDetailItem(item); toast.success("Salvo!"); }}
         onDelete={deleteItem}
       />
+      <BoardSettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} columns={columns} onSave={updateBoardColumns} />
     </div>
   );
 }
