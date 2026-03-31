@@ -128,6 +128,10 @@ export default function CRM() {
         <CrmListView leads={filteredLeads} stages={stages} onLeadClick={openLead} />
       )}
 
+      {pipelineId && view === "analytics" && (
+        <CrmAnalytics leads={leads} stages={stages} />
+      )}
+
       {!pipelineId && (
         <div className="flex items-center justify-center h-[40vh] text-muted-foreground">
           Crie ou selecione um pipeline para começar
