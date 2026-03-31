@@ -537,7 +537,7 @@ export default function FormAnalytics({ formId, formName }: Props) {
 
       {/* Conversion rate trend */}
       {conversionTrend.length > 1 && (
-        <GlassCard className="p-4">
+        <GlassCard className="p-4" data-chart-section data-chart-title="Taxa de Conversão ao Longo do Tempo">
           <h3 className="text-sm font-semibold mb-3">Taxa de Conversão ao Longo do Tempo</h3>
           <ChartContainer config={{ taxa: { label: "Conversão %", color: "hsl(var(--primary))" } }} className="h-[200px] w-full">
             <AreaChart data={conversionTrend}>
