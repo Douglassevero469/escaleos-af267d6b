@@ -345,7 +345,7 @@ export default function FormRenderer({
     return (
       <div className="flex items-center justify-center p-6 min-h-[300px]" style={themeStyle}>
         <div className="w-full max-w-lg space-y-6">
-          <h1 className="text-xl font-bold text-center">{formName}</h1>
+          {formHeader}
           <StepIndicator steps={Array.from({ length: totalSteps }, (_, i) => `Etapa ${i + 1}`)} currentStep={stepperStep} />
           <div className="space-y-4">
             {currentFields.map(f => <div key={f.id}>{renderField(f)}</div>)}
