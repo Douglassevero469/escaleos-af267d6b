@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { format, subDays, startOfDay, isAfter, isBefore } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -9,13 +9,15 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Loader2, Eye, MousePointerClick, Send, TrendingUp, Users, LogOut, CalendarIcon, Clock, Percent } from "lucide-react";
+import { Loader2, Eye, MousePointerClick, Send, TrendingUp, Users, LogOut, CalendarIcon, Clock, Percent, FileDown } from "lucide-react";
+import html2pdf from "html2pdf.js";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, LineChart, Line, PieChart, Pie, Cell, AreaChart, Area } from "recharts";
 import { cn } from "@/lib/utils";
 
 interface Props {
   formId: string;
+  formName?: string;
 }
 
 type PeriodPreset = "7d" | "30d" | "90d" | "all" | "custom";
@@ -28,10 +30,31 @@ const PIE_COLORS = [
   "hsl(var(--destructive))",
 ];
 
-export default function FormAnalytics({ formId }: Props) {
+export default function FormAnalytics({ formId, formName }: Props) {
   const [period, setPeriod] = useState<PeriodPreset>("30d");
   const [customFrom, setCustomFrom] = useState<Date | undefined>();
   const [customTo, setCustomTo] = useState<Date | undefined>();
+  const [exporting, setExporting] = useState(false);
+  const reportRef = useRef<HTMLDivElement>(null);
+
+  const exportPDF = useCallback(async () => {
+    if (!reportRef.current) return;
+    setExporting(true);
+    try {
+      const element = reportRef.current;
+      const opt = {
+        margin: [10, 8, 10, 8] as [number, number, number, number],
+        filename: `analytics-${formName || formId.slice(0, 8)}-${format(new Date(), "dd-MM-yyyy")}.pdf`,
+        image: { type: "jpeg" as const, quality: 0.95 },
+        html2canvas: { scale: 2, useCORS: true, logging: false },
+        jsPDF: { unit: "mm" as const, format: "a4" as const, orientation: "portrait" as const },
+        pagebreak: { mode: ["avoid-all", "css", "legacy"] as any },
+      };
+      await html2pdf().set(opt).from(element).save();
+    } finally {
+      setExporting(false);
+    }
+  }, [formId, formName]);
 
   const { data: allEvents = [], isLoading } = useQuery({
     queryKey: ["form-events", formId],
@@ -301,13 +324,18 @@ export default function FormAnalytics({ formId }: Props) {
             </PopoverContent>
           </Popover>
           {dateRange && (
-            <span className="text-[10px] text-muted-foreground ml-auto">
+            <span className="text-[10px] text-muted-foreground">
               {format(dateRange.from, "dd/MM/yyyy", { locale: ptBR })} – {format(dateRange.to, "dd/MM/yyyy", { locale: ptBR })}
             </span>
           )}
+          <Button variant="outline" size="sm" className="h-7 text-xs ml-auto" onClick={exportPDF} disabled={exporting}>
+            {exporting ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : <FileDown className="h-3 w-3 mr-1" />}
+            Exportar PDF
+          </Button>
         </div>
       </GlassCard>
 
+      <div ref={reportRef} className="space-y-4">
       {/* KPI Cards */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
         <GlassCard className="p-4 text-center">
@@ -573,6 +601,7 @@ export default function FormAnalytics({ formId }: Props) {
           </ChartContainer>
         </GlassCard>
       )}
+      </div>
     </div>
   );
 }

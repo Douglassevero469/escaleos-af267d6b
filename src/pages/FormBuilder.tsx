@@ -589,7 +589,7 @@ export default function FormBuilder() {
         </TabsContent>
 
         <TabsContent value="analytics">
-          <FormAnalytics formId={id!} />
+          <FormAnalytics formId={id!} formName={formName} />
         </TabsContent>
       </Tabs>
     </div>
