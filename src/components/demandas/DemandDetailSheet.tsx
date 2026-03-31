@@ -13,6 +13,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { SubtaskList, type Subtask } from "./SubtaskList";
 import { AttachmentList } from "./AttachmentList";
 import { ActivityLog } from "./ActivityLog";
+import { MultiAssigneeInput, parseAssignees, joinAssignees } from "./AssigneeAvatars";
 import type { DemandItem } from "./KanbanCard";
 import type { ColumnDef } from "./KanbanColumn";
 
