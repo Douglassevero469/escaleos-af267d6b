@@ -18,6 +18,59 @@ const statusConfig = {
   error: { icon: AlertCircle, color: "text-destructive", bg: "bg-destructive/10", label: "Erro" },
 };
 
+function downloadAsText(filename: string, content: string) {
+  const blob = new Blob([content], { type: "text/markdown;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function markdownToHtml(md: string): string {
+  return md
+    .replace(/^### (.+)$/gm, "<h3>$1</h3>")
+    .replace(/^## (.+)$/gm, "<h2>$1</h2>")
+    .replace(/^# (.+)$/gm, "<h1>$1</h1>")
+    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+    .replace(/\*(.+?)\*/g, "<em>$1</em>")
+    .replace(/^- (.+)$/gm, "<li>$1</li>")
+    .replace(/(<li>.*<\/li>\n?)+/g, (m) => `<ul>${m}</ul>`)
+    .replace(/\n{2,}/g, "</p><p>")
+    .replace(/^(?!<[hulo])/gm, (line) => line ? `<p>${line}</p>` : "");
+}
+
+function downloadAsPdf(title: string, content: string) {
+  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${title}</title>
+<style>body{font-family:Arial,Helvetica,sans-serif;max-width:700px;margin:40px auto;padding:20px;color:#222;line-height:1.6}
+h1{font-size:22px;border-bottom:2px solid #333;padding-bottom:8px}h2{font-size:18px;margin-top:24px}h3{font-size:15px}
+table{width:100%;border-collapse:collapse;margin:16px 0}th,td{border:1px solid #ccc;padding:8px;text-align:left}
+th{background:#f5f5f5;font-weight:600}ul{padding-left:20px}li{margin:4px 0}blockquote{border-left:3px solid #666;padding-left:12px;color:#555}</style>
+</head><body>${markdownToHtml(content)}</body></html>`;
+  const w = window.open("", "_blank");
+  if (w) {
+    w.document.write(html);
+    w.document.close();
+    setTimeout(() => { w.print(); }, 500);
+  }
+}
+
+function downloadAsDocx(title: string, content: string) {
+  const html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+<head><meta charset="utf-8"><title>${title}</title>
+<style>body{font-family:Arial;font-size:11pt;line-height:1.5}h1{font-size:16pt}h2{font-size:13pt}h3{font-size:11pt}
+table{border-collapse:collapse;width:100%}th,td{border:1px solid #999;padding:6px}th{background:#eee}</style>
+</head><body>${markdownToHtml(content)}</body></html>`;
+  const blob = new Blob(["\ufeff", html], { type: "application/msword" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${title.replace(/\s+/g, "_")}.doc`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 export default function PacoteDocumentos() {
   const { id } = useParams();
   const [viewDoc, setViewDoc] = useState<any>(null);
