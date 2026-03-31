@@ -238,6 +238,80 @@ export default function Dashboard() {
         </div>
       </GlassCard>
 
+      {/* AI Usage Evolution Chart */}
+      <GlassCard>
+        <div className="flex items-center gap-2 mb-4">
+          <Zap className="h-5 w-5 text-primary" />
+          <h3 className="font-display font-semibold">Evolução do Consumo de IA — Diário</h3>
+        </div>
+        {dailyUsageData.some(d => d.tokens > 0) ? (
+          <ResponsiveContainer width="100%" height={280}>
+            <AreaChart data={dailyUsageData}>
+              <defs>
+                <linearGradient id="gradTokens" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="hsla(240,100%,60%,0.6)" />
+                  <stop offset="100%" stopColor="hsla(240,100%,60%,0.02)" />
+                </linearGradient>
+                <linearGradient id="gradWords" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="hsla(160,100%,45%,0.5)" />
+                  <stop offset="100%" stopColor="hsla(160,100%,45%,0.02)" />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="hsla(240,12%,20%,0.3)" />
+              <XAxis dataKey="dia" stroke="hsla(240,8%,50%,1)" fontSize={10} interval="preserveStartEnd" tickLine={false} />
+              <YAxis stroke="hsla(240,8%,50%,1)" fontSize={10} tickLine={false} axisLine={false} />
+              <Tooltip
+                contentStyle={{
+                  background: "hsla(240,18%,8%,0.95)",
+                  border: "1px solid hsla(240,12%,22%,0.5)",
+                  borderRadius: "8px",
+                  color: "hsla(0,0%,95%,1)",
+                  backdropFilter: "blur(12px)",
+                  fontSize: "12px",
+                }}
+                labelFormatter={(v) => `Dia ${v}`}
+                formatter={(value: number, name: string) => {
+                  const labels: Record<string, string> = { tokensAcum: "Tokens (acum.)", palavrasAcum: "Palavras (acum.)" };
+                  return [value.toLocaleString(), labels[name] || name];
+                }}
+              />
+              <Area
+                type="monotone"
+                dataKey="tokensAcum"
+                stroke="hsla(240,100%,60%,0.9)"
+                strokeWidth={2}
+                fill="url(#gradTokens)"
+                dot={false}
+                activeDot={{ r: 4, fill: "hsla(240,100%,60%,1)", stroke: "hsla(240,100%,80%,0.5)", strokeWidth: 2 }}
+              />
+              <Area
+                type="monotone"
+                dataKey="palavrasAcum"
+                stroke="hsla(160,100%,45%,0.9)"
+                strokeWidth={2}
+                fill="url(#gradWords)"
+                dot={false}
+                activeDot={{ r: 4, fill: "hsla(160,100%,45%,1)", stroke: "hsla(160,100%,65%,0.5)", strokeWidth: 2 }}
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        ) : (
+          <div className="h-[280px] flex items-center justify-center text-muted-foreground text-sm">
+            Nenhum consumo registrado este mês
+          </div>
+        )}
+        <div className="flex items-center justify-center gap-6 mt-3 text-xs text-muted-foreground">
+          <div className="flex items-center gap-1.5">
+            <div className="w-3 h-0.5 rounded-full" style={{ background: "hsla(240,100%,60%,0.9)" }} />
+            Tokens acumulados
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className="w-3 h-0.5 rounded-full" style={{ background: "hsla(160,100%,45%,0.9)" }} />
+            Palavras acumuladas
+          </div>
+        </div>
+      </GlassCard>
+
       <div className="grid lg:grid-cols-3 gap-6">
         <GlassCard className="lg:col-span-2">
           <h3 className="font-display font-semibold mb-4">Pacotes por Mês</h3>
