@@ -23,8 +23,10 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { useAuth } from "@/hooks/useAuth";
+import { useTheme } from "@/hooks/useTheme";
 import escaleIcon from "@/assets/escale-icon.png";
 import escaleLogoWhite from "@/assets/escale-logo-white.png";
+import escaleLogoDark from "@/assets/escale-logo-dark.png";
 
 const mainItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
@@ -40,6 +42,7 @@ export function AppSidebar() {
   const collapsed = state === "collapsed";
   const location = useLocation();
   const { user, signOut } = useAuth();
+  const { theme } = useTheme();
   const isActive = (path: string) => location.pathname.startsWith(path);
 
   return (
@@ -49,7 +52,7 @@ export function AppSidebar() {
           {collapsed ? (
             <img src={escaleIcon} alt="Escale" className="h-7 w-7 rounded-lg flex-shrink-0" />
           ) : (
-            <img src={escaleLogoWhite} alt="Escale" className="h-6 flex-shrink-0" />
+            <img src={theme === "light" ? escaleLogoDark : escaleLogoWhite} alt="Escale" className="h-6 flex-shrink-0" />
           )}
         </div>
       </SidebarHeader>
