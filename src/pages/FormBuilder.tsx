@@ -238,11 +238,11 @@ export default function FormBuilder() {
       </div>
 
       {/* Published Link Banner */}
-      {status === "published" && formData?.slug && (() => {
+      {status === "published" && slug && (() => {
         const baseUrl = window.location.hostname.includes("lovableproject.com") || window.location.hostname.includes("lovable.app")
           ? "https://escaleos.lovable.app"
           : window.location.origin;
-        const publicLink = `${baseUrl}/f/${formData.slug}`;
+        const publicLink = `${baseUrl}/f/${slug}`;
         return (
           <div className="flex items-center gap-3 px-4 py-3 rounded-lg border border-primary/30 bg-primary/5">
             <Globe className="h-4 w-4 text-primary shrink-0" />
