@@ -14,6 +14,7 @@ import JSZip from "jszip";
 
 const statusConfig = {
   ready: { icon: CheckCircle, color: "text-success", bg: "bg-success/10", label: "Pronto" },
+  completed: { icon: CheckCircle, color: "text-success", bg: "bg-success/10", label: "Pronto" },
   pending: { icon: Loader2, color: "text-warning", bg: "bg-warning/10", label: "Na fila..." },
   generating: { icon: Loader2, color: "text-accent", bg: "bg-accent/10", label: "Gerando..." },
   error: { icon: AlertCircle, color: "text-destructive", bg: "bg-destructive/10", label: "Erro" },
