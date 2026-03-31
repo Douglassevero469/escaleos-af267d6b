@@ -242,20 +242,53 @@ export default function Forms() {
       )}
 
       {/* Create Dialog */}
-      <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-        <DialogContent>
+      <Dialog open={createOpen} onOpenChange={(open) => { setCreateOpen(open); if (!open) { setUseAI(false); setAiPrompt(""); } }}>
+        <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>Novo Formulário</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
+            {/* AI / Manual toggle */}
+            <div className="flex gap-2 p-1 bg-muted rounded-lg">
+              <button
+                onClick={() => setUseAI(false)}
+                className={`flex-1 text-sm py-2 px-3 rounded-md font-medium transition-all ${!useAI ? "bg-background shadow text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+              >
+                <Plus className="h-3.5 w-3.5 inline mr-1.5" />
+                Manual
+              </button>
+              <button
+                onClick={() => setUseAI(true)}
+                className={`flex-1 text-sm py-2 px-3 rounded-md font-medium transition-all ${useAI ? "bg-background shadow text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+              >
+                <Sparkles className="h-3.5 w-3.5 inline mr-1.5" />
+                Criar com IA
+              </button>
+            </div>
+
             <div>
               <Label>Nome</Label>
               <Input value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} placeholder="Ex: Captação de Leads" />
             </div>
-            <div>
-              <Label>Descrição (opcional)</Label>
-              <Textarea value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))} placeholder="Breve descrição do formulário" />
-            </div>
+
+            {useAI ? (
+              <div>
+                <Label>Descreva o formulário que deseja</Label>
+                <Textarea
+                  value={aiPrompt}
+                  onChange={e => setAiPrompt(e.target.value)}
+                  placeholder="Ex: Formulário de qualificação BANT com nome, email, telefone, empresa, orçamento disponível, quem é o decisor, qual a necessidade e prazo para implementação"
+                  className="min-h-[100px]"
+                />
+                <p className="text-[10px] text-muted-foreground mt-1">A IA vai gerar os campos automaticamente baseado na sua descrição</p>
+              </div>
+            ) : (
+              <div>
+                <Label>Descrição (opcional)</Label>
+                <Textarea value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))} placeholder="Breve descrição do formulário" />
+              </div>
+            )}
+
             <div>
               <Label>Layout</Label>
               <Select value={form.layout} onValueChange={v => setForm(p => ({ ...p, layout: v }))}>
@@ -269,10 +302,26 @@ export default function Forms() {
                 </SelectContent>
               </Select>
             </div>
-            <Button onClick={() => createMutation.mutate()} disabled={!form.name.trim() || createMutation.isPending} className="w-full">
-              {createMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Plus className="h-4 w-4 mr-2" />}
-              Criar Formulário
-            </Button>
+
+            {useAI ? (
+              <Button
+                onClick={handleCreateWithAI}
+                disabled={!form.name.trim() || !aiPrompt.trim() || aiGenerating || createMutation.isPending}
+                className="w-full"
+              >
+                {aiGenerating || createMutation.isPending ? (
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                ) : (
+                  <Sparkles className="h-4 w-4 mr-2" />
+                )}
+                {aiGenerating ? "Gerando campos com IA..." : "Criar com IA"}
+              </Button>
+            ) : (
+              <Button onClick={() => createMutation.mutate(undefined)} disabled={!form.name.trim() || createMutation.isPending} className="w-full">
+                {createMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Plus className="h-4 w-4 mr-2" />}
+                Criar Formulário
+              </Button>
+            )}
           </div>
         </DialogContent>
       </Dialog>
