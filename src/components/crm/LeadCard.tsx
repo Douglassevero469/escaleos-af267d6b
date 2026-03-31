@@ -4,6 +4,19 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { Mail, Phone, DollarSign, FileText, PhoneCall, CalendarClock, MailOpen, Send, FileCheck, Clock } from "lucide-react";
 
+export const NEXT_ACTION_TYPES = [
+  { value: "call", label: "Ligar", icon: PhoneCall, color: "text-blue-600" },
+  { value: "meeting", label: "Reunião", icon: CalendarClock, color: "text-purple-600" },
+  { value: "email", label: "Enviar Email", icon: MailOpen, color: "text-green-600" },
+  { value: "follow_up", label: "Follow-up", icon: Send, color: "text-orange-600" },
+  { value: "proposal", label: "Enviar Proposta", icon: FileCheck, color: "text-pink-600" },
+  { value: "other", label: "Outro", icon: Clock, color: "text-muted-foreground" },
+] as const;
+
+export function getActionType(value: string) {
+  return NEXT_ACTION_TYPES.find(a => a.value === value) || NEXT_ACTION_TYPES[5];
+}
+
 export interface CrmLead {
   id: string;
   pipeline_id: string;
@@ -25,6 +38,9 @@ export interface CrmLead {
   created_at: string;
   updated_at: string;
   lost_at: string | null;
+  next_action_type: string | null;
+  next_action_date: string | null;
+  next_action_notes: string | null;
 }
 
 interface LeadCardProps {
