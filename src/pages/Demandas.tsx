@@ -196,5 +196,6 @@ export default function Demandas() {
         onDelete={deleteItem}
       />
       <BoardSettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} columns={columns} onSave={updateBoardColumns} />
+    </div>
   );
 }
