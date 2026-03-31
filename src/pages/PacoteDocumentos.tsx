@@ -700,7 +700,7 @@ export default function PacoteDocumentos() {
                 )}
               </DialogTitle>
               <div className="flex items-center gap-2">
-                {viewDoc?.content && (viewDoc?.status === "ready" || viewDoc?.status === "completed") && !isEditing && (
+                {viewDoc?.content && viewDoc?.status === "completed" && !isEditing && (
                   <>
                     <Button variant="outline" size="sm" className="gap-1" onClick={() => { setViewDoc(null); retryDoc(viewDoc); }}
                       disabled={generatingDocs.has(viewDoc?.id)}>
