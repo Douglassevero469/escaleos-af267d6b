@@ -1,7 +1,7 @@
 import { StatsCard } from "@/components/ui/StatsCard";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { Users, FileText, Package, LayoutTemplate, ArrowUpRight, Loader2, Zap, RefreshCw, Brain } from "lucide-react";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
+import { BarChart, Bar, AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
@@ -76,6 +76,68 @@ export default function Dashboard() {
       const totalTokens = Math.round(totalWords * 1.3);
       
       return { generations: docs.length, regenerations: 0, totalTokens, totalWords };
+    },
+  });
+
+  const { data: dailyUsageData = [] } = useQuery({
+    queryKey: ["chart-daily-usage"],
+    queryFn: async () => {
+      const now = new Date();
+      const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+      const firstOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      
+      // Try generation_logs first
+      const { data: logs } = await supabase
+        .from("generation_logs")
+        .select("created_at, token_estimate, word_count")
+        .gte("created_at", firstOfMonth.toISOString());
+      
+      // Fallback to documents if no logs
+      const { data: docs } = await supabase
+        .from("documents")
+        .select("created_at, content, status")
+        .eq("status", "completed")
+        .gte("created_at", firstOfMonth.toISOString());
+
+      // Build day map
+      const dayMap: Record<number, { tokens: number; words: number; docs: number }> = {};
+      for (let d = 1; d <= daysInMonth; d++) {
+        dayMap[d] = { tokens: 0, words: 0, docs: 0 };
+      }
+
+      if (logs && logs.length > 0) {
+        logs.forEach(l => {
+          const day = new Date(l.created_at).getDate();
+          dayMap[day].tokens += l.token_estimate || 0;
+          dayMap[day].words += l.word_count || 0;
+          dayMap[day].docs += 1;
+        });
+      } else if (docs && docs.length > 0) {
+        docs.forEach(d => {
+          const day = new Date(d.created_at).getDate();
+          const words = d.content ? d.content.split(/\s+/).filter(Boolean).length : 0;
+          dayMap[day].words += words;
+          dayMap[day].tokens += Math.round(words * 1.3);
+          dayMap[day].docs += 1;
+        });
+      }
+
+      // Cumulative
+      let cumTokens = 0;
+      let cumWords = 0;
+      return Array.from({ length: daysInMonth }, (_, i) => {
+        const day = i + 1;
+        cumTokens += dayMap[day].tokens;
+        cumWords += dayMap[day].words;
+        return {
+          dia: `${day}`,
+          tokens: dayMap[day].tokens,
+          palavras: dayMap[day].words,
+          docs: dayMap[day].docs,
+          tokensAcum: cumTokens,
+          palavrasAcum: cumWords,
+        };
+      });
     },
   });
 
@@ -172,6 +234,80 @@ export default function Dashboard() {
               <p className="text-2xl font-bold font-display">~{usageStats.totalTokens.toLocaleString()}</p>
               <p className="text-xs text-muted-foreground">Tokens estimados</p>
             </div>
+          </div>
+        </div>
+      </GlassCard>
+
+      {/* AI Usage Evolution Chart */}
+      <GlassCard>
+        <div className="flex items-center gap-2 mb-4">
+          <Zap className="h-5 w-5 text-primary" />
+          <h3 className="font-display font-semibold">Evolução do Consumo de IA — Diário</h3>
+        </div>
+        {dailyUsageData.some(d => d.tokens > 0) ? (
+          <ResponsiveContainer width="100%" height={280}>
+            <AreaChart data={dailyUsageData}>
+              <defs>
+                <linearGradient id="gradTokens" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="hsla(240,100%,60%,0.6)" />
+                  <stop offset="100%" stopColor="hsla(240,100%,60%,0.02)" />
+                </linearGradient>
+                <linearGradient id="gradWords" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="hsla(160,100%,45%,0.5)" />
+                  <stop offset="100%" stopColor="hsla(160,100%,45%,0.02)" />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="hsla(240,12%,20%,0.3)" />
+              <XAxis dataKey="dia" stroke="hsla(240,8%,50%,1)" fontSize={10} interval="preserveStartEnd" tickLine={false} />
+              <YAxis stroke="hsla(240,8%,50%,1)" fontSize={10} tickLine={false} axisLine={false} />
+              <Tooltip
+                contentStyle={{
+                  background: "hsla(240,18%,8%,0.95)",
+                  border: "1px solid hsla(240,12%,22%,0.5)",
+                  borderRadius: "8px",
+                  color: "hsla(0,0%,95%,1)",
+                  backdropFilter: "blur(12px)",
+                  fontSize: "12px",
+                }}
+                labelFormatter={(v) => `Dia ${v}`}
+                formatter={(value: number, name: string) => {
+                  const labels: Record<string, string> = { tokensAcum: "Tokens (acum.)", palavrasAcum: "Palavras (acum.)" };
+                  return [value.toLocaleString(), labels[name] || name];
+                }}
+              />
+              <Area
+                type="monotone"
+                dataKey="tokensAcum"
+                stroke="hsla(240,100%,60%,0.9)"
+                strokeWidth={2}
+                fill="url(#gradTokens)"
+                dot={false}
+                activeDot={{ r: 4, fill: "hsla(240,100%,60%,1)", stroke: "hsla(240,100%,80%,0.5)", strokeWidth: 2 }}
+              />
+              <Area
+                type="monotone"
+                dataKey="palavrasAcum"
+                stroke="hsla(160,100%,45%,0.9)"
+                strokeWidth={2}
+                fill="url(#gradWords)"
+                dot={false}
+                activeDot={{ r: 4, fill: "hsla(160,100%,45%,1)", stroke: "hsla(160,100%,65%,0.5)", strokeWidth: 2 }}
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        ) : (
+          <div className="h-[280px] flex items-center justify-center text-muted-foreground text-sm">
+            Nenhum consumo registrado este mês
+          </div>
+        )}
+        <div className="flex items-center justify-center gap-6 mt-3 text-xs text-muted-foreground">
+          <div className="flex items-center gap-1.5">
+            <div className="w-3 h-0.5 rounded-full" style={{ background: "hsla(240,100%,60%,0.9)" }} />
+            Tokens acumulados
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className="w-3 h-0.5 rounded-full" style={{ background: "hsla(160,100%,45%,0.9)" }} />
+            Palavras acumuladas
           </div>
         </div>
       </GlassCard>
