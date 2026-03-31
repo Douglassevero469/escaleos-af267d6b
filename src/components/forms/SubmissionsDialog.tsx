@@ -89,9 +89,21 @@ export default function SubmissionsDialog({ formId, formName, open, onOpenChange
     onError: (e: any) => toast({ title: "Erro", description: e.message, variant: "destructive" }),
   });
 
-  const filtered = filter === "all"
+  const statusFiltered = filter === "all"
     ? submissions
     : submissions.filter((s: any) => (s.status || "complete") === filter);
+
+  // All unique tags across submissions
+  const allTags = Array.from(
+    new Set(submissions.flatMap((s: any) => parseTags(s.tags).map(t => t.text)))
+  ).sort();
+
+  const filtered = tagFilter.length === 0
+    ? statusFiltered
+    : statusFiltered.filter((s: any) => {
+        const tags = parseTags(s.tags).map(t => t.text);
+        return tagFilter.some(tf => tags.includes(tf));
+      });
 
   const selected = selectedId ? submissions.find((s: any) => s.id === selectedId) : null;
 
