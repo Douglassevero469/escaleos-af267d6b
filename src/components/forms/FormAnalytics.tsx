@@ -625,7 +625,7 @@ export default function FormAnalytics({ formId, formName }: Props) {
 
       {/* Daily Chart */}
       {dailyData.length > 0 && (
-        <GlassCard className="p-4">
+        <GlassCard className="p-4" data-chart-section data-chart-title="Atividade por Dia">
           <h3 className="text-sm font-semibold mb-3">Atividade por Dia</h3>
           <ChartContainer config={chartConfig} className="h-[220px] w-full">
             <BarChart data={dailyData}>
