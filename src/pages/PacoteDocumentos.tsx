@@ -551,7 +551,7 @@ export default function PacoteDocumentos() {
   const retryDoc = async (doc: any) => {
     const briefingData = (pkg as any)?.briefings?.data;
     if (!briefingData) return;
-    await streamDocument(doc, briefingData);
+    await streamDocument(doc, briefingData, true);
   };
 
   const startEditing = () => {
