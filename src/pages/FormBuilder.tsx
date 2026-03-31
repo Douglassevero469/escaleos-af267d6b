@@ -114,7 +114,7 @@ export default function FormBuilder() {
   }, [formData]);
 
   const saveMutation = useMutation({
-    mutationFn: async (newStatus?: string) => {
+    mutationFn: async (newStatus: string | undefined = undefined) => {
       const { error } = await supabase
         .from("forms")
         .update({
