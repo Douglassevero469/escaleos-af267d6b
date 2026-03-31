@@ -452,7 +452,7 @@ export default function FormBuilder() {
                   <p className="text-sm">Clique em um componente à esquerda para adicionar</p>
                 </div>
               ) : (
-                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
                   <SortableContext items={fields.map(f => f.id)} strategy={verticalListSortingStrategy}>
                     <div className="space-y-2">
                       {fields.map(field => (
@@ -466,6 +466,11 @@ export default function FormBuilder() {
                       ))}
                     </div>
                   </SortableContext>
+                  <DragOverlay dropAnimation={{ duration: 200, easing: "ease" }}>
+                    {activeDragId ? (
+                      <DragOverlayField field={fields.find(f => f.id === activeDragId)!} />
+                    ) : null}
+                  </DragOverlay>
                 </DndContext>
               )}
             </GlassCard>
