@@ -17,6 +17,7 @@ interface BoardSelectorProps {
   currentBoard: Board | null;
   onSelect: (board: Board) => void;
   onCreate: (name: string, description: string) => void;
+  onDuplicate?: (board: Board) => void;
 }
 
 export function BoardSelector({ boards, currentBoard, onSelect, onCreate }: BoardSelectorProps) {
