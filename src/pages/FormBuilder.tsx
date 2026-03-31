@@ -87,6 +87,7 @@ export default function FormBuilder() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [formName, setFormName] = useState("");
   const [formDesc, setFormDesc] = useState("");
+  const [slug, setSlug] = useState("");
   const [layout, setLayout] = useState("list");
   const [status, setStatus] = useState("draft");
   const [previewMode, setPreviewMode] = useState<"desktop" | "mobile">("desktop");
