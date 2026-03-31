@@ -801,9 +801,19 @@ export default function FormAnalytics({ formId, formName, formFields = [] }: Pro
                 <XAxis dataKey="dia" tick={{ fontSize: 10 }} />
                 <YAxis allowDecimals={false} tick={{ fontSize: 10 }} />
                 <ChartTooltip content={<ChartTooltipContent />} />
-                <Bar dataKey="respostas" fill="hsl(var(--chart-2))" radius={[4, 4, 0, 0]} name="Respostas" />
+                <Bar dataKey="respostas" radius={[4, 4, 0, 0]} name="Respostas">
+                  {dayOfWeekData.map((_, i) => <Cell key={i} fill={BAR_COLORS[i % BAR_COLORS.length]} />)}
+                </Bar>
               </BarChart>
             </ChartContainer>
+            <div className="flex flex-wrap gap-2 mt-2 px-1">
+              {dayOfWeekData.map((d, i) => (
+                <div key={d.dia} className="flex items-center gap-1">
+                  <div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: BAR_COLORS[i % BAR_COLORS.length] }} />
+                  <span className="text-[10px] text-muted-foreground">{d.dia}: {d.respostas}</span>
+                </div>
+              ))}
+            </div>
           </GlassCard>
           )}
 
