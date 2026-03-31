@@ -95,6 +95,23 @@ export function LeadCard({ lead, onClick }: LeadCardProps) {
         </div>
       )}
 
+      {lead.next_action_type && (() => {
+        const action = getActionType(lead.next_action_type);
+        const ActionIcon = action.icon;
+        const isOverdue = lead.next_action_date && new Date(lead.next_action_date) < new Date();
+        return (
+          <div className={cn("flex items-center gap-1 text-[10px] font-medium rounded-md px-1.5 py-0.5 bg-muted/60", isOverdue ? "text-destructive" : action.color)}>
+            <ActionIcon className="h-3 w-3 shrink-0" />
+            <span className="truncate">{action.label}</span>
+            {lead.next_action_date && (
+              <span className="ml-auto shrink-0">
+                {new Date(lead.next_action_date).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })}
+              </span>
+            )}
+          </div>
+        );
+      })()}
+
       {lead.form_name && (
         <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
           <FileText className="h-3 w-3 shrink-0" />
