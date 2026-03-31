@@ -366,22 +366,25 @@ export default function FormBuilder() {
         <TabsContent value="editor">
           <div className="grid gap-4 lg:grid-cols-[220px_1fr_260px]">
             {/* Left: Component Palette */}
-            <GlassCard className="p-3 space-y-1 h-fit max-h-[70vh] overflow-y-auto">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Componentes</p>
-              {FIELD_TYPES.map(ft => {
-                const Icon = ICON_MAP[ft.icon] || Type;
-                return (
-                  <button
-                    key={ft.type}
-                    onClick={() => addField(ft.type)}
-                    className="w-full flex items-center gap-2 px-2.5 py-2 rounded-md text-sm hover:bg-accent transition-colors text-left"
-                  >
-                    <Icon className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                    <span className="truncate">{ft.label}</span>
-                    <Plus className="h-3 w-3 ml-auto text-muted-foreground opacity-0 group-hover:opacity-100" />
-                  </button>
-                );
-              })}
+            <GlassCard className="p-3 space-y-2 h-fit max-h-[70vh] overflow-y-auto">
+              {FIELD_TYPE_CATEGORIES.map(cat => (
+                <div key={cat.category}>
+                  <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1 mt-2 first:mt-0">{cat.category}</p>
+                  {cat.types.map(ft => {
+                    const Icon = ICON_MAP[ft.icon] || Type;
+                    return (
+                      <button
+                        key={ft.type}
+                        onClick={() => addField(ft.type)}
+                        className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-sm hover:bg-accent transition-colors text-left"
+                      >
+                        <Icon className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                        <span className="truncate text-xs">{ft.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              ))}
             </GlassCard>
 
             {/* Center: Canvas */}
