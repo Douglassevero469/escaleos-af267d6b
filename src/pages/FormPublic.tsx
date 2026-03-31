@@ -5,6 +5,48 @@ import { Loader2 } from "lucide-react";
 import { FormField } from "@/lib/form-field-types";
 import FormRenderer from "@/components/forms/FormRenderer";
 
+function parseDeviceInfo() {
+  const ua = navigator.userAgent;
+  let deviceType = "Desktop";
+  if (/Mobi|Android/i.test(ua)) deviceType = "Mobile";
+  else if (/Tablet|iPad/i.test(ua)) deviceType = "Tablet";
+
+  let browser = "Outro";
+  if (/Edg\//i.test(ua)) browser = "Edge";
+  else if (/OPR|Opera/i.test(ua)) browser = "Opera";
+  else if (/Chrome/i.test(ua)) browser = "Chrome";
+  else if (/Safari/i.test(ua)) browser = "Safari";
+  else if (/Firefox/i.test(ua)) browser = "Firefox";
+
+  let os = "Outro";
+  if (/Windows/i.test(ua)) os = "Windows";
+  else if (/Mac OS/i.test(ua)) os = "macOS";
+  else if (/Android/i.test(ua)) os = "Android";
+  else if (/iPhone|iPad|iPod/i.test(ua)) os = "iOS";
+  else if (/Linux/i.test(ua)) os = "Linux";
+
+  // Try to extract device model
+  let model = "";
+  const androidMatch = ua.match(/;\s*([^;)]+)\s*Build\//);
+  if (androidMatch) model = androidMatch[1].trim();
+  const iphoneMatch = ua.match(/(iPhone|iPad|iPod)/);
+  if (iphoneMatch) model = iphoneMatch[1];
+  if (!model && deviceType === "Desktop") model = os;
+
+  return { deviceType, browser, os, model };
+}
+
+async function fetchGeoInfo(): Promise<{ country?: string; region?: string; city?: string }> {
+  try {
+    const res = await fetch("https://ipapi.co/json/", { signal: AbortSignal.timeout(3000) });
+    if (!res.ok) return {};
+    const data = await res.json();
+    return { country: data.country_name, region: data.region, city: data.city };
+  } catch {
+    return {};
+  }
+}
+
 function getSessionId(): string {
   const key = "form_session_id";
   let id = sessionStorage.getItem(key);
@@ -34,6 +76,14 @@ export default function FormPublic() {
   const lastFieldRef = useRef<{ id: string; label: string } | null>(null);
   const currentValuesRef = useRef<Record<string, any>>({});
   const fieldsRef = useRef<FormField[]>([]);
+
+  const geoRef = useRef<Record<string, any> | null>(null);
+  const deviceRef = useRef(parseDeviceInfo());
+
+  // Fetch geo info once
+  useEffect(() => {
+    fetchGeoInfo().then(g => { geoRef.current = g; });
+  }, []);
 
   useEffect(() => {
     if (!slug) return;
@@ -78,6 +128,7 @@ export default function FormPublic() {
           // Use fetch with keepalive for reliable delivery on page unload
           const url = `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/form_submissions`;
           const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+          const meta = { ...deviceRef.current, ...(geoRef.current || {}) };
           fetch(url, {
             method: "POST",
             keepalive: true,
@@ -87,7 +138,7 @@ export default function FormPublic() {
               "Authorization": `Bearer ${anonKey}`,
               "Prefer": "return=minimal",
             },
-            body: JSON.stringify({ form_id: form.id, data, status: "incomplete" }),
+            body: JSON.stringify({ form_id: form.id, data, status: "incomplete", metadata: meta }),
           }).catch(() => {});
         }
       }
@@ -129,7 +180,8 @@ export default function FormPublic() {
 
   const handleSubmit = async (data: Record<string, any>) => {
     submittedRef.current = true;
-    await supabase.from("form_submissions").insert({ form_id: form.id, data, status: "complete" });
+    const meta = { ...deviceRef.current, ...(geoRef.current || {}) };
+    await supabase.from("form_submissions").insert({ form_id: form.id, data, status: "complete", metadata: meta } as any);
     trackEvent(form.id, "submit");
 
     if (settings.webhookUrl) {

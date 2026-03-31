@@ -249,6 +249,34 @@ export default function FormAnalytics({ formId, formName }: Props) {
     });
   }, [submissions]);
 
+  // Device & Geo analytics from metadata
+  const deviceData = useMemo(() => {
+    const typeCounts: Record<string, number> = {};
+    const modelCounts: Record<string, number> = {};
+    const browserCounts: Record<string, number> = {};
+    const regionCounts: Record<string, number> = {};
+
+    submissions.forEach((s: any) => {
+      const meta = (typeof s.metadata === "object" && s.metadata) ? s.metadata : {};
+      const dt = meta.deviceType || "Desconhecido";
+      const model = meta.model || meta.os || "Desconhecido";
+      const browser = meta.browser || "Desconhecido";
+      const region = meta.region || meta.city || meta.country || null;
+
+      typeCounts[dt] = (typeCounts[dt] || 0) + 1;
+      modelCounts[model] = (modelCounts[model] || 0) + 1;
+      browserCounts[browser] = (browserCounts[browser] || 0) + 1;
+      if (region) regionCounts[region] = (regionCounts[region] || 0) + 1;
+    });
+
+    return {
+      deviceTypes: Object.entries(typeCounts).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value),
+      models: Object.entries(modelCounts).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value).slice(0, 10),
+      browsers: Object.entries(browserCounts).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value),
+      regions: Object.entries(regionCounts).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value).slice(0, 10),
+    };
+  }, [submissions]);
+
   const exportPDF = useCallback(async () => {
     setExporting(true);
     try {
@@ -640,6 +668,77 @@ export default function FormAnalytics({ formId, formName }: Props) {
           </ChartContainer>
         </GlassCard>
       )}
+
+      {/* Device, Browser, Region Charts */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Device Type Pie */}
+        {deviceData.deviceTypes.length > 0 && (
+          <GlassCard className="p-4" data-chart-section data-chart-title="Tipo de Dispositivo">
+            <h3 className="text-sm font-semibold mb-3">Tipo de Dispositivo</h3>
+            <ChartContainer config={{ device: { label: "Dispositivo", color: "hsl(var(--primary))" } }} className="h-[220px] w-full">
+              <PieChart>
+                <ChartTooltip content={<ChartTooltipContent />} />
+                <Pie data={deviceData.deviceTypes} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} innerRadius={40} label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}>
+                  {deviceData.deviceTypes.map((_, i) => (
+                    <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
+                  ))}
+                </Pie>
+              </PieChart>
+            </ChartContainer>
+          </GlassCard>
+        )}
+
+        {/* Browser Pie */}
+        {deviceData.browsers.length > 0 && (
+          <GlassCard className="p-4" data-chart-section data-chart-title="Navegador">
+            <h3 className="text-sm font-semibold mb-3">Navegador</h3>
+            <ChartContainer config={{ browser: { label: "Navegador", color: "hsl(var(--chart-2))" } }} className="h-[220px] w-full">
+              <PieChart>
+                <ChartTooltip content={<ChartTooltipContent />} />
+                <Pie data={deviceData.browsers} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} innerRadius={40} label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}>
+                  {deviceData.browsers.map((_, i) => (
+                    <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
+                  ))}
+                </Pie>
+              </PieChart>
+            </ChartContainer>
+          </GlassCard>
+        )}
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Device Model Bar */}
+        {deviceData.models.length > 0 && (
+          <GlassCard className="p-4" data-chart-section data-chart-title="Modelo / Sistema Operacional">
+            <h3 className="text-sm font-semibold mb-3">Modelo / Sistema Operacional</h3>
+            <ChartContainer config={{ model: { label: "Modelo", color: "hsl(var(--chart-3))" } }} className="h-[220px] w-full">
+              <BarChart data={deviceData.models} layout="vertical">
+                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                <XAxis type="number" allowDecimals={false} tick={{ fontSize: 10 }} />
+                <YAxis type="category" dataKey="name" tick={{ fontSize: 10 }} width={100} />
+                <ChartTooltip content={<ChartTooltipContent />} />
+                <Bar dataKey="value" fill="hsl(var(--chart-3))" radius={[0, 4, 4, 0]} name="Respostas" />
+              </BarChart>
+            </ChartContainer>
+          </GlassCard>
+        )}
+
+        {/* Region Bar */}
+        {deviceData.regions.length > 0 && (
+          <GlassCard className="p-4" data-chart-section data-chart-title="Respostas por Região">
+            <h3 className="text-sm font-semibold mb-3">Respostas por Região</h3>
+            <ChartContainer config={{ region: { label: "Região", color: "hsl(var(--chart-4))" } }} className="h-[220px] w-full">
+              <BarChart data={deviceData.regions} layout="vertical">
+                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                <XAxis type="number" allowDecimals={false} tick={{ fontSize: 10 }} />
+                <YAxis type="category" dataKey="name" tick={{ fontSize: 10 }} width={120} />
+                <ChartTooltip content={<ChartTooltipContent />} />
+                <Bar dataKey="value" fill="hsl(var(--chart-4))" radius={[0, 4, 4, 0]} name="Respostas" />
+              </BarChart>
+            </ChartContainer>
+          </GlassCard>
+        )}
+      </div>
       </div>
     </div>
   );
