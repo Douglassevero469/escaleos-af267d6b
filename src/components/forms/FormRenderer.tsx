@@ -304,7 +304,7 @@ export default function FormRenderer({
                 )}
                 <Button
                   className="flex-1"
-                  style={buttonColor ? { backgroundColor: buttonColor } : undefined}
+                  style={btnStyle}
                   onClick={() => {
                     if (isPreview) return;
                     if (isLast) handleSubmit();
