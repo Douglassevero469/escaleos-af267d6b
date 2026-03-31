@@ -23,7 +23,7 @@ import {
 import { FormField, FIELD_TYPES, FIELD_TYPE_CATEGORIES, createField } from "@/lib/form-field-types";
 import { FORM_THEMES } from "@/lib/form-themes";
 import {
-  DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent, DragStartEvent, DragOverlay,
+  DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent,
 } from "@dnd-kit/core";
 import {
   arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy,
