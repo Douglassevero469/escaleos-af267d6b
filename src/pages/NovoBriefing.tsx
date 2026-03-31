@@ -100,9 +100,14 @@ export default function NovoBriefing() {
   const [data, setData] = useState<BriefingFormData>(defaultData);
   const [selectedClient, setSelectedClient] = useState<string>("");
   const [submitting, setSubmitting] = useState(false);
+  const [saveTemplateOpen, setSaveTemplateOpen] = useState(false);
+  const [templateName, setTemplateName] = useState("");
+  const [templateDesc, setTemplateDesc] = useState("");
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const { user } = useAuth();
+  const queryClient = useQueryClient();
 
   const { data: clients = [] } = useQuery({
     queryKey: ["clients"],
@@ -111,6 +116,51 @@ export default function NovoBriefing() {
       return data ?? [];
     },
   });
+
+  // Load template data if ?template=ID is present
+  const templateId = searchParams.get("template");
+  const { data: templateData } = useQuery({
+    queryKey: ["template", templateId],
+    enabled: !!templateId,
+    queryFn: async () => {
+      const { data } = await supabase.from("templates").select("*").eq("id", templateId!).maybeSingle();
+      return data;
+    },
+  });
+
+  useEffect(() => {
+    if (templateData?.briefing_data && typeof templateData.briefing_data === "object") {
+      const bd = templateData.briefing_data as any;
+      setData(prev => ({
+        ...prev,
+        ...bd,
+        diferenciais: bd.diferenciais || prev.diferenciais,
+        doresPublico: bd.doresPublico || prev.doresPublico,
+        desejosPublico: bd.desejosPublico || prev.desejosPublico,
+        objecoes: bd.objecoes || prev.objecoes,
+        concorrentes: bd.concorrentes || prev.concorrentes,
+        canaisAtendimento: bd.canaisAtendimento || prev.canaisAtendimento,
+        plataformasAnuncio: bd.plataformasAnuncio || prev.plataformasAnuncio,
+      }));
+      toast({ title: `Template "${templateData.name}" carregado!`, description: "Campos pré-preenchidos." });
+    }
+  }, [templateData]);
+
+  const saveAsTemplate = async () => {
+    if (!user || !templateName) return;
+    const { error } = await supabase.from("templates").insert({
+      name: templateName,
+      description: templateDesc || null,
+      user_id: user.id,
+      briefing_data: data as any,
+    });
+    if (error) { toast({ title: "Erro", description: error.message, variant: "destructive" }); return; }
+    queryClient.invalidateQueries({ queryKey: ["templates"] });
+    setSaveTemplateOpen(false);
+    setTemplateName("");
+    setTemplateDesc("");
+    toast({ title: "Briefing salvo como template!" });
+  };
 
   const set = (key: keyof BriefingFormData, value: any) => setData(prev => ({ ...prev, [key]: value }));
 
