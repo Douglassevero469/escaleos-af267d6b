@@ -47,6 +47,7 @@ const App = () => (
                 <Route path="/forms" element={<Forms />} />
                 <Route path="/forms/:id" element={<FormBuilder />} />
                 <Route path="/forms/:id/respostas" element={<FormSubmissionsPage />} />
+                <Route path="/demandas" element={<Demandas />} />
                 <Route path="/admin" element={<Admin />} />
                 <Route path="/perfil" element={<Perfil />} />
               </Route>

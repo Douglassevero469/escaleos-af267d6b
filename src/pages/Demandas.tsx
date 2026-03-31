@@ -152,7 +152,7 @@ export default function Demandas() {
           <p className="text-sm text-muted-foreground">Gerencie as tarefas e demandas do time</p>
         </div>
         <div className="flex items-center gap-2">
-          <BoardSelector boards={boards} currentBoard={currentBoard} onSelect={setCurrentBoard} onCreate={createBoard} />
+          <BoardSelector boards={boards} currentBoard={currentBoard} onSelect={(b) => setCurrentBoard(b as Board)} onCreate={createBoard} />
           <Button onClick={() => { setNewDialogStatus("todo"); setNewDialogOpen(true); }} size="sm" className="gap-1">
             <Plus className="h-4 w-4" /> Nova
           </Button>
