@@ -220,7 +220,7 @@ export default function Forms() {
                 <Badge variant="outline">{LAYOUT_LABELS[f.layout] || f.layout}</Badge>
                 <button
                   className="text-xs text-primary hover:underline ml-auto cursor-pointer"
-                  onClick={() => setViewSubmissions({ id: f.id, name: f.name })}
+                  onClick={() => navigate(`/forms/${f.id}/respostas`)}
                 >
                   {(submissionCounts as any)[f.id] || 0} respostas
                 </button>
@@ -229,7 +229,7 @@ export default function Forms() {
                 <Button variant="outline" size="sm" className="flex-1" onClick={() => navigate(`/forms/${f.id}`)}>
                   <Edit2 className="h-3 w-3 mr-1" /> Editar
                 </Button>
-                <Button variant="outline" size="sm" onClick={() => setViewSubmissions({ id: f.id, name: f.name })}>
+                <Button variant="outline" size="sm" onClick={() => navigate(`/forms/${f.id}/respostas`)}>
                   <Inbox className="h-3 w-3 mr-1" /> Respostas
                 </Button>
                 <Button variant="outline" size="sm" onClick={() => copyLink(f.slug)}>

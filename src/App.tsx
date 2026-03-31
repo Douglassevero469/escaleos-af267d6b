@@ -19,6 +19,7 @@ import Perfil from "./pages/Perfil";
 import Forms from "./pages/Forms";
 import FormBuilder from "./pages/FormBuilder";
 import FormPublic from "./pages/FormPublic";
+import FormSubmissionsPage from "./pages/FormSubmissions";
 import NotFound from "./pages/NotFound";
 import { AppLayout } from "./components/Layout/AppLayout";
 
@@ -44,6 +45,7 @@ const App = () => (
                 <Route path="/templates" element={<Templates />} />
                 <Route path="/forms" element={<Forms />} />
                 <Route path="/forms/:id" element={<FormBuilder />} />
+                <Route path="/forms/:id/respostas" element={<FormSubmissionsPage />} />
                 <Route path="/admin" element={<Admin />} />
                 <Route path="/perfil" element={<Perfil />} />
               </Route>
