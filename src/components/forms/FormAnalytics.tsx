@@ -560,7 +560,7 @@ export default function FormAnalytics({ formId, formName }: Props) {
       {/* Day of week */}
       {dayOfWeekData.some(d => d.respostas > 0) && (
         <div className="grid md:grid-cols-2 gap-4">
-          <GlassCard className="p-4">
+          <GlassCard className="p-4" data-chart-section data-chart-title="Respostas por Dia da Semana">
             <h3 className="text-sm font-semibold mb-3">Respostas por Dia da Semana</h3>
             <ChartContainer config={{ respostas: { label: "Respostas", color: "hsl(var(--chart-2))" } }} className="h-[180px] w-full">
               <BarChart data={dayOfWeekData}>
