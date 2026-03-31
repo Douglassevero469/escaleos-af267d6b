@@ -81,7 +81,48 @@ export default function Dashboard() {
     },
   });
 
-  // Usage stats from generation_logs
+  const { data: weeklyDemands = [] } = useQuery({
+    queryKey: ["chart-weekly-demands"],
+    queryFn: async () => {
+      const now = new Date();
+      const start = new Date(now);
+      start.setDate(start.getDate() - 11 * 7); // last 12 weeks
+      const { data: items } = await supabase
+        .from("demand_items")
+        .select("created_at")
+        .gte("created_at", start.toISOString())
+        .order("created_at");
+      if (!items || items.length === 0) return [];
+
+      // Group by ISO week
+      const weekMap: Record<string, number> = {};
+      const getWeekLabel = (d: Date) => {
+        const day = d.getDate();
+        const month = d.toLocaleString("pt-BR", { month: "short" });
+        return `${day} ${month}`;
+      };
+      // Create 12 week buckets
+      const buckets: { start: Date; label: string }[] = [];
+      for (let i = 11; i >= 0; i--) {
+        const s = new Date(now);
+        s.setDate(s.getDate() - i * 7);
+        s.setHours(0, 0, 0, 0);
+        buckets.push({ start: s, label: getWeekLabel(s) });
+      }
+      buckets.forEach(b => { weekMap[b.label] = 0; });
+      items.forEach(item => {
+        const d = new Date(item.created_at);
+        // Find the right bucket
+        for (let i = buckets.length - 1; i >= 0; i--) {
+          if (d >= buckets[i].start) {
+            weekMap[buckets[i].label]++;
+            break;
+          }
+        }
+      });
+      return buckets.map(b => ({ semana: b.label, demandas: weekMap[b.label] }));
+    },
+  });
   const { data: usageStats = { generations: 0, regenerations: 0, totalTokens: 0, totalWords: 0 } } = useQuery({
     queryKey: ["stats-usage"],
     queryFn: async () => {
@@ -282,7 +323,44 @@ export default function Dashboard() {
         </GlassCard>
       )}
 
-      {/* Usage Stats - Current Month */}
+      {/* Demandas por Semana */}
+      <GlassCard>
+        <div className="flex items-center gap-2 mb-4">
+          <Clock className="h-5 w-5 text-primary" />
+          <h3 className="font-display font-semibold">Demandas Criadas por Semana</h3>
+        </div>
+        {weeklyDemands.length > 0 && weeklyDemands.some(w => w.demandas > 0) ? (
+          <ResponsiveContainer width="100%" height={260}>
+            <BarChart data={weeklyDemands}>
+              <defs>
+                <linearGradient id="gradDemands" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="hsla(240,100%,60%,0.8)" />
+                  <stop offset="100%" stopColor="hsla(240,100%,60%,0.2)" />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="hsla(240,12%,20%,0.3)" />
+              <XAxis dataKey="semana" stroke="hsla(240,8%,50%,1)" fontSize={10} tickLine={false} interval={0} angle={-30} textAnchor="end" height={50} />
+              <YAxis stroke="hsla(240,8%,50%,1)" fontSize={10} tickLine={false} axisLine={false} allowDecimals={false} />
+              <Tooltip
+                contentStyle={{
+                  background: "hsla(240,18%,8%,0.95)",
+                  border: "1px solid hsla(240,12%,22%,0.5)",
+                  borderRadius: "8px",
+                  color: "hsla(0,0%,95%,1)",
+                  fontSize: "12px",
+                }}
+                labelFormatter={(v) => `Semana de ${v}`}
+              />
+              <Bar dataKey="demandas" fill="url(#gradDemands)" radius={[6, 6, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        ) : (
+          <div className="h-[260px] flex items-center justify-center text-muted-foreground text-sm">
+            Nenhuma demanda criada nas últimas 12 semanas
+          </div>
+        )}
+      </GlassCard>
+
       <GlassCard>
         <div className="flex items-center gap-2 mb-4">
           <Brain className="h-5 w-5 text-primary" />
