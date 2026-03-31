@@ -629,26 +629,37 @@ export default function FormRenderer({
       const displayVal = Array.isArray(val) ? val.join(", ") : typeof val === "boolean" ? (val ? "Sim" : "Não") : String(val || "");
       setChatIaMessages(prev => [...prev, { role: "user", content: displayVal, fieldId: currentIaField.id }]);
 
+      const confirmations = [
+        "Ótimo! 👍", "Perfeito!", "Entendi!", "Show! ✨", "Anotado!", 
+        "Muito bem!", "Legal! 😊", "Beleza!", "Combinado!", "Top! 🎯"
+      ];
+      const randomConfirm = confirmations[Math.floor(Math.random() * confirmations.length)];
+
       if (isLastIa) {
-        // Show thank you
         setChatIaTyping(true);
         setTimeout(() => {
           setChatIaTyping(false);
-          setChatIaMessages(prev => [...prev, { role: "bot", content: "Perfeito! Obrigado pelas respostas. Enviando..." }]);
+          setChatIaMessages(prev => [...prev, { role: "bot", content: "Perfeito! Obrigado pelas respostas. Enviando... 🚀" }]);
           setTimeout(() => handleSubmit(), 800);
         }, 1000);
       } else {
-        // Next question
         const nextStep = chatIaStep + 1;
         setChatIaStep(nextStep);
         setChatIaReady(false);
+        // Show confirmation first
         setChatIaTyping(true);
         setTimeout(() => {
           setChatIaTyping(false);
-          const nextField = chatIaFields[nextStep];
-          setChatIaMessages(prev => [...prev, { role: "bot", content: nextField?.label + (nextField?.required ? " *" : "") }]);
-          setChatIaReady(true);
-        }, 800 + Math.random() * 800);
+          setChatIaMessages(prev => [...prev, { role: "bot", content: randomConfirm }]);
+          // Then show next question after a short pause
+          setChatIaTyping(true);
+          setTimeout(() => {
+            setChatIaTyping(false);
+            const nextField = chatIaFields[nextStep];
+            setChatIaMessages(prev => [...prev, { role: "bot", content: nextField?.label + (nextField?.required ? " *" : "") }]);
+            setChatIaReady(true);
+          }, 600 + Math.random() * 600);
+        }, 500 + Math.random() * 500);
       }
     };
 
