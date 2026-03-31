@@ -294,8 +294,14 @@ export function DemandDetailSheet({ open, onOpenChange, item, columns, onUpdate,
               <div className="space-y-2 mt-2 max-h-48 overflow-y-auto">
               {comments.map(c => (
                   <div key={c.id} className="bg-muted rounded-lg p-2 text-xs">
-                    <p>{renderCommentWithMentions(c.content)}</p>
-                    <span className="text-muted-foreground text-[10px]">{new Date(c.created_at).toLocaleString("pt-BR")}</span>
+                    <div className="flex items-center gap-2 mb-1">
+                      <div className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center text-[10px] font-bold text-primary">
+                        {(c.display_name || 'U')[0].toUpperCase()}
+                      </div>
+                      <span className="font-semibold text-foreground">{c.display_name || 'Usuário'}</span>
+                      <span className="text-muted-foreground text-[10px]">{new Date(c.created_at).toLocaleString("pt-BR")}</span>
+                    </div>
+                    <p className="ml-7">{renderCommentWithMentions(c.content)}</p>
                   </div>
                 ))}
               </div>
