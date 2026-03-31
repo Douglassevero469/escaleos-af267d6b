@@ -366,7 +366,6 @@ export default function PacoteDocumentos() {
                 </DropdownMenu>
               )}
             </div>
-            </DialogTitle>
           </DialogHeader>
           <ScrollArea className="max-h-[70vh]">
             <div className="prose prose-invert prose-sm max-w-none">
