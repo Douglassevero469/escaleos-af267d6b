@@ -11,7 +11,8 @@ import { NewLeadDialog } from "@/components/crm/NewLeadDialog";
 import type { CrmLead } from "@/components/crm/LeadCard";
 import type { StageDef } from "@/components/crm/KanbanStageColumn";
 import { Button } from "@/components/ui/button";
-import { Settings, LayoutGrid, List } from "lucide-react";
+import { Settings, LayoutGrid, List, BarChart3 } from "lucide-react";
+import { CrmAnalytics } from "@/components/crm/CrmAnalytics";
 
 export default function CRM() {
   const [pipelineId, setPipelineId] = useState<string | null>(null);
