@@ -464,6 +464,8 @@ export default function PacoteDocumentos() {
   const [isEditing, setIsEditing] = useState(false);
   const [editContent, setEditContent] = useState("");
   const [savingEdit, setSavingEdit] = useState(false);
+  const [zipProgress, setZipProgress] = useState(0);
+  const [isZipping, setIsZipping] = useState(false);
   const [streamingContent, setStreamingContent] = useState<Record<string, string>>({});
   const [generatingDocs, setGeneratingDocs] = useState<Set<string>>(new Set());
   const generationStarted = useRef(false);
