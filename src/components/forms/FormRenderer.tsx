@@ -137,11 +137,11 @@ export default function FormRenderer({
 
   if (submitted) {
     return (
-      <div className={`flex items-center justify-center p-6 ${wrapperHeight}`} style={themeStyle}>
-        <div className="text-center space-y-4 max-w-md">
-          <CheckCircle2 className="h-16 w-16 text-primary mx-auto" />
-          <h2 className="text-2xl font-bold">{settings.successMessage || "Obrigado!"}</h2>
-          <p className="text-muted-foreground">Sua resposta foi enviada com sucesso.</p>
+      <div className={`flex items-center justify-center px-4 py-8 sm:p-6 ${wrapperHeight}`} style={themeStyle}>
+        <div className="text-center space-y-4 max-w-md w-full">
+          <CheckCircle2 className="h-14 w-14 sm:h-16 sm:w-16 text-primary mx-auto" />
+          <h2 className="text-xl sm:text-2xl font-bold">{settings.successMessage || "Obrigado!"}</h2>
+          <p className="text-sm sm:text-base text-muted-foreground">Sua resposta foi enviada com sucesso.</p>
         </div>
       </div>
     );
