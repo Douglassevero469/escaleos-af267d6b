@@ -368,7 +368,7 @@ function downloadAsDocx(title: string, content: string) {
 
 async function downloadAllAsZip(docs: any[], clientName: string) {
   const zip = new JSZip();
-  const readyDocs = docs.filter((d: any) => d.status === "ready" && d.content);
+  const readyDocs = docs.filter((d: any) => (d.status === "ready" || d.status === "completed") && d.content);
 
   for (const doc of readyDocs) {
     const safeTitle = doc.title.replace(/[^a-zA-Z0-9À-ÿ\s-]/g, "").replace(/\s+/g, "_");
