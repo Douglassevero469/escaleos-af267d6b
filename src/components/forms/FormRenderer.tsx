@@ -328,6 +328,7 @@ export default function FormRenderer({
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">R$</span>
               <Input
+                style={inputStyle}
                 className="pl-9"
                 value={values[field.id] || ""}
                 onChange={e => setValue(field.id, e.target.value.replace(/[^0-9.,]/g, ""))}
