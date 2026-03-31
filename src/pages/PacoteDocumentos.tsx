@@ -78,7 +78,7 @@ const ESCALE_BRAND_CSS = `
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   @page {
-    size: A4;
+    size: A4 landscape;
     margin: 0;
   }
 
@@ -95,6 +95,11 @@ const ESCALE_BRAND_CSS = `
     max-width: 100%;
     position: relative;
     min-height: 100vh;
+  }
+
+  /* Auto-detect landscape for pages with wide tables */
+  .page.has-table {
+    padding: 40px 48px 72px;
   }
 
   /* ── Header ── */
