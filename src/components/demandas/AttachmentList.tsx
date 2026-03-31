@@ -19,6 +19,7 @@ interface Attachment {
 
 function getFileIcon(type: string) {
   if (type.startsWith("image")) return Image;
+  if (type.startsWith("video")) return Video;
   if (type.includes("pdf")) return FileText;
   return File;
 }
@@ -30,7 +31,7 @@ function formatSize(bytes: number) {
 }
 
 function isPreviewable(type: string) {
-  return type.startsWith("image") || type.includes("pdf");
+  return type.startsWith("image") || type.includes("pdf") || type.startsWith("video");
 }
 
 interface AttachmentListProps {
