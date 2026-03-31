@@ -1,4 +1,97 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+/* Ninetea - Display/Logo font */
+@font-face {
+  font-family: 'Ninetea';
+  src: url('/fonts/ninetea/Ninetea-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Ninetea';
+  src: url('/fonts/ninetea/Ninetea-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Ninetea';
+  src: url('/fonts/ninetea/Ninetea-SemiBold.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Ninetea';
+  src: url('/fonts/ninetea/Ninetea-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Ninetea';
+  src: url('/fonts/ninetea/Ninetea-ExtraBold.ttf') format('truetype');
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Ninetea';
+  src: url('/fonts/ninetea/Ninetea-Black.ttf') format('truetype');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Articulat CF - Body/UI font */
+@font-face {
+  font-family: 'Articulat CF';
+  src: url('/fonts/articulat/ArticulatCF-Light.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Articulat CF';
+  src: url('/fonts/articulat/ArticulatCF-Normal.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Articulat CF';
+  src: url('/fonts/articulat/ArticulatCF-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Articulat CF';
+  src: url('/fonts/articulat/ArticulatCF-DemiBold.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Articulat CF';
+  src: url('/fonts/articulat/ArticulatCF-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Articulat CF';
+  src: url('/fonts/articulat/ArticulatCF-ExtraBold.ttf') format('truetype');
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Articulat CF';
+  src: url('/fonts/articulat/ArticulatCF-Heavy.ttf') format('truetype');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
 
 @tailwind base;
 @tailwind components;
@@ -6,52 +99,57 @@
 
 @layer base {
   :root {
-    --background: 225 25% 6%;
-    --foreground: 210 40% 95%;
+    /* Escale Brand — Dark theme */
+    --background: 240 20% 4%;
+    --foreground: 0 0% 95%;
 
-    --card: 225 20% 10%;
-    --card-foreground: 210 40% 95%;
+    --card: 240 18% 8%;
+    --card-foreground: 0 0% 95%;
 
-    --popover: 225 20% 10%;
-    --popover-foreground: 210 40% 95%;
+    --popover: 240 18% 8%;
+    --popover-foreground: 0 0% 95%;
 
-    --primary: 250 80% 65%;
+    /* Primary: Escale Blue #0000FF */
+    --primary: 240 100% 50%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 225 20% 15%;
-    --secondary-foreground: 210 40% 90%;
+    /* Darker blue for hover states */
+    --primary-dark: 240 100% 35%;
 
-    --muted: 225 15% 14%;
-    --muted-foreground: 215 15% 55%;
+    --secondary: 240 15% 14%;
+    --secondary-foreground: 0 0% 90%;
 
-    --accent: 250 60% 55%;
-    --accent-foreground: 0 0% 100%;
+    --muted: 240 12% 12%;
+    --muted-foreground: 240 8% 50%;
+
+    /* Accent: Ciano/Teal from palette */
+    --accent: 190 100% 55%;
+    --accent-foreground: 240 20% 4%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 225 15% 18%;
-    --input: 225 15% 18%;
-    --ring: 250 80% 65%;
+    --border: 240 12% 16%;
+    --input: 240 12% 16%;
+    --ring: 240 100% 50%;
 
     --radius: 0.75rem;
 
-    --sidebar-background: 225 25% 8%;
-    --sidebar-foreground: 210 20% 75%;
-    --sidebar-primary: 250 80% 65%;
+    --sidebar-background: 240 20% 6%;
+    --sidebar-foreground: 240 8% 65%;
+    --sidebar-primary: 240 100% 50%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 225 20% 14%;
-    --sidebar-accent-foreground: 210 40% 90%;
-    --sidebar-border: 225 15% 15%;
-    --sidebar-ring: 250 80% 65%;
+    --sidebar-accent: 240 15% 12%;
+    --sidebar-accent-foreground: 0 0% 90%;
+    --sidebar-border: 240 12% 12%;
+    --sidebar-ring: 240 100% 50%;
 
-    /* Custom tokens */
-    --glass-bg: 225 20% 12% / 0.6;
-    --glass-border: 225 15% 25% / 0.4;
-    --gradient-primary: linear-gradient(135deg, hsl(250 80% 65%), hsl(280 70% 55%));
-    --gradient-bg: linear-gradient(135deg, hsl(225 30% 5%), hsl(250 25% 10%), hsl(225 30% 5%));
+    /* Brand extended */
     --success: 150 60% 45%;
     --warning: 38 92% 50%;
+    --pink: 340 80% 60%;
+    --lilac: 280 50% 65%;
+    --cyan: 190 100% 55%;
   }
 }
 
@@ -61,51 +159,74 @@
   }
 
   body {
-    @apply bg-background text-foreground font-sans antialiased;
-    font-family: 'Inter', system-ui, sans-serif;
-    background: linear-gradient(135deg, hsl(225 30% 5%), hsl(250 25% 8%), hsl(225 30% 5%));
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Articulat CF', system-ui, sans-serif;
+    background: linear-gradient(160deg, hsl(240 25% 3%), hsl(240 20% 6%), hsl(250 18% 5%));
     background-attachment: fixed;
   }
 }
 
 @layer utilities {
+  .font-display {
+    font-family: 'Ninetea', system-ui, sans-serif;
+  }
+
   .glass {
-    background: hsla(var(--glass-bg));
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid hsla(var(--glass-border));
+    background: hsla(240, 18%, 10%, 0.55);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid hsla(240, 12%, 22%, 0.4);
   }
 
   .glass-strong {
-    background: hsla(225, 20%, 12%, 0.8);
+    background: hsla(240, 18%, 8%, 0.85);
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
-    border: 1px solid hsla(225, 15%, 25%, 0.5);
+    border: 1px solid hsla(240, 12%, 22%, 0.5);
   }
 
   .gradient-text {
-    background: linear-gradient(135deg, hsl(250 80% 70%), hsl(280 70% 60%), hsl(320 70% 60%));
+    background: linear-gradient(135deg, hsl(240 100% 55%), hsl(190 100% 55%));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .gradient-text-brand {
+    background: linear-gradient(135deg, hsl(240 100% 50%), hsl(280 60% 55%), hsl(340 80% 55%));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
   .glow {
-    box-shadow: 0 0 20px hsla(250, 80%, 65%, 0.15), 0 0 60px hsla(250, 80%, 65%, 0.05);
+    box-shadow: 0 0 24px hsla(240, 100%, 50%, 0.12), 0 0 80px hsla(240, 100%, 50%, 0.04);
+  }
+
+  .glow-strong {
+    box-shadow: 0 0 30px hsla(240, 100%, 50%, 0.2), 0 0 100px hsla(240, 100%, 50%, 0.08);
   }
 
   .glow-text {
-    text-shadow: 0 0 20px hsla(250, 80%, 65%, 0.3);
+    text-shadow: 0 0 30px hsla(240, 100%, 50%, 0.4);
+  }
+
+  .border-gradient {
+    border-image: linear-gradient(135deg, hsl(240 100% 50%), hsl(190 100% 55%)) 1;
   }
 }
 
 @layer components {
-  .story-link * {
-    @apply relative inline-block after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-primary after:origin-bottom-right after:transition-transform after:duration-300 hover:after:scale-x-100 hover:after:origin-bottom-left;
+  .hover-scale {
+    @apply transition-all duration-300 hover:scale-[1.02];
   }
 
-  .hover-scale {
-    @apply transition-transform duration-200 hover:scale-105;
+  .btn-primary-glow {
+    @apply relative overflow-hidden;
+    box-shadow: 0 4px 20px hsla(240, 100%, 50%, 0.3);
+  }
+  .btn-primary-glow:hover {
+    box-shadow: 0 6px 30px hsla(240, 100%, 50%, 0.45);
   }
 }
 
@@ -125,16 +246,11 @@
 }
 
 @keyframes glow-pulse {
-  0%, 100% { box-shadow: 0 0 20px hsla(250, 80%, 65%, 0.1); }
-  50% { box-shadow: 0 0 40px hsla(250, 80%, 65%, 0.25); }
+  0%, 100% { box-shadow: 0 0 20px hsla(240, 100%, 50%, 0.1); }
+  50% { box-shadow: 0 0 50px hsla(240, 100%, 50%, 0.25); }
 }
 
 @keyframes float {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-10px); }
-}
-
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
 }
