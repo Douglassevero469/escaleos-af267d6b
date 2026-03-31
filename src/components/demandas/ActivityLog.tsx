@@ -7,6 +7,8 @@ interface ActivityEntry {
   action: string;
   details: Record<string, any>;
   created_at: string;
+  user_id: string;
+  display_name?: string;
 }
 
 const ACTION_CONFIG: Record<string, { icon: typeof Clock; label: string; color: string }> = {
