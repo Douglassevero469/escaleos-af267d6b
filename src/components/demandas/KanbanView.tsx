@@ -15,7 +15,7 @@ interface KanbanViewProps {
   onSelect?: (id: string, checked: boolean) => void;
 }
 
-export function KanbanView({ columns, items, onItemsChange, onCardClick, onAddItem, onUpdateItem }: KanbanViewProps) {
+export function KanbanView({ columns, items, onItemsChange, onCardClick, onAddItem, onUpdateItem, selectable, selectedIds, onSelect }: KanbanViewProps) {
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
   const sortedColumns = [...columns].sort((a, b) => a.order - b.order);
