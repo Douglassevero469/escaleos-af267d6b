@@ -983,9 +983,19 @@ export default function FormAnalytics({ formId, formName, formFields = [] }: Pro
                 <XAxis type="number" allowDecimals={false} tick={{ fontSize: 10 }} />
                 <YAxis type="category" dataKey="name" tick={{ fontSize: 10 }} width={120} />
                 <ChartTooltip content={<ChartTooltipContent />} />
-                <Bar dataKey="value" fill="hsl(var(--chart-4))" radius={[0, 4, 4, 0]} name="Respostas" />
+                <Bar dataKey="value" radius={[0, 4, 4, 0]} name="Respostas">
+                  {deviceData.regions.map((_, i) => <Cell key={i} fill={BAR_COLORS[i % BAR_COLORS.length]} />)}
+                </Bar>
               </BarChart>
             </ChartContainer>
+            <div className="flex flex-wrap gap-2 mt-2 px-1">
+              {deviceData.regions.map((d, i) => (
+                <div key={d.name} className="flex items-center gap-1">
+                  <div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: BAR_COLORS[i % BAR_COLORS.length] }} />
+                  <span className="text-[10px] text-muted-foreground">{d.name}: {d.value}</span>
+                </div>
+              ))}
+            </div>
           </GlassCard>
         )}
       </div>
