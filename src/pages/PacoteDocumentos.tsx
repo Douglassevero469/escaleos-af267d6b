@@ -1,5 +1,5 @@
 import { GlassCard } from "@/components/ui/GlassCard";
-import { FileText, Eye, CheckCircle, Loader2, AlertCircle, RefreshCw, Download, Archive, Pencil, Save } from "lucide-react";
+import { FileText, Eye, CheckCircle, Loader2, AlertCircle, RefreshCw, Download, Archive, Pencil, Save, Sparkles } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { useParams } from "react-router-dom";
@@ -670,7 +670,13 @@ export default function PacoteDocumentos() {
                     </p>
                   )}
                   {isDocReady(status) && wordCount > 0 && (
-                    <p className="text-xs text-muted-foreground mt-1">{wordCount.toLocaleString()} palavras</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <p className="text-xs text-muted-foreground">{wordCount.toLocaleString()} palavras</p>
+                      <span className="flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
+                        <Sparkles className="h-2.5 w-2.5" />
+                        {["planejamento","playbook","funil","script"].includes(doc.doc_type) ? "Gemini Pro" : "Gemini Flash"}
+                      </span>
+                    </div>
                   )}
                 </div>
 
