@@ -204,6 +204,7 @@ export default function FormBuilder() {
               <SelectItem value="inline">Corrido (Grid)</SelectItem>
               <SelectItem value="stepper">Multi-step</SelectItem>
               <SelectItem value="chat">Chat Mode</SelectItem>
+              <SelectItem value="chatia">Chat IA (Conversacional)</SelectItem>
               <SelectItem value="focus">Focus (Typeform)</SelectItem>
               <SelectItem value="split">Split (2 colunas)</SelectItem>
               <SelectItem value="compact">Compacto</SelectItem>

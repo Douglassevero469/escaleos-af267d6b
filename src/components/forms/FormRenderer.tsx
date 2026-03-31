@@ -47,6 +47,12 @@ export default function FormRenderer({
   const [chatStep, setChatStep] = useState(0);
   const [stepperStep, setStepperStep] = useState(0);
   const [focusStep, setFocusStep] = useState(0);
+  // ChatIA state
+  const [chatIaStep, setChatIaStep] = useState(0);
+  const [chatIaTyping, setChatIaTyping] = useState(false);
+  const [chatIaMessages, setChatIaMessages] = useState<Array<{ role: "bot" | "user"; content: string; fieldId?: string }>>([]);
+  const [chatIaReady, setChatIaReady] = useState(false);
+  const chatIaEndRef = useRef<HTMLDivElement>(null);
 
   const theme = useMemo(() => getFormTheme(settings.theme), [settings.theme]);
   const isGradientBg = theme.vars["--form-bg"].startsWith("linear-gradient");
