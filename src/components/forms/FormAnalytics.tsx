@@ -314,7 +314,8 @@ export default function FormAnalytics({ formId, formName, formFields = [] }: Pro
       const dt = meta.deviceType || "Desconhecido";
       const model = meta.model || meta.os || "Desconhecido";
       const browser = meta.browser || "Desconhecido";
-      const region = meta.region || meta.city || meta.country || null;
+      const city = meta.city;
+      const region = city && meta.region ? `${city}, ${meta.region}` : city || meta.region || meta.country || null;
 
       typeCounts[dt] = (typeCounts[dt] || 0) + 1;
       modelCounts[model] = (modelCounts[model] || 0) + 1;

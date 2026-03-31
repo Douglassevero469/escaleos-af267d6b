@@ -8,24 +8,30 @@ import FormRenderer from "@/components/forms/FormRenderer";
 function parseDeviceInfo() {
   const ua = navigator.userAgent;
   let deviceType = "Desktop";
-  if (/Mobi|Android/i.test(ua)) deviceType = "Mobile";
+  if (/Mobi|Android.*Mobile/i.test(ua)) deviceType = "Mobile";
   else if (/Tablet|iPad/i.test(ua)) deviceType = "Tablet";
+  else if (/Android/i.test(ua)) deviceType = "Tablet";
 
   let browser = "Outro";
-  if (/Edg\//i.test(ua)) browser = "Edge";
-  else if (/OPR|Opera/i.test(ua)) browser = "Opera";
-  else if (/Chrome/i.test(ua)) browser = "Chrome";
-  else if (/Safari/i.test(ua)) browser = "Safari";
-  else if (/Firefox/i.test(ua)) browser = "Firefox";
+  let browserVersion = "";
+  if (/SamsungBrowser\/(\S+)/i.test(ua)) { browser = "Samsung Internet"; browserVersion = ua.match(/SamsungBrowser\/(\S+)/i)?.[1] || ""; }
+  else if (/Edg\/(\S+)/i.test(ua)) { browser = "Edge"; browserVersion = ua.match(/Edg\/(\S+)/i)?.[1] || ""; }
+  else if (/OPR\/(\S+)|Opera\/(\S+)/i.test(ua)) { browser = "Opera"; browserVersion = ua.match(/OPR\/(\S+)/i)?.[1] || ""; }
+  else if (/Chrome\/(\S+)/i.test(ua) && !/Edg/i.test(ua)) { browser = "Chrome"; browserVersion = ua.match(/Chrome\/(\S+)/i)?.[1] || ""; }
+  else if (/Safari\/(\S+)/i.test(ua) && !/Chrome/i.test(ua)) { browser = "Safari"; browserVersion = ua.match(/Version\/(\S+)/i)?.[1] || ""; }
+  else if (/Firefox\/(\S+)/i.test(ua)) { browser = "Firefox"; browserVersion = ua.match(/Firefox\/(\S+)/i)?.[1] || ""; }
+  if (browserVersion) browser = `${browser} ${browserVersion.split(".")[0]}`;
 
   let os = "Outro";
-  if (/Windows/i.test(ua)) os = "Windows";
-  else if (/Mac OS/i.test(ua)) os = "macOS";
-  else if (/Android/i.test(ua)) os = "Android";
-  else if (/iPhone|iPad|iPod/i.test(ua)) os = "iOS";
+  if (/Windows NT 10/i.test(ua)) os = "Windows 10/11";
+  else if (/Windows/i.test(ua)) os = "Windows";
+  else if (/Mac OS X (\d+[._]\d+)/i.test(ua)) { const v = ua.match(/Mac OS X (\d+[._]\d+)/i)?.[1]?.replace("_", "."); os = `macOS ${v}`; }
+  else if (/Android (\d+(\.\d+)?)/i.test(ua)) { const v = ua.match(/Android (\d+(\.\d+)?)/i)?.[1]; os = `Android ${v}`; }
+  else if (/iPhone OS (\d+[._]\d+)/i.test(ua)) { const v = ua.match(/iPhone OS (\d+[._]\d+)/i)?.[1]?.replace("_", "."); os = `iOS ${v}`; }
+  else if (/iPad.*OS (\d+[._]\d+)/i.test(ua)) { const v = ua.match(/OS (\d+[._]\d+)/i)?.[1]?.replace("_", "."); os = `iPadOS ${v}`; }
   else if (/Linux/i.test(ua)) os = "Linux";
+  else if (/CrOS/i.test(ua)) os = "Chrome OS";
 
-  // Try to extract device model
   let model = "";
   const androidMatch = ua.match(/;\s*([^;)]+)\s*Build\//);
   if (androidMatch) model = androidMatch[1].trim();
@@ -33,18 +39,40 @@ function parseDeviceInfo() {
   if (iphoneMatch) model = iphoneMatch[1];
   if (!model && deviceType === "Desktop") model = os;
 
-  return { deviceType, browser, os, model };
+  // Screen info
+  const screenSize = `${screen.width}x${screen.height}`;
+  const language = navigator.language || "";
+
+  return { deviceType, browser, os, model, screenSize, language, userAgent: ua };
 }
 
 async function fetchGeoInfo(): Promise<{ country?: string; region?: string; city?: string }> {
-  try {
-    const res = await fetch("https://ipapi.co/json/", { signal: AbortSignal.timeout(3000) });
-    if (!res.ok) return {};
-    const data = await res.json();
-    return { country: data.country_name, region: data.region, city: data.city };
-  } catch {
-    return {};
+  // Try multiple free geo APIs for reliability
+  const apis = [
+    {
+      url: "https://ip-api.com/json/?fields=status,country,regionName,city",
+      parse: (d: any) => d.status === "success" ? { country: d.country, region: d.regionName, city: d.city } : null,
+    },
+    {
+      url: "https://ipapi.co/json/",
+      parse: (d: any) => d.country_name ? { country: d.country_name, region: d.region, city: d.city } : null,
+    },
+    {
+      url: "https://ipwho.is/",
+      parse: (d: any) => d.success !== false ? { country: d.country, region: d.region, city: d.city } : null,
+    },
+  ];
+
+  for (const api of apis) {
+    try {
+      const res = await fetch(api.url, { signal: AbortSignal.timeout(4000) });
+      if (!res.ok) continue;
+      const data = await res.json();
+      const result = api.parse(data);
+      if (result) return result;
+    } catch { /* try next */ }
   }
+  return {};
 }
 
 function getSessionId(): string {
