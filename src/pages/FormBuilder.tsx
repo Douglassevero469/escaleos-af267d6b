@@ -125,11 +125,14 @@ export default function FormBuilder() {
   const saveMutation = useMutation({
     mutationFn: async (newStatus: string | null = null) => {
       const finalStatus = newStatus || status;
+      const sanitizedSlug = slug.toLowerCase().replace(/[^a-z0-9-]/g, "").slice(0, 50);
+      if (!sanitizedSlug) throw new Error("Slug não pode ficar vazio");
       const { error } = await supabase
         .from("forms")
         .update({
           name: formName,
           description: formDesc || null,
+          slug: sanitizedSlug,
           layout,
           fields: fields as any,
           settings: settings as any,
