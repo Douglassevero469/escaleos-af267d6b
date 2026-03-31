@@ -528,8 +528,8 @@ export default function FormRenderer({
     const isLast = stepperStep >= totalSteps - 1;
 
     return (
-      <div className={`flex items-center justify-center p-6 ${wrapperHeight}`} style={themeStyle}>
-        <div className="w-full max-w-lg space-y-6">
+      <div className={`flex items-center justify-center px-4 py-6 sm:p-6 ${wrapperHeight}`} style={themeStyle}>
+        <div className="w-full max-w-lg space-y-5 sm:space-y-6">
           {formHeader}
           <StepIndicator steps={Array.from({ length: totalSteps }, (_, i) => `Etapa ${i + 1}`)} currentStep={stepperStep} />
           <div className="space-y-4">
