@@ -128,6 +128,7 @@ export default function FormPublic() {
           // Use fetch with keepalive for reliable delivery on page unload
           const url = `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/form_submissions`;
           const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+          const meta = { ...deviceRef.current, ...(geoRef.current || {}) };
           fetch(url, {
             method: "POST",
             keepalive: true,
@@ -137,7 +138,7 @@ export default function FormPublic() {
               "Authorization": `Bearer ${anonKey}`,
               "Prefer": "return=minimal",
             },
-            body: JSON.stringify({ form_id: form.id, data, status: "incomplete" }),
+            body: JSON.stringify({ form_id: form.id, data, status: "incomplete", metadata: meta }),
           }).catch(() => {});
         }
       }
