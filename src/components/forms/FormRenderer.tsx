@@ -46,6 +46,7 @@ export default function FormRenderer({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [chatStep, setChatStep] = useState(0);
   const [stepperStep, setStepperStep] = useState(0);
+  const [focusStep, setFocusStep] = useState(0);
 
   const theme = useMemo(() => getFormTheme(settings.theme), [settings.theme]);
   const isGradientBg = theme.vars["--form-bg"].startsWith("linear-gradient");
