@@ -136,7 +136,7 @@ export default function FormRenderer({
     );
   }
 
-  const renderField = (field: FormField) => {
+  const renderFieldInner = (field: FormField) => {
     const error = errors[field.id];
 
     switch (field.type) {
