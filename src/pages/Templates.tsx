@@ -93,7 +93,7 @@ export default function Templates() {
       }).eq("id", templateId);
       if (error) throw error;
     },
-    onSuccess: () => {
+    onSuccess: (_data, templateId) => {
       queryClient.invalidateQueries({ queryKey: ["templates"] });
       navigate(`/briefing/novo?template=${templateId}`);
     },
