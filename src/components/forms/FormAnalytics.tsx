@@ -10,10 +10,11 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Loader2, Eye, MousePointerClick, Send, TrendingUp, Users, LogOut, CalendarIcon, Clock, Percent, FileDown } from "lucide-react";
-import html2pdf from "html2pdf.js";
+import { exportAnalyticsPDF, captureChartAsImage } from "@/lib/analytics-pdf-export";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, LineChart, Line, PieChart, Pie, Cell, AreaChart, Area } from "recharts";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 
 interface Props {
   formId: string;
