@@ -75,6 +75,7 @@ const BUILTIN_CHART_LABELS: Record<BuiltInChart, string> = {
   browser: "Navegador",
   deviceModel: "Modelo / Sistema Operacional",
   region: "Respostas por Região",
+  locationMap: "Mapa de Calor de Localização",
 };
 
 const ALL_BUILTIN_CHARTS = Object.keys(BUILTIN_CHART_LABELS) as BuiltInChart[];
