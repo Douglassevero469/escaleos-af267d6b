@@ -113,6 +113,9 @@ export default function CRM() {
             <Button variant={view === "list" ? "default" : "ghost"} size="sm" onClick={() => setView("list")}>
               <List className="h-4 w-4 mr-1" /> Lista
             </Button>
+            <Button variant={view === "analytics" ? "default" : "ghost"} size="sm" onClick={() => setView("analytics")}>
+              <BarChart3 className="h-4 w-4 mr-1" /> Analytics
+            </Button>
           </div>
         </div>
       )}
