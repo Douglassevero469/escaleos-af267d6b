@@ -261,9 +261,9 @@ export function DemandDetailSheet({ open, onOpenChange, item, columns, onUpdate,
             <div className="border-t pt-4 mt-4">
               <Label className="text-sm font-semibold">Comentários</Label>
               <div className="space-y-2 mt-2 max-h-48 overflow-y-auto">
-                {comments.map(c => (
+              {comments.map(c => (
                   <div key={c.id} className="bg-muted rounded-lg p-2 text-xs">
-                    <p>{c.content}</p>
+                    <p>{renderCommentWithMentions(c.content)}</p>
                     <span className="text-muted-foreground text-[10px]">{new Date(c.created_at).toLocaleString("pt-BR")}</span>
                   </div>
                 ))}
