@@ -398,10 +398,25 @@ export default function FormAnalytics({ formId, formName }: Props) {
               {format(dateRange.from, "dd/MM/yyyy", { locale: ptBR })} – {format(dateRange.to, "dd/MM/yyyy", { locale: ptBR })}
             </span>
           )}
-          <Button variant="outline" size="sm" className="h-7 text-xs ml-auto" onClick={exportPDF} disabled={exporting}>
-            {exporting ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : <FileDown className="h-3 w-3 mr-1" />}
-            Exportar PDF
-          </Button>
+          <div className="flex items-center gap-2 ml-auto">
+            <Select value={pdfOrientation} onValueChange={(v) => setPdfOrientation(v as "portrait" | "landscape")}>
+              <SelectTrigger className="h-7 w-[130px] text-xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="portrait">
+                  <span className="flex items-center gap-1"><FileText className="h-3 w-3" /> Retrato</span>
+                </SelectItem>
+                <SelectItem value="landscape">
+                  <span className="flex items-center gap-1"><Columns className="h-3 w-3" /> Paisagem</span>
+                </SelectItem>
+              </SelectContent>
+            </Select>
+            <Button variant="outline" size="sm" className="h-7 text-xs" onClick={exportPDF} disabled={exporting}>
+              {exporting ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : <FileDown className="h-3 w-3 mr-1" />}
+              Exportar PDF
+            </Button>
+          </div>
         </div>
       </GlassCard>
 
