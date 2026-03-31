@@ -360,11 +360,11 @@ export default function FormRenderer({
   // Card
   if (layout === "card") {
     return (
-      <div className="flex items-center justify-center p-4 min-h-[300px]">
+      <div className="flex items-center justify-center p-6 min-h-[300px]" style={themeStyle}>
         <div className="w-full max-w-lg space-y-4">
           <h1 className="text-xl font-bold text-center">{formName}</h1>
           {fields.map(f => (
-            <div key={f.id} className="rounded-xl border bg-card p-4 shadow-sm">{renderField(f)}</div>
+            <div key={f.id} className="rounded-xl border p-4 shadow-sm" style={cardStyle}>{renderField(f)}</div>
           ))}
           {submitButton()}
         </div>
