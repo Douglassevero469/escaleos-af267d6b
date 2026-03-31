@@ -356,23 +356,6 @@ function buildBrandedHtml(title: string, content: string): string {
     <span>${today}</span>
   </div>
 
-  <script>
-    // Auto-detect wide tables (4+ columns) and switch to landscape
-    (function() {
-      var tables = document.querySelectorAll('table');
-      var needsLandscape = false;
-      tables.forEach(function(t) {
-        var cols = t.querySelector('tr') ? t.querySelector('tr').children.length : 0;
-        if (cols >= 4) needsLandscape = true;
-      });
-      if (needsLandscape) {
-        var style = document.createElement('style');
-        style.textContent = '@page { size: A4 landscape; margin: 0; }';
-        document.head.appendChild(style);
-        document.querySelector('.page').classList.add('has-table');
-      }
-    })();
-  </script>
 </body>
 </html>`;
 }
