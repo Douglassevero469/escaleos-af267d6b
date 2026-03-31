@@ -825,7 +825,9 @@ export default function FormAnalytics({ formId, formName, formFields = [] }: Pro
                 <XAxis dataKey="hour" tick={{ fontSize: 9 }} />
                 <YAxis allowDecimals={false} tick={{ fontSize: 10 }} />
                 <ChartTooltip content={<ChartTooltipContent />} />
-                <Bar dataKey="count" fill="hsl(var(--primary))" radius={[3, 3, 0, 0]} name="Submissões" />
+                <Bar dataKey="count" radius={[3, 3, 0, 0]} name="Submissões">
+                  {hourlyData.map((_, i) => <Cell key={i} fill={BAR_COLORS[i % BAR_COLORS.length]} />)}
+                </Bar>
               </BarChart>
             </ChartContainer>
           </GlassCard>
