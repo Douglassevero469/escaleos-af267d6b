@@ -7,6 +7,7 @@ import {
   LogOut,
   UserCircle,
   ClipboardList,
+  KanbanSquare,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
@@ -35,6 +36,7 @@ const mainItems = [
   { title: "Clientes", url: "/clientes", icon: Users },
   { title: "Templates", url: "/templates", icon: FileText },
   { title: "Formulários", url: "/forms", icon: ClipboardList },
+  { title: "Demandas", url: "/demandas", icon: KanbanSquare },
   { title: "Admin", url: "/admin", icon: Settings },
   { title: "Meu Perfil", url: "/perfil", icon: UserCircle },
 ];
