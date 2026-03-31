@@ -585,8 +585,8 @@ export default function FormRenderer({
 
   // Default: List
   return (
-    <div className={`flex items-center justify-center p-6 ${wrapperHeight}`} style={themeStyle}>
-      <div className="w-full max-w-lg space-y-4">
+    <div className={`flex items-start sm:items-center justify-center px-4 py-6 sm:p-6 ${wrapperHeight}`} style={themeStyle}>
+      <div className="w-full max-w-lg space-y-3 sm:space-y-4">
         {formHeader}
         {formDescription && <p className="text-sm text-center" style={mutedStyle}>{formDescription}</p>}
         <div className="space-y-4">
