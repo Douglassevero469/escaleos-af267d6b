@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { Paperclip, Upload, Trash2, FileText, Image, File, X, Download, ZoomIn, ZoomOut } from "lucide-react";
+import { Paperclip, Upload, Trash2, FileText, Image, File, X, Download, ZoomIn, ZoomOut, Video } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
