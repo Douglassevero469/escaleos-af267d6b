@@ -21,6 +21,8 @@ import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { FormField } from "@/lib/form-field-types";
 
+const LocationHeatmap = lazy(() => import("@/components/forms/LocationHeatmap"));
+
 interface Props {
   formId: string;
   formName?: string;
