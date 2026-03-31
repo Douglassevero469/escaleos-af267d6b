@@ -20,7 +20,7 @@ interface BoardSelectorProps {
   onDuplicate?: (board: Board) => void;
 }
 
-export function BoardSelector({ boards, currentBoard, onSelect, onCreate }: BoardSelectorProps) {
+export function BoardSelector({ boards, currentBoard, onSelect, onCreate, onDuplicate }: BoardSelectorProps) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [name, setName] = useState("");
   const [desc, setDesc] = useState("");
