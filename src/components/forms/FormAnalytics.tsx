@@ -930,7 +930,18 @@ export default function FormAnalytics({ formId, formName, formFields = [] }: Pro
         )}
       </div>
 
-      {/* Dynamic Field Response Charts */}
+      {/* Location Heatmap */}
+      {isVisible("locationMap") && (
+        <GlassCard className="p-4" data-chart-section data-chart-title="Mapa de Calor de Localização">
+          <h3 className="text-sm font-semibold mb-3">📍 Mapa de Calor de Localização</h3>
+          <p className="text-xs text-muted-foreground mb-3">Distribuição geográfica dos leads que responderam ao formulário</p>
+          <Suspense fallback={<div className="h-[300px] flex items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>}>
+            <LocationHeatmap points={locationPoints} />
+          </Suspense>
+        </GlassCard>
+      )}
+
+
       {Object.entries(fieldResponseCharts).map(([fieldId, chartData]) => {
         const field = formFields.find(f => f.id === fieldId);
         if (!field || !isVisible(`field_${fieldId}`) || chartData.length === 0) return null;
