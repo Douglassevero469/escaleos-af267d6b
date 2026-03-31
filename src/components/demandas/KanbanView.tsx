@@ -75,6 +75,9 @@ export function KanbanView({ columns, items, onItemsChange, onCardClick, onAddIt
             items={items.filter(i => i.status === col.id).sort((a, b) => a.position - b.position)}
             onCardClick={onCardClick}
             onAddItem={onAddItem}
+            selectable={selectable}
+            selectedIds={selectedIds}
+            onSelect={onSelect}
           />
         ))}
       </div>
