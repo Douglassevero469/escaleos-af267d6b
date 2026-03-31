@@ -404,10 +404,10 @@ export default function FormAnalytics({ formId, formName, formFields = [] }: Pro
         for (const section of chartSections) {
           const title = section.getAttribute("data-chart-title") || "Gráfico";
           const subtitle = section.getAttribute("data-chart-subtitle") || undefined;
-          const chartEl = section.querySelector(".recharts-responsive-container, [data-chart]") as HTMLElement;
+          const chartEl = section.querySelector("[data-chart]") as HTMLElement;
           if (chartEl) {
             try {
-              const imageDataUrl = await captureChartAsImage(chartEl.parentElement || chartEl);
+              const imageDataUrl = await captureChartAsImage(chartEl);
               chartImages.push({ title, subtitle, imageDataUrl });
             } catch { /* skip */ }
           }
