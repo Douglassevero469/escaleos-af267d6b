@@ -79,6 +79,13 @@ export function LeadCard({ lead, onClick }: LeadCardProps) {
         </div>
       )}
 
+      {lead.form_name && (
+        <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
+          <FileText className="h-3 w-3 shrink-0" />
+          {lead.form_name}
+        </span>
+      )}
+
       {Array.isArray(lead.tags) && lead.tags.length > 0 && (
         <div className="flex flex-wrap gap-1">
           {lead.tags.slice(0, 3).map((tag: any, i: number) => (
