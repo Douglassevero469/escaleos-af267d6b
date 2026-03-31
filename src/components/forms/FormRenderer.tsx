@@ -345,7 +345,7 @@ export default function FormRenderer({
             {stepperStep > 0 && <Button variant="outline" onClick={() => setStepperStep(s => s - 1)}><ArrowLeft className="h-4 w-4 mr-1" /> Voltar</Button>}
             <Button
               className="flex-1"
-              style={buttonColor ? { backgroundColor: buttonColor } : undefined}
+              style={btnStyle}
               onClick={() => { if (isPreview) return; if (isLast) handleSubmit(); else setStepperStep(s => s + 1); }}
               disabled={submitting || isPreview}
             >
