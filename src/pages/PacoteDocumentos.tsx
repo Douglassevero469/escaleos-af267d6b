@@ -1,5 +1,5 @@
 import { GlassCard } from "@/components/ui/GlassCard";
-import { FileText, Eye, CheckCircle, Loader2, AlertCircle, RefreshCw, Download } from "lucide-react";
+import { FileText, Eye, CheckCircle, Loader2, AlertCircle, RefreshCw, Download, Archive } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { useParams } from "react-router-dom";
@@ -10,6 +10,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Progress } from "@/components/ui/progress";
 import ReactMarkdown from "react-markdown";
+import JSZip from "jszip";
 
 const statusConfig = {
   ready: { icon: CheckCircle, color: "text-success", bg: "bg-success/10", label: "Pronto" },
