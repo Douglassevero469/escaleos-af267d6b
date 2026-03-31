@@ -62,6 +62,8 @@ export function ActivityLog({ itemId }: { itemId: string }) {
           <div key={entry.id} className="flex items-start gap-2 text-xs py-1">
             <Icon className={`h-3.5 w-3.5 mt-0.5 flex-shrink-0 ${config.color}`} />
             <div className="flex-1 min-w-0">
+              <span className="font-medium">{entry.display_name || 'Usuário'}</span>
+              <span className="text-muted-foreground mx-1">·</span>
               <span className="font-medium">{config.label}</span>
               {entry.details?.from && entry.details?.to && (
                 <span className="text-muted-foreground"> {entry.details.from} → {entry.details.to}</span>
