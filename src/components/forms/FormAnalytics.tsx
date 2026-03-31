@@ -10,10 +10,11 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Loader2, Eye, MousePointerClick, Send, TrendingUp, Users, LogOut, CalendarIcon, Clock, Percent, FileDown } from "lucide-react";
-import html2pdf from "html2pdf.js";
+import { exportAnalyticsPDF, captureChartAsImage } from "@/lib/analytics-pdf-export";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, LineChart, Line, PieChart, Pie, Cell, AreaChart, Area } from "recharts";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 
 interface Props {
   formId: string;
@@ -35,26 +36,10 @@ export default function FormAnalytics({ formId, formName }: Props) {
   const [customFrom, setCustomFrom] = useState<Date | undefined>();
   const [customTo, setCustomTo] = useState<Date | undefined>();
   const [exporting, setExporting] = useState(false);
-  const reportRef = useRef<HTMLDivElement>(null);
+  const chartsRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
 
-  const exportPDF = useCallback(async () => {
-    if (!reportRef.current) return;
-    setExporting(true);
-    try {
-      const element = reportRef.current;
-      const opt = {
-        margin: [10, 8, 10, 8] as [number, number, number, number],
-        filename: `analytics-${formName || formId.slice(0, 8)}-${format(new Date(), "dd-MM-yyyy")}.pdf`,
-        image: { type: "jpeg" as const, quality: 0.95 },
-        html2canvas: { scale: 2, useCORS: true, logging: false },
-        jsPDF: { unit: "mm" as const, format: "a4" as const, orientation: "portrait" as const },
-        pagebreak: { mode: ["avoid-all", "css", "legacy"] as any },
-      };
-      await html2pdf().set(opt).from(element).save();
-    } finally {
-      setExporting(false);
-    }
-  }, [formId, formName]);
+
 
   const { data: allEvents = [], isLoading } = useQuery({
     queryKey: ["form-events", formId],
@@ -264,6 +249,60 @@ export default function FormAnalytics({ formId, formName }: Props) {
     });
   }, [submissions]);
 
+  const exportPDF = useCallback(async () => {
+    setExporting(true);
+    try {
+      const chartImages: { title: string; subtitle?: string; imageDataUrl: string }[] = [];
+      if (chartsRef.current) {
+        const chartSections = chartsRef.current.querySelectorAll("[data-chart-section]");
+        for (const section of chartSections) {
+          const title = section.getAttribute("data-chart-title") || "Gráfico";
+          const subtitle = section.getAttribute("data-chart-subtitle") || undefined;
+          const chartEl = section.querySelector(".recharts-responsive-container, [data-chart]") as HTMLElement;
+          if (chartEl) {
+            try {
+              const imageDataUrl = await captureChartAsImage(chartEl.parentElement || chartEl);
+              chartImages.push({ title, subtitle, imageDataUrl });
+            } catch { /* skip */ }
+          }
+        }
+      }
+
+      const periodLabel = dateRange
+        ? `${format(dateRange.from, "dd/MM/yyyy", { locale: ptBR })} – ${format(dateRange.to, "dd/MM/yyyy", { locale: ptBR })}`
+        : "Todo o período";
+
+      await exportAnalyticsPDF({
+        formName: formName || "Formulário",
+        periodLabel,
+        exportDate: format(new Date(), "dd/MM/yyyy HH:mm", { locale: ptBR }),
+        kpis: [
+          { label: "Visualizações", value: stats.views, icon: "eye", color: "#0000FF" },
+          { label: "Iniciaram", value: stats.starts, icon: "click", color: "#22c55e" },
+          { label: "Enviaram", value: stats.submits, icon: "send", color: "#3b82f6" },
+          { label: "Abandonos", value: stats.abandons, icon: "logout", color: "#ef4444" },
+          { label: "Visitantes únicos", value: stats.uniqueSessions, icon: "users", color: "#8b5cf6" },
+          ...(avgCompletionTime ? [{ label: "Tempo médio", value: avgCompletionTime, icon: "clock", color: "#06b6d4" }] : []),
+        ],
+        rates: [
+          { label: "Taxa de início", value: `${stats.startRate}%`, icon: "percent", color: "#0000FF" },
+          { label: "Taxa de conclusão", value: `${stats.completionRate}%`, icon: "percent", color: "#0000FF" },
+          { label: "Conversão total", value: `${stats.conversionRate}%`, icon: "trending", color: "#0000FF" },
+          { label: "Taxa de abandono", value: `${stats.abandonRate}%`, icon: "percent", color: "#ef4444" },
+        ],
+        respondents: recentRespondents.map(r => ({
+          name: r.name, email: r.email, phone: r.phone, status: r.status, date: r.date,
+        })),
+        chartImages,
+      });
+      toast({ title: "PDF exportado com sucesso!" });
+    } catch (err) {
+      toast({ title: "Erro ao exportar", description: "Tente novamente", variant: "destructive" });
+    } finally {
+      setExporting(false);
+    }
+  }, [formId, formName, dateRange, stats, avgCompletionTime, recentRespondents, toast]);
+
   if (isLoading) {
     return <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>;
   }
@@ -335,7 +374,7 @@ export default function FormAnalytics({ formId, formName }: Props) {
         </div>
       </GlassCard>
 
-      <div ref={reportRef} className="space-y-4">
+      <div ref={chartsRef} className="space-y-4">
       {/* KPI Cards */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
         <GlassCard className="p-4 text-center">
@@ -498,7 +537,7 @@ export default function FormAnalytics({ formId, formName }: Props) {
 
       {/* Conversion rate trend */}
       {conversionTrend.length > 1 && (
-        <GlassCard className="p-4">
+        <GlassCard className="p-4" data-chart-section data-chart-title="Taxa de Conversão ao Longo do Tempo">
           <h3 className="text-sm font-semibold mb-3">Taxa de Conversão ao Longo do Tempo</h3>
           <ChartContainer config={{ taxa: { label: "Conversão %", color: "hsl(var(--primary))" } }} className="h-[200px] w-full">
             <AreaChart data={conversionTrend}>
@@ -521,7 +560,7 @@ export default function FormAnalytics({ formId, formName }: Props) {
       {/* Day of week */}
       {dayOfWeekData.some(d => d.respostas > 0) && (
         <div className="grid md:grid-cols-2 gap-4">
-          <GlassCard className="p-4">
+          <GlassCard className="p-4" data-chart-section data-chart-title="Respostas por Dia da Semana">
             <h3 className="text-sm font-semibold mb-3">Respostas por Dia da Semana</h3>
             <ChartContainer config={{ respostas: { label: "Respostas", color: "hsl(var(--chart-2))" } }} className="h-[180px] w-full">
               <BarChart data={dayOfWeekData}>
@@ -535,7 +574,7 @@ export default function FormAnalytics({ formId, formName }: Props) {
 
           {/* Hourly */}
           {hourlyData.some(h => h.count > 0) && (
-            <GlassCard className="p-4">
+            <GlassCard className="p-4" data-chart-section data-chart-title="Horário das Submissões">
               <h3 className="text-sm font-semibold mb-3">Horário das Submissões</h3>
               <ChartContainer config={{ count: { label: "Submissões", color: "hsl(var(--primary))" } }} className="h-[180px] w-full">
                 <BarChart data={hourlyData}>
@@ -552,7 +591,7 @@ export default function FormAnalytics({ formId, formName }: Props) {
 
       {/* Field Interaction Funnel */}
       {fieldFunnel.length > 0 && (
-        <GlassCard className="p-4">
+        <GlassCard className="p-4" data-chart-section data-chart-title="Funil por Campo" data-chart-subtitle="Sessões únicas que interagiram com cada campo">
           <h3 className="text-sm font-semibold mb-1">Funil por Campo</h3>
           <p className="text-xs text-muted-foreground mb-3">Sessões únicas que interagiram com cada campo</p>
           <ChartContainer config={{ sessoes: { label: "Sessões", color: "hsl(var(--chart-2))" } }} className="h-[220px] w-full">
@@ -569,7 +608,7 @@ export default function FormAnalytics({ formId, formName }: Props) {
 
       {/* Abandonment by field */}
       {abandonByField.length > 0 && (
-        <GlassCard className="p-4">
+        <GlassCard className="p-4" data-chart-section data-chart-title="Abandono por Campo" data-chart-subtitle="Em qual campo o lead desistiu do formulário">
           <h3 className="text-sm font-semibold mb-1">Abandono por Campo</h3>
           <p className="text-xs text-muted-foreground mb-3">Em qual campo o lead desistiu do formulário</p>
           <ChartContainer config={{ abandonos: { label: "Abandonos", color: "hsl(var(--destructive))" } }} className="h-[220px] w-full">
@@ -586,7 +625,7 @@ export default function FormAnalytics({ formId, formName }: Props) {
 
       {/* Daily Chart */}
       {dailyData.length > 0 && (
-        <GlassCard className="p-4">
+        <GlassCard className="p-4" data-chart-section data-chart-title="Atividade por Dia">
           <h3 className="text-sm font-semibold mb-3">Atividade por Dia</h3>
           <ChartContainer config={chartConfig} className="h-[220px] w-full">
             <BarChart data={dailyData}>
