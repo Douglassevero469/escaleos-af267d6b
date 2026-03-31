@@ -79,6 +79,68 @@ export default function Dashboard() {
     },
   });
 
+  const { data: dailyUsageData = [] } = useQuery({
+    queryKey: ["chart-daily-usage"],
+    queryFn: async () => {
+      const now = new Date();
+      const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+      const firstOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      
+      // Try generation_logs first
+      const { data: logs } = await supabase
+        .from("generation_logs")
+        .select("created_at, token_estimate, word_count")
+        .gte("created_at", firstOfMonth.toISOString());
+      
+      // Fallback to documents if no logs
+      const { data: docs } = await supabase
+        .from("documents")
+        .select("created_at, content, status")
+        .eq("status", "completed")
+        .gte("created_at", firstOfMonth.toISOString());
+
+      // Build day map
+      const dayMap: Record<number, { tokens: number; words: number; docs: number }> = {};
+      for (let d = 1; d <= daysInMonth; d++) {
+        dayMap[d] = { tokens: 0, words: 0, docs: 0 };
+      }
+
+      if (logs && logs.length > 0) {
+        logs.forEach(l => {
+          const day = new Date(l.created_at).getDate();
+          dayMap[day].tokens += l.token_estimate || 0;
+          dayMap[day].words += l.word_count || 0;
+          dayMap[day].docs += 1;
+        });
+      } else if (docs && docs.length > 0) {
+        docs.forEach(d => {
+          const day = new Date(d.created_at).getDate();
+          const words = d.content ? d.content.split(/\s+/).filter(Boolean).length : 0;
+          dayMap[day].words += words;
+          dayMap[day].tokens += Math.round(words * 1.3);
+          dayMap[day].docs += 1;
+        });
+      }
+
+      // Cumulative
+      let cumTokens = 0;
+      let cumWords = 0;
+      return Array.from({ length: daysInMonth }, (_, i) => {
+        const day = i + 1;
+        cumTokens += dayMap[day].tokens;
+        cumWords += dayMap[day].words;
+        return {
+          dia: `${day}`,
+          tokens: dayMap[day].tokens,
+          palavras: dayMap[day].words,
+          docs: dayMap[day].docs,
+          tokensAcum: cumTokens,
+          palavrasAcum: cumWords,
+        };
+      });
+    },
+  });
+
   const { data: recentPackages = [], isLoading } = useQuery({
     queryKey: ["recent-packages"],
     queryFn: async () => {
