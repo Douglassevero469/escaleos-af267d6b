@@ -391,6 +391,9 @@ async function downloadAllAsZip(docs: any[], clientName: string) {
 export default function PacoteDocumentos() {
   const { id } = useParams();
   const [viewDoc, setViewDoc] = useState<any>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editContent, setEditContent] = useState("");
+  const [savingEdit, setSavingEdit] = useState(false);
   const [streamingContent, setStreamingContent] = useState<Record<string, string>>({});
   const [generatingDocs, setGeneratingDocs] = useState<Set<string>>(new Set());
   const generationStarted = useRef(false);
