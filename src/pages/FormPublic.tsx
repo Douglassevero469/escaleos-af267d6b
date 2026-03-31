@@ -77,6 +77,14 @@ export default function FormPublic() {
   const currentValuesRef = useRef<Record<string, any>>({});
   const fieldsRef = useRef<FormField[]>([]);
 
+  const geoRef = useRef<Record<string, any> | null>(null);
+  const deviceRef = useRef(parseDeviceInfo());
+
+  // Fetch geo info once
+  useEffect(() => {
+    fetchGeoInfo().then(g => { geoRef.current = g; });
+  }, []);
+
   useEffect(() => {
     if (!slug) return;
     supabase.from("forms").select("*").eq("slug", slug).eq("status", "published").single()
