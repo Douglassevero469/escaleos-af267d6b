@@ -17,9 +17,10 @@ import {
   ArrowLeft, Save, Eye, Smartphone, Monitor, Globe, Loader2, Trash2, GripVertical, Plus,
   Type, AlignLeft, Mail, Phone, Hash, ChevronDown, CheckSquare, Circle, ToggleLeft,
   ThumbsUp, List, Calendar, Upload, Heading, FileText, Minus, MoveVertical, Settings,
-  ImageIcon,
+  ImageIcon, Link, Fingerprint, DollarSign, Star, SlidersHorizontal, LayoutGrid,
+  Clock, CalendarClock,
 } from "lucide-react";
-import { FormField, FIELD_TYPES, createField } from "@/lib/form-field-types";
+import { FormField, FIELD_TYPES, FIELD_TYPE_CATEGORIES, createField } from "@/lib/form-field-types";
 import { FORM_THEMES } from "@/lib/form-themes";
 import {
   DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent,
@@ -34,6 +35,8 @@ import FormRenderer from "@/components/forms/FormRenderer";
 const ICON_MAP: Record<string, any> = {
   Type, AlignLeft, Mail, Phone, Hash, ChevronDown, CheckSquare, Circle, ToggleLeft,
   ThumbsUp, List, Calendar, Upload, Heading, FileText, Minus, MoveVertical,
+  Link, Fingerprint, DollarSign, Star, SlidersHorizontal, LayoutGrid, ImageIcon,
+  Clock, CalendarClock,
 };
 
 function SortableField({
@@ -363,22 +366,25 @@ export default function FormBuilder() {
         <TabsContent value="editor">
           <div className="grid gap-4 lg:grid-cols-[220px_1fr_260px]">
             {/* Left: Component Palette */}
-            <GlassCard className="p-3 space-y-1 h-fit max-h-[70vh] overflow-y-auto">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Componentes</p>
-              {FIELD_TYPES.map(ft => {
-                const Icon = ICON_MAP[ft.icon] || Type;
-                return (
-                  <button
-                    key={ft.type}
-                    onClick={() => addField(ft.type)}
-                    className="w-full flex items-center gap-2 px-2.5 py-2 rounded-md text-sm hover:bg-accent transition-colors text-left"
-                  >
-                    <Icon className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                    <span className="truncate">{ft.label}</span>
-                    <Plus className="h-3 w-3 ml-auto text-muted-foreground opacity-0 group-hover:opacity-100" />
-                  </button>
-                );
-              })}
+            <GlassCard className="p-3 space-y-2 h-fit max-h-[70vh] overflow-y-auto">
+              {FIELD_TYPE_CATEGORIES.map(cat => (
+                <div key={cat.category}>
+                  <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1 mt-2 first:mt-0">{cat.category}</p>
+                  {cat.types.map(ft => {
+                    const Icon = ICON_MAP[ft.icon] || Type;
+                    return (
+                      <button
+                        key={ft.type}
+                        onClick={() => addField(ft.type)}
+                        className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-sm hover:bg-accent transition-colors text-left"
+                      >
+                        <Icon className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                        <span className="truncate text-xs">{ft.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              ))}
             </GlassCard>
 
             {/* Center: Canvas */}
@@ -450,7 +456,7 @@ export default function FormBuilder() {
                       </div>
                     </>
                   )}
-                  {["select", "radio", "checkbox", "selection", "yes_no"].includes(selectedField.type) && (
+                  {["select", "radio", "radio_cards", "checkbox", "selection", "image_choice", "yes_no"].includes(selectedField.type) && (
                     <div>
                       <Label className="text-xs">Opções (uma por linha)</Label>
                       <Textarea
@@ -458,6 +464,31 @@ export default function FormBuilder() {
                         onChange={e => updateField(selectedField.id, { options: e.target.value.split("\n") })}
                         rows={4}
                       />
+                    </div>
+                  )}
+                  {["rating", "slider"].includes(selectedField.type) && (
+                    <div className="space-y-2 pt-2 border-t border-border">
+                      <p className="text-xs font-semibold text-muted-foreground">Configuração</p>
+                      <div className="grid grid-cols-2 gap-2">
+                        {selectedField.type === "slider" && (
+                          <div>
+                            <Label className="text-[10px]">Valor mínimo</Label>
+                            <Input
+                              type="number"
+                              value={selectedField.validations?.min ?? 0}
+                              onChange={e => updateField(selectedField.id, { validations: { ...selectedField.validations, min: Number(e.target.value) } })}
+                            />
+                          </div>
+                        )}
+                        <div>
+                          <Label className="text-[10px]">{selectedField.type === "rating" ? "Nº de estrelas" : "Valor máximo"}</Label>
+                          <Input
+                            type="number"
+                            value={selectedField.validations?.max ?? (selectedField.type === "rating" ? 5 : 100)}
+                            onChange={e => updateField(selectedField.id, { validations: { ...selectedField.validations, max: Number(e.target.value) } })}
+                          />
+                        </div>
+                      </div>
                     </div>
                   )}
                   {!["heading", "paragraph", "divider", "spacer", "yes_no", "switch", "checkbox", "file"].includes(selectedField.type) && (
