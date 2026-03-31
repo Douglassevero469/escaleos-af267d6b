@@ -58,6 +58,7 @@ export default function SubmissionsDialog({ formId, formName, open, onOpenChange
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [filter, setFilter] = useState<"all" | "complete" | "incomplete">("all");
+  const [tagFilter, setTagFilter] = useState<string[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [newTag, setNewTag] = useState("");
   const [newTagColor, setNewTagColor] = useState("blue");
@@ -88,9 +89,21 @@ export default function SubmissionsDialog({ formId, formName, open, onOpenChange
     onError: (e: any) => toast({ title: "Erro", description: e.message, variant: "destructive" }),
   });
 
-  const filtered = filter === "all"
+  const statusFiltered = filter === "all"
     ? submissions
     : submissions.filter((s: any) => (s.status || "complete") === filter);
+
+  // All unique tags across submissions
+  const allTags = Array.from(
+    new Set(submissions.flatMap((s: any) => parseTags(s.tags).map(t => t.text)))
+  ).sort();
+
+  const filtered = tagFilter.length === 0
+    ? statusFiltered
+    : statusFiltered.filter((s: any) => {
+        const tags = parseTags(s.tags).map(t => t.text);
+        return tagFilter.some(tf => tags.includes(tf));
+      });
 
   const selected = selectedId ? submissions.find((s: any) => s.id === selectedId) : null;
 
@@ -199,8 +212,8 @@ export default function SubmissionsDialog({ formId, formName, open, onOpenChange
             isPending={updateMutation.isPending}
           />
         ) : (
-          <div className="space-y-4">
-            {/* Filters */}
+          <div className="space-y-3">
+            {/* Status filters */}
             <div className="flex items-center gap-2 flex-wrap">
               <Button variant={filter === "all" ? "default" : "outline"} size="sm" onClick={() => setFilter("all")}>
                 Todas ({submissions.length})
@@ -213,7 +226,47 @@ export default function SubmissionsDialog({ formId, formName, open, onOpenChange
               </Button>
             </div>
 
-            {/* Table */}
+            {/* Tag filters */}
+            {allTags.length > 0 && (
+              <div className="flex items-center gap-2 flex-wrap">
+                <Tag className="h-3.5 w-3.5 text-muted-foreground" />
+                <span className="text-xs text-muted-foreground mr-1">Filtrar por etiqueta:</span>
+                {allTags.map(tag => {
+                  const isActive = tagFilter.includes(tag);
+                  // Find color from first submission that has this tag
+                  const tagObj = submissions
+                    .flatMap((s: any) => parseTags(s.tags))
+                    .find(t => t.text === tag);
+                  const c = getColorClasses(tagObj?.color || "blue");
+                  return (
+                    <button
+                      key={tag}
+                      onClick={() => setTagFilter(prev =>
+                        isActive ? prev.filter(t => t !== tag) : [...prev, tag]
+                      )}
+                      className={cn(
+                        "text-[11px] px-2 py-0.5 rounded-full font-medium transition-all border",
+                        isActive
+                          ? cn(c.bg, c.text, "border-current")
+                          : "bg-muted/50 text-muted-foreground border-transparent hover:bg-muted"
+                      )}
+                    >
+                      {tag}
+                    </button>
+                  );
+                })}
+                {tagFilter.length > 0 && (
+                  <button
+                    onClick={() => setTagFilter([])}
+                    className="text-[10px] text-muted-foreground hover:text-foreground underline"
+                  >
+                    Limpar filtros
+                  </button>
+                )}
+              </div>
+            )}
+
+
             <div className="border rounded-lg overflow-auto">
               <Table>
                 <TableHeader>
