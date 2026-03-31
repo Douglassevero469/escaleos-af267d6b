@@ -30,10 +30,31 @@ const PIE_COLORS = [
   "hsl(var(--destructive))",
 ];
 
-export default function FormAnalytics({ formId }: Props) {
+export default function FormAnalytics({ formId, formName }: Props) {
   const [period, setPeriod] = useState<PeriodPreset>("30d");
   const [customFrom, setCustomFrom] = useState<Date | undefined>();
   const [customTo, setCustomTo] = useState<Date | undefined>();
+  const [exporting, setExporting] = useState(false);
+  const reportRef = useRef<HTMLDivElement>(null);
+
+  const exportPDF = useCallback(async () => {
+    if (!reportRef.current) return;
+    setExporting(true);
+    try {
+      const element = reportRef.current;
+      const opt = {
+        margin: [10, 8, 10, 8],
+        filename: `analytics-${formName || formId.slice(0, 8)}-${format(new Date(), "dd-MM-yyyy")}.pdf`,
+        image: { type: "jpeg", quality: 0.95 },
+        html2canvas: { scale: 2, useCORS: true, logging: false },
+        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" as const },
+        pagebreak: { mode: ["avoid-all", "css", "legacy"] },
+      };
+      await html2pdf().set(opt).from(element).save();
+    } finally {
+      setExporting(false);
+    }
+  }, [formId, formName]);
 
   const { data: allEvents = [], isLoading } = useQuery({
     queryKey: ["form-events", formId],
