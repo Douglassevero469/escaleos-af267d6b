@@ -106,17 +106,7 @@ function buildPDFHtml(data: AnalyticsExportData): string {
     .join("");
 
   return `
-<!DOCTYPE html>
-<html>
-<head>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; color: #222; background: #fff; }
-    @page { margin: 0; }
-  </style>
-</head>
-<body>
-  <div style="padding: 32px 36px 24px; min-height: 100vh; position: relative;">
+  <div style="padding: 32px 36px 24px; min-height: 297mm; position: relative; font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; color: #222; background: #fff;">
     
     <!-- HEADER -->
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;padding-bottom:16px;border-bottom:2px solid #0000FF;">
@@ -187,7 +177,7 @@ function buildPDFHtml(data: AnalyticsExportData): string {
     ` : ""}
 
     <!-- FOOTER -->
-    <div style="position:fixed;bottom:0;left:0;right:0;padding:12px 36px;background:#f8f9fc;border-top:1px solid #e8eaf0;display:flex;align-items:center;justify-content:space-between;">
+    <div style="margin-top:40px;padding:12px 0;border-top:1px solid #e8eaf0;display:flex;align-items:center;justify-content:space-between;">
       <div style="display:flex;align-items:center;gap:8px;">
         <img src="${logoSrc}" style="height:16px;width:auto;opacity:0.6;" />
         <span style="font-size:8px;color:#999;">EscaleOS — Relatório gerado automaticamente</span>
@@ -195,9 +185,7 @@ function buildPDFHtml(data: AnalyticsExportData): string {
       <span style="font-size:8px;color:#999;">${data.exportDate}</span>
     </div>
 
-  </div>
-</body>
-</html>`;
+  </div>`;
 }
 
 export async function exportAnalyticsPDF(data: AnalyticsExportData): Promise<void> {
