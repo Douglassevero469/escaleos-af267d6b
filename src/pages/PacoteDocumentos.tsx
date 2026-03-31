@@ -27,8 +27,8 @@ export default function PacoteDocumentos() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Pacote #{id}</h1>
-          <p className="text-sm text-muted-foreground">Studio Fitness Prime · 8 documentos</p>
+          <h1 className="font-display text-2xl font-bold">Pacote #{id}</h1>
+          <p className="text-sm text-muted-foreground font-light">Studio Fitness Prime · 8 documentos</p>
         </div>
         <Button variant="outline" className="gap-2">
           <Download className="h-4 w-4" /> Baixar ZIP

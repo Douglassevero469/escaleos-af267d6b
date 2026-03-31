@@ -14,8 +14,8 @@ export default function ClientePacotes() {
   return (
     <div className="space-y-6 animate-fade-in">
       <div>
-        <h1 className="text-2xl font-bold">Pacotes do Cliente</h1>
-        <p className="text-sm text-muted-foreground">Cliente #{id} · {mockPacotes.length} pacotes gerados</p>
+        <h1 className="font-display text-2xl font-bold">Pacotes do Cliente</h1>
+        <p className="text-sm text-muted-foreground font-light">Cliente #{id} · {mockPacotes.length} pacotes gerados</p>
       </div>
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">

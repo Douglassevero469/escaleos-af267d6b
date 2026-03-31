@@ -25,11 +25,11 @@ export default function Clientes() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Clientes</h1>
-          <p className="text-sm text-muted-foreground">{mockClients.length} clientes cadastrados</p>
+          <h1 className="font-display text-2xl font-bold">Clientes</h1>
+          <p className="text-sm text-muted-foreground font-light">{mockClients.length} clientes cadastrados</p>
         </div>
         <Link to="/briefing/novo">
-          <Button className="gap-2">Novo Briefing <ArrowRight className="h-4 w-4" /></Button>
+          <Button className="gap-2 btn-primary-glow font-semibold">Novo Briefing <ArrowUpRight className="h-4 w-4" /></Button>
         </Link>
       </div>
 

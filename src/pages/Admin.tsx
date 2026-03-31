@@ -23,8 +23,8 @@ export default function Admin() {
   return (
     <div className="space-y-6 animate-fade-in">
       <div>
-        <h1 className="text-2xl font-bold">Painel Admin</h1>
-        <p className="text-sm text-muted-foreground">Gestão global da plataforma</p>
+        <h1 className="font-display text-2xl font-bold">Painel Admin</h1>
+        <p className="text-sm text-muted-foreground font-light">Gestão global da plataforma</p>
       </div>
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
