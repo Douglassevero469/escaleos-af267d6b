@@ -109,7 +109,7 @@ function buildPrompt(docType: DocType, briefing: BriefingData): string {
 
 REGRAS ABSOLUTAS:
 1. NUNCA use teoria genérica ou frases vagas. Cada frase deve conter dados reais do briefing.
-2. O documento deve ser EXTENSO — mínimo de 2.500 palavras. Quanto mais detalhado, melhor.
+2. O documento deve ter NO MÁXIMO 2.500 palavras. Seja denso, objetivo e direto ao ponto. Priorize qualidade sobre quantidade.
 3. Use os nomes reais: empresa, produto, preço, concorrentes, região, canais.
 4. Inclua tabelas, listas numeradas, exemplos concretos, scripts com falas exatas.
 5. Escreva em português brasileiro no tom indicado no briefing.
