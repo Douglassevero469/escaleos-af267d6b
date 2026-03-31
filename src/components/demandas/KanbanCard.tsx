@@ -1,9 +1,10 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Calendar, GripVertical, User, Paperclip, CheckSquare } from "lucide-react";
+import { Calendar, GripVertical, Paperclip, CheckSquare } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
+import { AssigneeAvatarGroup, parseAssignees } from "./AssigneeAvatars";
 
 export interface DemandItem {
   id: string;
