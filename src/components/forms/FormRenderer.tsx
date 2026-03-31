@@ -558,7 +558,7 @@ export default function FormRenderer({
         <div className="w-full max-w-lg space-y-3 sm:space-y-4">
           {formHeader}
           {fields.map(f => (
-            <div key={f.id} className="rounded-xl border p-4 shadow-sm" style={cardStyle}>{renderField(f)}</div>
+            <div key={f.id} className="rounded-xl border p-3 sm:p-4 shadow-sm" style={cardStyle}>{renderField(f)}</div>
           ))}
           {submitButton()}
         </div>
