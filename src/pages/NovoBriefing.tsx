@@ -393,9 +393,8 @@ export default function NovoBriefing() {
         </div>
       </div>
       {renderField("Investimento Mensal em Mídia", "investimentoMidia", "Ex: R$ 5.000/mês")}
-      {data.jaInvesteAnuncios === "sim" && (
-        {renderField("Resultados Atuais com Anúncios", "resultadosAtuais", "CPL, ROAS, volume de leads...", true)}
-      )}
+      {data.jaInvesteAnuncios === "sim" &&
+        renderField("Resultados Atuais com Anúncios", "resultadosAtuais", "CPL, ROAS, volume de leads...", true)}
       {renderField("Cores da Marca", "coresMarca", "Ex: Azul marinho, dourado")}
       {renderField("Prova Social", "provaSocial", "Depoimentos, cases, números", true)}
     </div>,
