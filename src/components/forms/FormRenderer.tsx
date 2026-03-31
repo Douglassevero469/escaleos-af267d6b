@@ -76,6 +76,15 @@ export default function FormRenderer({
 
   const inputFields = fields.filter(f => !["heading", "paragraph", "divider", "spacer"].includes(f.type));
 
+  const formHeader = (
+    <div className="text-center space-y-3">
+      {settings.logoUrl && (
+        <img src={settings.logoUrl} alt="Logo" className="h-12 max-w-[180px] object-contain mx-auto" />
+      )}
+      <h1 className="text-xl font-bold">{formName}</h1>
+    </div>
+  );
+
   const setValue = (id: string, val: any) => setValues(v => ({ ...v, [id]: val }));
 
   const validate = () => {
