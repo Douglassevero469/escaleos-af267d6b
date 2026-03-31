@@ -232,6 +232,35 @@ export default function Clientes() {
         </div>
       )}
 
+      {/* Edit Dialog */}
+      <Dialog open={editOpen} onOpenChange={setEditOpen}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Editar Cliente</DialogTitle></DialogHeader>
+          <div className="space-y-4 pt-2">
+            <div className="space-y-2">
+              <Label>Nome *</Label>
+              <Input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
+            </div>
+            <div className="space-y-2">
+              <Label>Nicho</Label>
+              <Input value={form.nicho} onChange={e => setForm(f => ({ ...f, nicho: e.target.value }))} />
+            </div>
+            <div className="space-y-2">
+              <Label>Instagram</Label>
+              <Input value={form.instagram} onChange={e => setForm(f => ({ ...f, instagram: e.target.value }))} />
+            </div>
+            <div className="space-y-2">
+              <Label>Site</Label>
+              <Input value={form.site} onChange={e => setForm(f => ({ ...f, site: e.target.value }))} />
+            </div>
+            <Button onClick={() => updateClient.mutate()} disabled={!form.name || updateClient.isPending} className="w-full btn-primary-glow">
+              {updateClient.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+              Salvar Alterações
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {/* Delete Confirmation */}
       <AlertDialog open={!!deleteConfirm} onOpenChange={(open) => !open && setDeleteConfirm(null)}>
         <AlertDialogContent>
