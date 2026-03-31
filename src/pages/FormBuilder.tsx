@@ -18,7 +18,7 @@ import {
   Type, AlignLeft, Mail, Phone, Hash, ChevronDown, CheckSquare, Circle, ToggleLeft,
   ThumbsUp, List, Calendar, Upload, Heading, FileText, Minus, MoveVertical, Settings,
   ImageIcon, Link, Fingerprint, DollarSign, Star, SlidersHorizontal, LayoutGrid,
-  Clock, CalendarClock, Copy, ExternalLink,
+  Clock, CalendarClock, Copy, ExternalLink, TrendingUp,
 } from "lucide-react";
 import { FormField, FIELD_TYPES, FIELD_TYPE_CATEGORIES, createField } from "@/lib/form-field-types";
 import { FORM_THEMES } from "@/lib/form-themes";
@@ -30,6 +30,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import FormSubmissions from "@/components/forms/FormSubmissions";
+import FormAnalytics from "@/components/forms/FormAnalytics";
 import FormRenderer from "@/components/forms/FormRenderer";
 
 const ICON_MAP: Record<string, any> = {
@@ -387,6 +388,7 @@ export default function FormBuilder() {
           <TabsTrigger value="editor">Editor</TabsTrigger>
           <TabsTrigger value="preview"><Eye className="h-3.5 w-3.5 mr-1" /> Preview</TabsTrigger>
           <TabsTrigger value="responses">Respostas</TabsTrigger>
+          <TabsTrigger value="analytics"><TrendingUp className="h-3.5 w-3.5 mr-1" /> Analytics</TabsTrigger>
         </TabsList>
 
         <TabsContent value="editor">
@@ -584,6 +586,10 @@ export default function FormBuilder() {
 
         <TabsContent value="responses">
           <FormSubmissions formId={id!} />
+        </TabsContent>
+
+        <TabsContent value="analytics">
+          <FormAnalytics formId={id!} />
         </TabsContent>
       </Tabs>
     </div>

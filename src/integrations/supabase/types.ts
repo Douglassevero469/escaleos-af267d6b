@@ -162,6 +162,41 @@ export type Database = {
           },
         ]
       }
+      form_events: {
+        Row: {
+          created_at: string
+          event_type: string
+          form_id: string
+          id: string
+          metadata: Json | null
+          session_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          form_id: string
+          id?: string
+          metadata?: Json | null
+          session_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          form_id?: string
+          id?: string
+          metadata?: Json | null
+          session_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "form_events_form_id_fkey"
+            columns: ["form_id"]
+            isOneToOne: false
+            referencedRelation: "forms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       form_submissions: {
         Row: {
           created_at: string
