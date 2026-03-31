@@ -257,6 +257,7 @@ export default function FormBuilder() {
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList>
           <TabsTrigger value="editor">Editor</TabsTrigger>
+          <TabsTrigger value="preview"><Eye className="h-3.5 w-3.5 mr-1" /> Preview</TabsTrigger>
           <TabsTrigger value="responses">Respostas</TabsTrigger>
         </TabsList>
 
