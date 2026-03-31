@@ -4,7 +4,6 @@ import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Outlet, useNavigate } from "react-router-dom";
 import { NotificationBell } from "@/components/NotificationBell";
-import { AIAssistant } from "@/components/AIAssistant";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -72,7 +71,7 @@ export function AppLayout() {
             <Outlet />
           </main>
         </div>
-        <AIAssistant />
+        
       </div>
     </SidebarProvider>
   );
