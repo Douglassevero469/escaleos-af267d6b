@@ -23,8 +23,10 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { useAuth } from "@/hooks/useAuth";
+import { useTheme } from "@/hooks/useTheme";
 import escaleIcon from "@/assets/escale-icon.png";
 import escaleLogoWhite from "@/assets/escale-logo-white.png";
+import escaleLogoDark from "@/assets/escale-logo-dark.png";
 
 const mainItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
