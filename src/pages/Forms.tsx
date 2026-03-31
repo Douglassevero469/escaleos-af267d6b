@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { GlassCard } from "@/components/ui/GlassCard";
-import { ClipboardList, Plus, Copy, Trash2, Loader2, Edit2, ExternalLink, MoreVertical, Inbox } from "lucide-react";
+import { ClipboardList, Plus, Copy, Trash2, Loader2, Edit2, ExternalLink, MoreVertical, Inbox, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -37,6 +37,9 @@ export default function Forms() {
   const [createOpen, setCreateOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [form, setForm] = useState({ name: "", description: "", layout: "list" });
+  const [useAI, setUseAI] = useState(false);
+  const [aiPrompt, setAiPrompt] = useState("");
+  const [aiGenerating, setAiGenerating] = useState(false);
   const [viewSubmissions, setViewSubmissions] = useState<{ id: string; name: string } | null>(null);
 
   const { data: forms = [], isLoading } = useQuery({
@@ -70,25 +73,53 @@ export default function Forms() {
   });
 
   const createMutation = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (aiFields?: any[]) => {
       if (!user) throw new Error("Not authenticated");
-      const { error } = await supabase.from("forms").insert({
+      const { data: inserted, error } = await supabase.from("forms").insert({
         user_id: user.id,
         name: form.name,
         description: form.description || null,
         layout: form.layout,
         slug: generateSlug(),
-      });
+        ...(aiFields ? { fields: aiFields } : {}),
+      }).select("id").single();
       if (error) throw error;
+      return inserted;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["forms"] });
       setCreateOpen(false);
       setForm({ name: "", description: "", layout: "list" });
-      toast({ title: "Formulário criado!" });
+      setUseAI(false);
+      setAiPrompt("");
+      if (data?.id) {
+        toast({ title: "Formulário criado com IA! Redirecionando ao editor..." });
+        navigate(`/forms/${data.id}`);
+      } else {
+        toast({ title: "Formulário criado!" });
+      }
     },
     onError: (e: any) => toast({ title: "Erro", description: e.message, variant: "destructive" }),
   });
+
+  const handleCreateWithAI = async () => {
+    if (!aiPrompt.trim() || !form.name.trim()) return;
+    setAiGenerating(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-form-fields", {
+        body: { description: aiPrompt },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      const fields = data?.fields || [];
+      if (!fields.length) throw new Error("Nenhum campo gerado");
+      createMutation.mutate(fields);
+    } catch (e: any) {
+      toast({ title: "Erro ao gerar com IA", description: e.message, variant: "destructive" });
+    } finally {
+      setAiGenerating(false);
+    }
+  };
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
@@ -211,20 +242,53 @@ export default function Forms() {
       )}
 
       {/* Create Dialog */}
-      <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-        <DialogContent>
+      <Dialog open={createOpen} onOpenChange={(open) => { setCreateOpen(open); if (!open) { setUseAI(false); setAiPrompt(""); } }}>
+        <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>Novo Formulário</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
+            {/* AI / Manual toggle */}
+            <div className="flex gap-2 p-1 bg-muted rounded-lg">
+              <button
+                onClick={() => setUseAI(false)}
+                className={`flex-1 text-sm py-2 px-3 rounded-md font-medium transition-all ${!useAI ? "bg-background shadow text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+              >
+                <Plus className="h-3.5 w-3.5 inline mr-1.5" />
+                Manual
+              </button>
+              <button
+                onClick={() => setUseAI(true)}
+                className={`flex-1 text-sm py-2 px-3 rounded-md font-medium transition-all ${useAI ? "bg-background shadow text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+              >
+                <Sparkles className="h-3.5 w-3.5 inline mr-1.5" />
+                Criar com IA
+              </button>
+            </div>
+
             <div>
               <Label>Nome</Label>
               <Input value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} placeholder="Ex: Captação de Leads" />
             </div>
-            <div>
-              <Label>Descrição (opcional)</Label>
-              <Textarea value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))} placeholder="Breve descrição do formulário" />
-            </div>
+
+            {useAI ? (
+              <div>
+                <Label>Descreva o formulário que deseja</Label>
+                <Textarea
+                  value={aiPrompt}
+                  onChange={e => setAiPrompt(e.target.value)}
+                  placeholder="Ex: Formulário de qualificação BANT com nome, email, telefone, empresa, orçamento disponível, quem é o decisor, qual a necessidade e prazo para implementação"
+                  className="min-h-[100px]"
+                />
+                <p className="text-[10px] text-muted-foreground mt-1">A IA vai gerar os campos automaticamente baseado na sua descrição</p>
+              </div>
+            ) : (
+              <div>
+                <Label>Descrição (opcional)</Label>
+                <Textarea value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))} placeholder="Breve descrição do formulário" />
+              </div>
+            )}
+
             <div>
               <Label>Layout</Label>
               <Select value={form.layout} onValueChange={v => setForm(p => ({ ...p, layout: v }))}>
@@ -238,10 +302,26 @@ export default function Forms() {
                 </SelectContent>
               </Select>
             </div>
-            <Button onClick={() => createMutation.mutate()} disabled={!form.name.trim() || createMutation.isPending} className="w-full">
-              {createMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Plus className="h-4 w-4 mr-2" />}
-              Criar Formulário
-            </Button>
+
+            {useAI ? (
+              <Button
+                onClick={handleCreateWithAI}
+                disabled={!form.name.trim() || !aiPrompt.trim() || aiGenerating || createMutation.isPending}
+                className="w-full"
+              >
+                {aiGenerating || createMutation.isPending ? (
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                ) : (
+                  <Sparkles className="h-4 w-4 mr-2" />
+                )}
+                {aiGenerating ? "Gerando campos com IA..." : "Criar com IA"}
+              </Button>
+            ) : (
+              <Button onClick={() => createMutation.mutate(undefined)} disabled={!form.name.trim() || createMutation.isPending} className="w-full">
+                {createMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Plus className="h-4 w-4 mr-2" />}
+                Criar Formulário
+              </Button>
+            )}
           </div>
         </DialogContent>
       </Dialog>
