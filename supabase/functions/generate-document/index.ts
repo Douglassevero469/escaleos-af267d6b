@@ -436,6 +436,7 @@ serve(async (req) => {
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
         messages: [{ role: "user", content: prompt }],
+        max_tokens: 4000,
         stream: true,
       }),
     });
