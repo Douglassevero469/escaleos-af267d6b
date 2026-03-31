@@ -289,7 +289,7 @@ export default function FormRenderer({
     const isLast = chatStep >= chatFields.length - 1;
 
     return (
-      <div className="flex items-center justify-center p-4 min-h-[300px]">
+      <div className="flex items-center justify-center p-6 min-h-[300px]" style={themeStyle}>
         <div className="w-full max-w-md space-y-6">
           <h1 className="text-xl font-bold text-center">{formName}</h1>
           <p className="text-xs text-center text-muted-foreground">{chatStep + 1} de {chatFields.length}</p>
