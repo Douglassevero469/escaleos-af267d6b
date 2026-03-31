@@ -52,7 +52,7 @@ export function AppSidebar() {
           {collapsed ? (
             <img src={escaleIcon} alt="Escale" className="h-7 w-7 rounded-lg flex-shrink-0" />
           ) : (
-            <img src={escaleLogoWhite} alt="Escale" className="h-6 flex-shrink-0" />
+            <img src={theme === "light" ? escaleLogoDark : escaleLogoWhite} alt="Escale" className="h-6 flex-shrink-0" />
           )}
         </div>
       </SidebarHeader>
