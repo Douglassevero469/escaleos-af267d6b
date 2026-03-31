@@ -274,7 +274,7 @@ export default function FormRenderer({
   const submitButton = (fullWidth = true) => (
     <Button
       className={fullWidth ? "w-full" : "flex-1"}
-      style={buttonColor ? { backgroundColor: buttonColor } : undefined}
+      style={btnStyle}
       onClick={isPreview ? undefined : handleSubmit}
       disabled={submitting || isPreview}
     >
