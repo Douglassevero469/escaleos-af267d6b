@@ -16,7 +16,7 @@ import { CrmAnalytics } from "@/components/crm/CrmAnalytics";
 
 export default function CRM() {
   const [pipelineId, setPipelineId] = useState<string | null>(null);
-  const [view, setView] = useState<"kanban" | "list">("kanban");
+  const [view, setView] = useState<"kanban" | "list" | "analytics">("kanban");
   const [selectedLead, setSelectedLead] = useState<CrmLead | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
