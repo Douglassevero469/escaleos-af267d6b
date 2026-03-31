@@ -61,6 +61,9 @@ export function LeadDetailSheet({ lead, stages, open, onOpenChange, pipelineId }
         score: form.score,
         value: form.value,
         notes: form.notes,
+        next_action_type: form.next_action_type || null,
+        next_action_date: form.next_action_date || null,
+        next_action_notes: form.next_action_notes || null,
       }).eq("id", lead.id);
 
       if (oldStage !== form.stage) {
