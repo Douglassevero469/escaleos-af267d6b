@@ -46,20 +46,19 @@ function parseDeviceInfo() {
   return { deviceType, browser, os, model, screenSize, language, userAgent: ua };
 }
 
-async function fetchGeoInfo(): Promise<{ country?: string; region?: string; city?: string }> {
-  // Try multiple free geo APIs for reliability
+async function fetchGeoInfo(): Promise<{ country?: string; region?: string; city?: string; lat?: number; lng?: number }> {
   const apis = [
     {
-      url: "https://ip-api.com/json/?fields=status,country,regionName,city",
-      parse: (d: any) => d.status === "success" ? { country: d.country, region: d.regionName, city: d.city } : null,
+      url: "https://ip-api.com/json/?fields=status,country,regionName,city,lat,lon",
+      parse: (d: any) => d.status === "success" ? { country: d.country, region: d.regionName, city: d.city, lat: d.lat, lng: d.lon } : null,
     },
     {
       url: "https://ipapi.co/json/",
-      parse: (d: any) => d.country_name ? { country: d.country_name, region: d.region, city: d.city } : null,
+      parse: (d: any) => d.country_name ? { country: d.country_name, region: d.region, city: d.city, lat: d.latitude, lng: d.longitude } : null,
     },
     {
       url: "https://ipwho.is/",
-      parse: (d: any) => d.success !== false ? { country: d.country, region: d.region, city: d.city } : null,
+      parse: (d: any) => d.success !== false ? { country: d.country, region: d.region, city: d.city, lat: d.latitude, lng: d.longitude } : null,
     },
   ];
 

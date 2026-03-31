@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef, useCallback } from "react";
+import { useState, useMemo, useRef, useCallback, lazy, Suspense } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { format, subDays, startOfDay, isAfter, isBefore } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -20,6 +20,8 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, LineChart, Line, PieChart, 
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { FormField } from "@/lib/form-field-types";
+
+const LocationHeatmap = lazy(() => import("@/components/forms/LocationHeatmap"));
 
 interface Props {
   formId: string;
@@ -56,7 +58,8 @@ type BuiltInChart =
   | "deviceType"
   | "browser"
   | "deviceModel"
-  | "region";
+  | "region"
+  | "locationMap";
 
 const BUILTIN_CHART_LABELS: Record<BuiltInChart, string> = {
   kpis: "KPIs Principais",
@@ -74,6 +77,7 @@ const BUILTIN_CHART_LABELS: Record<BuiltInChart, string> = {
   browser: "Navegador",
   deviceModel: "Modelo / Sistema Operacional",
   region: "Respostas por Região",
+  locationMap: "Mapa de Calor de Localização",
 };
 
 const ALL_BUILTIN_CHARTS = Object.keys(BUILTIN_CHART_LABELS) as BuiltInChart[];
@@ -331,7 +335,25 @@ export default function FormAnalytics({ formId, formName, formFields = [] }: Pro
     };
   }, [submissions]);
 
-  // Dynamic field response charts
+  // Location points for heatmap
+  const locationPoints = useMemo(() => {
+    const pointMap: Record<string, { lat: number; lng: number; count: number; label: string }> = {};
+    submissions.forEach((s: any) => {
+      const meta = (typeof s.metadata === "object" && s.metadata) ? s.metadata : {};
+      const lat = meta.lat || meta.latitude;
+      const lng = meta.lng || meta.lon || meta.longitude;
+      if (!lat || !lng) return;
+      const city = meta.city || "";
+      const region = meta.region || "";
+      const label = city && region ? `${city}, ${region}` : city || region || "Desconhecido";
+      const key = `${Math.round(lat * 100)}_${Math.round(lng * 100)}`;
+      if (!pointMap[key]) pointMap[key] = { lat: Number(lat), lng: Number(lng), count: 0, label };
+      pointMap[key].count++;
+    });
+    return Object.values(pointMap);
+  }, [submissions]);
+
+
   const fieldResponseCharts = useMemo(() => {
     const results: Record<string, { name: string; value: number }[]> = {};
 
@@ -908,7 +930,18 @@ export default function FormAnalytics({ formId, formName, formFields = [] }: Pro
         )}
       </div>
 
-      {/* Dynamic Field Response Charts */}
+      {/* Location Heatmap */}
+      {isVisible("locationMap") && (
+        <GlassCard className="p-4" data-chart-section data-chart-title="Mapa de Calor de Localização">
+          <h3 className="text-sm font-semibold mb-3">📍 Mapa de Calor de Localização</h3>
+          <p className="text-xs text-muted-foreground mb-3">Distribuição geográfica dos leads que responderam ao formulário</p>
+          <Suspense fallback={<div className="h-[300px] flex items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>}>
+            <LocationHeatmap points={locationPoints} />
+          </Suspense>
+        </GlassCard>
+      )}
+
+
       {Object.entries(fieldResponseCharts).map(([fieldId, chartData]) => {
         const field = formFields.find(f => f.id === fieldId);
         if (!field || !isVisible(`field_${fieldId}`) || chartData.length === 0) return null;
