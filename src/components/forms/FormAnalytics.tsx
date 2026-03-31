@@ -2,15 +2,13 @@ import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { GlassCard } from "@/components/ui/GlassCard";
-import { Loader2, Eye, MousePointerClick, Send, TrendingUp, Users } from "lucide-react";
+import { Loader2, Eye, MousePointerClick, Send, TrendingUp, Users, LogOut } from "lucide-react";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, LineChart, Line, CartesianGrid, Tooltip, PieChart, Pie, Cell } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts";
 
 interface Props {
   formId: string;
 }
-
-const COLORS = ["hsl(var(--primary))", "hsl(var(--chart-2))", "hsl(var(--chart-3))", "hsl(var(--chart-4))"];
 
 export default function FormAnalytics({ formId }: Props) {
   const { data: events = [], isLoading } = useQuery({
@@ -43,22 +41,24 @@ export default function FormAnalytics({ formId }: Props) {
     const views = events.filter((e: any) => e.event_type === "view").length;
     const starts = events.filter((e: any) => e.event_type === "start").length;
     const submits = events.filter((e: any) => e.event_type === "submit").length;
+    const abandons = events.filter((e: any) => e.event_type === "abandon").length;
     const uniqueSessions = new Set(events.map((e: any) => e.session_id).filter(Boolean)).size;
 
     return {
       views,
       starts,
       submits,
+      abandons,
       uniqueSessions,
       startRate: views > 0 ? ((starts / views) * 100).toFixed(1) : "0",
       conversionRate: views > 0 ? ((submits / views) * 100).toFixed(1) : "0",
       completionRate: starts > 0 ? ((submits / starts) * 100).toFixed(1) : "0",
+      abandonRate: starts > 0 ? ((abandons / starts) * 100).toFixed(1) : "0",
     };
   }, [events]);
 
   const dailyData = useMemo(() => {
     const dayMap: Record<string, { date: string; views: number; starts: number; submits: number }> = {};
-
     events.forEach((e: any) => {
       const day = new Date(e.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
       if (!dayMap[day]) dayMap[day] = { date: day, views: 0, starts: 0, submits: 0 };
@@ -66,7 +66,6 @@ export default function FormAnalytics({ formId }: Props) {
       if (e.event_type === "start") dayMap[day].starts++;
       if (e.event_type === "submit") dayMap[day].submits++;
     });
-
     return Object.values(dayMap).slice(-30);
   }, [events]);
 
@@ -74,6 +73,7 @@ export default function FormAnalytics({ formId }: Props) {
     { name: "Visualizações", value: stats.views, fill: "hsl(var(--primary))" },
     { name: "Iniciaram", value: stats.starts, fill: "hsl(var(--chart-2))" },
     { name: "Enviaram", value: stats.submits, fill: "hsl(var(--chart-3))" },
+    { name: "Abandonaram", value: stats.abandons, fill: "hsl(var(--destructive))" },
   ], [stats]);
 
   const hourlyData = useMemo(() => {
@@ -83,6 +83,53 @@ export default function FormAnalytics({ formId }: Props) {
       hours[h].count++;
     });
     return hours;
+  }, [events]);
+
+  // Abandonment by field
+  const abandonByField = useMemo(() => {
+    const abandonEvents = events.filter((e: any) => e.event_type === "abandon" && e.metadata);
+    const fieldMap: Record<string, { label: string; count: number }> = {};
+    abandonEvents.forEach((e: any) => {
+      const meta = typeof e.metadata === "object" ? e.metadata : {};
+      const label = (meta as any).last_field_label || "Desconhecido";
+      const id = (meta as any).last_field_id || label;
+      if (!fieldMap[id]) fieldMap[id] = { label, count: 0 };
+      fieldMap[id].count++;
+    });
+    return Object.values(fieldMap)
+      .sort((a, b) => b.count - a.count)
+      .map(item => ({ field: item.label, abandonos: item.count }));
+  }, [events]);
+
+  // Field interaction funnel (how many unique sessions reached each field)
+  const fieldFunnel = useMemo(() => {
+    const focusEvents = events.filter((e: any) => e.event_type === "field_focus" && e.metadata);
+    const fieldSessions: Record<string, Set<string>> = {};
+    const fieldOrder: string[] = [];
+
+    focusEvents.forEach((e: any) => {
+      const meta = typeof e.metadata === "object" ? e.metadata : {};
+      const label = (meta as any).field_label || "?";
+      const session = e.session_id || "?";
+      if (!fieldSessions[label]) {
+        fieldSessions[label] = new Set();
+        fieldOrder.push(label);
+      }
+      fieldSessions[label].add(session);
+    });
+
+    // Deduplicate while preserving first-seen order
+    const seen = new Set<string>();
+    return fieldOrder
+      .filter(label => {
+        if (seen.has(label)) return false;
+        seen.add(label);
+        return true;
+      })
+      .map(label => ({
+        field: label.length > 18 ? label.slice(0, 16) + "…" : label,
+        sessoes: fieldSessions[label].size,
+      }));
   }, [events]);
 
   if (isLoading) {
@@ -108,7 +155,7 @@ export default function FormAnalytics({ formId }: Props) {
   return (
     <div className="space-y-4">
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
         <GlassCard className="p-4 text-center">
           <Eye className="h-5 w-5 mx-auto mb-1 text-primary" />
           <p className="text-2xl font-bold">{stats.views}</p>
@@ -125,6 +172,11 @@ export default function FormAnalytics({ formId }: Props) {
           <p className="text-xs text-muted-foreground">Enviaram</p>
         </GlassCard>
         <GlassCard className="p-4 text-center">
+          <LogOut className="h-5 w-5 mx-auto mb-1 text-destructive" />
+          <p className="text-2xl font-bold">{stats.abandons}</p>
+          <p className="text-xs text-muted-foreground">Abandonos</p>
+        </GlassCard>
+        <GlassCard className="p-4 text-center">
           <Users className="h-5 w-5 mx-auto mb-1 text-chart-4" />
           <p className="text-2xl font-bold">{stats.uniqueSessions}</p>
           <p className="text-xs text-muted-foreground">Visitantes únicos</p>
@@ -132,7 +184,7 @@ export default function FormAnalytics({ formId }: Props) {
       </div>
 
       {/* Conversion rates */}
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <GlassCard className="p-4 text-center">
           <p className="text-xl font-bold text-primary">{stats.startRate}%</p>
           <p className="text-xs text-muted-foreground">Taxa de início</p>
@@ -145,13 +197,17 @@ export default function FormAnalytics({ formId }: Props) {
           <p className="text-xl font-bold text-primary">{stats.conversionRate}%</p>
           <p className="text-xs text-muted-foreground">Conversão total</p>
         </GlassCard>
+        <GlassCard className="p-4 text-center">
+          <p className="text-xl font-bold text-destructive">{stats.abandonRate}%</p>
+          <p className="text-xs text-muted-foreground">Taxa de abandono</p>
+        </GlassCard>
       </div>
 
       {/* Funnel Chart */}
       <GlassCard className="p-4">
         <h3 className="text-sm font-semibold mb-3">Funil de Conversão</h3>
         <div className="space-y-2">
-          {funnelData.map((item, i) => {
+          {funnelData.map((item) => {
             const maxVal = Math.max(...funnelData.map(d => d.value), 1);
             const pct = (item.value / maxVal) * 100;
             return (
@@ -171,6 +227,40 @@ export default function FormAnalytics({ formId }: Props) {
           })}
         </div>
       </GlassCard>
+
+      {/* Field Interaction Funnel */}
+      {fieldFunnel.length > 0 && (
+        <GlassCard className="p-4">
+          <h3 className="text-sm font-semibold mb-1">Funil por Campo</h3>
+          <p className="text-xs text-muted-foreground mb-3">Sessões únicas que interagiram com cada campo</p>
+          <ChartContainer config={{ sessoes: { label: "Sessões", color: "hsl(var(--chart-2))" } }} className="h-[220px] w-full">
+            <BarChart data={fieldFunnel} layout="vertical">
+              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" horizontal={false} />
+              <XAxis type="number" allowDecimals={false} tick={{ fontSize: 10 }} />
+              <YAxis dataKey="field" type="category" width={120} tick={{ fontSize: 10 }} />
+              <ChartTooltip content={<ChartTooltipContent />} />
+              <Bar dataKey="sessoes" fill="hsl(var(--chart-2))" radius={[0, 4, 4, 0]} name="Sessões" />
+            </BarChart>
+          </ChartContainer>
+        </GlassCard>
+      )}
+
+      {/* Abandonment by field */}
+      {abandonByField.length > 0 && (
+        <GlassCard className="p-4">
+          <h3 className="text-sm font-semibold mb-1">Abandono por Campo</h3>
+          <p className="text-xs text-muted-foreground mb-3">Em qual campo o lead desistiu do formulário</p>
+          <ChartContainer config={{ abandonos: { label: "Abandonos", color: "hsl(var(--destructive))" } }} className="h-[220px] w-full">
+            <BarChart data={abandonByField} layout="vertical">
+              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" horizontal={false} />
+              <XAxis type="number" allowDecimals={false} tick={{ fontSize: 10 }} />
+              <YAxis dataKey="field" type="category" width={120} tick={{ fontSize: 10 }} />
+              <ChartTooltip content={<ChartTooltipContent />} />
+              <Bar dataKey="abandonos" fill="hsl(var(--destructive))" radius={[0, 4, 4, 0]} name="Abandonos" />
+            </BarChart>
+          </ChartContainer>
+        </GlassCard>
+      )}
 
       {/* Daily Chart */}
       {dailyData.length > 0 && (
