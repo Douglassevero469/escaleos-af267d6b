@@ -425,7 +425,7 @@ export default function FormBuilder() {
               ) : (
                 <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
                   <SortableContext items={fields.map(f => f.id)} strategy={verticalListSortingStrategy}>
-                    <div className={`space-y-2 ${layout === "inline" ? "grid grid-cols-2 gap-2 space-y-0" : ""}`}>
+                    <div className="space-y-2">
                       {fields.map(field => (
                         <SortableField
                           key={field.id}
