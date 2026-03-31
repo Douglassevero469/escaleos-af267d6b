@@ -247,7 +247,7 @@ export default function NovoBriefing() {
     }
   };
 
-  const Field = ({ label, field, placeholder, textarea }: { label: string; field: keyof BriefingFormData; placeholder?: string; textarea?: boolean }) => (
+  const renderField = (label: string, field: keyof BriefingFormData, placeholder?: string, textarea?: boolean) => (
     <div className="space-y-2">
       <Label className="text-sm">{label}</Label>
       {textarea ? (
@@ -258,13 +258,13 @@ export default function NovoBriefing() {
     </div>
   );
 
-  const ArrayField = ({ label, field, placeholder }: { label: string; field: keyof BriefingFormData; placeholder?: string }) => {
+  const renderArrayField = (label: string, field: keyof BriefingFormData, placeholder?: string) => {
     const arr = data[field] as string[];
     return (
       <div className="space-y-2">
         <Label className="text-sm">{label}</Label>
         {arr.map((val, i) => (
-          <Input key={i} value={val} onChange={e => setArrayItem(field, i, e.target.value)} placeholder={`${placeholder || ""} ${i + 1}`} className="bg-muted/50 border-border/60" />
+          <Input key={`${field}-${i}`} value={val} onChange={e => setArrayItem(field, i, e.target.value)} placeholder={`${placeholder || ""} ${i + 1}`} className="bg-muted/50 border-border/60" />
         ))}
         <Button type="button" variant="ghost" size="sm" onClick={() => set(field, [...arr, ""])} className="text-xs gap-1">
           <Plus className="h-3 w-3" /> Adicionar
