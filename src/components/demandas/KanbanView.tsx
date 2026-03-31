@@ -10,6 +10,9 @@ interface KanbanViewProps {
   onCardClick: (item: DemandItem) => void;
   onAddItem: (columnId: string) => void;
   onUpdateItem: (item: DemandItem) => void;
+  selectable?: boolean;
+  selectedIds?: Set<string>;
+  onSelect?: (id: string, checked: boolean) => void;
 }
 
 export function KanbanView({ columns, items, onItemsChange, onCardClick, onAddItem, onUpdateItem }: KanbanViewProps) {
