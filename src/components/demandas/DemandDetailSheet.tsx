@@ -269,7 +269,13 @@ export function DemandDetailSheet({ open, onOpenChange, item, columns, onUpdate,
                 ))}
               </div>
               <div className="flex gap-2 mt-2">
-                <Input value={newComment} onChange={e => setNewComment(e.target.value)} placeholder="Adicionar comentário..." onKeyDown={e => e.key === "Enter" && addComment()} className="flex-1" />
+              <Input
+                value={newComment}
+                onChange={e => setNewComment(e.target.value)}
+                placeholder="Comentar... use @nome para mencionar"
+                onKeyDown={e => e.key === "Enter" && addComment()}
+                className="flex-1"
+              />
                 <Button size="icon" variant="outline" onClick={addComment}><Send className="h-4 w-4" /></Button>
               </div>
             </div>
