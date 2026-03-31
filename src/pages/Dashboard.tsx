@@ -233,6 +233,55 @@ export default function Dashboard() {
         <StatsCard title="Templates" value={templateCount} icon={LayoutTemplate} />
       </div>
 
+      {/* Demandas & Formulários */}
+      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatsCard title="Total Demandas" value={demandStats.total} icon={KanbanSquare} />
+        <StatsCard title="Formulários" value={formCount} icon={ClipboardList} />
+        <StatsCard title="Demandas Atrasadas" value={demandStats.overdue} icon={AlertTriangle} />
+        <Link to="/demandas" className="contents">
+          <div className="flex items-center gap-3 p-4 rounded-xl border border-border/40 bg-card/60 backdrop-blur-sm hover:bg-muted/40 transition-colors cursor-pointer">
+            <div className="p-2.5 rounded-lg bg-primary/10">
+              <ArrowUpRight className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <p className="text-sm font-medium">Ir para Demandas</p>
+              <p className="text-xs text-muted-foreground">Gerenciar tarefas</p>
+            </div>
+          </div>
+        </Link>
+      </div>
+
+      {/* Demandas por Status */}
+      {demandStats.byStatus.length > 0 && (
+        <GlassCard>
+          <div className="flex items-center gap-2 mb-4">
+            <KanbanSquare className="h-5 w-5 text-primary" />
+            <h3 className="font-display font-semibold">Demandas por Status</h3>
+          </div>
+          <div className="flex flex-col sm:flex-row items-center gap-6">
+            <ResponsiveContainer width={200} height={200}>
+              <PieChart>
+                <Pie data={demandStats.byStatus} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={50} outerRadius={80} paddingAngle={3} strokeWidth={0}>
+                  {demandStats.byStatus.map((entry, i) => (
+                    <Cell key={i} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip contentStyle={{ background: "hsla(240,18%,8%,0.95)", border: "1px solid hsla(240,12%,22%,0.5)", borderRadius: "8px", color: "hsla(0,0%,95%,1)", fontSize: "12px" }} />
+              </PieChart>
+            </ResponsiveContainer>
+            <div className="flex flex-wrap gap-3">
+              {demandStats.byStatus.map((s, i) => (
+                <div key={i} className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-muted/30 border border-border/30">
+                  <div className="w-3 h-3 rounded-full" style={{ background: s.color }} />
+                  <span className="text-sm font-medium">{s.name}</span>
+                  <span className="text-sm text-muted-foreground font-bold">{s.value}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </GlassCard>
+      )}
+
       {/* Usage Stats - Current Month */}
       <GlassCard>
         <div className="flex items-center gap-2 mb-4">
