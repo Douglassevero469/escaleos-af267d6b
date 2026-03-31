@@ -516,7 +516,7 @@ export default function PacoteDocumentos() {
       await Promise.all(workers);
 
       // Update package status
-      await supabase.from("packages").update({ status: "ready" }).eq("id", id!);
+      await supabase.from("packages").update({ status: "completed" }).eq("id", id!);
       queryClient.invalidateQueries({ queryKey: ["package", id] });
     };
 
