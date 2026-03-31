@@ -164,6 +164,9 @@ export default function Demandas() {
         </div>
         <div className="flex items-center gap-2">
           <BoardSelector boards={boards} currentBoard={currentBoard} onSelect={(b) => setCurrentBoard(b as Board)} onCreate={createBoard} />
+          <Button variant="outline" size="sm" onClick={() => setSettingsOpen(true)} className="gap-1">
+            <Settings className="h-4 w-4" />
+          </Button>
           <Button onClick={() => { setNewDialogStatus("todo"); setNewDialogOpen(true); }} size="sm" className="gap-1">
             <Plus className="h-4 w-4" /> Nova
           </Button>
