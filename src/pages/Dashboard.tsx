@@ -1,27 +1,75 @@
 import { StatsCard } from "@/components/ui/StatsCard";
 import { GlassCard } from "@/components/ui/GlassCard";
-import { Users, FileText, Package, LayoutTemplate, ArrowUpRight } from "lucide-react";
+import { Users, FileText, Package, LayoutTemplate, ArrowUpRight, Loader2 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-
-const chartData = [
-  { month: "Jan", pacotes: 4 },
-  { month: "Fev", pacotes: 7 },
-  { month: "Mar", pacotes: 5 },
-  { month: "Abr", pacotes: 12 },
-  { month: "Mai", pacotes: 9 },
-  { month: "Jun", pacotes: 15 },
-];
-
-const recentPackages = [
-  { client: "Studio Fitness Prime", date: "28 Mar 2026", status: "pronto", docs: 8 },
-  { client: "Clínica Estética Bella", date: "25 Mar 2026", status: "pronto", docs: 8 },
-  { client: "Tech Solutions LTDA", date: "22 Mar 2026", status: "gerando", docs: 5 },
-  { client: "Restaurante Sabor & Arte", date: "20 Mar 2026", status: "pronto", docs: 8 },
-];
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function Dashboard() {
+  const { data: clientCount = 0 } = useQuery({
+    queryKey: ["stats-clients"],
+    queryFn: async () => {
+      const { count } = await supabase.from("clients").select("*", { count: "exact", head: true });
+      return count ?? 0;
+    },
+  });
+
+  const { data: packageCount = 0 } = useQuery({
+    queryKey: ["stats-packages"],
+    queryFn: async () => {
+      const { count } = await supabase.from("packages").select("*", { count: "exact", head: true });
+      return count ?? 0;
+    },
+  });
+
+  const { data: docCount = 0 } = useQuery({
+    queryKey: ["stats-documents"],
+    queryFn: async () => {
+      const { count } = await supabase.from("documents").select("*", { count: "exact", head: true });
+      return count ?? 0;
+    },
+  });
+
+  const { data: templateCount = 0 } = useQuery({
+    queryKey: ["stats-templates"],
+    queryFn: async () => {
+      const { count } = await supabase.from("templates").select("*", { count: "exact", head: true });
+      return count ?? 0;
+    },
+  });
+
+  const { data: recentPackages = [], isLoading } = useQuery({
+    queryKey: ["recent-packages"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("packages")
+        .select("id, status, created_at, client_id, clients(name)")
+        .order("created_at", { ascending: false })
+        .limit(5);
+      return data ?? [];
+    },
+  });
+
+  const { data: chartData = [] } = useQuery({
+    queryKey: ["chart-packages"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("packages")
+        .select("created_at")
+        .order("created_at", { ascending: true });
+      if (!data) return [];
+      const months: Record<string, number> = {};
+      data.forEach((p) => {
+        const d = new Date(p.created_at);
+        const key = d.toLocaleString("pt-BR", { month: "short" });
+        months[key] = (months[key] || 0) + 1;
+      });
+      return Object.entries(months).map(([month, pacotes]) => ({ month, pacotes }));
+    },
+  });
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
@@ -37,47 +85,61 @@ export default function Dashboard() {
       </div>
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatsCard title="Total Clientes" value={42} icon={Users} change="+12% este mês" positive />
-        <StatsCard title="Pacotes Gerados" value={156} icon={Package} change="+8% este mês" positive />
-        <StatsCard title="Documentos" value="1.248" icon={FileText} change="+15% este mês" positive />
-        <StatsCard title="Templates" value={18} icon={LayoutTemplate} />
+        <StatsCard title="Total Clientes" value={clientCount} icon={Users} />
+        <StatsCard title="Pacotes Gerados" value={packageCount} icon={Package} />
+        <StatsCard title="Documentos" value={docCount} icon={FileText} />
+        <StatsCard title="Templates" value={templateCount} icon={LayoutTemplate} />
       </div>
 
       <div className="grid lg:grid-cols-3 gap-6">
         <GlassCard className="lg:col-span-2">
           <h3 className="font-display font-semibold mb-4">Pacotes por Mês</h3>
-          <ResponsiveContainer width="100%" height={260}>
-            <BarChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsla(240,12%,20%,0.4)" />
-              <XAxis dataKey="month" stroke="hsla(240,8%,50%,1)" fontSize={12} />
-              <YAxis stroke="hsla(240,8%,50%,1)" fontSize={12} />
-              <Tooltip
-                contentStyle={{
-                  background: "hsla(240,18%,8%,0.95)",
-                  border: "1px solid hsla(240,12%,22%,0.5)",
-                  borderRadius: "8px",
-                  color: "hsla(0,0%,95%,1)",
-                }}
-              />
-              <Bar dataKey="pacotes" fill="hsla(240,100%,50%,0.8)" radius={[6, 6, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
+          {chartData.length > 0 ? (
+            <ResponsiveContainer width="100%" height={260}>
+              <BarChart data={chartData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsla(240,12%,20%,0.4)" />
+                <XAxis dataKey="month" stroke="hsla(240,8%,50%,1)" fontSize={12} />
+                <YAxis stroke="hsla(240,8%,50%,1)" fontSize={12} />
+                <Tooltip
+                  contentStyle={{
+                    background: "hsla(240,18%,8%,0.95)",
+                    border: "1px solid hsla(240,12%,22%,0.5)",
+                    borderRadius: "8px",
+                    color: "hsla(0,0%,95%,1)",
+                  }}
+                />
+                <Bar dataKey="pacotes" fill="hsla(240,100%,50%,0.8)" radius={[6, 6, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="h-[260px] flex items-center justify-center text-muted-foreground text-sm">
+              Nenhum pacote gerado ainda
+            </div>
+          )}
         </GlassCard>
 
         <GlassCard>
           <h3 className="font-display font-semibold mb-4">Pacotes Recentes</h3>
           <div className="space-y-3">
-            {recentPackages.map((pkg, i) => (
-              <div key={i} className="flex items-center justify-between py-2.5 border-b border-border/30 last:border-0">
-                <div>
-                  <p className="text-sm font-medium">{pkg.client}</p>
-                  <p className="text-xs text-muted-foreground">{pkg.date}</p>
-                </div>
-                <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${pkg.status === "pronto" ? "bg-success/10 text-success" : "bg-warning/10 text-warning"}`}>
-                  {pkg.status}
-                </span>
-              </div>
-            ))}
+            {isLoading ? (
+              <div className="flex justify-center py-8"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
+            ) : recentPackages.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-6">Nenhum pacote ainda</p>
+            ) : (
+              recentPackages.map((pkg: any) => (
+                <Link key={pkg.id} to={`/pacote/${pkg.id}`}>
+                  <div className="flex items-center justify-between py-2.5 border-b border-border/30 last:border-0 hover:bg-muted/30 rounded px-2 -mx-2 transition-colors">
+                    <div>
+                      <p className="text-sm font-medium">{pkg.clients?.name ?? "Cliente"}</p>
+                      <p className="text-xs text-muted-foreground">{new Date(pkg.created_at).toLocaleDateString("pt-BR")}</p>
+                    </div>
+                    <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${pkg.status === "ready" ? "bg-success/10 text-success" : "bg-warning/10 text-warning"}`}>
+                      {pkg.status === "ready" ? "pronto" : pkg.status}
+                    </span>
+                  </div>
+                </Link>
+              ))
+            )}
           </div>
         </GlassCard>
       </div>

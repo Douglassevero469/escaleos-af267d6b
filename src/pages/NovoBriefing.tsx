@@ -5,26 +5,84 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { StepIndicator } from "@/components/ui/StepIndicator";
-import { ArrowLeft, ArrowRight, Send, Upload } from "lucide-react";
+import { ArrowLeft, ArrowRight, Send, Upload, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useQuery } from "@tanstack/react-query";
 
 const stepNames = ["Identidade", "Financeiro", "Produto", "Concorrentes", "Operacional", "Mídia", "Revisão"];
 
 export default function NovoBriefing() {
   const [step, setStep] = useState(0);
   const [data, setData] = useState<Record<string, string>>({});
+  const [selectedClient, setSelectedClient] = useState<string>("");
+  const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user } = useAuth();
+
+  const { data: clients = [] } = useQuery({
+    queryKey: ["clients"],
+    queryFn: async () => {
+      const { data } = await supabase.from("clients").select("id, name").order("name");
+      return data ?? [];
+    },
+  });
 
   const update = (key: string, value: string) => setData(prev => ({ ...prev, [key]: value }));
 
   const next = () => step < 6 && setStep(s => s + 1);
   const prev = () => step > 0 && setStep(s => s - 1);
 
-  const submit = () => {
-    toast({ title: "Briefing enviado!", description: "Seu pacote está sendo gerado." });
-    navigate("/pacote/1");
+  const submit = async () => {
+    if (!user) return;
+    setSubmitting(true);
+    try {
+      let clientId = selectedClient;
+
+      // Create client if not selected
+      if (!clientId && data.nome) {
+        const { data: newClient, error: clientErr } = await supabase
+          .from("clients")
+          .insert({ name: data.nome, nicho: data.nicho || null, instagram: data.instagram || null, site: data.site || null, user_id: user.id })
+          .select("id")
+          .single();
+        if (clientErr) throw clientErr;
+        clientId = newClient.id;
+      }
+
+      if (!clientId) {
+        toast({ title: "Selecione ou preencha o nome do cliente", variant: "destructive" });
+        setSubmitting(false);
+        return;
+      }
+
+      // Create briefing
+      const { data: briefing, error: briefErr } = await supabase
+        .from("briefings")
+        .insert({ client_id: clientId, user_id: user.id, data: data as any, status: "completed" })
+        .select("id")
+        .single();
+      if (briefErr) throw briefErr;
+
+      // Create package
+      const { data: pkg, error: pkgErr } = await supabase
+        .from("packages")
+        .insert({ briefing_id: briefing.id, client_id: clientId, user_id: user.id, status: "generating" })
+        .select("id")
+        .single();
+      if (pkgErr) throw pkgErr;
+
+      toast({ title: "Briefing enviado!", description: "Seu pacote está sendo gerado." });
+      navigate(`/pacote/${pkg.id}`);
+    } catch (e: any) {
+      toast({ title: "Erro ao salvar briefing", description: e.message, variant: "destructive" });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const Field = ({ label, field, placeholder, textarea }: { label: string; field: string; placeholder?: string; textarea?: boolean }) => (
@@ -41,6 +99,21 @@ export default function NovoBriefing() {
   const steps = [
     <div key={0} className="space-y-4 animate-fade-in">
       <h3 className="font-display text-lg font-semibold">Identidade do Negócio</h3>
+      {clients.length > 0 && (
+        <div className="space-y-2">
+          <Label className="text-sm">Cliente Existente (opcional)</Label>
+          <Select value={selectedClient} onValueChange={setSelectedClient}>
+            <SelectTrigger className="bg-muted/50 border-border/60">
+              <SelectValue placeholder="Selecione um cliente existente..." />
+            </SelectTrigger>
+            <SelectContent>
+              {clients.map((c: any) => (
+                <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
       <Field label="Nome da Empresa" field="nome" placeholder="Ex: Studio Fitness Prime" />
       <Field label="Nicho / Segmento" field="nicho" placeholder="Ex: Academia, Personal Trainer" />
       <Field label="Instagram" field="instagram" placeholder="@empresa" />
@@ -133,7 +206,8 @@ export default function NovoBriefing() {
             Próximo <ArrowRight className="h-4 w-4" />
           </Button>
         ) : (
-          <Button onClick={submit} className="gap-2 btn-primary-glow font-semibold">
+          <Button onClick={submit} disabled={submitting} className="gap-2 btn-primary-glow font-semibold">
+            {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
             Gerar Pacote <Send className="h-4 w-4" />
           </Button>
         )}

@@ -2,23 +2,60 @@ import { useState } from "react";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, Users, Package, ArrowUpRight } from "lucide-react";
+import { Search, Users, Package, ArrowUpRight, Loader2, Plus } from "lucide-react";
 import { Link } from "react-router-dom";
-
-const mockClients = [
-  { id: "1", name: "Studio Fitness Prime", nicho: "Academia", pacotes: 3, lastDate: "28 Mar 2026" },
-  { id: "2", name: "Clínica Estética Bella", nicho: "Estética", pacotes: 2, lastDate: "25 Mar 2026" },
-  { id: "3", name: "Tech Solutions LTDA", nicho: "Tecnologia", pacotes: 1, lastDate: "22 Mar 2026" },
-  { id: "4", name: "Restaurante Sabor & Arte", nicho: "Alimentação", pacotes: 4, lastDate: "20 Mar 2026" },
-  { id: "5", name: "Imobiliária Viva", nicho: "Imóveis", pacotes: 2, lastDate: "18 Mar 2026" },
-  { id: "6", name: "Pet Shop Amigo Fiel", nicho: "Pet", pacotes: 1, lastDate: "15 Mar 2026" },
-];
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 
 export default function Clientes() {
   const [search, setSearch] = useState("");
-  const filtered = mockClients.filter(c =>
+  const [open, setOpen] = useState(false);
+  const [form, setForm] = useState({ name: "", nicho: "", instagram: "", site: "" });
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const { data: clients = [], isLoading } = useQuery({
+    queryKey: ["clients"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("clients")
+        .select("*, packages(id)")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
+  const createClient = useMutation({
+    mutationFn: async () => {
+      if (!user) throw new Error("Não autenticado");
+      const { error } = await supabase.from("clients").insert({
+        name: form.name,
+        nicho: form.nicho || null,
+        instagram: form.instagram || null,
+        site: form.site || null,
+        user_id: user.id,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["clients"] });
+      queryClient.invalidateQueries({ queryKey: ["stats-clients"] });
+      setOpen(false);
+      setForm({ name: "", nicho: "", instagram: "", site: "" });
+      toast({ title: "Cliente criado com sucesso!" });
+    },
+    onError: (e: any) => toast({ title: "Erro ao criar cliente", description: e.message, variant: "destructive" }),
+  });
+
+  const filtered = clients.filter((c: any) =>
     c.name.toLowerCase().includes(search.toLowerCase()) ||
-    c.nicho.toLowerCase().includes(search.toLowerCase())
+    (c.nicho ?? "").toLowerCase().includes(search.toLowerCase())
   );
 
   return (
@@ -26,44 +63,81 @@ export default function Clientes() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="font-display text-2xl font-bold">Clientes</h1>
-          <p className="text-sm text-muted-foreground font-light">{mockClients.length} clientes cadastrados</p>
+          <p className="text-sm text-muted-foreground font-light">{clients.length} clientes cadastrados</p>
         </div>
-        <Link to="/briefing/novo">
-          <Button className="gap-2 btn-primary-glow font-semibold">Novo Briefing <ArrowUpRight className="h-4 w-4" /></Button>
-        </Link>
+        <div className="flex gap-2">
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline" className="gap-2"><Plus className="h-4 w-4" /> Novo Cliente</Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader><DialogTitle>Novo Cliente</DialogTitle></DialogHeader>
+              <div className="space-y-4 pt-2">
+                <div className="space-y-2">
+                  <Label>Nome *</Label>
+                  <Input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="Nome da empresa" />
+                </div>
+                <div className="space-y-2">
+                  <Label>Nicho</Label>
+                  <Input value={form.nicho} onChange={e => setForm(f => ({ ...f, nicho: e.target.value }))} placeholder="Ex: Academia, Estética..." />
+                </div>
+                <div className="space-y-2">
+                  <Label>Instagram</Label>
+                  <Input value={form.instagram} onChange={e => setForm(f => ({ ...f, instagram: e.target.value }))} placeholder="@empresa" />
+                </div>
+                <div className="space-y-2">
+                  <Label>Site</Label>
+                  <Input value={form.site} onChange={e => setForm(f => ({ ...f, site: e.target.value }))} placeholder="https://..." />
+                </div>
+                <Button onClick={() => createClient.mutate()} disabled={!form.name || createClient.isPending} className="w-full btn-primary-glow">
+                  {createClient.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                  Criar Cliente
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+          <Link to="/briefing/novo">
+            <Button className="gap-2 btn-primary-glow font-semibold">Novo Briefing <ArrowUpRight className="h-4 w-4" /></Button>
+          </Link>
+        </div>
       </div>
 
       <div className="relative max-w-md">
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          placeholder="Buscar por nome ou nicho..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          className="pl-9 bg-muted/50"
-        />
+        <Input placeholder="Buscar por nome ou nicho..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9 bg-muted/50" />
       </div>
 
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filtered.map(client => (
-          <Link key={client.id} to={`/clientes/${client.id}/pacotes`}>
-            <GlassCard className="hover-scale cursor-pointer space-y-3">
-              <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <Users className="h-5 w-5 text-primary" />
+      {isLoading ? (
+        <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>
+      ) : filtered.length === 0 ? (
+        <GlassCard className="text-center py-12">
+          <Users className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
+          <p className="text-muted-foreground">Nenhum cliente encontrado</p>
+          <p className="text-xs text-muted-foreground mt-1">Crie um novo cliente ou envie um briefing</p>
+        </GlassCard>
+      ) : (
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filtered.map((client: any) => (
+            <Link key={client.id} to={`/clientes/${client.id}/pacotes`}>
+              <GlassCard className="hover-scale cursor-pointer space-y-3">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <Users className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-sm">{client.name}</p>
+                    <p className="text-xs text-muted-foreground">{client.nicho ?? "—"}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="font-semibold text-sm">{client.name}</p>
-                  <p className="text-xs text-muted-foreground">{client.nicho}</p>
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <span className="flex items-center gap-1"><Package className="h-3 w-3" /> {client.packages?.length ?? 0} pacotes</span>
+                  <span>{new Date(client.created_at).toLocaleDateString("pt-BR")}</span>
                 </div>
-              </div>
-              <div className="flex items-center justify-between text-xs text-muted-foreground">
-                <span className="flex items-center gap-1"><Package className="h-3 w-3" /> {client.pacotes} pacotes</span>
-                <span>{client.lastDate}</span>
-              </div>
-            </GlassCard>
-          </Link>
-        ))}
-      </div>
+              </GlassCard>
+            </Link>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
