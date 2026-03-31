@@ -1,6 +1,6 @@
 import { StatsCard } from "@/components/ui/StatsCard";
 import { GlassCard } from "@/components/ui/GlassCard";
-import { Users, FileText, Package, LayoutTemplate, ArrowUpRight, Loader2, Zap, RefreshCw, Brain } from "lucide-react";
+import { Users, FileText, Package, LayoutTemplate, ArrowUpRight, Loader2, Zap, RefreshCw, Brain, DollarSign } from "lucide-react";
 import { BarChart, Bar, AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -198,7 +198,7 @@ export default function Dashboard() {
           <Brain className="h-5 w-5 text-primary" />
           <h3 className="font-display font-semibold">Consumo de IA — {new Date().toLocaleString("pt-BR", { month: "long", year: "numeric" })}</h3>
         </div>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-4">
           <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/30 border border-border/30">
             <div className="p-2 rounded-lg bg-primary/10">
               <Zap className="h-4 w-4 text-primary" />
@@ -235,7 +235,19 @@ export default function Dashboard() {
               <p className="text-xs text-muted-foreground">Tokens estimados</p>
             </div>
           </div>
+          <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/30 border border-border/30">
+            <div className="p-2 rounded-lg bg-destructive/10">
+              <DollarSign className="h-4 w-4 text-destructive" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold font-display">
+                R$ {((usageStats.totalTokens / 1_000_000) * 0.60 * 5.70).toFixed(2)}
+              </p>
+              <p className="text-xs text-muted-foreground">Custo estimado</p>
+            </div>
+          </div>
         </div>
+        <p className="text-[10px] text-muted-foreground/60 mt-3">* Estimativa baseada no preço de output do Gemini 2.5 Flash (US$ 0,60/1M tokens) × câmbio ~R$ 5,70</p>
       </GlassCard>
 
       {/* AI Usage Evolution Chart */}
