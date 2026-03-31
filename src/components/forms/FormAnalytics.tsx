@@ -249,6 +249,34 @@ export default function FormAnalytics({ formId, formName }: Props) {
     });
   }, [submissions]);
 
+  // Device & Geo analytics from metadata
+  const deviceData = useMemo(() => {
+    const typeCounts: Record<string, number> = {};
+    const modelCounts: Record<string, number> = {};
+    const browserCounts: Record<string, number> = {};
+    const regionCounts: Record<string, number> = {};
+
+    submissions.forEach((s: any) => {
+      const meta = (typeof s.metadata === "object" && s.metadata) ? s.metadata : {};
+      const dt = meta.deviceType || "Desconhecido";
+      const model = meta.model || meta.os || "Desconhecido";
+      const browser = meta.browser || "Desconhecido";
+      const region = meta.region || meta.city || meta.country || null;
+
+      typeCounts[dt] = (typeCounts[dt] || 0) + 1;
+      modelCounts[model] = (modelCounts[model] || 0) + 1;
+      browserCounts[browser] = (browserCounts[browser] || 0) + 1;
+      if (region) regionCounts[region] = (regionCounts[region] || 0) + 1;
+    });
+
+    return {
+      deviceTypes: Object.entries(typeCounts).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value),
+      models: Object.entries(modelCounts).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value).slice(0, 10),
+      browsers: Object.entries(browserCounts).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value),
+      regions: Object.entries(regionCounts).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value).slice(0, 10),
+    };
+  }, [submissions]);
+
   const exportPDF = useCallback(async () => {
     setExporting(true);
     try {
