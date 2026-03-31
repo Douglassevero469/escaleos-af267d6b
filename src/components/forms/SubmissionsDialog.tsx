@@ -225,6 +225,7 @@ export default function SubmissionsDialog({ formId, formName, open, onOpenChange
         ) : selected ? (
           <SubmissionDetail
             submission={selected}
+            formFields={formFields}
             newTag={newTag}
             setNewTag={setNewTag}
             newTagColor={newTagColor}
