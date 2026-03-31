@@ -574,7 +574,12 @@ export default function FormBuilder() {
                   <div className="w-2.5 h-2.5 rounded-full bg-green-400/60" />
                 </div>
                 <span className="text-[10px] text-muted-foreground font-mono ml-2 truncate">
-                  {window.location.origin}/f/{formData?.slug || "..."}
+                  {(() => {
+                    const base = window.location.hostname.includes("lovableproject.com") || window.location.hostname.includes("lovable.app")
+                      ? "https://escaleos.lovable.app"
+                      : window.location.origin;
+                    return `${base}/f/${formData?.slug || "..."}`;
+                  })()}
                 </span>
               </div>
               {fields.length === 0 ? (
