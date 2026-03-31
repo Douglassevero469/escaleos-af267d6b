@@ -212,8 +212,8 @@ export default function SubmissionsDialog({ formId, formName, open, onOpenChange
             isPending={updateMutation.isPending}
           />
         ) : (
-          <div className="space-y-4">
-            {/* Filters */}
+          <div className="space-y-3">
+            {/* Status filters */}
             <div className="flex items-center gap-2 flex-wrap">
               <Button variant={filter === "all" ? "default" : "outline"} size="sm" onClick={() => setFilter("all")}>
                 Todas ({submissions.length})
@@ -225,6 +225,47 @@ export default function SubmissionsDialog({ formId, formName, open, onOpenChange
                 Incompletas ({incompleteCount})
               </Button>
             </div>
+
+            {/* Tag filters */}
+            {allTags.length > 0 && (
+              <div className="flex items-center gap-2 flex-wrap">
+                <Tag className="h-3.5 w-3.5 text-muted-foreground" />
+                <span className="text-xs text-muted-foreground mr-1">Filtrar por etiqueta:</span>
+                {allTags.map(tag => {
+                  const isActive = tagFilter.includes(tag);
+                  // Find color from first submission that has this tag
+                  const tagObj = submissions
+                    .flatMap((s: any) => parseTags(s.tags))
+                    .find(t => t.text === tag);
+                  const c = getColorClasses(tagObj?.color || "blue");
+                  return (
+                    <button
+                      key={tag}
+                      onClick={() => setTagFilter(prev =>
+                        isActive ? prev.filter(t => t !== tag) : [...prev, tag]
+                      )}
+                      className={cn(
+                        "text-[11px] px-2 py-0.5 rounded-full font-medium transition-all border",
+                        isActive
+                          ? cn(c.bg, c.text, "border-current")
+                          : "bg-muted/50 text-muted-foreground border-transparent hover:bg-muted"
+                      )}
+                    >
+                      {tag}
+                    </button>
+                  );
+                })}
+                {tagFilter.length > 0 && (
+                  <button
+                    onClick={() => setTagFilter([])}
+                    className="text-[10px] text-muted-foreground hover:text-foreground underline"
+                  >
+                    Limpar filtros
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
 
             {/* Table */}
             <div className="border rounded-lg overflow-auto">
