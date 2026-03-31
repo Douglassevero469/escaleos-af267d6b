@@ -217,7 +217,7 @@ export default function Clientes() {
                     <DropdownMenuItem onClick={(e) => { e.preventDefault(); e.stopPropagation(); saveAsTemplate(client); }}>
                       <BookmarkPlus className="h-3.5 w-3.5 mr-2" /> Salvar como Template
                     </DropdownMenuItem>
-                    <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={(e) => { e.preventDefault(); e.stopPropagation(); deleteClient.mutate(client.id); }}>
+                    <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setDeleteConfirm(client); }}>
                       <Trash2 className="h-3.5 w-3.5 mr-2" /> Excluir
                     </DropdownMenuItem>
                   </DropdownMenuContent>
