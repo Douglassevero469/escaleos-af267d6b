@@ -16,7 +16,13 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { Checkbox } from "@/components/ui/checkbox";
 import { exportAnalyticsPDF, captureChartAsImage } from "@/lib/analytics-pdf-export";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, LineChart, Line, PieChart, Pie, Cell, AreaChart, Area } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, LineChart, Line, PieChart, Pie, Cell, AreaChart, Area, Legend } from "recharts";
+
+const BAR_COLORS = [
+  "#3b82f6", "#8b5cf6", "#06b6d4", "#f59e0b", "#10b981",
+  "#ef4444", "#ec4899", "#f97316", "#14b8a6", "#6366f1",
+  "#84cc16", "#a855f7", "#0ea5e9", "#e11d48", "#22c55e",
+];
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { FormField } from "@/lib/form-field-types";
