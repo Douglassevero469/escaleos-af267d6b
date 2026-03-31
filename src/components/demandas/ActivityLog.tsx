@@ -36,7 +36,17 @@ export function ActivityLog({ itemId }: { itemId: string }) {
       .eq("item_id", itemId)
       .order("created_at", { ascending: false })
       .limit(50);
-    if (data) setEntries(data as ActivityEntry[]);
+    if (data && data.length > 0) {
+      const userIds = [...new Set(data.map(e => e.user_id))];
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("user_id, display_name")
+        .in("user_id", userIds);
+      const profileMap = new Map((profiles || []).map(p => [p.user_id, p.display_name]));
+      setEntries(data.map(e => ({ ...e, display_name: profileMap.get(e.user_id) || undefined })) as ActivityEntry[]);
+    } else {
+      setEntries([]);
+    }
   };
 
   if (entries.length === 0) {
