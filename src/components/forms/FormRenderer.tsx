@@ -23,6 +23,8 @@ interface FormRendererProps {
   /** If true, submission is disabled and a message is shown instead */
   isPreview?: boolean;
   onSubmit?: (data: Record<string, any>) => Promise<void>;
+  /** Called when user focuses a field — used for abandonment tracking */
+  onFieldFocus?: (fieldId: string, fieldLabel: string) => void;
 }
 
 export default function FormRenderer({
