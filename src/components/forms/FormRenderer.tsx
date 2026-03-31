@@ -7,7 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Loader2, CheckCircle2, Send, ArrowRight, ArrowLeft } from "lucide-react";
+import { Slider } from "@/components/ui/slider";
+import { Loader2, CheckCircle2, Send, ArrowRight, ArrowLeft, Star } from "lucide-react";
 import { FormField } from "@/lib/form-field-types";
 import { StepIndicator } from "@/components/ui/StepIndicator";
 import { Separator } from "@/components/ui/separator";
