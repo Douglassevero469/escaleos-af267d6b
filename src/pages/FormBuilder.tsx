@@ -201,9 +201,12 @@ export default function FormBuilder() {
             <SelectContent>
               <SelectItem value="list">Lista</SelectItem>
               <SelectItem value="card">Cartão</SelectItem>
-              <SelectItem value="inline">Corrido</SelectItem>
+              <SelectItem value="inline">Corrido (Grid)</SelectItem>
               <SelectItem value="stepper">Multi-step</SelectItem>
               <SelectItem value="chat">Chat Mode</SelectItem>
+              <SelectItem value="focus">Focus (Typeform)</SelectItem>
+              <SelectItem value="split">Split (2 colunas)</SelectItem>
+              <SelectItem value="compact">Compacto</SelectItem>
             </SelectContent>
           </Select>
           <div className="flex border rounded-md">
