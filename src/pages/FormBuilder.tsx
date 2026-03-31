@@ -388,6 +388,7 @@ export default function FormBuilder() {
           <TabsTrigger value="editor">Editor</TabsTrigger>
           <TabsTrigger value="preview"><Eye className="h-3.5 w-3.5 mr-1" /> Preview</TabsTrigger>
           <TabsTrigger value="responses">Respostas</TabsTrigger>
+          <TabsTrigger value="analytics"><TrendingUp className="h-3.5 w-3.5 mr-1" /> Analytics</TabsTrigger>
         </TabsList>
 
         <TabsContent value="editor">
