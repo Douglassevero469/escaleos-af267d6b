@@ -23,29 +23,31 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/login" element={<Login />} />
-            <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/briefing/novo" element={<NovoBriefing />} />
-              <Route path="/clientes" element={<Clientes />} />
-              <Route path="/clientes/:id/pacotes" element={<ClientePacotes />} />
-              <Route path="/pacote/:id" element={<PacoteDocumentos />} />
-              <Route path="/templates" element={<Templates />} />
-              <Route path="/admin" element={<Admin />} />
-              <Route path="/perfil" element={<Perfil />} />
-            </Route>
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/login" element={<Login />} />
+              <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/briefing/novo" element={<NovoBriefing />} />
+                <Route path="/clientes" element={<Clientes />} />
+                <Route path="/clientes/:id/pacotes" element={<ClientePacotes />} />
+                <Route path="/pacote/:id" element={<PacoteDocumentos />} />
+                <Route path="/templates" element={<Templates />} />
+                <Route path="/admin" element={<Admin />} />
+                <Route path="/perfil" element={<Perfil />} />
+              </Route>
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </AuthProvider>
+    </ThemeProvider>
   </QueryClientProvider>
 );
 
