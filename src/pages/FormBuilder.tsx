@@ -456,7 +456,7 @@ export default function FormBuilder() {
                       </div>
                     </>
                   )}
-                  {["select", "radio", "checkbox", "selection", "yes_no"].includes(selectedField.type) && (
+                  {["select", "radio", "radio_cards", "checkbox", "selection", "image_choice", "yes_no"].includes(selectedField.type) && (
                     <div>
                       <Label className="text-xs">Opções (uma por linha)</Label>
                       <Textarea
@@ -464,6 +464,31 @@ export default function FormBuilder() {
                         onChange={e => updateField(selectedField.id, { options: e.target.value.split("\n") })}
                         rows={4}
                       />
+                    </div>
+                  )}
+                  {["rating", "slider"].includes(selectedField.type) && (
+                    <div className="space-y-2 pt-2 border-t border-border">
+                      <p className="text-xs font-semibold text-muted-foreground">Configuração</p>
+                      <div className="grid grid-cols-2 gap-2">
+                        {selectedField.type === "slider" && (
+                          <div>
+                            <Label className="text-[10px]">Valor mínimo</Label>
+                            <Input
+                              type="number"
+                              value={selectedField.validations?.min ?? 0}
+                              onChange={e => updateField(selectedField.id, { validations: { ...selectedField.validations, min: Number(e.target.value) } })}
+                            />
+                          </div>
+                        )}
+                        <div>
+                          <Label className="text-[10px]">{selectedField.type === "rating" ? "Nº de estrelas" : "Valor máximo"}</Label>
+                          <Input
+                            type="number"
+                            value={selectedField.validations?.max ?? (selectedField.type === "rating" ? 5 : 100)}
+                            onChange={e => updateField(selectedField.id, { validations: { ...selectedField.validations, max: Number(e.target.value) } })}
+                          />
+                        </div>
+                      </div>
                     </div>
                   )}
                   {!["heading", "paragraph", "divider", "spacer", "yes_no", "switch", "checkbox", "file"].includes(selectedField.type) && (
