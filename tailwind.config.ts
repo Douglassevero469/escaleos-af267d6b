@@ -14,7 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ["Inter", "system-ui", "sans-serif"],
+        sans: ['"Articulat CF"', "system-ui", "sans-serif"],
+        display: ['"Ninetea"', "system-ui", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -25,6 +26,7 @@ export default {
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
+          dark: "hsl(var(--primary-dark))",
         },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
@@ -62,6 +64,9 @@ export default {
         },
         success: "hsl(var(--success))",
         warning: "hsl(var(--warning))",
+        pink: "hsl(var(--pink))",
+        lilac: "hsl(var(--lilac))",
+        cyan: "hsl(var(--cyan))",
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -90,8 +95,8 @@ export default {
           "100%": { opacity: "1", transform: "translateY(0)" },
         },
         "glow-pulse": {
-          "0%, 100%": { boxShadow: "0 0 20px hsla(250, 80%, 65%, 0.1)" },
-          "50%": { boxShadow: "0 0 40px hsla(250, 80%, 65%, 0.25)" },
+          "0%, 100%": { boxShadow: "0 0 20px hsla(240, 100%, 50%, 0.1)" },
+          "50%": { boxShadow: "0 0 50px hsla(240, 100%, 50%, 0.25)" },
         },
         float: {
           "0%, 100%": { transform: "translateY(0)" },

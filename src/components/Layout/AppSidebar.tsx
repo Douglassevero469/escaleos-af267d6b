@@ -4,7 +4,6 @@ import {
   Users,
   FileText,
   Settings,
-  Zap,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
@@ -20,6 +19,8 @@ import {
   SidebarHeader,
   useSidebar,
 } from "@/components/ui/sidebar";
+import escaleIcon from "@/assets/escale-icon.png";
+import escaleLogoWhite from "@/assets/escale-logo-white.png";
 
 const mainItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
@@ -38,18 +39,17 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border bg-sidebar">
       <SidebarHeader className="p-4">
-        <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-            <Zap className="h-4 w-4 text-primary-foreground" />
-          </div>
-          {!collapsed && (
-            <span className="text-lg font-bold gradient-text">EscaleOS</span>
+        <div className="flex items-center gap-2.5">
+          {collapsed ? (
+            <img src={escaleIcon} alt="Escale" className="h-8 w-8 rounded-lg" />
+          ) : (
+            <img src={escaleLogoWhite} alt="Escale" className="h-6" />
           )}
         </div>
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Menu</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-muted-foreground/60 uppercase text-[10px] tracking-widest">Menu</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {mainItems.map((item) => (
@@ -57,8 +57,8 @@ export function AppSidebar() {
                   <SidebarMenuButton asChild>
                     <NavLink
                       to={item.url}
-                      className={`hover:bg-sidebar-accent ${isActive(item.url) ? "bg-sidebar-accent text-sidebar-primary font-medium" : ""}`}
-                      activeClassName="bg-sidebar-accent text-sidebar-primary font-medium"
+                      className={`hover:bg-sidebar-accent transition-colors ${isActive(item.url) ? "bg-primary/10 text-primary font-medium" : ""}`}
+                      activeClassName="bg-primary/10 text-primary font-medium"
                     >
                       <item.icon className="mr-2 h-4 w-4" />
                       {!collapsed && <span>{item.title}</span>}

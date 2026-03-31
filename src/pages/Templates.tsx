@@ -16,8 +16,8 @@ export default function Templates() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Templates</h1>
-          <p className="text-sm text-muted-foreground">{mockTemplates.length} templates disponíveis</p>
+          <h1 className="font-display text-2xl font-bold">Templates</h1>
+          <p className="text-sm text-muted-foreground font-light">{mockTemplates.length} templates disponíveis</p>
         </div>
         <Button className="gap-2"><Plus className="h-4 w-4" /> Novo Template</Button>
       </div>
