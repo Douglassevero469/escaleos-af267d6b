@@ -25,6 +25,8 @@ interface FormRendererProps {
   onSubmit?: (data: Record<string, any>) => Promise<void>;
   /** Called when user focuses a field — used for abandonment tracking */
   onFieldFocus?: (fieldId: string, fieldLabel: string) => void;
+  /** Called whenever form values change — used for partial data capture */
+  onValuesChange?: (values: Record<string, any>) => void;
 }
 
 export default function FormRenderer({
