@@ -40,6 +40,47 @@ export default function Dashboard() {
     },
   });
 
+  const { data: formCount = 0 } = useQuery({
+    queryKey: ["stats-forms"],
+    queryFn: async () => {
+      const { count } = await supabase.from("forms").select("*", { count: "exact", head: true });
+      return count ?? 0;
+    },
+  });
+
+  const { data: demandStats = { total: 0, byStatus: [] as { name: string; value: number; color: string }[], overdue: 0 } } = useQuery({
+    queryKey: ["stats-demands"],
+    queryFn: async () => {
+      const { data: boards } = await supabase.from("demand_boards").select("columns");
+      const { data: items } = await supabase.from("demand_items").select("status, due_date");
+      if (!items) return { total: 0, byStatus: [], overdue: 0 };
+
+      // Build column color map
+      const colMap: Record<string, { name: string; color: string }> = {};
+      (boards || []).forEach((b: any) => {
+        ((b.columns as any[]) || []).forEach((c: any) => {
+          if (!colMap[c.id]) colMap[c.id] = { name: c.name, color: c.color };
+        });
+      });
+
+      const statusCount: Record<string, number> = {};
+      let overdue = 0;
+      const today = new Date().toISOString().slice(0, 10);
+      items.forEach(i => {
+        statusCount[i.status] = (statusCount[i.status] || 0) + 1;
+        if (i.due_date && i.due_date < today && i.status !== "done") overdue++;
+      });
+
+      const byStatus = Object.entries(statusCount).map(([id, value]) => ({
+        name: colMap[id]?.name || id,
+        value,
+        color: colMap[id]?.color || "#6b7280",
+      }));
+
+      return { total: items.length, byStatus, overdue };
+    },
+  });
+
   // Usage stats from generation_logs
   const { data: usageStats = { generations: 0, regenerations: 0, totalTokens: 0, totalWords: 0 } } = useQuery({
     queryKey: ["stats-usage"],
