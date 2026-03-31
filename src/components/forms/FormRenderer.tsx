@@ -554,8 +554,8 @@ export default function FormRenderer({
   // Card
   if (layout === "card") {
     return (
-      <div className={`flex items-center justify-center p-6 ${wrapperHeight}`} style={themeStyle}>
-        <div className="w-full max-w-lg space-y-4">
+      <div className={`flex items-center justify-center px-4 py-6 sm:p-6 ${wrapperHeight}`} style={themeStyle}>
+        <div className="w-full max-w-lg space-y-3 sm:space-y-4">
           {formHeader}
           {fields.map(f => (
             <div key={f.id} className="rounded-xl border p-4 shadow-sm" style={cardStyle}>{renderField(f)}</div>
