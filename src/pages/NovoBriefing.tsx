@@ -291,33 +291,33 @@ export default function NovoBriefing() {
           </Select>
         </div>
       )}
-      <Field label="Nome da Empresa *" field="nomeEmpresa" placeholder="Ex: Studio Fitness Prime" />
-      <Field label="Nicho / Segmento *" field="nichoAtuacao" placeholder="Ex: Academia, Personal Trainer" />
-      <Field label="Tempo de Mercado" field="tempoMercado" placeholder="Ex: 3 anos" />
-      <Field label="Região de Atuação" field="regiaoAtuacao" placeholder="Ex: São Paulo - SP" />
-      <Field label="Instagram" field="instagramEmpresa" placeholder="@empresa" />
-      <Field label="Site" field="siteEmpresa" placeholder="https://..." />
+      {renderField("Nome da Empresa *", "nomeEmpresa", "Ex: Studio Fitness Prime")}
+      {renderField("Nicho / Segmento *", "nichoAtuacao", "Ex: Academia, Personal Trainer")}
+      {renderField("Tempo de Mercado", "tempoMercado", "Ex: 3 anos")}
+      {renderField("Região de Atuação", "regiaoAtuacao", "Ex: São Paulo - SP")}
+      {renderField("Instagram", "instagramEmpresa", "@empresa")}
+      {renderField("Site", "siteEmpresa", "https://...")}
     </div>,
 
     // Step 1: Financeiro
     <div key={1} className="space-y-4 animate-fade-in">
       <h3 className="font-display text-lg font-semibold">Dados Financeiros</h3>
-      <Field label="Faturamento Mensal Atual *" field="faturamentoAtual" placeholder="Ex: R$ 50.000" />
-      <Field label="Meta de Faturamento *" field="metaFaturamento" placeholder="Ex: R$ 100.000" />
-      <Field label="Ticket Médio *" field="ticketMedio" placeholder="Ex: R$ 150" />
-      <Field label="Orçamento para Anúncios" field="orcamentoAnuncios" placeholder="Ex: R$ 3.000/mês" />
+      {renderField("Faturamento Mensal Atual *", "faturamentoAtual", "Ex: R$ 50.000")}
+      {renderField("Meta de Faturamento *", "metaFaturamento", "Ex: R$ 100.000")}
+      {renderField("Ticket Médio *", "ticketMedio", "Ex: R$ 150")}
+      {renderField("Orçamento para Anúncios", "orcamentoAnuncios", "Ex: R$ 3.000/mês")}
     </div>,
 
     // Step 2: Produto
     <div key={2} className="space-y-4 animate-fade-in">
       <h3 className="font-display text-lg font-semibold">Produto e Público</h3>
-      <Field label="Nome do Produto/Serviço Principal *" field="nomeProduto" placeholder="Ex: Plano Premium Anual" />
-      <Field label="Preço do Produto *" field="precoProduto" placeholder="Ex: R$ 299/mês" />
-      <Field label="Garantia" field="garantia" placeholder="Ex: 30 dias de garantia" />
-      <ArrayField label="Diferenciais" field="diferenciais" placeholder="Diferencial" />
-      <Field label="Perfil do Cliente Ideal *" field="perfilClienteIdeal" placeholder="Idade, gênero, localização, interesses..." textarea />
-      <ArrayField label="Dores do Público *" field="doresPublico" placeholder="Dor" />
-      <ArrayField label="Desejos do Público *" field="desejosPublico" placeholder="Desejo" />
+      {renderField("Nome do Produto/Serviço Principal *", "nomeProduto", "Ex: Plano Premium Anual")}
+      {renderField("Preço do Produto *", "precoProduto", "Ex: R$ 299/mês")}
+      {renderField("Garantia", "garantia", "Ex: 30 dias de garantia")}
+      {renderArrayField("Diferenciais", "diferenciais", "Diferencial")}
+      {renderField("Perfil do Cliente Ideal *", "perfilClienteIdeal", "Idade, gênero, localização, interesses...", true)}
+      {renderArrayField("Dores do Público *", "doresPublico", "Dor")}
+      {renderArrayField("Desejos do Público *", "desejosPublico", "Desejo")}
     </div>,
 
     // Step 3: Concorrentes
@@ -348,11 +348,11 @@ export default function NovoBriefing() {
     // Step 4: Operacional
     <div key={4} className="space-y-4 animate-fade-in">
       <h3 className="font-display text-lg font-semibold">Operacional</h3>
-      <Field label="Equipe de Vendas" field="equipeVendas" placeholder="Ex: 5 vendedores + 1 gerente" />
-      <Field label="Ferramentas Utilizadas" field="ferramentas" placeholder="CRM, email marketing, etc." textarea />
-      <Field label="Principal Gargalo *" field="gargalo" placeholder="Maior dificuldade operacional" textarea />
-      <ArrayField label="Objeções Frequentes dos Clientes" field="objecoes" placeholder="Objeção" />
-      <Field label="Tom de Voz da Marca *" field="tomDeVoz" placeholder="Ex: Profissional mas acessível, direto e confiante" />
+      {renderField("Equipe de Vendas", "equipeVendas", "Ex: 5 vendedores + 1 gerente")}
+      {renderField("Ferramentas Utilizadas", "ferramentas", "CRM, email marketing, etc.", true)}
+      {renderField("Principal Gargalo *", "gargalo", "Maior dificuldade operacional", true)}
+      {renderArrayField("Objeções Frequentes dos Clientes", "objecoes", "Objeção")}
+      {renderField("Tom de Voz da Marca *", "tomDeVoz", "Ex: Profissional mas acessível, direto e confiante")}
       <div className="space-y-2">
         <Label className="text-sm">Canais de Atendimento</Label>
         <div className="flex flex-wrap gap-2">
@@ -369,7 +369,7 @@ export default function NovoBriefing() {
     // Step 5: Mídia
     <div key={5} className="space-y-4 animate-fade-in">
       <h3 className="font-display text-lg font-semibold">Mídia e Marca</h3>
-      <Field label="Objetivo da Campanha" field="objetivoCampanha" placeholder="Ex: Gerar leads qualificados para vendas" />
+      {renderField("Objetivo da Campanha", "objetivoCampanha", "Ex: Gerar leads qualificados para vendas")}
       <div className="space-y-2">
         <Label className="text-sm">Plataformas de Anúncio</Label>
         <div className="flex flex-wrap gap-2">
@@ -392,12 +392,12 @@ export default function NovoBriefing() {
           ))}
         </div>
       </div>
-      <Field label="Investimento Mensal em Mídia" field="investimentoMidia" placeholder="Ex: R$ 5.000/mês" />
+      {renderField("Investimento Mensal em Mídia", "investimentoMidia", "Ex: R$ 5.000/mês")}
       {data.jaInvesteAnuncios === "sim" && (
-        <Field label="Resultados Atuais com Anúncios" field="resultadosAtuais" placeholder="CPL, ROAS, volume de leads..." textarea />
+        {renderField("Resultados Atuais com Anúncios", "resultadosAtuais", "CPL, ROAS, volume de leads...", true)}
       )}
-      <Field label="Cores da Marca" field="coresMarca" placeholder="Ex: Azul marinho, dourado" />
-      <Field label="Prova Social" field="provaSocial" placeholder="Depoimentos, cases, números" textarea />
+      {renderField("Cores da Marca", "coresMarca", "Ex: Azul marinho, dourado")}
+      {renderField("Prova Social", "provaSocial", "Depoimentos, cases, números", true)}
     </div>,
 
     // Step 6: Revisão
