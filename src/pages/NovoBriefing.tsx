@@ -1,17 +1,18 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { StepIndicator } from "@/components/ui/StepIndicator";
-import { ArrowLeft, ArrowRight, Send, Loader2, Plus, Trash2 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { ArrowLeft, ArrowRight, Send, Loader2, Plus, Trash2, Save } from "lucide-react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 const stepNames = ["Identidade", "Financeiro", "Produto", "Concorrentes", "Operacional", "Mídia", "Revisão"];
 
@@ -99,9 +100,14 @@ export default function NovoBriefing() {
   const [data, setData] = useState<BriefingFormData>(defaultData);
   const [selectedClient, setSelectedClient] = useState<string>("");
   const [submitting, setSubmitting] = useState(false);
+  const [saveTemplateOpen, setSaveTemplateOpen] = useState(false);
+  const [templateName, setTemplateName] = useState("");
+  const [templateDesc, setTemplateDesc] = useState("");
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const { user } = useAuth();
+  const queryClient = useQueryClient();
 
   const { data: clients = [] } = useQuery({
     queryKey: ["clients"],
@@ -110,6 +116,51 @@ export default function NovoBriefing() {
       return data ?? [];
     },
   });
+
+  // Load template data if ?template=ID is present
+  const templateId = searchParams.get("template");
+  const { data: templateData } = useQuery({
+    queryKey: ["template", templateId],
+    enabled: !!templateId,
+    queryFn: async () => {
+      const { data } = await supabase.from("templates").select("*").eq("id", templateId!).maybeSingle();
+      return data;
+    },
+  });
+
+  useEffect(() => {
+    if (templateData?.briefing_data && typeof templateData.briefing_data === "object") {
+      const bd = templateData.briefing_data as any;
+      setData(prev => ({
+        ...prev,
+        ...bd,
+        diferenciais: bd.diferenciais || prev.diferenciais,
+        doresPublico: bd.doresPublico || prev.doresPublico,
+        desejosPublico: bd.desejosPublico || prev.desejosPublico,
+        objecoes: bd.objecoes || prev.objecoes,
+        concorrentes: bd.concorrentes || prev.concorrentes,
+        canaisAtendimento: bd.canaisAtendimento || prev.canaisAtendimento,
+        plataformasAnuncio: bd.plataformasAnuncio || prev.plataformasAnuncio,
+      }));
+      toast({ title: `Template "${templateData.name}" carregado!`, description: "Campos pré-preenchidos." });
+    }
+  }, [templateData]);
+
+  const saveAsTemplate = async () => {
+    if (!user || !templateName) return;
+    const { error } = await supabase.from("templates").insert({
+      name: templateName,
+      description: templateDesc || null,
+      user_id: user.id,
+      briefing_data: data as any,
+    });
+    if (error) { toast({ title: "Erro", description: error.message, variant: "destructive" }); return; }
+    queryClient.invalidateQueries({ queryKey: ["templates"] });
+    setSaveTemplateOpen(false);
+    setTemplateName("");
+    setTemplateDesc("");
+    toast({ title: "Briefing salvo como template!" });
+  };
 
   const set = (key: keyof BriefingFormData, value: any) => setData(prev => ({ ...prev, [key]: value }));
 
@@ -399,17 +450,44 @@ export default function NovoBriefing() {
         <Button variant="outline" onClick={prev} disabled={step === 0} className="gap-2 border-border/60">
           <ArrowLeft className="h-4 w-4" /> Anterior
         </Button>
-        {step < 6 ? (
-          <Button onClick={next} className="gap-2 btn-primary-glow font-semibold">
-            Próximo <ArrowRight className="h-4 w-4" />
-          </Button>
-        ) : (
-          <Button onClick={submit} disabled={submitting} className="gap-2 btn-primary-glow font-semibold">
-            {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
-            Gerar Pacote <Send className="h-4 w-4" />
-          </Button>
-        )}
+        <div className="flex gap-2">
+          {step === 6 && (
+            <Button variant="outline" onClick={() => setSaveTemplateOpen(true)} className="gap-2 border-border/60">
+              <Save className="h-4 w-4" /> Salvar Template
+            </Button>
+          )}
+          {step < 6 ? (
+            <Button onClick={next} className="gap-2 btn-primary-glow font-semibold">
+              Próximo <ArrowRight className="h-4 w-4" />
+            </Button>
+          ) : (
+            <Button onClick={submit} disabled={submitting} className="gap-2 btn-primary-glow font-semibold">
+              {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
+              Gerar Pacote <Send className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
       </div>
+
+      {/* Save as Template Dialog */}
+      <Dialog open={saveTemplateOpen} onOpenChange={setSaveTemplateOpen}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Salvar como Template</DialogTitle></DialogHeader>
+          <div className="space-y-4 pt-2">
+            <div className="space-y-2">
+              <Label>Nome do Template *</Label>
+              <Input value={templateName} onChange={e => setTemplateName(e.target.value)} placeholder="Ex: Template Academia Premium" />
+            </div>
+            <div className="space-y-2">
+              <Label>Descrição</Label>
+              <Textarea value={templateDesc} onChange={e => setTemplateDesc(e.target.value)} placeholder="Descreva para que serve..." className="min-h-[80px]" />
+            </div>
+            <Button onClick={saveAsTemplate} disabled={!templateName} className="w-full btn-primary-glow">
+              <Save className="h-4 w-4 mr-2" /> Salvar Template
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
