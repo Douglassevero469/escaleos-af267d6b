@@ -4,6 +4,7 @@ import {
   Users,
   FileText,
   Settings,
+  LogOut,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
@@ -17,8 +18,10 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarHeader,
+  SidebarFooter,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { useAuth } from "@/hooks/useAuth";
 import escaleIcon from "@/assets/escale-icon.png";
 import escaleLogoWhite from "@/assets/escale-logo-white.png";
 
@@ -34,6 +37,7 @@ export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const location = useLocation();
+  const { user, signOut } = useAuth();
   const isActive = (path: string) => location.pathname.startsWith(path);
 
   return (
@@ -70,6 +74,15 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <SidebarFooter className="p-3 border-t border-sidebar-border">
+        {!collapsed && user && (
+          <p className="text-xs text-muted-foreground truncate mb-2 px-1">{user.email}</p>
+        )}
+        <SidebarMenuButton onClick={signOut} className="hover:bg-destructive/10 hover:text-destructive transition-colors w-full">
+          <LogOut className="mr-2 h-4 w-4" />
+          {!collapsed && <span>Sair</span>}
+        </SidebarMenuButton>
+      </SidebarFooter>
     </Sidebar>
   );
 }
