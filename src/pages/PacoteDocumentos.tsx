@@ -357,7 +357,7 @@ function downloadAsDocx(title: string, content: string) {
 
 async function downloadAllAsZip(docs: any[], clientName: string) {
   const zip = new JSZip();
-  const readyDocs = docs.filter((d: any) => (d.status === "ready" || d.status === "completed") && d.content);
+  const readyDocs = docs.filter((d: any) => d.status === "completed" && d.content);
 
   for (const doc of readyDocs) {
     const safeTitle = doc.title.replace(/[^a-zA-Z0-9À-ÿ\s-]/g, "").replace(/\s+/g, "_");
@@ -515,12 +515,12 @@ export default function PacoteDocumentos() {
     generateSequentially();
   }, [docs, pkg, streamDocument, id, queryClient]);
 
-  const completedCount = docs.filter((d: any) => d.status === "ready" || d.status === "completed").length;
+  const completedCount = docs.filter((d: any) => d.status === "completed").length;
   const totalCount = docs.length;
   const progress = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
   const isGenerating = generatingDocs.size > 0 || docs.some((d: any) => d.status === "pending" || d.status === "generating");
 
-  const isDocReady = (status: string) => status === "ready" || status === "completed";
+  const isDocReady = (status: string) => status === "completed";
 
   const getDocContent = (doc: any) => {
     if (streamingContent[doc.id]) return streamingContent[doc.id];
@@ -700,7 +700,7 @@ export default function PacoteDocumentos() {
                 )}
               </DialogTitle>
               <div className="flex items-center gap-2">
-                {viewDoc?.content && (viewDoc?.status === "ready" || viewDoc?.status === "completed") && !isEditing && (
+                {viewDoc?.content && viewDoc?.status === "completed" && !isEditing && (
                   <>
                     <Button variant="outline" size="sm" className="gap-1" onClick={() => { setViewDoc(null); retryDoc(viewDoc); }}
                       disabled={generatingDocs.has(viewDoc?.id)}>
