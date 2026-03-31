@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      audit_logs: {
+        Row: {
+          action: string
+          created_at: string
+          details: Json | null
+          entity_id: string | null
+          entity_type: string
+          id: string
+          status: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          details?: Json | null
+          entity_id?: string | null
+          entity_type: string
+          id?: string
+          status?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          details?: Json | null
+          entity_id?: string | null
+          entity_type?: string
+          id?: string
+          status?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       briefings: {
         Row: {
           client_id: string
@@ -337,6 +370,26 @@ export type Database = {
           total_tokens: number
           total_words: number
           user_id: string
+        }[]
+      }
+      admin_get_audit_logs: {
+        Args: {
+          _entity_type?: string
+          _limit?: number
+          _offset?: number
+          _status?: string
+        }
+        Returns: {
+          action: string
+          created_at: string
+          details: Json
+          entity_id: string
+          entity_type: string
+          id: string
+          status: string
+          user_email: string
+          user_id: string
+          user_name: string
         }[]
       }
       admin_get_stats: {
