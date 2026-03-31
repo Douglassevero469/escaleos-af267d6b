@@ -38,6 +38,7 @@ const mainItems = [
   { title: "Templates", url: "/templates", icon: FileText },
   { title: "Formulários", url: "/forms", icon: ClipboardList },
   { title: "Demandas", url: "/demandas", icon: KanbanSquare },
+  { title: "CRM", url: "/crm", icon: Contact },
   { title: "Admin", url: "/admin", icon: Settings },
   { title: "Meu Perfil", url: "/perfil", icon: UserCircle },
 ];
