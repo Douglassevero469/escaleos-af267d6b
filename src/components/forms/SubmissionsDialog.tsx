@@ -364,6 +364,7 @@ export default function SubmissionsDialog({ formId, formName, open, onOpenChange
 /* ─── Submission detail ─── */
 function SubmissionDetail({
   submission,
+  formFields,
   newTag,
   setNewTag,
   newTagColor,
@@ -375,6 +376,7 @@ function SubmissionDetail({
   isPending,
 }: {
   submission: any;
+  formFields: string[];
   newTag: string;
   setNewTag: (v: string) => void;
   newTagColor: string;
@@ -388,7 +390,24 @@ function SubmissionDetail({
   const [editing, setEditing] = useState(false);
   const [editData, setEditData] = useState<Record<string, string>>({});
   const [notes, setNotes] = useState(submission.notes || "");
-  const data = typeof submission.data === "object" && submission.data ? submission.data : {};
+  const rawData = typeof submission.data === "object" && submission.data ? submission.data : {};
+  
+  // Order data entries by form field order
+  const orderedEntries = (() => {
+    const entries = Object.entries(rawData);
+    if (formFields.length === 0) return entries;
+    const ordered: [string, any][] = [];
+    for (const label of formFields) {
+      const entry = entries.find(([k]) => k === label);
+      if (entry) ordered.push(entry);
+    }
+    for (const entry of entries) {
+      if (!formFields.includes(entry[0])) ordered.push(entry);
+    }
+    return ordered;
+  })();
+  const data = Object.fromEntries(orderedEntries);
+  
   const tags = parseTags(submission.tags);
   const isComplete = (submission.status || "complete") === "complete";
 
