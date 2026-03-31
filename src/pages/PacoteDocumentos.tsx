@@ -78,7 +78,7 @@ const ESCALE_BRAND_CSS = `
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   @page {
-    size: A4;
+    size: A4 landscape;
     margin: 0;
   }
 
@@ -95,6 +95,11 @@ const ESCALE_BRAND_CSS = `
     max-width: 100%;
     position: relative;
     min-height: 100vh;
+  }
+
+  /* Auto-detect landscape for pages with wide tables */
+  .page.has-table {
+    padding: 40px 48px 72px;
   }
 
   /* ── Header ── */
@@ -213,11 +218,16 @@ const ESCALE_BRAND_CSS = `
   /* ── Tables ── */
   table {
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
     margin: 16px 0 24px;
-    font-size: 9.5pt;
+    font-size: 8.5pt;
+    line-height: 1.45;
     border-radius: 8px;
     overflow: hidden;
+    table-layout: auto;
+    word-wrap: break-word;
+    page-break-inside: auto;
   }
 
   thead tr {
@@ -225,27 +235,60 @@ const ESCALE_BRAND_CSS = `
   }
 
   th {
-    padding: 10px 14px;
+    padding: 8px 10px;
     text-align: left;
     font-weight: 600;
     color: white;
-    font-size: 9pt;
+    font-size: 7.5pt;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.4px;
+    white-space: nowrap;
+    vertical-align: middle;
   }
 
   td {
-    padding: 9px 14px;
+    padding: 8px 10px;
     border-bottom: 1px solid var(--brand-border);
     color: #2A2A4A;
+    vertical-align: top;
+    hyphens: auto;
+    -webkit-hyphens: auto;
+  }
+
+  /* First column (label) stays compact */
+  td:first-child {
+    font-weight: 600;
+    white-space: nowrap;
+    color: var(--brand-dark);
+    min-width: 80px;
+    max-width: 120px;
+  }
+
+  /* Even distribution for remaining columns */
+  td:not(:first-child) {
+    min-width: 100px;
   }
 
   tbody tr:nth-child(even) {
     background: #F8F8FC;
   }
 
+  tbody tr {
+    page-break-inside: avoid;
+  }
+
   tbody tr:hover {
     background: #F0F0FF;
+  }
+
+  /* Card-style for very long table cells - convert to vertical layout on narrow tables */
+  @media print {
+    table {
+      font-size: 8pt;
+    }
+    th {
+      font-size: 7pt;
+    }
   }
 
   /* ── Blockquotes ── */
@@ -330,6 +373,24 @@ function buildBrandedHtml(title: string, content: string): string {
     <span>Documento confidencial · Gerado pelo EscaleOS</span>
     <span>${today}</span>
   </div>
+
+  <script>
+    // Auto-detect wide tables (4+ columns) and switch to landscape
+    (function() {
+      var tables = document.querySelectorAll('table');
+      var needsLandscape = false;
+      tables.forEach(function(t) {
+        var cols = t.querySelector('tr') ? t.querySelector('tr').children.length : 0;
+        if (cols >= 4) needsLandscape = true;
+      });
+      if (needsLandscape) {
+        var style = document.createElement('style');
+        style.textContent = '@page { size: A4 landscape; margin: 0; }';
+        document.head.appendChild(style);
+        document.querySelector('.page').classList.add('has-table');
+      }
+    })();
+  </script>
 </body>
 </html>`;
 }
