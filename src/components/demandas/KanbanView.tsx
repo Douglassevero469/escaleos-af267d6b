@@ -10,9 +10,12 @@ interface KanbanViewProps {
   onCardClick: (item: DemandItem) => void;
   onAddItem: (columnId: string) => void;
   onUpdateItem: (item: DemandItem) => void;
+  selectable?: boolean;
+  selectedIds?: Set<string>;
+  onSelect?: (id: string, checked: boolean) => void;
 }
 
-export function KanbanView({ columns, items, onItemsChange, onCardClick, onAddItem, onUpdateItem }: KanbanViewProps) {
+export function KanbanView({ columns, items, onItemsChange, onCardClick, onAddItem, onUpdateItem, selectable, selectedIds, onSelect }: KanbanViewProps) {
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
   const sortedColumns = [...columns].sort((a, b) => a.order - b.order);
@@ -72,6 +75,9 @@ export function KanbanView({ columns, items, onItemsChange, onCardClick, onAddIt
             items={items.filter(i => i.status === col.id).sort((a, b) => a.position - b.position)}
             onCardClick={onCardClick}
             onAddItem={onAddItem}
+            selectable={selectable}
+            selectedIds={selectedIds}
+            onSelect={onSelect}
           />
         ))}
       </div>

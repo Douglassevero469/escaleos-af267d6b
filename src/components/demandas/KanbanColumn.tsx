@@ -16,9 +16,12 @@ interface KanbanColumnProps {
   items: DemandItem[];
   onCardClick: (item: DemandItem) => void;
   onAddItem: (columnId: string) => void;
+  selectable?: boolean;
+  selectedIds?: Set<string>;
+  onSelect?: (id: string, checked: boolean) => void;
 }
 
-export function KanbanColumn({ column, items, onCardClick, onAddItem }: KanbanColumnProps) {
+export function KanbanColumn({ column, items, onCardClick, onAddItem, selectable, selectedIds, onSelect }: KanbanColumnProps) {
   const { setNodeRef, isOver } = useDroppable({ id: column.id });
 
   return (
@@ -31,7 +34,14 @@ export function KanbanColumn({ column, items, onCardClick, onAddItem }: KanbanCo
       <div ref={setNodeRef} className="flex-1 p-2 space-y-2 min-h-[100px] overflow-y-auto max-h-[calc(100vh-280px)]">
         <SortableContext items={items.map(i => i.id)} strategy={verticalListSortingStrategy}>
           {items.map(item => (
-            <KanbanCard key={item.id} item={item} onClick={() => onCardClick(item)} />
+            <KanbanCard
+              key={item.id}
+              item={item}
+              onClick={() => onCardClick(item)}
+              selectable={selectable}
+              selected={selectedIds?.has(item.id)}
+              onSelect={onSelect}
+            />
           ))}
         </SortableContext>
       </div>
