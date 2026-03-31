@@ -307,7 +307,7 @@ function buildBrandedHtml(title: string, content: string): string {
   <div class="page">
     <div class="doc-header">
       <div class="logo-mark">
-        <span class="logo-text">escale</span><span class="logo-arrow">↗</span>
+        <img src="data:image/png;base64,${ESCALE_LOGO_BASE64}" alt="Escale" />
       </div>
       <div class="doc-meta">
         <div>EscaleOS · Documento Gerado por IA</div>
