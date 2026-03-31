@@ -27,6 +27,14 @@ export default function FormPublic() {
 
   const handleSubmit = async (data: Record<string, any>) => {
     await supabase.from("form_submissions").insert({ form_id: form.id, data });
+
+    // Fire webhook in background (non-blocking)
+    if (settings.webhookUrl) {
+      supabase.functions.invoke("form-webhook", {
+        body: { form_id: form.id, submission_data: data },
+      }).catch(err => console.warn("Webhook error:", err));
+    }
+
     if (settings.redirectUrl) {
       window.location.href = settings.redirectUrl;
     }
