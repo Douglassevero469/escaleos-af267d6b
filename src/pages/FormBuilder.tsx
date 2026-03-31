@@ -114,6 +114,7 @@ export default function FormBuilder() {
     if (formData) {
       setFormName(formData.name);
       setFormDesc(formData.description || "");
+      setSlug(formData.slug || "");
       setLayout(formData.layout);
       setStatus(formData.status);
       setFields(Array.isArray(formData.fields) ? (formData.fields as any as FormField[]) : []);
