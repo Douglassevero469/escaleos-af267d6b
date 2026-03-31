@@ -1,91 +1,96 @@
 
 
-# Plano: Aba "Demandas" — Gestão de Tarefas do Time
+# Plano: CRM — Gestão de Leads conectada aos Formulários
 
-Sistema completo de gestão de demandas com 3 visualizações (Kanban, Lista e Gantt), inspirado no Notion/Trello/Monday.
+Toda submissão de formulário vira automaticamente um lead no CRM, com funil Kanban, timeline de atividades e qualificação.
 
 ---
 
 ## Banco de Dados
 
-### Tabela `demand_boards`
-Boards/projetos que agrupam demandas:
-- `id`, `user_id`, `name`, `description`, `columns` (jsonb — define colunas do Kanban com nome, cor, ordem), `created_at`, `updated_at`
+### Tabela `crm_pipelines`
+Funis de venda personalizáveis (como boards de Demandas):
+- `id`, `user_id`, `name`, `stages` (jsonb — etapas com id, nome, cor, ordem), `created_at`, `updated_at`
+- Stages padrão: "Novo Lead", "Contato Feito", "Qualificado", "Proposta", "Fechado"
 
-### Tabela `demand_items`
-As demandas/tarefas individuais:
-- `id`, `board_id` (ref demand_boards), `user_id`, `title`, `description` (texto rico), `status` (coluna do Kanban), `priority` (low/medium/high/urgent), `assignee_name`, `due_date`, `start_date`, `tags` (text[]), `color` (label), `position` (integer — ordem no Kanban), `created_at`, `updated_at`
+### Tabela `crm_leads`
+Cada lead = uma submissão convertida:
+- `id`, `pipeline_id` (ref crm_pipelines), `user_id`, `form_submission_id` (ref form_submissions, nullable), `form_id` (ref forms, nullable)
+- `name`, `email`, `phone`, `company` — extraídos automaticamente dos dados do formulário
+- `stage` (id da etapa no pipeline), `position` (ordem no Kanban)
+- `score` (integer 0-100, qualificação manual ou BANT)
+- `value` (numeric — valor estimado do deal)
+- `tags` (jsonb — etiquetas coloridas)
+- `notes` (text — notas internas)
+- `custom_fields` (jsonb — dados extras do formulário)
+- `created_at`, `updated_at`, `lost_at` (timestamp, quando marcado como perdido)
 
-### Tabela `demand_comments`
-Comentários por demanda:
-- `id`, `item_id` (ref demand_items), `user_id`, `content`, `created_at`
+### Tabela `crm_activities`
+Timeline cronológica de cada lead:
+- `id`, `lead_id` (ref crm_leads), `user_id`
+- `type` (note, stage_change, task, call, email, meeting)
+- `content` (text), `details` (jsonb — dados extras como de/para estágio)
+- `created_at`
 
-RLS: usuário só acessa seus boards/itens/comentários.
+### Automação: Trigger no `form_submissions`
+- Ao inserir nova submissão, criar automaticamente um lead no pipeline padrão do usuário
+- Extrair nome/email/telefone dos campos do formulário (heurística por nome de campo)
 
 ---
 
-## Frontend — Estrutura de Arquivos
+## Frontend — Estrutura
 
 ```text
-src/pages/Demandas.tsx          — página principal
-src/components/demandas/
-  BoardSelector.tsx             — seletor/criador de boards
-  KanbanView.tsx                — visualização Kanban (drag-and-drop)
-  KanbanColumn.tsx              — coluna individual
-  KanbanCard.tsx                — card da demanda
-  ListView.tsx                  — visualização em tabela
-  GanttView.tsx                 — visualização Gantt (timeline)
-  DemandDetailSheet.tsx         — sheet lateral com detalhes da demanda
-  DemandFilters.tsx             — filtros (prioridade, tags, responsável, data)
-  NewDemandDialog.tsx           — modal de criação rápida
-  BoardSettingsDialog.tsx       — configurar colunas/cores do board
+src/pages/CRM.tsx                    — página principal
+src/components/crm/
+  PipelineSelector.tsx               — seletor/criador de pipelines
+  PipelineSettingsDialog.tsx         — configurar etapas/cores
+  KanbanBoard.tsx                    — Kanban drag-and-drop de leads
+  KanbanStageColumn.tsx              — coluna por etapa
+  LeadCard.tsx                       — card do lead (nome, valor, tags, score)
+  LeadDetailSheet.tsx                — sheet lateral com detalhes completos
+  LeadTimeline.tsx                   — timeline de atividades do lead
+  LeadFilters.tsx                    — filtros (etapa, formulário, tags, score, data)
+  ListView.tsx                       — tabela com todos os leads
+  NewLeadDialog.tsx                  — criação manual de lead
 ```
 
 ---
 
-## Funcionalidades Principais
+## Funcionalidades
 
-### 1. Board System
-- Múltiplos boards (projetos)
-- Colunas customizáveis (nome, cor, ordem) — padrão: "A Fazer", "Em Andamento", "Revisão", "Concluído"
-- Switcher de board no topo da página
+### 1. Pipeline Kanban (estilo Kommo/Trello)
+- Drag-and-drop entre etapas com @dnd-kit
+- Cards mostram: nome, email, valor do deal, score badge, tags, formulário de origem
+- Contagem e valor total por etapa
+- Ao mover card, registra atividade automática de mudança de etapa
 
-### 2. Kanban View
-- Drag-and-drop entre colunas (usando @dnd-kit)
-- Cards com: título, prioridade (badge colorido), responsável (avatar), data limite, tags
-- Contagem de itens por coluna
-- Reordenação dentro da coluna
+### 2. Detalhe do Lead (Sheet lateral)
+- Dados de contato editáveis (nome, email, telefone, empresa)
+- Dados originais do formulário (read-only)
+- Seletor de etapa, score, valor do deal
+- Tags coloridas
+- Notas internas
+- Timeline cronológica: notas, mudanças de etapa, tarefas
 
-### 3. Lista View
-- Tabela com colunas: título, status, prioridade, responsável, data limite, tags
-- Ordenação por qualquer coluna
-- Inline editing rápido do status
+### 3. Conexão automática com Formulários
+- Cada nova submissão cria um lead automaticamente via trigger SQL
+- Na listagem de leads, badge indica o formulário de origem
+- Link direto para ver a submissão original
 
-### 4. Gantt View
-- Timeline horizontal com barras por demanda (start_date → due_date)
-- Scroll horizontal por semanas/meses
-- Cores por prioridade
-- Visualização compacta e funcional
+### 4. Visualização Lista
+- Tabela com colunas: nome, email, etapa, score, valor, formulário, data
+- Ordenação e busca por nome/email
 
-### 5. Detalhe da Demanda (Sheet lateral)
-- Título editável inline
-- Descrição rica (textarea)
-- Seletor de status, prioridade, responsável, datas
-- Tags editáveis
-- Seção de comentários
-- Histórico de alterações
-
-### 6. Filtros e Busca
-- Barra de busca por título
-- Filtros: prioridade, status, responsável, tags, data
-- Toggle de visualização (Kanban / Lista / Gantt)
+### 5. Filtros
+- Por etapa, formulário de origem, score range, tags, data
 
 ---
 
 ## Sidebar e Rotas
 
-- Adicionar "Demandas" no sidebar com ícone `KanbanSquare`
-- Rota: `/demandas` (página principal com board selecionado)
+- Nova entrada "CRM" no sidebar com ícone `Contact` (ou `Users`)
+- Rota: `/crm`
 
 ---
 
@@ -93,9 +98,10 @@ src/components/demandas/
 
 | Item | Detalhe |
 |---|---|
-| Tabelas novas | `demand_boards`, `demand_items`, `demand_comments` |
-| Dependência nova | `@dnd-kit/core`, `@dnd-kit/sortable` (drag-and-drop) |
-| Páginas | 1 página principal com 3 views |
+| Tabelas novas | `crm_pipelines`, `crm_leads`, `crm_activities` |
+| Trigger novo | Auto-criar lead ao receber submissão |
+| Páginas | 1 página principal com Kanban + Lista |
 | Componentes | ~10 componentes novos |
 | RLS | Acesso por `user_id` em todas as tabelas |
+| Dependência | Reutiliza @dnd-kit já instalado |
 
