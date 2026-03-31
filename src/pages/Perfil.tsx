@@ -9,7 +9,8 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
-import { Camera, Save, User, Mail, Shield, Bell, Palette, Loader2 } from "lucide-react";
+import { Camera, Save, User, Mail, Shield, Bell, Palette, Loader2, Sun, Moon } from "lucide-react";
+import { useTheme } from "@/hooks/useTheme";
 
 export default function Perfil() {
   const { user, signOut } = useAuth();
@@ -24,7 +25,7 @@ export default function Perfil() {
 
   // Settings state
   const [emailNotifications, setEmailNotifications] = useState(true);
-  const [darkMode, setDarkMode] = useState(true);
+  const { theme, setTheme } = useTheme();
 
   useEffect(() => {
     if (!user) return;
@@ -235,13 +236,13 @@ export default function Perfil() {
 
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Palette className="h-4 w-4 text-muted-foreground" />
+              {theme === "dark" ? <Moon className="h-4 w-4 text-muted-foreground" /> : <Sun className="h-4 w-4 text-muted-foreground" />}
               <div>
                 <p className="text-sm font-medium text-foreground">Modo escuro</p>
-                <p className="text-xs text-muted-foreground">Interface com tema escuro</p>
+                <p className="text-xs text-muted-foreground">Alternar entre tema claro e escuro</p>
               </div>
             </div>
-            <Switch checked={darkMode} onCheckedChange={setDarkMode} />
+            <Switch checked={theme === "dark"} onCheckedChange={(checked) => setTheme(checked ? "dark" : "light")} />
           </div>
 
           <Separator className="bg-border/50" />
