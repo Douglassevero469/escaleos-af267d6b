@@ -587,6 +587,10 @@ export default function FormBuilder() {
         <TabsContent value="responses">
           <FormSubmissions formId={id!} />
         </TabsContent>
+
+        <TabsContent value="analytics">
+          <FormAnalytics formId={id!} />
+        </TabsContent>
       </Tabs>
     </div>
   );
