@@ -110,23 +110,11 @@ const ESCALE_BRAND_CSS = `
   .logo-mark {
     display: flex;
     align-items: center;
-    gap: 8px;
   }
 
-  .logo-mark .logo-text {
-    font-size: 20px;
-    font-weight: 800;
-    color: var(--brand-dark);
-    letter-spacing: -0.5px;
-  }
-
-  .logo-mark .logo-arrow {
-    color: var(--brand-blue);
-    font-size: 16px;
-    font-weight: 700;
-    margin-left: -4px;
-    transform: rotate(-45deg);
-    display: inline-block;
+  .logo-mark img {
+    height: 28px;
+    width: auto;
   }
 
   .doc-meta {
