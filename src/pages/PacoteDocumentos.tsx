@@ -518,6 +518,17 @@ export default function PacoteDocumentos() {
 
       if (!resp.ok || !resp.body) {
         await supabase.from("documents").update({ status: "error" }).eq("id", docId);
+        // Notify doc failure
+        const { data: { user: u } } = await supabase.auth.getUser();
+        if (u) {
+          await supabase.from("notifications").insert({
+            user_id: u.id,
+            type: "doc_failed",
+            title: `Falha na geração: ${doc.title}`,
+            message: "O documento não pôde ser gerado. Tente novamente.",
+            link: `/pacote/${id}`,
+          } as any);
+        }
         setGeneratingDocs(prev => { const n = new Set(prev); n.delete(docId); return n; });
         return;
       }
