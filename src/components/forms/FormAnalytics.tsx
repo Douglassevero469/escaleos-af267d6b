@@ -324,6 +324,7 @@ export default function FormAnalytics({ formId, formName }: Props) {
           name: r.name, email: r.email, phone: r.phone, status: r.status, date: r.date,
         })),
         chartImages,
+        orientation: pdfOrientation,
       });
       toast({ title: "PDF exportado com sucesso!" });
     } catch (err) {
