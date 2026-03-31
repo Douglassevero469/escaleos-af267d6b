@@ -195,6 +195,6 @@ export default function Demandas() {
         onUpdate={(item) => { updateItem(item); setDetailItem(item); toast.success("Salvo!"); }}
         onDelete={deleteItem}
       />
-    </div>
+      <BoardSettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} columns={columns} onSave={updateBoardColumns} />
   );
 }
