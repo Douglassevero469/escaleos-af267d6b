@@ -410,10 +410,10 @@ async function generatePdfBlob(title: string, content: string): Promise<Blob> {
   const opt = {
     margin: 0,
     filename: `${title}.pdf`,
-    image: { type: "jpeg", quality: 0.95 },
+    image: { type: "jpeg" as const, quality: 0.95 },
     html2canvas: { scale: 2, useCORS: true, letterRendering: true, width: 794 },
-    jsPDF: { unit: "mm", format: "a4", orientation: "portrait" as const },
-    pagebreak: { mode: ["avoid-all", "css", "legacy"] },
+    jsPDF: { unit: "mm" as const, format: "a4" as const, orientation: "portrait" as const },
+    pagebreak: { mode: ["avoid-all", "css", "legacy"] as string[] },
   };
 
   const pdfBlob = await html2pdf().set(opt).from(wrapper).outputPdf("blob");
