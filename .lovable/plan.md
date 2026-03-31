@@ -1,107 +1,96 @@
-
-
-# Plano: Construir a Plataforma EscaleOS
+# Plano: Construtor de Formulários (Forms Builder)
 
 ## Visao Geral
 
-O EscaleOS e uma plataforma web que transforma briefings em pacotes comerciais completos usando IA. Vou construir o frontend completo com design glassmorphism, animacoes e dados mockados. O backend (Supabase) pode ser conectado depois.
+Criar uma nova seção "Forms" no EscaleOS — um construtor drag-and-drop moderno para criar formulários de captura de leads, com múltiplos layouts (lista, cartão, corrido) e componentes variados. Os formulários criados ficam salvos no banco e podem ser compartilhados via link público.
 
-## Fase 1 -- Fundacao e Design System
+## 1. Banco de Dados
 
-**Arquivos:** `src/index.css`, `tailwind.config.ts`
+Criar duas tabelas:
 
-- Paleta de cores escura premium (tons de azul marinho, roxo e gradientes)
-- CSS variables para glassmorphism (blur, transparencia, bordas sutis)
-- Tipografia com Inter/font moderna
-- Animacoes com keyframes (fade-in, slide-up, glow)
+- `**forms**` — armazena cada formulário criado
+  - `id`, `user_id`, `name`, `description`, `layout` (list/card/inline/stepper), `fields` (JSONB com array de campos), `settings` (JSONB: cores, logo, redirect URL, mensagem de sucesso), `status` (draft/published), `slug` (único, para link público), `created_at`, `updated_at`
+  - RLS: usuário vê/edita apenas os próprios
+- `**form_submissions**` — armazena respostas dos leads
+  - `id`, `form_id`, `data` (JSONB), `created_at`, `ip_address` (text, nullable)
+  - RLS: INSERT público (anon), SELECT apenas pelo dono do form via subquery
 
-## Fase 2 -- Layout e Navegacao
+## 2. Navegação
 
-**Arquivos novos:** `src/components/Layout/Sidebar.tsx`, `src/components/Layout/AppLayout.tsx`, `src/components/Layout/Header.tsx`
+- Adicionar item "Forms" no sidebar (`ClipboardList` icon) entre Templates e Admin
+- Rota `/forms` (lista) e `/forms/:id` (editor) protegidas
+- Rota `/f/:slug` pública (renderização do formulário para leads)
 
-- Sidebar com navegacao: Dashboard, Novo Briefing, Clientes, Templates, Admin
-- Header com busca, notificacoes e avatar do usuario
-- Layout responsivo mobile-first
+## 3. Página de Listagem (`src/pages/Forms.tsx`)
 
-## Fase 3 -- Paginas Principais
+- Grid de cards com os formulários criados
+- Cada card mostra: nome, layout, status (draft/published), contagem de submissions, data
+- Ações: editar, duplicar, excluir (com confirmação), copiar link público
+- Botão "Novo Formulário" abre modal para nome + layout inicial
 
-### 3.1 Landing Page (`src/pages/Index.tsx`)
-- Hero com headline "Briefing entra, pacote completo sai"
-- Secoes: problema, solucao, documentos gerados, stack, CTA
-- Animacoes de entrada
+## 4. Editor Drag-and-Drop (`src/pages/FormBuilder.tsx`)
 
-### 3.2 Login/Registro (`src/pages/Login.tsx`)
-- Formulario com email/senha e opcao OAuth
-- Design glassmorphism com fundo gradiente
+**Painel esquerdo — Componentes disponíveis:**
 
-### 3.3 Dashboard (`src/pages/Dashboard.tsx`)
-- Cards de metricas: total clientes, pacotes gerados, documentos, templates
-- Grafico de pacotes por mes (recharts)
-- Lista de pacotes recentes
-- Atividade recente
+- Texto curto, Texto longo, Email, Telefone, Número
+- Select/Dropdown, Checkbox, Radio, Switch, Yes or Not, Selection
+- Data, Upload de arquivo
+- Título/Heading, Parágrafo (decorativo)
+- Divisor, Espaçador
 
-### 3.4 Formulario de Briefing Multi-Step (`src/pages/NovoBriefing.tsx`)
-- 7 etapas com progress bar visual:
-  1. Identidade (nome, nicho, Instagram, site, tempo de mercado)
-  2. Financeiro (faturamento, meta, ticket medio, orcamento ads)
-  3. Produto e Publico (produto, preco, perfil ideal, dores, desejos)
-  4. Concorrentes (ate 3, com pontos fortes/fracos, preco, site)
-  5. Operacional (equipe, ferramentas, gargalo, objecoes, tom de voz)
-  6. Midia e Marca (plataformas, investimento, cores, prova social)
-  7. Revisao e Confirmacao
-- Opcao de upload de arquivo (YAML, JSON, PDF, DOCX)
+**Area central — Canvas:**
 
-### 3.5 Clientes e Historico (`src/pages/Clientes.tsx`)
-- Lista de clientes com busca por nome/nicho
-- Cada cliente mostra seus pacotes gerados
+- Drag-and-drop com `@dnd-kit/core` + `@dnd-kit/sortable`
+- Preview em tempo real do formulário conforme layout selecionado
+- Clique no campo para editar propriedades no painel direito
 
-### 3.6 Pacote de Documentos (`src/pages/PacoteDocumentos.tsx`)
-- Grid com os 8 documentos do pacote
-- Preview em Markdown renderizado
-- Download individual ou ZIP
-- Status de geracao (gerando, pronto, erro)
+**Painel direito — Propriedades do campo selecionado:**
 
-### 3.7 Templates (`src/pages/Templates.tsx`)
-- Grid de templates salvos com nome, descricao e contador de usos
-- Criar template a partir de pacote existente
-- Aplicar template a novo cliente
+- Label, placeholder, required, largura (full/half)
+- Opções (para select/radio/checkbox)
+- Validações (min/max length, pattern)
 
-### 3.8 Painel Admin (`src/pages/Admin.tsx`)
-- Visao global de usuarios e pacotes
-- Tabela com filtros e busca
+**Toolbar superior:**
 
-## Fase 4 -- Componentes Compartilhados
+- Seletor de layout (Lista, Cartão, Corrido, Multi-step)
+- Preview mobile/desktop toggle
+- Salvar rascunho / Publicar
+- Configurações gerais (cores, mensagem de sucesso, redirect)
 
-- `StatsCard` -- card de metrica com icone e variacao
-- `DocumentCard` -- card de documento com preview e download
-- `ClientCard` -- card de cliente com info resumida
-- `TemplateCard` -- card de template com contador
-- `StepIndicator` -- indicador de progresso multi-step
-- `GlassCard` -- card com efeito glassmorphism reutilizavel
+## 5. Layouts de Formulário
 
-## Fase 5 -- Rotas
+- **Lista** — campos empilhados verticalmente, clássico
+- **Cartão** — cada campo ou grupo em um card separado com transição
+- **Corrido (Inline)** — campos lado a lado em grid responsivo
+- **Multi-step** — wizard com steps e progress bar (reusa StepIndicator)
+- **Chatmode** - simulando uma conversação 
 
-Atualizar `App.tsx` com todas as rotas:
-- `/` -- Landing page
-- `/login` -- Login/Registro
-- `/dashboard` -- Dashboard
-- `/briefing/novo` -- Novo briefing
-- `/clientes` -- Lista de clientes
-- `/clientes/:id/pacotes` -- Pacotes do cliente
-- `/pacote/:id` -- Documentos do pacote
-- `/templates` -- Templates
-- `/admin` -- Painel admin
+## 6. Formulário Público (`src/pages/FormPublic.tsx`)
 
-## Detalhes Tecnicos
+- Rota `/f/:slug` sem autenticação
+- Renderiza o formulário conforme layout e campos salvos
+- Submete para `form_submissions` (RLS permite insert anon)
+- Tela de sucesso com mensagem customizada
 
-- **Stack**: React + TypeScript + Tailwind CSS (ja configurado)
-- **Graficos**: recharts (sera adicionado)
-- **Markdown**: react-markdown para preview de documentos
-- **Animacoes**: CSS animations + Tailwind animate
-- **Dados**: Todos mockados com arrays estaticos para demonstracao
-- **Design**: Glassmorphism com fundo escuro gradiente, blur, bordas semi-transparentes
+## 7. Visualização de Respostas
 
-## Ordem de Implementacao
+- Tab "Respostas" dentro do editor do formulário
+- Tabela com todas as submissions, filtro por data
+- Opção de visualização kanban ou lista
+- Exportar CSV
 
-Vou comecar pela fundacao (design system + layout) e ir construindo as paginas uma por uma, comecando pela landing page e dashboard. O formulario de briefing multi-step sera a peca mais complexa. Cada iteracao entrega valor visual imediato.
+## Detalhes Técnicos
 
+- **Drag-and-drop**: `@dnd-kit/core` + `@dnd-kit/sortable` (leve, React-native)
+- **Campos armazenados como JSONB**: `[{ id, type, label, placeholder, required, options, width, validations }]`
+- **Arquivos editados**: `AppSidebar.tsx`, `App.tsx` (rotas), + 4 novos arquivos de página/componente
+- **Dependência nova**: `@dnd-kit/core`, `@dnd-kit/sortable`, `@dnd-kit/utilities`
+
+## Ordem de Implementação
+
+1. Migration (tabelas + RLS)
+2. Rota + sidebar
+3. Listagem de forms
+4. Editor drag-and-drop com canvas e painéis
+5. Renderizador público + submissions
+6. Visualização de respostas
