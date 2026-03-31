@@ -40,8 +40,39 @@ export default function FormRenderer({
   const [chatStep, setChatStep] = useState(0);
   const [stepperStep, setStepperStep] = useState(0);
 
-  const inputFields = fields.filter(f => !["heading", "paragraph", "divider", "spacer"].includes(f.type));
-  const buttonColor = settings.buttonColor || undefined;
+  const theme = useMemo(() => getFormTheme(settings.theme), [settings.theme]);
+  const isGradientBg = theme.vars["--form-bg"].startsWith("linear-gradient");
+
+  const themeStyle: React.CSSProperties = {
+    fontFamily: theme.vars["--form-font"],
+    color: theme.vars["--form-fg"],
+    ...(isGradientBg
+      ? { backgroundImage: theme.vars["--form-bg"] }
+      : { backgroundColor: theme.vars["--form-bg"] }),
+    borderRadius: theme.vars["--form-radius"],
+  };
+
+  const inputStyle: React.CSSProperties = {
+    backgroundColor: theme.vars["--form-input-bg"],
+    borderColor: theme.vars["--form-input-border"],
+    color: theme.vars["--form-fg"],
+    borderRadius: theme.vars["--form-radius"],
+  };
+
+  const btnStyle: React.CSSProperties = {
+    backgroundColor: settings.buttonColor || theme.vars["--form-accent"],
+    color: theme.vars["--form-accent-fg"],
+    borderRadius: theme.vars["--form-radius"],
+  };
+
+  const cardStyle: React.CSSProperties = {
+    backgroundColor: theme.vars["--form-card-bg"],
+    borderColor: theme.vars["--form-border"],
+    borderRadius: theme.vars["--form-radius"],
+  };
+
+  const labelStyle: React.CSSProperties = { color: theme.vars["--form-fg"] };
+  const mutedStyle: React.CSSProperties = { color: theme.vars["--form-muted"] };
 
   const setValue = (id: string, val: any) => setValues(v => ({ ...v, [id]: val }));
 
