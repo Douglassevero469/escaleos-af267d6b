@@ -2,7 +2,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { Mail, Phone, DollarSign } from "lucide-react";
+import { Mail, Phone, DollarSign, FileText } from "lucide-react";
 
 export interface CrmLead {
   id: string;
@@ -10,6 +10,7 @@ export interface CrmLead {
   user_id: string;
   form_submission_id: string | null;
   form_id: string | null;
+  form_name?: string | null;
   name: string;
   email: string;
   phone: string;
@@ -76,6 +77,13 @@ export function LeadCard({ lead, onClick }: LeadCardProps) {
           <DollarSign className="h-3 w-3" />
           {Number(lead.value).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
         </div>
+      )}
+
+      {lead.form_name && (
+        <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
+          <FileText className="h-3 w-3 shrink-0" />
+          {lead.form_name}
+        </span>
       )}
 
       {Array.isArray(lead.tags) && lead.tags.length > 0 && (

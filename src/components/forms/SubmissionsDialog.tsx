@@ -72,6 +72,17 @@ export default function SubmissionsDialog({ formId, formName, open, onOpenChange
   const [newTag, setNewTag] = useState("");
   const [newTagColor, setNewTagColor] = useState("blue");
 
+  // Fetch form fields to preserve ordering
+  const { data: formFields = [] } = useQuery({
+    queryKey: ["form-fields-order", formId],
+    queryFn: async () => {
+      const { data } = await supabase.from("forms").select("fields").eq("id", formId).single();
+      if (!data?.fields || !Array.isArray(data.fields)) return [];
+      return (data.fields as any[]).map((f: any) => f.label || f.name || f.id).filter(Boolean);
+    },
+    enabled: open,
+  });
+
   const { data: submissions = [], isLoading } = useQuery({
     queryKey: ["form-submissions", formId],
     queryFn: async () => {
@@ -116,9 +127,13 @@ export default function SubmissionsDialog({ formId, formName, open, onOpenChange
 
   const selected = selectedId ? submissions.find((s: any) => s.id === selectedId) : null;
 
-  const allKeys = Array.from(
+  // Order keys by form field order, then append any extra keys not in the form definition
+  const rawKeys = Array.from(
     new Set(filtered.flatMap((s: any) => Object.keys(typeof s.data === "object" && s.data ? s.data : {})))
   );
+  const allKeys = formFields.length > 0
+    ? [...formFields.filter(k => rawKeys.includes(k)), ...rawKeys.filter(k => !formFields.includes(k))]
+    : rawKeys;
 
   const completeCount = submissions.filter((s: any) => (s.status || "complete") === "complete").length;
   const incompleteCount = submissions.filter((s: any) => s.status === "incomplete").length;
@@ -210,6 +225,7 @@ export default function SubmissionsDialog({ formId, formName, open, onOpenChange
         ) : selected ? (
           <SubmissionDetail
             submission={selected}
+            formFields={formFields}
             newTag={newTag}
             setNewTag={setNewTag}
             newTagColor={newTagColor}
@@ -348,6 +364,7 @@ export default function SubmissionsDialog({ formId, formName, open, onOpenChange
 /* ─── Submission detail ─── */
 function SubmissionDetail({
   submission,
+  formFields,
   newTag,
   setNewTag,
   newTagColor,
@@ -359,6 +376,7 @@ function SubmissionDetail({
   isPending,
 }: {
   submission: any;
+  formFields: string[];
   newTag: string;
   setNewTag: (v: string) => void;
   newTagColor: string;
@@ -372,7 +390,24 @@ function SubmissionDetail({
   const [editing, setEditing] = useState(false);
   const [editData, setEditData] = useState<Record<string, string>>({});
   const [notes, setNotes] = useState(submission.notes || "");
-  const data = typeof submission.data === "object" && submission.data ? submission.data : {};
+  const rawData = typeof submission.data === "object" && submission.data ? submission.data : {};
+  
+  // Order data entries by form field order
+  const orderedEntries = (() => {
+    const entries = Object.entries(rawData);
+    if (formFields.length === 0) return entries;
+    const ordered: [string, any][] = [];
+    for (const label of formFields) {
+      const entry = entries.find(([k]) => k === label);
+      if (entry) ordered.push(entry);
+    }
+    for (const entry of entries) {
+      if (!formFields.includes(entry[0])) ordered.push(entry);
+    }
+    return ordered;
+  })();
+  const data = Object.fromEntries(orderedEntries);
+  
   const tags = parseTags(submission.tags);
   const isComplete = (submission.status || "complete") === "complete";
 

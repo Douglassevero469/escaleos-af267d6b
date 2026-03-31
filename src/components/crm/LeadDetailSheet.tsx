@@ -160,6 +160,13 @@ export function LeadDetailSheet({ lead, stages, open, onOpenChange, pipelineId }
               <Badge variant="outline" className="text-xs">Origem: Formulário</Badge>
             )}
 
+            {lead.form_name && (
+              <div className="p-3 border rounded-lg bg-muted/20">
+                <span className="text-xs text-muted-foreground">Origem do lead:</span>
+                <p className="text-sm font-medium">{lead.form_name}</p>
+              </div>
+            )}
+
             <div className="flex gap-2 pt-2">
               <Button onClick={() => updateLead.mutate()} className="flex-1">Salvar</Button>
               <Button variant="destructive" size="icon" onClick={() => deleteLead.mutate()}>
@@ -174,7 +181,7 @@ export function LeadDetailSheet({ lead, stages, open, onOpenChange, pipelineId }
 
           {lead.form_submission_id && (
             <TabsContent value="form" className="mt-4">
-              <FormSubmissionData submissionId={lead.form_submission_id} />
+              <FormSubmissionData submissionId={lead.form_submission_id} formId={lead.form_id} />
             </TabsContent>
           )}
         </Tabs>
@@ -183,21 +190,37 @@ export function LeadDetailSheet({ lead, stages, open, onOpenChange, pipelineId }
   );
 }
 
-function FormSubmissionData({ submissionId }: { submissionId: string }) {
-  const { data } = useQueryClient().getQueryData<any>(["crm-submission", submissionId]) ?? {};
+function FormSubmissionData({ submissionId, formId }: { submissionId: string; formId?: string | null }) {
   const [submission, setSubmission] = useState<any>(null);
+  const [formFields, setFormFields] = useState<string[]>([]);
 
   useEffect(() => {
     supabase.from("form_submissions").select("data").eq("id", submissionId).single().then(({ data }) => {
       if (data) setSubmission(data.data);
     });
-  }, [submissionId]);
+    if (formId) {
+      supabase.from("forms").select("fields").eq("id", formId).single().then(({ data }) => {
+        if (data?.fields && Array.isArray(data.fields)) {
+          setFormFields((data.fields as any[]).map((f: any) => f.label || f.name || f.id).filter(Boolean));
+        }
+      });
+    }
+  }, [submissionId, formId]);
 
   if (!submission) return <p className="text-sm text-muted-foreground">Carregando...</p>;
 
+  // Order entries by form field order
+  const entries = Object.entries(submission as Record<string, any>);
+  const orderedEntries = formFields.length > 0
+    ? [
+        ...formFields.filter(k => entries.some(([ek]) => ek === k)).map(k => [k, (submission as any)[k]] as [string, any]),
+        ...entries.filter(([k]) => !formFields.includes(k)),
+      ]
+    : entries;
+
   return (
     <div className="space-y-2">
-      {Object.entries(submission as Record<string, any>).map(([key, val]) => (
+      {orderedEntries.map(([key, val]) => (
         <div key={key} className="text-sm">
           <span className="font-medium text-xs text-muted-foreground">{key}</span>
           <p>{String(val)}</p>
