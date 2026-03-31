@@ -7,6 +7,7 @@ import {
   LogOut,
   UserCircle,
   ClipboardList,
+  KanbanSquare,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
