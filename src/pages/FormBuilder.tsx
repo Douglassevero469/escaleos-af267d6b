@@ -35,6 +35,8 @@ import FormRenderer from "@/components/forms/FormRenderer";
 const ICON_MAP: Record<string, any> = {
   Type, AlignLeft, Mail, Phone, Hash, ChevronDown, CheckSquare, Circle, ToggleLeft,
   ThumbsUp, List, Calendar, Upload, Heading, FileText, Minus, MoveVertical,
+  Link, Fingerprint, DollarSign, Star, SlidersHorizontal, LayoutGrid, ImageIcon,
+  Clock, CalendarClock,
 };
 
 function SortableField({
