@@ -15,11 +15,12 @@ function getSessionId(): string {
   return id;
 }
 
-function trackEvent(formId: string, eventType: string) {
+function trackEvent(formId: string, eventType: string, metadata?: Record<string, any>) {
   supabase.from("form_events").insert({
     form_id: formId,
     event_type: eventType,
     session_id: getSessionId(),
+    metadata: metadata || {},
   }).then(() => {});
 }
 
@@ -29,6 +30,8 @@ export default function FormPublic() {
   const [loading, setLoading] = useState(true);
   const viewTracked = useRef(false);
   const startTracked = useRef(false);
+  const submittedRef = useRef(false);
+  const lastFieldRef = useRef<{ id: string; label: string } | null>(null);
 
   useEffect(() => {
     if (!slug) return;
@@ -36,7 +39,6 @@ export default function FormPublic() {
       .then(({ data }) => {
         if (data) {
           setForm(data);
-          // Track view once
           if (!viewTracked.current) {
             viewTracked.current = true;
             trackEvent(data.id, "view");
@@ -46,11 +48,32 @@ export default function FormPublic() {
       });
   }, [slug]);
 
+  // Track abandonment on page leave
+  useEffect(() => {
+    if (!form) return;
+    const handleBeforeUnload = () => {
+      if (!submittedRef.current && lastFieldRef.current) {
+        trackEvent(form.id, "abandon", {
+          last_field_id: lastFieldRef.current.id,
+          last_field_label: lastFieldRef.current.label,
+        });
+      }
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [form]);
+
   const handleFormStart = useCallback(() => {
     if (!startTracked.current && form) {
       startTracked.current = true;
       trackEvent(form.id, "start");
     }
+  }, [form]);
+
+  const handleFieldFocus = useCallback((fieldId: string, fieldLabel: string) => {
+    if (!form) return;
+    lastFieldRef.current = { id: fieldId, label: fieldLabel };
+    trackEvent(form.id, "field_focus", { field_id: fieldId, field_label: fieldLabel });
   }, [form]);
 
   if (loading) return <div className="min-h-screen flex items-center justify-center bg-background"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
@@ -60,12 +83,10 @@ export default function FormPublic() {
   const settings = typeof form.settings === "object" && form.settings ? form.settings : {};
 
   const handleSubmit = async (data: Record<string, any>) => {
+    submittedRef.current = true;
     await supabase.from("form_submissions").insert({ form_id: form.id, data });
-
-    // Track submit event
     trackEvent(form.id, "submit");
 
-    // Fire webhook in background (non-blocking)
     if (settings.webhookUrl) {
       supabase.functions.invoke("form-webhook", {
         body: { form_id: form.id, submission_data: data },
@@ -86,6 +107,7 @@ export default function FormPublic() {
         fields={fields}
         settings={settings}
         onSubmit={handleSubmit}
+        onFieldFocus={handleFieldFocus}
       />
     </div>
   );

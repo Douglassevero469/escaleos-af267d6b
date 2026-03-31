@@ -23,6 +23,8 @@ interface FormRendererProps {
   /** If true, submission is disabled and a message is shown instead */
   isPreview?: boolean;
   onSubmit?: (data: Record<string, any>) => Promise<void>;
+  /** Called when user focuses a field — used for abandonment tracking */
+  onFieldFocus?: (fieldId: string, fieldLabel: string) => void;
 }
 
 export default function FormRenderer({
@@ -33,6 +35,7 @@ export default function FormRenderer({
   settings = {},
   isPreview = false,
   onSubmit,
+  onFieldFocus,
 }: FormRendererProps) {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -88,6 +91,10 @@ export default function FormRenderer({
 
   const setValue = (id: string, val: any) => setValues(v => ({ ...v, [id]: val }));
 
+  const handleFieldFocus = (field: FormField) => {
+    if (onFieldFocus) onFieldFocus(field.id, field.label);
+  };
+
   const validate = () => {
     const errs: Record<string, string> = {};
     inputFields.forEach(f => {
@@ -129,7 +136,7 @@ export default function FormRenderer({
     );
   }
 
-  const renderField = (field: FormField) => {
+  const renderFieldInner = (field: FormField) => {
     const error = errors[field.id];
 
     switch (field.type) {
@@ -434,6 +441,15 @@ export default function FormRenderer({
       default:
         return null;
     }
+  };
+
+  const renderField = (field: FormField) => {
+    const el = renderFieldInner(field);
+    const isInput = !["heading", "paragraph", "divider", "spacer"].includes(field.type);
+    if (isInput) {
+      return <div onFocusCapture={() => handleFieldFocus(field)}>{el}</div>;
+    }
+    return el;
   };
 
   const submitButton = (fullWidth = true) => (
