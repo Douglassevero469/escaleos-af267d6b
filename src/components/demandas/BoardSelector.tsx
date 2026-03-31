@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, ChevronDown, Settings } from "lucide-react";
+import { Plus, ChevronDown, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
