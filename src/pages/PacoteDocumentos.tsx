@@ -1,5 +1,5 @@
 import { GlassCard } from "@/components/ui/GlassCard";
-import { FileText, Eye, CheckCircle, Loader2, AlertCircle, RefreshCw, Download, Archive, Pencil, Save, Sparkles } from "lucide-react";
+import { FileText, Eye, CheckCircle, Loader2, AlertCircle, RefreshCw, Download, Archive, Pencil, Save, Sparkles, Clock } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { useParams } from "react-router-dom";
@@ -667,6 +667,12 @@ export default function PacoteDocumentos() {
                   {isActive && (
                     <p className="text-xs text-accent mt-1 animate-pulse">
                       {wordCount.toLocaleString()} palavras...
+                    </p>
+                  )}
+                  {(status === "pending" || status === "generating") && !isActive && (
+                    <p className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
+                      <Clock className="h-3 w-3" />
+                      ~{["planejamento","playbook","funil","script"].includes(doc.doc_type) ? "2-4 min" : "1-2 min"}
                     </p>
                   )}
                   {isDocReady(status) && wordCount > 0 && (
