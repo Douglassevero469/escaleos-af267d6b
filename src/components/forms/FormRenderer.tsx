@@ -54,6 +54,26 @@ export default function FormRenderer({
   const [chatIaReady, setChatIaReady] = useState(false);
   const chatIaEndRef = useRef<HTMLDivElement>(null);
 
+  const chatIaFields = useMemo(() => fields.filter(f => !["heading", "paragraph", "divider", "spacer"].includes(f.type)), [fields]);
+
+  // ChatIA: auto-scroll
+  useEffect(() => {
+    if (layout === "chatia") chatIaEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [chatIaMessages, chatIaTyping, layout]);
+
+  // ChatIA: show first bot question
+  useEffect(() => {
+    if (layout === "chatia" && chatIaFields.length > 0 && chatIaMessages.length === 0) {
+      setChatIaTyping(true);
+      const timer = setTimeout(() => {
+        setChatIaTyping(false);
+        setChatIaMessages([{ role: "bot", content: chatIaFields[0]?.label + (chatIaFields[0]?.required ? " *" : "") }]);
+        setChatIaReady(true);
+      }, 1200);
+      return () => clearTimeout(timer);
+    }
+  }, [layout, chatIaFields]);
+
   const theme = useMemo(() => getFormTheme(settings.theme), [settings.theme]);
   const isGradientBg = theme.vars["--form-bg"].startsWith("linear-gradient");
 
