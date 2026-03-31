@@ -9,7 +9,8 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Loader2, Eye, MousePointerClick, Send, TrendingUp, Users, LogOut, CalendarIcon, Clock, Percent, FileDown } from "lucide-react";
+import { Loader2, Eye, MousePointerClick, Send, TrendingUp, Users, LogOut, CalendarIcon, Clock, Percent, FileDown, FileText, Columns } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { exportAnalyticsPDF, captureChartAsImage } from "@/lib/analytics-pdf-export";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, LineChart, Line, PieChart, Pie, Cell, AreaChart, Area } from "recharts";
@@ -36,6 +37,7 @@ export default function FormAnalytics({ formId, formName }: Props) {
   const [customFrom, setCustomFrom] = useState<Date | undefined>();
   const [customTo, setCustomTo] = useState<Date | undefined>();
   const [exporting, setExporting] = useState(false);
+  const [pdfOrientation, setPdfOrientation] = useState<"portrait" | "landscape">("portrait");
   const chartsRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
@@ -322,6 +324,7 @@ export default function FormAnalytics({ formId, formName }: Props) {
           name: r.name, email: r.email, phone: r.phone, status: r.status, date: r.date,
         })),
         chartImages,
+        orientation: pdfOrientation,
       });
       toast({ title: "PDF exportado com sucesso!" });
     } catch (err) {
@@ -395,10 +398,25 @@ export default function FormAnalytics({ formId, formName }: Props) {
               {format(dateRange.from, "dd/MM/yyyy", { locale: ptBR })} – {format(dateRange.to, "dd/MM/yyyy", { locale: ptBR })}
             </span>
           )}
-          <Button variant="outline" size="sm" className="h-7 text-xs ml-auto" onClick={exportPDF} disabled={exporting}>
-            {exporting ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : <FileDown className="h-3 w-3 mr-1" />}
-            Exportar PDF
-          </Button>
+          <div className="flex items-center gap-2 ml-auto">
+            <Select value={pdfOrientation} onValueChange={(v) => setPdfOrientation(v as "portrait" | "landscape")}>
+              <SelectTrigger className="h-7 w-[130px] text-xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="portrait">
+                  <span className="flex items-center gap-1"><FileText className="h-3 w-3" /> Retrato</span>
+                </SelectItem>
+                <SelectItem value="landscape">
+                  <span className="flex items-center gap-1"><Columns className="h-3 w-3" /> Paisagem</span>
+                </SelectItem>
+              </SelectContent>
+            </Select>
+            <Button variant="outline" size="sm" className="h-7 text-xs" onClick={exportPDF} disabled={exporting}>
+              {exporting ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : <FileDown className="h-3 w-3 mr-1" />}
+              Exportar PDF
+            </Button>
+          </div>
         </div>
       </GlassCard>
 

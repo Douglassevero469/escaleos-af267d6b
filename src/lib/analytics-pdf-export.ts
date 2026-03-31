@@ -30,6 +30,7 @@ interface AnalyticsExportData {
   rates: KPIData[];
   respondents: RespondentRow[];
   chartImages: ChartImageData[];
+  orientation?: "portrait" | "landscape";
 }
 
 // SVG icon paths for KPIs
@@ -190,18 +191,18 @@ function buildPDFHtml(data: AnalyticsExportData): string {
 
 export async function exportAnalyticsPDF(data: AnalyticsExportData): Promise<void> {
   const html = buildPDFHtml(data);
+  const orientation = data.orientation || "portrait";
+  const containerWidth = orientation === "landscape" ? "1122px" : "794px";
 
-  // Create off-screen container with fixed A4 width
   const container = document.createElement("div");
   container.style.position = "fixed";
   container.style.left = "-9999px";
   container.style.top = "0";
-  container.style.width = "794px";
+  container.style.width = containerWidth;
   container.style.background = "#fff";
   container.innerHTML = html;
   document.body.appendChild(container);
 
-  // Wait for images to load
   const images = container.querySelectorAll("img");
   await Promise.all(
     Array.from(images).map(
@@ -214,7 +215,6 @@ export async function exportAnalyticsPDF(data: AnalyticsExportData): Promise<voi
     )
   );
 
-  // Small delay for rendering
   await new Promise((r) => setTimeout(r, 200));
 
   try {
@@ -227,7 +227,7 @@ export async function exportAnalyticsPDF(data: AnalyticsExportData): Promise<voi
         filename: `analytics-${data.formName.replace(/\s+/g, "-").toLowerCase()}-${data.exportDate.replace(/\//g, "-")}.pdf`,
         image: { type: "jpeg" as const, quality: 0.98 },
         html2canvas: { scale: 2, useCORS: true, logging: false },
-        jsPDF: { unit: "mm" as const, format: "a4" as const, orientation: "portrait" as const },
+        jsPDF: { unit: "mm" as const, format: "a4" as const, orientation },
       } as any)
       .from(element)
       .save();
