@@ -17,9 +17,10 @@ import {
   ArrowLeft, Save, Eye, Smartphone, Monitor, Globe, Loader2, Trash2, GripVertical, Plus,
   Type, AlignLeft, Mail, Phone, Hash, ChevronDown, CheckSquare, Circle, ToggleLeft,
   ThumbsUp, List, Calendar, Upload, Heading, FileText, Minus, MoveVertical, Settings,
-  ImageIcon,
+  ImageIcon, Link, Fingerprint, DollarSign, Star, SlidersHorizontal, LayoutGrid,
+  Clock, CalendarClock,
 } from "lucide-react";
-import { FormField, FIELD_TYPES, createField } from "@/lib/form-field-types";
+import { FormField, FIELD_TYPES, FIELD_TYPE_CATEGORIES, createField } from "@/lib/form-field-types";
 import { FORM_THEMES } from "@/lib/form-themes";
 import {
   DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent,
