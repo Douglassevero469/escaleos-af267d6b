@@ -20,6 +20,7 @@ import Forms from "./pages/Forms";
 import FormBuilder from "./pages/FormBuilder";
 import FormPublic from "./pages/FormPublic";
 import FormSubmissionsPage from "./pages/FormSubmissions";
+import Demandas from "./pages/Demandas";
 import NotFound from "./pages/NotFound";
 import { AppLayout } from "./components/Layout/AppLayout";
 
