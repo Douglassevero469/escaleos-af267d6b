@@ -31,6 +31,8 @@ interface Comment {
   content: string;
   created_at: string;
   user_id: string;
+  display_name?: string;
+  avatar_url?: string;
 }
 
 export function DemandDetailSheet({ open, onOpenChange, item, columns, onUpdate, onDelete }: DemandDetailSheetProps) {
@@ -50,8 +52,26 @@ export function DemandDetailSheet({ open, onOpenChange, item, columns, onUpdate,
   }, [item]);
 
   const loadComments = async (itemId: string) => {
-    const { data } = await supabase.from("demand_comments").select("*").eq("item_id", itemId).order("created_at", { ascending: true });
-    if (data) setComments(data);
+    const { data } = await supabase
+      .from("demand_comments")
+      .select("*")
+      .eq("item_id", itemId)
+      .order("created_at", { ascending: true });
+    if (data && data.length > 0) {
+      const userIds = [...new Set(data.map(c => c.user_id))];
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("user_id, display_name, avatar_url")
+        .in("user_id", userIds);
+      const profileMap = new Map((profiles || []).map(p => [p.user_id, p]));
+      setComments(data.map(c => ({
+        ...c,
+        display_name: profileMap.get(c.user_id)?.display_name || null,
+        avatar_url: profileMap.get(c.user_id)?.avatar_url || null,
+      })));
+    } else {
+      setComments([]);
+    }
   };
 
   const loadSubtasks = async (itemId: string) => {
@@ -274,8 +294,14 @@ export function DemandDetailSheet({ open, onOpenChange, item, columns, onUpdate,
               <div className="space-y-2 mt-2 max-h-48 overflow-y-auto">
               {comments.map(c => (
                   <div key={c.id} className="bg-muted rounded-lg p-2 text-xs">
-                    <p>{renderCommentWithMentions(c.content)}</p>
-                    <span className="text-muted-foreground text-[10px]">{new Date(c.created_at).toLocaleString("pt-BR")}</span>
+                    <div className="flex items-center gap-2 mb-1">
+                      <div className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center text-[10px] font-bold text-primary">
+                        {(c.display_name || 'U')[0].toUpperCase()}
+                      </div>
+                      <span className="font-semibold text-foreground">{c.display_name || 'Usuário'}</span>
+                      <span className="text-muted-foreground text-[10px]">{new Date(c.created_at).toLocaleString("pt-BR")}</span>
+                    </div>
+                    <p className="ml-7">{renderCommentWithMentions(c.content)}</p>
                   </div>
                 ))}
               </div>
