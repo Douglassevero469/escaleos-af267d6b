@@ -44,12 +44,12 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border bg-sidebar">
-      <SidebarHeader className="p-4">
-        <div className="flex items-center gap-2.5">
+      <SidebarHeader className={collapsed ? "p-2 flex items-center justify-center" : "p-4"}>
+        <div className={`flex items-center ${collapsed ? "justify-center" : "gap-2.5"} overflow-hidden`}>
           {collapsed ? (
-            <img src={escaleIcon} alt="Escale" className="h-8 w-8 rounded-lg" />
+            <img src={escaleIcon} alt="Escale" className="h-7 w-7 rounded-lg flex-shrink-0" />
           ) : (
-            <img src={escaleLogoWhite} alt="Escale" className="h-6" />
+            <img src={escaleLogoWhite} alt="Escale" className="h-6 flex-shrink-0" />
           )}
         </div>
       </SidebarHeader>
