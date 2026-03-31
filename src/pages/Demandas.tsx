@@ -42,6 +42,7 @@ export default function Demandas() {
   const [newDialogStatus, setNewDialogStatus] = useState("todo");
   const [detailItem, setDetailItem] = useState<DemandItem | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   useEffect(() => { if (user) loadBoards(); }, [user]);
   useEffect(() => { if (currentBoard) loadItems(currentBoard.id); }, [currentBoard]);
