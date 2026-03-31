@@ -107,6 +107,17 @@ export function DemandDetailSheet({ open, onOpenChange, item, columns, onUpdate,
     onUpdate(editItem);
   };
 
+  const renderCommentWithMentions = (text: string) => {
+    const parts = text.split(/(@\w[\w\s]*?)(?=\s@|\s*$|[,.!?])/g);
+    return parts.map((part, i) =>
+      part.startsWith("@") ? (
+        <span key={i} className="text-primary font-semibold">{part}</span>
+      ) : (
+        <span key={i}>{part}</span>
+      )
+    );
+  };
+
   const addTag = () => {
     if (tagInput.trim() && editItem) {
       setEditItem({ ...editItem, tags: [...(editItem.tags || []), tagInput.trim()] });
