@@ -118,6 +118,159 @@ export type Database = {
         }
         Relationships: []
       }
+      crm_activities: {
+        Row: {
+          content: string | null
+          created_at: string
+          details: Json | null
+          id: string
+          lead_id: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string
+          details?: Json | null
+          id?: string
+          lead_id: string
+          type?: string
+          user_id: string
+        }
+        Update: {
+          content?: string | null
+          created_at?: string
+          details?: Json | null
+          id?: string
+          lead_id?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_activities_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "crm_leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm_leads: {
+        Row: {
+          company: string | null
+          created_at: string
+          custom_fields: Json
+          email: string | null
+          form_id: string | null
+          form_submission_id: string | null
+          id: string
+          lost_at: string | null
+          name: string
+          notes: string | null
+          phone: string | null
+          pipeline_id: string
+          position: number
+          score: number
+          stage: string
+          tags: Json
+          updated_at: string
+          user_id: string
+          value: number
+        }
+        Insert: {
+          company?: string | null
+          created_at?: string
+          custom_fields?: Json
+          email?: string | null
+          form_id?: string | null
+          form_submission_id?: string | null
+          id?: string
+          lost_at?: string | null
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          pipeline_id: string
+          position?: number
+          score?: number
+          stage?: string
+          tags?: Json
+          updated_at?: string
+          user_id: string
+          value?: number
+        }
+        Update: {
+          company?: string | null
+          created_at?: string
+          custom_fields?: Json
+          email?: string | null
+          form_id?: string | null
+          form_submission_id?: string | null
+          id?: string
+          lost_at?: string | null
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          pipeline_id?: string
+          position?: number
+          score?: number
+          stage?: string
+          tags?: Json
+          updated_at?: string
+          user_id?: string
+          value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_leads_form_id_fkey"
+            columns: ["form_id"]
+            isOneToOne: false
+            referencedRelation: "forms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_leads_form_submission_id_fkey"
+            columns: ["form_submission_id"]
+            isOneToOne: false
+            referencedRelation: "form_submissions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_leads_pipeline_id_fkey"
+            columns: ["pipeline_id"]
+            isOneToOne: false
+            referencedRelation: "crm_pipelines"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm_pipelines: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          stages: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          stages?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          stages?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       demand_activity_log: {
         Row: {
           action: string
