@@ -42,9 +42,12 @@ const App = () => (
                 <Route path="/clientes/:id/pacotes" element={<ClientePacotes />} />
                 <Route path="/pacote/:id" element={<PacoteDocumentos />} />
                 <Route path="/templates" element={<Templates />} />
+                <Route path="/forms" element={<Forms />} />
+                <Route path="/forms/:id" element={<FormBuilder />} />
                 <Route path="/admin" element={<Admin />} />
                 <Route path="/perfil" element={<Perfil />} />
               </Route>
+              <Route path="/f/:slug" element={<FormPublic />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

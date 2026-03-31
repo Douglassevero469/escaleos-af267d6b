@@ -124,11 +124,11 @@ export default function FormBuilder() {
           layout,
           fields: fields as any,
           settings: settings as any,
-          status: newStatus || status,
+          status: finalStatus,
         })
         .eq("id", id!);
       if (error) throw error;
-      if (newStatus) setStatus(newStatus);
+      if (newStatus) setStatus(finalStatus);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["form", id] });
