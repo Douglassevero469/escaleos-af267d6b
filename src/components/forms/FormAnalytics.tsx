@@ -16,7 +16,13 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { Checkbox } from "@/components/ui/checkbox";
 import { exportAnalyticsPDF, captureChartAsImage } from "@/lib/analytics-pdf-export";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, LineChart, Line, PieChart, Pie, Cell, AreaChart, Area } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, LineChart, Line, PieChart, Pie, Cell, AreaChart, Area, Legend } from "recharts";
+
+const BAR_COLORS = [
+  "#3b82f6", "#8b5cf6", "#06b6d4", "#f59e0b", "#10b981",
+  "#ef4444", "#ec4899", "#f97316", "#14b8a6", "#6366f1",
+  "#84cc16", "#a855f7", "#0ea5e9", "#e11d48", "#22c55e",
+];
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { FormField } from "@/lib/form-field-types";
@@ -795,9 +801,19 @@ export default function FormAnalytics({ formId, formName, formFields = [] }: Pro
                 <XAxis dataKey="dia" tick={{ fontSize: 10 }} />
                 <YAxis allowDecimals={false} tick={{ fontSize: 10 }} />
                 <ChartTooltip content={<ChartTooltipContent />} />
-                <Bar dataKey="respostas" fill="hsl(var(--chart-2))" radius={[4, 4, 0, 0]} name="Respostas" />
+                <Bar dataKey="respostas" radius={[4, 4, 0, 0]} name="Respostas">
+                  {dayOfWeekData.map((_, i) => <Cell key={i} fill={BAR_COLORS[i % BAR_COLORS.length]} />)}
+                </Bar>
               </BarChart>
             </ChartContainer>
+            <div className="flex flex-wrap gap-2 mt-2 px-1">
+              {dayOfWeekData.map((d, i) => (
+                <div key={d.dia} className="flex items-center gap-1">
+                  <div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: BAR_COLORS[i % BAR_COLORS.length] }} />
+                  <span className="text-[10px] text-muted-foreground">{d.dia}: {d.respostas}</span>
+                </div>
+              ))}
+            </div>
           </GlassCard>
           )}
 
@@ -809,7 +825,9 @@ export default function FormAnalytics({ formId, formName, formFields = [] }: Pro
                 <XAxis dataKey="hour" tick={{ fontSize: 9 }} />
                 <YAxis allowDecimals={false} tick={{ fontSize: 10 }} />
                 <ChartTooltip content={<ChartTooltipContent />} />
-                <Bar dataKey="count" fill="hsl(var(--primary))" radius={[3, 3, 0, 0]} name="Submissões" />
+                <Bar dataKey="count" radius={[3, 3, 0, 0]} name="Submissões">
+                  {hourlyData.map((_, i) => <Cell key={i} fill={BAR_COLORS[i % BAR_COLORS.length]} />)}
+                </Bar>
               </BarChart>
             </ChartContainer>
           </GlassCard>
@@ -822,15 +840,25 @@ export default function FormAnalytics({ formId, formName, formFields = [] }: Pro
         <GlassCard className="p-4" data-chart-section data-chart-title="Funil por Campo" data-chart-subtitle="Sessões únicas que interagiram com cada campo">
           <h3 className="text-sm font-semibold mb-1">Funil por Campo</h3>
           <p className="text-xs text-muted-foreground mb-3">Sessões únicas que interagiram com cada campo</p>
-          <ChartContainer config={{ sessoes: { label: "Sessões", color: "hsl(var(--chart-2))" } }} className="h-[220px] w-full">
-            <BarChart data={fieldFunnel} layout="vertical">
-              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" horizontal={false} />
-              <XAxis type="number" allowDecimals={false} tick={{ fontSize: 10 }} />
-              <YAxis dataKey="field" type="category" width={120} tick={{ fontSize: 10 }} />
-              <ChartTooltip content={<ChartTooltipContent />} />
-              <Bar dataKey="sessoes" fill="hsl(var(--chart-2))" radius={[0, 4, 4, 0]} name="Sessões" />
-            </BarChart>
-          </ChartContainer>
+           <ChartContainer config={{ sessoes: { label: "Sessões", color: "hsl(var(--chart-2))" } }} className="h-[220px] w-full">
+             <BarChart data={fieldFunnel} layout="vertical">
+               <CartesianGrid strokeDasharray="3 3" className="stroke-muted" horizontal={false} />
+               <XAxis type="number" allowDecimals={false} tick={{ fontSize: 10 }} />
+               <YAxis dataKey="field" type="category" width={120} tick={{ fontSize: 10 }} />
+               <ChartTooltip content={<ChartTooltipContent />} />
+               <Bar dataKey="sessoes" radius={[0, 4, 4, 0]} name="Sessões">
+                 {fieldFunnel.map((_, i) => <Cell key={i} fill={BAR_COLORS[i % BAR_COLORS.length]} />)}
+               </Bar>
+             </BarChart>
+           </ChartContainer>
+           <div className="flex flex-wrap gap-2 mt-2 px-1">
+             {fieldFunnel.map((d, i) => (
+               <div key={d.field} className="flex items-center gap-1">
+                 <div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: BAR_COLORS[i % BAR_COLORS.length] }} />
+                 <span className="text-[10px] text-muted-foreground">{d.field}: {d.sessoes}</span>
+               </div>
+             ))}
+           </div>
         </GlassCard>
       )}
 
@@ -845,9 +873,25 @@ export default function FormAnalytics({ formId, formName, formFields = [] }: Pro
               <XAxis type="number" allowDecimals={false} tick={{ fontSize: 10 }} />
               <YAxis dataKey="field" type="category" width={120} tick={{ fontSize: 10 }} />
               <ChartTooltip content={<ChartTooltipContent />} />
-              <Bar dataKey="abandonos" fill="hsl(var(--destructive))" radius={[0, 4, 4, 0]} name="Abandonos" />
+              <Bar dataKey="abandonos" radius={[0, 4, 4, 0]} name="Abandonos">
+                {abandonByField.map((_, i) => {
+                  const reds = ["#ef4444", "#f87171", "#dc2626", "#fb923c", "#e11d48"];
+                  return <Cell key={i} fill={reds[i % reds.length]} />;
+                })}
+              </Bar>
             </BarChart>
           </ChartContainer>
+          <div className="flex flex-wrap gap-2 mt-2 px-1">
+            {abandonByField.map((d, i) => {
+              const reds = ["#ef4444", "#f87171", "#dc2626", "#fb923c", "#e11d48"];
+              return (
+                <div key={d.field} className="flex items-center gap-1">
+                  <div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: reds[i % reds.length] }} />
+                  <span className="text-[10px] text-muted-foreground">{d.field}: {d.abandonos}</span>
+                </div>
+              );
+            })}
+          </div>
         </GlassCard>
       )}
 
@@ -914,9 +958,19 @@ export default function FormAnalytics({ formId, formName, formFields = [] }: Pro
                 <XAxis type="number" allowDecimals={false} tick={{ fontSize: 10 }} />
                 <YAxis type="category" dataKey="name" tick={{ fontSize: 10 }} width={100} />
                 <ChartTooltip content={<ChartTooltipContent />} />
-                <Bar dataKey="value" fill="hsl(var(--chart-3))" radius={[0, 4, 4, 0]} name="Respostas" />
+                <Bar dataKey="value" radius={[0, 4, 4, 0]} name="Respostas">
+                  {deviceData.models.map((_, i) => <Cell key={i} fill={BAR_COLORS[i % BAR_COLORS.length]} />)}
+                </Bar>
               </BarChart>
             </ChartContainer>
+            <div className="flex flex-wrap gap-2 mt-2 px-1">
+              {deviceData.models.map((d, i) => (
+                <div key={d.name} className="flex items-center gap-1">
+                  <div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: BAR_COLORS[i % BAR_COLORS.length] }} />
+                  <span className="text-[10px] text-muted-foreground">{d.name}: {d.value}</span>
+                </div>
+              ))}
+            </div>
           </GlassCard>
         )}
 
@@ -929,9 +983,19 @@ export default function FormAnalytics({ formId, formName, formFields = [] }: Pro
                 <XAxis type="number" allowDecimals={false} tick={{ fontSize: 10 }} />
                 <YAxis type="category" dataKey="name" tick={{ fontSize: 10 }} width={120} />
                 <ChartTooltip content={<ChartTooltipContent />} />
-                <Bar dataKey="value" fill="hsl(var(--chart-4))" radius={[0, 4, 4, 0]} name="Respostas" />
+                <Bar dataKey="value" radius={[0, 4, 4, 0]} name="Respostas">
+                  {deviceData.regions.map((_, i) => <Cell key={i} fill={BAR_COLORS[i % BAR_COLORS.length]} />)}
+                </Bar>
               </BarChart>
             </ChartContainer>
+            <div className="flex flex-wrap gap-2 mt-2 px-1">
+              {deviceData.regions.map((d, i) => (
+                <div key={d.name} className="flex items-center gap-1">
+                  <div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: BAR_COLORS[i % BAR_COLORS.length] }} />
+                  <span className="text-[10px] text-muted-foreground">{d.name}: {d.value}</span>
+                </div>
+              ))}
+            </div>
           </GlassCard>
         )}
       </div>
@@ -987,7 +1051,9 @@ export default function FormAnalytics({ formId, formName, formFields = [] }: Pro
                   <XAxis type="number" allowDecimals={false} tick={{ fontSize: 10 }} />
                   <YAxis type="category" dataKey="name" tick={{ fontSize: 10 }} width={120} />
                   <ChartTooltip content={<ChartTooltipContent />} />
-                  <Bar dataKey="value" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} name="Respostas" />
+                  <Bar dataKey="value" radius={[0, 4, 4, 0]} name="Respostas">
+                    {chartData.map((_, i) => <Cell key={i} fill={BAR_COLORS[i % BAR_COLORS.length]} />)}
+                  </Bar>
                 </BarChart>
               </ChartContainer>
             )}
