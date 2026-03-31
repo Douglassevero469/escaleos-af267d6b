@@ -305,7 +305,7 @@ export default function Demandas() {
           <p className="text-sm text-muted-foreground">Gerencie as tarefas e demandas do time</p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
-          <BoardSelector boards={boards} currentBoard={currentBoard} onSelect={(b) => setCurrentBoard(b as Board)} onCreate={createBoard} />
+          <BoardSelector boards={boards} currentBoard={currentBoard} onSelect={(b) => setCurrentBoard(b as Board)} onCreate={createBoard} onDuplicate={duplicateBoard} />
           <Button variant="outline" size="sm" onClick={() => setSettingsOpen(true)} className="gap-1">
             <Settings className="h-4 w-4" />
           </Button>
