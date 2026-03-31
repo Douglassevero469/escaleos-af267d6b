@@ -589,7 +589,6 @@ export default function FormRenderer({
   // Focus (Typeform-style): one field at a time, full screen, big typography
   if (layout === "focus") {
     const focusFields = fields.filter(f => !["heading", "paragraph", "divider", "spacer"].includes(f.type));
-    const [focusStep, setFocusStep] = useState(0);
     const currentField = focusFields[focusStep];
     const isLast = focusStep >= focusFields.length - 1;
     const progress = focusFields.length > 0 ? ((focusStep + 1) / focusFields.length) * 100 : 0;
