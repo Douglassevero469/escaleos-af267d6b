@@ -506,6 +506,112 @@ export default function FormRenderer({
     </Button>
   );
 
+  // Respondi layout - full page, one question at a time, welcome screen, logo top-left, nav arrows
+  if (layout === "respondi") {
+    const respondiFields = fields.filter(f => !["heading", "paragraph", "divider", "spacer"].includes(f.type));
+    const currentRespondiField = respondiFields[respondiStep];
+    const isLastRespondi = respondiStep >= respondiFields.length - 1;
+    const progress = respondiFields.length > 0 && respondiStep >= 0 ? ((respondiStep + 1) / respondiFields.length) * 100 : 0;
+
+    const handleRespondiNext = () => {
+      if (isPreview) return;
+      if (respondiStep < 0) { setRespondiStep(0); return; }
+      const f = currentRespondiField;
+      if (f?.required && (!values[f.id] || (typeof values[f.id] === "string" && !values[f.id].trim()))) {
+        setErrors(e => ({ ...e, [f.id]: "Campo obrigatório" }));
+        return;
+      }
+      if (isLastRespondi) handleSubmit();
+      else setRespondiStep(s => s + 1);
+    };
+
+    const accentColor = settings.buttonColor || theme.vars["--form-accent"];
+
+    // Welcome screen
+    if (respondiStep < 0) {
+      return (
+        <div className={`flex flex-col ${wrapperHeight}`} style={themeStyle}>
+          {/* Logo */}
+          {settings.logoUrl && (
+            <div className="absolute top-4 left-4 sm:top-6 sm:left-6 z-10">
+              <img src={settings.logoUrl} alt="Logo" className="h-10 sm:h-14 max-w-[140px] object-contain" />
+            </div>
+          )}
+          <div className="flex-1 flex items-center justify-center px-6">
+            <div className="max-w-lg space-y-4">
+              <h1 className="text-2xl sm:text-3xl font-bold" style={{ color: theme.vars["--form-fg"] }}>{formName}</h1>
+              {formDescription && <p className="text-base" style={mutedStyle}>{formDescription}</p>}
+              <Button
+                size="lg"
+                className="rounded-md text-base px-6"
+                style={{ backgroundColor: accentColor, color: theme.vars["--form-accent-fg"] }}
+                onClick={handleRespondiNext}
+              >
+                Começar →
+              </Button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className={`flex flex-col ${wrapperHeight} relative`} style={themeStyle}>
+        {/* Progress bar */}
+        <div className="h-1 w-full" style={{ backgroundColor: theme.vars["--form-border"] }}>
+          <div className="h-full transition-all duration-500 ease-out" style={{ width: `${progress}%`, backgroundColor: accentColor }} />
+        </div>
+
+        {/* Logo */}
+        {settings.logoUrl && (
+          <div className="absolute top-4 left-4 sm:top-6 sm:left-6 z-10">
+            <img src={settings.logoUrl} alt="Logo" className="h-10 sm:h-14 max-w-[140px] object-contain" />
+          </div>
+        )}
+
+        {/* Nav arrows */}
+        <div className="absolute right-4 top-1/2 -translate-y-1/2 flex flex-col gap-2 z-10">
+          <button
+            onClick={() => respondiStep > 0 && setRespondiStep(s => s - 1)}
+            disabled={respondiStep <= 0}
+            className="w-8 h-8 rounded border flex items-center justify-center transition-colors disabled:opacity-30"
+            style={{ borderColor: theme.vars["--form-border"], color: theme.vars["--form-fg"] }}
+          >
+            <ArrowLeft className="h-4 w-4 rotate-90" />
+          </button>
+          <button
+            onClick={handleRespondiNext}
+            className="w-8 h-8 rounded border flex items-center justify-center transition-colors"
+            style={{ borderColor: theme.vars["--form-border"], color: theme.vars["--form-fg"] }}
+          >
+            <ArrowRight className="h-4 w-4 rotate-90" />
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 flex items-center justify-center px-6 sm:px-16">
+          {currentRespondiField && (
+            <div className="w-full max-w-xl animate-fade-in space-y-5">
+              <div className="space-y-3 [&_label]:text-lg [&_label]:sm:text-xl [&_label]:font-semibold [&_input]:text-base [&_input]:border-0 [&_input]:border-b-2 [&_input]:rounded-none [&_input]:bg-transparent [&_input]:focus:ring-0 [&_input]:h-12 [&_textarea]:border-0 [&_textarea]:border-b-2 [&_textarea]:rounded-none [&_textarea]:bg-transparent [&_textarea]:text-base [&_input]:placeholder:opacity-50 [&_textarea]:placeholder:opacity-50"
+                style={{ ['--tw-border-opacity' as any]: 1 }}
+              >
+                {renderField(currentRespondiField)}
+              </div>
+              <Button
+                className="rounded-md text-sm px-6"
+                style={{ backgroundColor: accentColor, color: theme.vars["--form-accent-fg"] }}
+                onClick={handleRespondiNext}
+                disabled={submitting}
+              >
+                {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : isLastRespondi ? "Enviar" : "Avançar"}
+              </Button>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   // ChatIA mode - conversational with typing indicator and chat bubbles
   if (layout === "chatia") {
     const currentIaField = chatIaFields[chatIaStep];
