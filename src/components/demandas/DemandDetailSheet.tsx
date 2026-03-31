@@ -31,6 +31,8 @@ interface Comment {
   content: string;
   created_at: string;
   user_id: string;
+  display_name?: string;
+  avatar_url?: string;
 }
 
 export function DemandDetailSheet({ open, onOpenChange, item, columns, onUpdate, onDelete }: DemandDetailSheetProps) {
