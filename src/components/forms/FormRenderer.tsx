@@ -507,27 +507,8 @@ export default function FormRenderer({
 
   // ChatIA mode - conversational with typing indicator and chat bubbles
   if (layout === "chatia") {
-    const chatIaFields = fields.filter(f => !["heading", "paragraph", "divider", "spacer"].includes(f.type));
     const currentIaField = chatIaFields[chatIaStep];
     const isLastIa = chatIaStep >= chatIaFields.length - 1;
-
-    // Auto-scroll to bottom
-    useEffect(() => {
-      chatIaEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, [chatIaMessages, chatIaTyping]);
-
-    // Show first bot question on mount
-    useEffect(() => {
-      if (chatIaFields.length > 0 && chatIaMessages.length === 0) {
-        setChatIaTyping(true);
-        const timer = setTimeout(() => {
-          setChatIaTyping(false);
-          setChatIaMessages([{ role: "bot", content: chatIaFields[0]?.label + (chatIaFields[0]?.required ? " *" : "") }]);
-          setChatIaReady(true);
-        }, 1200);
-        return () => clearTimeout(timer);
-      }
-    }, []);
 
     const handleChatIaAnswer = () => {
       if (!currentIaField || isPreview) return;
