@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { Navigate } from "react-router-dom";
 import escaleLogoWhite from "@/assets/escale-logo-white.png";
+import AnimatedShaderBackground from "@/components/ui/animated-shader-background";
 
 export default function Login() {
   const [isRegister, setIsRegister] = useState(false);
