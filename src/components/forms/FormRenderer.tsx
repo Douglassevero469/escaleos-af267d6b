@@ -64,6 +64,8 @@ export default function FormRenderer({
     borderColor: theme.vars["--form-input-border"],
     color: theme.vars["--form-fg"],
     borderRadius: theme.vars["--form-radius"],
+    minHeight: "44px",
+    fontSize: "16px", // prevents iOS zoom on focus
   };
 
   const btnStyle: React.CSSProperties = {
