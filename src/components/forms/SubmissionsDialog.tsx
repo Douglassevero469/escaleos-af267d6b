@@ -127,9 +127,13 @@ export default function SubmissionsDialog({ formId, formName, open, onOpenChange
 
   const selected = selectedId ? submissions.find((s: any) => s.id === selectedId) : null;
 
-  const allKeys = Array.from(
+  // Order keys by form field order, then append any extra keys not in the form definition
+  const rawKeys = Array.from(
     new Set(filtered.flatMap((s: any) => Object.keys(typeof s.data === "object" && s.data ? s.data : {})))
   );
+  const allKeys = formFields.length > 0
+    ? [...formFields.filter(k => rawKeys.includes(k)), ...rawKeys.filter(k => !formFields.includes(k))]
+    : rawKeys;
 
   const completeCount = submissions.filter((s: any) => (s.status || "complete") === "complete").length;
   const incompleteCount = submissions.filter((s: any) => s.status === "incomplete").length;
