@@ -1,96 +1,101 @@
-# Plano: Construtor de Formulários (Forms Builder)
 
-## Visao Geral
 
-Criar uma nova seção "Forms" no EscaleOS — um construtor drag-and-drop moderno para criar formulários de captura de leads, com múltiplos layouts (lista, cartão, corrido) e componentes variados. Os formulários criados ficam salvos no banco e podem ser compartilhados via link público.
+# Plano: Aba "Demandas" — Gestão de Tarefas do Time
 
-## 1. Banco de Dados
+Sistema completo de gestão de demandas com 3 visualizações (Kanban, Lista e Gantt), inspirado no Notion/Trello/Monday.
 
-Criar duas tabelas:
+---
 
-- `**forms**` — armazena cada formulário criado
-  - `id`, `user_id`, `name`, `description`, `layout` (list/card/inline/stepper), `fields` (JSONB com array de campos), `settings` (JSONB: cores, logo, redirect URL, mensagem de sucesso), `status` (draft/published), `slug` (único, para link público), `created_at`, `updated_at`
-  - RLS: usuário vê/edita apenas os próprios
-- `**form_submissions**` — armazena respostas dos leads
-  - `id`, `form_id`, `data` (JSONB), `created_at`, `ip_address` (text, nullable)
-  - RLS: INSERT público (anon), SELECT apenas pelo dono do form via subquery
+## Banco de Dados
 
-## 2. Navegação
+### Tabela `demand_boards`
+Boards/projetos que agrupam demandas:
+- `id`, `user_id`, `name`, `description`, `columns` (jsonb — define colunas do Kanban com nome, cor, ordem), `created_at`, `updated_at`
 
-- Adicionar item "Forms" no sidebar (`ClipboardList` icon) entre Templates e Admin
-- Rota `/forms` (lista) e `/forms/:id` (editor) protegidas
-- Rota `/f/:slug` pública (renderização do formulário para leads)
+### Tabela `demand_items`
+As demandas/tarefas individuais:
+- `id`, `board_id` (ref demand_boards), `user_id`, `title`, `description` (texto rico), `status` (coluna do Kanban), `priority` (low/medium/high/urgent), `assignee_name`, `due_date`, `start_date`, `tags` (text[]), `color` (label), `position` (integer — ordem no Kanban), `created_at`, `updated_at`
 
-## 3. Página de Listagem (`src/pages/Forms.tsx`)
+### Tabela `demand_comments`
+Comentários por demanda:
+- `id`, `item_id` (ref demand_items), `user_id`, `content`, `created_at`
 
-- Grid de cards com os formulários criados
-- Cada card mostra: nome, layout, status (draft/published), contagem de submissions, data
-- Ações: editar, duplicar, excluir (com confirmação), copiar link público
-- Botão "Novo Formulário" abre modal para nome + layout inicial
+RLS: usuário só acessa seus boards/itens/comentários.
 
-## 4. Editor Drag-and-Drop (`src/pages/FormBuilder.tsx`)
+---
 
-**Painel esquerdo — Componentes disponíveis:**
+## Frontend — Estrutura de Arquivos
 
-- Texto curto, Texto longo, Email, Telefone, Número
-- Select/Dropdown, Checkbox, Radio, Switch, Yes or Not, Selection
-- Data, Upload de arquivo
-- Título/Heading, Parágrafo (decorativo)
-- Divisor, Espaçador
+```text
+src/pages/Demandas.tsx          — página principal
+src/components/demandas/
+  BoardSelector.tsx             — seletor/criador de boards
+  KanbanView.tsx                — visualização Kanban (drag-and-drop)
+  KanbanColumn.tsx              — coluna individual
+  KanbanCard.tsx                — card da demanda
+  ListView.tsx                  — visualização em tabela
+  GanttView.tsx                 — visualização Gantt (timeline)
+  DemandDetailSheet.tsx         — sheet lateral com detalhes da demanda
+  DemandFilters.tsx             — filtros (prioridade, tags, responsável, data)
+  NewDemandDialog.tsx           — modal de criação rápida
+  BoardSettingsDialog.tsx       — configurar colunas/cores do board
+```
 
-**Area central — Canvas:**
+---
 
-- Drag-and-drop com `@dnd-kit/core` + `@dnd-kit/sortable`
-- Preview em tempo real do formulário conforme layout selecionado
-- Clique no campo para editar propriedades no painel direito
+## Funcionalidades Principais
 
-**Painel direito — Propriedades do campo selecionado:**
+### 1. Board System
+- Múltiplos boards (projetos)
+- Colunas customizáveis (nome, cor, ordem) — padrão: "A Fazer", "Em Andamento", "Revisão", "Concluído"
+- Switcher de board no topo da página
 
-- Label, placeholder, required, largura (full/half)
-- Opções (para select/radio/checkbox)
-- Validações (min/max length, pattern)
+### 2. Kanban View
+- Drag-and-drop entre colunas (usando @dnd-kit)
+- Cards com: título, prioridade (badge colorido), responsável (avatar), data limite, tags
+- Contagem de itens por coluna
+- Reordenação dentro da coluna
 
-**Toolbar superior:**
+### 3. Lista View
+- Tabela com colunas: título, status, prioridade, responsável, data limite, tags
+- Ordenação por qualquer coluna
+- Inline editing rápido do status
 
-- Seletor de layout (Lista, Cartão, Corrido, Multi-step)
-- Preview mobile/desktop toggle
-- Salvar rascunho / Publicar
-- Configurações gerais (cores, mensagem de sucesso, redirect)
+### 4. Gantt View
+- Timeline horizontal com barras por demanda (start_date → due_date)
+- Scroll horizontal por semanas/meses
+- Cores por prioridade
+- Visualização compacta e funcional
 
-## 5. Layouts de Formulário
+### 5. Detalhe da Demanda (Sheet lateral)
+- Título editável inline
+- Descrição rica (textarea)
+- Seletor de status, prioridade, responsável, datas
+- Tags editáveis
+- Seção de comentários
+- Histórico de alterações
 
-- **Lista** — campos empilhados verticalmente, clássico
-- **Cartão** — cada campo ou grupo em um card separado com transição
-- **Corrido (Inline)** — campos lado a lado em grid responsivo
-- **Multi-step** — wizard com steps e progress bar (reusa StepIndicator)
-- **Chatmode** - simulando uma conversação 
+### 6. Filtros e Busca
+- Barra de busca por título
+- Filtros: prioridade, status, responsável, tags, data
+- Toggle de visualização (Kanban / Lista / Gantt)
 
-## 6. Formulário Público (`src/pages/FormPublic.tsx`)
+---
 
-- Rota `/f/:slug` sem autenticação
-- Renderiza o formulário conforme layout e campos salvos
-- Submete para `form_submissions` (RLS permite insert anon)
-- Tela de sucesso com mensagem customizada
+## Sidebar e Rotas
 
-## 7. Visualização de Respostas
+- Adicionar "Demandas" no sidebar com ícone `KanbanSquare`
+- Rota: `/demandas` (página principal com board selecionado)
 
-- Tab "Respostas" dentro do editor do formulário
-- Tabela com todas as submissions, filtro por data
-- Opção de visualização kanban ou lista
-- Exportar CSV
+---
 
-## Detalhes Técnicos
+## Resumo Técnico
 
-- **Drag-and-drop**: `@dnd-kit/core` + `@dnd-kit/sortable` (leve, React-native)
-- **Campos armazenados como JSONB**: `[{ id, type, label, placeholder, required, options, width, validations }]`
-- **Arquivos editados**: `AppSidebar.tsx`, `App.tsx` (rotas), + 4 novos arquivos de página/componente
-- **Dependência nova**: `@dnd-kit/core`, `@dnd-kit/sortable`, `@dnd-kit/utilities`
+| Item | Detalhe |
+|---|---|
+| Tabelas novas | `demand_boards`, `demand_items`, `demand_comments` |
+| Dependência nova | `@dnd-kit/core`, `@dnd-kit/sortable` (drag-and-drop) |
+| Páginas | 1 página principal com 3 views |
+| Componentes | ~10 componentes novos |
+| RLS | Acesso por `user_id` em todas as tabelas |
 
-## Ordem de Implementação
-
-1. Migration (tabelas + RLS)
-2. Rota + sidebar
-3. Listagem de forms
-4. Editor drag-and-drop com canvas e painéis
-5. Renderizador público + submissions
-6. Visualização de respostas
