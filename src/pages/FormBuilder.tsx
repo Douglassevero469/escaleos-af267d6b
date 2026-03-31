@@ -208,6 +208,7 @@ export default function FormBuilder() {
               <SelectItem value="focus">Focus (Typeform)</SelectItem>
               <SelectItem value="split">Split (2 colunas)</SelectItem>
               <SelectItem value="compact">Compacto</SelectItem>
+              <SelectItem value="respondi">Respondi (Full Page)</SelectItem>
             </SelectContent>
           </Select>
           <div className="flex border rounded-md">

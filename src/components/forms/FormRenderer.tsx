@@ -47,6 +47,7 @@ export default function FormRenderer({
   const [chatStep, setChatStep] = useState(0);
   const [stepperStep, setStepperStep] = useState(0);
   const [focusStep, setFocusStep] = useState(0);
+  const [respondiStep, setRespondiStep] = useState(-1); // -1 = welcome screen
   // ChatIA state
   const [chatIaStep, setChatIaStep] = useState(0);
   const [chatIaTyping, setChatIaTyping] = useState(false);
