@@ -36,6 +36,7 @@ export default function Forms() {
   const [createOpen, setCreateOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [form, setForm] = useState({ name: "", description: "", layout: "list" });
+  const [viewSubmissions, setViewSubmissions] = useState<{ id: string; name: string } | null>(null);
 
   const { data: forms = [], isLoading } = useQuery({
     queryKey: ["forms"],
