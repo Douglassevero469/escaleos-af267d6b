@@ -25,7 +25,10 @@ interface Props {
 
 export function LeadDetailSheet({ lead, stages, open, onOpenChange, pipelineId }: Props) {
   const qc = useQueryClient();
-  const [form, setForm] = useState({ name: "", email: "", phone: "", company: "", stage: "", score: 0, value: 0, notes: "" });
+  const [form, setForm] = useState({ 
+    name: "", email: "", phone: "", company: "", stage: "", score: 0, value: 0, notes: "",
+    next_action_type: "" as string, next_action_date: "", next_action_notes: "",
+  });
 
   useEffect(() => {
     if (lead) {
@@ -38,6 +41,9 @@ export function LeadDetailSheet({ lead, stages, open, onOpenChange, pipelineId }
         score: lead.score || 0,
         value: Number(lead.value) || 0,
         notes: lead.notes || "",
+        next_action_type: lead.next_action_type || "",
+        next_action_date: lead.next_action_date ? new Date(lead.next_action_date).toISOString().slice(0, 16) : "",
+        next_action_notes: lead.next_action_notes || "",
       });
     }
   }, [lead]);
