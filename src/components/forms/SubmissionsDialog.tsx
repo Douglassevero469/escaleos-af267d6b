@@ -72,6 +72,17 @@ export default function SubmissionsDialog({ formId, formName, open, onOpenChange
   const [newTag, setNewTag] = useState("");
   const [newTagColor, setNewTagColor] = useState("blue");
 
+  // Fetch form fields to preserve ordering
+  const { data: formFields = [] } = useQuery({
+    queryKey: ["form-fields-order", formId],
+    queryFn: async () => {
+      const { data } = await supabase.from("forms").select("fields").eq("id", formId).single();
+      if (!data?.fields || !Array.isArray(data.fields)) return [];
+      return (data.fields as any[]).map((f: any) => f.label || f.name || f.id).filter(Boolean);
+    },
+    enabled: open,
+  });
+
   const { data: submissions = [], isLoading } = useQuery({
     queryKey: ["form-submissions", formId],
     queryFn: async () => {
