@@ -413,7 +413,7 @@ export default function PacoteDocumentos() {
     },
   });
 
-  const streamDocument = useCallback(async (doc: any, briefingData: any) => {
+  const streamDocument = useCallback(async (doc: any, briefingData: any, isRegeneration = false) => {
     const docId = doc.id;
     const docType = doc.doc_type;
 
