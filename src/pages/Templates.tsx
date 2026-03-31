@@ -95,7 +95,7 @@ export default function Templates() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["templates"] });
-      navigate("/briefing/novo");
+      navigate(`/briefing/novo?template=${templateId}`);
     },
   });
 
