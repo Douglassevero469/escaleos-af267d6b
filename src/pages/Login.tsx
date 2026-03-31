@@ -54,10 +54,7 @@ export default function Login() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
-      <div className="absolute inset-0">
-        <div className="absolute top-1/4 left-1/3 w-[500px] h-[500px] bg-primary/8 rounded-full blur-[150px]" />
-        <div className="absolute bottom-1/3 right-1/4 w-[400px] h-[400px] bg-cyan/5 rounded-full blur-[120px]" />
-      </div>
+      <AnimatedShaderBackground />
 
       <div className="w-full max-w-md relative z-10 animate-fade-in-up">
         <div className="flex items-center justify-center mb-10">
