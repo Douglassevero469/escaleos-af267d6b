@@ -160,55 +160,60 @@ export function AttachmentList({ itemId, onActivityLog }: AttachmentListProps) {
         </div>
       )}
 
-      {/* Preview Dialog */}
-      <Dialog open={!!preview} onOpenChange={(open) => !open && setPreview(null)}>
-        <DialogContent className="max-w-4xl w-[95vw] h-[85vh] p-0 flex flex-col gap-0 overflow-hidden">
-          {preview && (
-            <>
-              {/* Header */}
-              <div className="flex items-center justify-between px-4 py-2 border-b bg-muted/30">
-                <span className="text-sm font-medium truncate max-w-[60%]">{preview.file_name}</span>
-                <div className="flex items-center gap-1">
-                  {preview.file_type.startsWith("image") && (
-                    <>
-                      <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => setZoom(z => Math.max(0.25, z - 0.25))}>
-                        <ZoomOut className="h-4 w-4" />
-                      </Button>
-                      <span className="text-xs text-muted-foreground w-10 text-center">{Math.round(zoom * 100)}%</span>
-                      <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => setZoom(z => Math.min(3, z + 0.25))}>
-                        <ZoomIn className="h-4 w-4" />
-                      </Button>
-                    </>
-                  )}
-                  <a href={preview.file_url} download target="_blank" rel="noopener noreferrer">
-                    <Button size="icon" variant="ghost" className="h-7 w-7">
-                      <Download className="h-4 w-4" />
+      {/* Preview Overlay via Portal */}
+      {preview && createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70" onClick={() => setPreview(null)}>
+          <div
+            className="relative bg-background rounded-xl shadow-2xl w-[95vw] max-w-4xl h-[85vh] flex flex-col overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between px-4 py-2.5 border-b bg-muted/30">
+              <span className="text-sm font-medium truncate max-w-[50%]">{preview.file_name}</span>
+              <div className="flex items-center gap-1">
+                {preview.file_type.startsWith("image") && (
+                  <>
+                    <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => setZoom(z => Math.max(0.25, z - 0.25))}>
+                      <ZoomOut className="h-4 w-4" />
                     </Button>
-                  </a>
-                </div>
+                    <span className="text-xs text-muted-foreground w-12 text-center">{Math.round(zoom * 100)}%</span>
+                    <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => setZoom(z => Math.min(3, z + 0.25))}>
+                      <ZoomIn className="h-4 w-4" />
+                    </Button>
+                  </>
+                )}
+                <a href={preview.file_url} download target="_blank" rel="noopener noreferrer">
+                  <Button size="icon" variant="ghost" className="h-8 w-8">
+                    <Download className="h-4 w-4" />
+                  </Button>
+                </a>
+                <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => setPreview(null)}>
+                  <X className="h-4 w-4" />
+                </Button>
               </div>
+            </div>
 
-              {/* Content */}
-              <div className="flex-1 overflow-auto flex items-center justify-center bg-background/50 p-4">
-                {preview.file_type.startsWith("image") ? (
-                  <img
-                    src={preview.file_url}
-                    alt={preview.file_name}
-                    className="max-w-full max-h-full object-contain transition-transform duration-200"
-                    style={{ transform: `scale(${zoom})` }}
-                  />
-                ) : preview.file_type.includes("pdf") ? (
-                  <iframe
-                    src={preview.file_url}
-                    className="w-full h-full rounded border-0"
-                    title={preview.file_name}
-                  />
-                ) : null}
-              </div>
-            </>
-          )}
-        </DialogContent>
-      </Dialog>
+            {/* Content */}
+            <div className="flex-1 overflow-auto flex items-center justify-center bg-background/50 p-4">
+              {preview.file_type.startsWith("image") ? (
+                <img
+                  src={preview.file_url}
+                  alt={preview.file_name}
+                  className="max-w-full max-h-full object-contain transition-transform duration-200"
+                  style={{ transform: `scale(${zoom})` }}
+                />
+              ) : preview.file_type.includes("pdf") ? (
+                <iframe
+                  src={preview.file_url}
+                  className="w-full h-full rounded border-0"
+                  title={preview.file_name}
+                />
+              ) : null}
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
     </div>
   );
 }
