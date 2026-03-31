@@ -203,14 +203,12 @@
     font-family: 'Articulat CF', system-ui, sans-serif;
   }
 
-  .dark body,
-  body:has(.dark) {
+  .dark body {
     background: linear-gradient(160deg, hsl(240 25% 3%), hsl(240 20% 6%), hsl(250 18% 5%));
     background-attachment: fixed;
   }
 
-  .light body,
-  body:has(.light) {
+  .light body {
     background: linear-gradient(160deg, hsl(0 0% 98%), hsl(240 20% 97%), hsl(240 10% 96%));
     background-attachment: fixed;
   }
