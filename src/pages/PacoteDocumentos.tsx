@@ -305,11 +305,33 @@ export default function PacoteDocumentos() {
                       <RefreshCw className="h-3 w-3" /> Tentar novamente
                     </Button>
                   ) : (
-                    <Button variant="outline" size="sm" className="flex-1 gap-1"
-                      disabled={status !== "ready" && !isActive}
-                      onClick={() => setViewDoc({ ...doc, content: getDocContent(doc) })}>
-                      <Eye className="h-3 w-3" /> {isActive ? "Ver ao vivo" : "Ver"}
-                    </Button>
+                    <>
+                      <Button variant="outline" size="sm" className="flex-1 gap-1"
+                        disabled={status !== "ready" && !isActive}
+                        onClick={() => setViewDoc({ ...doc, content: getDocContent(doc) })}>
+                        <Eye className="h-3 w-3" /> {isActive ? "Ver ao vivo" : "Ver"}
+                      </Button>
+                      {status === "ready" && content && (
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="outline" size="sm" className="gap-1 px-2">
+                              <Download className="h-3 w-3" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => downloadAsPdf(doc.title, content)}>
+                              Baixar PDF
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => downloadAsDocx(doc.title, content)}>
+                              Baixar DOCX
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => downloadAsText(`${doc.title.replace(/\s+/g, "_")}.md`, content)}>
+                              Baixar Markdown
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      )}
+                    </>
                   )}
                 </div>
               </GlassCard>
