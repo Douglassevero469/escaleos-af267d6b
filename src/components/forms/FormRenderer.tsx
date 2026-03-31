@@ -64,6 +64,8 @@ export default function FormRenderer({
     borderColor: theme.vars["--form-input-border"],
     color: theme.vars["--form-fg"],
     borderRadius: theme.vars["--form-radius"],
+    minHeight: "44px",
+    fontSize: "16px", // prevents iOS zoom on focus
   };
 
   const btnStyle: React.CSSProperties = {
@@ -84,11 +86,11 @@ export default function FormRenderer({
   const inputFields = fields.filter(f => !["heading", "paragraph", "divider", "spacer"].includes(f.type));
 
   const formHeader = (
-    <div className="text-center space-y-3">
+    <div className="text-center space-y-2 sm:space-y-3">
       {settings.logoUrl && (
-        <img src={settings.logoUrl} alt="Logo" className="h-12 max-w-[180px] object-contain mx-auto" />
+        <img src={settings.logoUrl} alt="Logo" className="h-10 sm:h-12 max-w-[160px] sm:max-w-[180px] object-contain mx-auto" />
       )}
-      <h1 className="text-xl font-bold">{formName}</h1>
+      <h1 className="text-lg sm:text-xl font-bold leading-tight">{formName}</h1>
     </div>
   );
 
@@ -137,11 +139,11 @@ export default function FormRenderer({
 
   if (submitted) {
     return (
-      <div className={`flex items-center justify-center p-6 ${wrapperHeight}`} style={themeStyle}>
-        <div className="text-center space-y-4 max-w-md">
-          <CheckCircle2 className="h-16 w-16 text-primary mx-auto" />
-          <h2 className="text-2xl font-bold">{settings.successMessage || "Obrigado!"}</h2>
-          <p className="text-muted-foreground">Sua resposta foi enviada com sucesso.</p>
+      <div className={`flex items-center justify-center px-4 py-8 sm:p-6 ${wrapperHeight}`} style={themeStyle}>
+        <div className="text-center space-y-4 max-w-md w-full">
+          <CheckCircle2 className="h-14 w-14 sm:h-16 sm:w-16 text-primary mx-auto" />
+          <h2 className="text-xl sm:text-2xl font-bold">{settings.successMessage || "Obrigado!"}</h2>
+          <p className="text-sm sm:text-base text-muted-foreground">Sua resposta foi enviada com sucesso.</p>
         </div>
       </div>
     );
@@ -467,7 +469,7 @@ export default function FormRenderer({
 
   const submitButton = (fullWidth = true) => (
     <Button
-      className={fullWidth ? "w-full" : "flex-1"}
+      className={`${fullWidth ? "w-full" : "flex-1"} h-11 sm:h-10 text-sm sm:text-base`}
       style={btnStyle}
       onClick={isPreview ? undefined : handleSubmit}
       disabled={submitting || isPreview}
@@ -483,8 +485,8 @@ export default function FormRenderer({
     const isLast = chatStep >= chatFields.length - 1;
 
     return (
-      <div className={`flex items-center justify-center p-6 ${wrapperHeight}`} style={themeStyle}>
-        <div className="w-full max-w-md space-y-6">
+      <div className={`flex items-center justify-center px-4 py-6 sm:p-6 ${wrapperHeight}`} style={themeStyle}>
+        <div className="w-full max-w-md space-y-5 sm:space-y-6">
           {formHeader}
           <p className="text-xs text-center text-muted-foreground">{chatStep + 1} de {chatFields.length}</p>
           {currentField && (
@@ -528,8 +530,8 @@ export default function FormRenderer({
     const isLast = stepperStep >= totalSteps - 1;
 
     return (
-      <div className={`flex items-center justify-center p-6 ${wrapperHeight}`} style={themeStyle}>
-        <div className="w-full max-w-lg space-y-6">
+      <div className={`flex items-center justify-center px-4 py-6 sm:p-6 ${wrapperHeight}`} style={themeStyle}>
+        <div className="w-full max-w-lg space-y-5 sm:space-y-6">
           {formHeader}
           <StepIndicator steps={Array.from({ length: totalSteps }, (_, i) => `Etapa ${i + 1}`)} currentStep={stepperStep} />
           <div className="space-y-4">
@@ -554,11 +556,11 @@ export default function FormRenderer({
   // Card
   if (layout === "card") {
     return (
-      <div className={`flex items-center justify-center p-6 ${wrapperHeight}`} style={themeStyle}>
-        <div className="w-full max-w-lg space-y-4">
+      <div className={`flex items-center justify-center px-4 py-6 sm:p-6 ${wrapperHeight}`} style={themeStyle}>
+        <div className="w-full max-w-lg space-y-3 sm:space-y-4">
           {formHeader}
           {fields.map(f => (
-            <div key={f.id} className="rounded-xl border p-4 shadow-sm" style={cardStyle}>{renderField(f)}</div>
+            <div key={f.id} className="rounded-xl border p-3 sm:p-4 shadow-sm" style={cardStyle}>{renderField(f)}</div>
           ))}
           {submitButton()}
         </div>
@@ -569,8 +571,8 @@ export default function FormRenderer({
   // Inline
   if (layout === "inline") {
     return (
-      <div className={`flex items-center justify-center p-6 ${wrapperHeight}`} style={themeStyle}>
-        <div className="w-full max-w-2xl space-y-4">
+      <div className={`flex items-center justify-center px-4 py-6 sm:p-6 ${wrapperHeight}`} style={themeStyle}>
+        <div className="w-full max-w-2xl space-y-3 sm:space-y-4">
           {formHeader}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {fields.map(f => (
@@ -585,8 +587,8 @@ export default function FormRenderer({
 
   // Default: List
   return (
-    <div className={`flex items-center justify-center p-6 ${wrapperHeight}`} style={themeStyle}>
-      <div className="w-full max-w-lg space-y-4">
+    <div className={`flex items-start sm:items-center justify-center px-4 py-6 sm:p-6 ${wrapperHeight}`} style={themeStyle}>
+      <div className="w-full max-w-lg space-y-3 sm:space-y-4">
         {formHeader}
         {formDescription && <p className="text-sm text-center" style={mutedStyle}>{formDescription}</p>}
         <div className="space-y-4">

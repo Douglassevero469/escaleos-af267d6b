@@ -223,7 +223,7 @@ export default function FormPublic() {
   };
 
   return (
-    <div className="min-h-screen" onClick={handleFormStart} onFocus={handleFormStart}>
+    <div className="min-h-screen min-h-[100dvh] pb-safe" onClick={handleFormStart} onFocus={handleFormStart}>
       <FormRenderer
         formName={form.name}
         formDescription={form.description}
