@@ -76,8 +76,8 @@ export default function FormPublic() {
     trackEvent(form.id, "field_focus", { field_id: fieldId, field_label: fieldLabel });
   }, [form]);
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center bg-background"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
-  if (!form) return <div className="min-h-screen flex items-center justify-center bg-background"><p className="text-muted-foreground">Formulário não encontrado</p></div>;
+  if (loading) return <div className="min-h-screen flex items-center justify-center bg-white"><Loader2 className="h-8 w-8 animate-spin text-blue-600" /></div>;
+  if (!form) return <div className="min-h-screen flex items-center justify-center bg-white"><p className="text-gray-500">Formulário não encontrado</p></div>;
 
   const fields: FormField[] = Array.isArray(form.fields) ? form.fields : [];
   const settings = typeof form.settings === "object" && form.settings ? form.settings : {};
