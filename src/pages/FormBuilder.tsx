@@ -145,14 +145,7 @@ export default function FormBuilder() {
     onError: (e: any) => toast({ title: "Erro ao salvar", description: e.message, variant: "destructive" }),
   });
 
-  const [activeDragId, setActiveDragId] = useState<string | null>(null);
-
-  const handleDragStart = (event: DragStartEvent) => {
-    setActiveDragId(event.active.id as string);
-  };
-
   const handleDragEnd = (event: DragEndEvent) => {
-    setActiveDragId(null);
     const { active, over } = event;
     if (over && active.id !== over.id) {
       setFields(prev => {
