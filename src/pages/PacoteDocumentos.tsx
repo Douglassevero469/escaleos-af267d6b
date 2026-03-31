@@ -78,7 +78,7 @@ const ESCALE_BRAND_CSS = `
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   @page {
-    size: A4 landscape;
+    size: A4;
     margin: 0;
   }
 
@@ -91,15 +91,10 @@ const ESCALE_BRAND_CSS = `
   }
 
   .page {
-    padding: 48px 56px 80px;
+    padding: 40px 44px 72px;
     max-width: 100%;
     position: relative;
     min-height: 100vh;
-  }
-
-  /* Auto-detect landscape for pages with wide tables */
-  .page.has-table {
-    padding: 40px 48px 72px;
   }
 
   /* ── Header ── */
@@ -220,12 +215,12 @@ const ESCALE_BRAND_CSS = `
     width: 100%;
     border-collapse: separate;
     border-spacing: 0;
-    margin: 16px 0 24px;
-    font-size: 8.5pt;
-    line-height: 1.45;
-    border-radius: 8px;
+    margin: 12px 0 20px;
+    font-size: 7.5pt;
+    line-height: 1.35;
+    border-radius: 6px;
     overflow: hidden;
-    table-layout: auto;
+    table-layout: fixed;
     word-wrap: break-word;
     page-break-inside: auto;
   }
@@ -235,38 +230,33 @@ const ESCALE_BRAND_CSS = `
   }
 
   th {
-    padding: 8px 10px;
+    padding: 6px 6px;
     text-align: left;
     font-weight: 600;
     color: white;
-    font-size: 7.5pt;
+    font-size: 6.5pt;
     text-transform: uppercase;
-    letter-spacing: 0.4px;
-    white-space: nowrap;
+    letter-spacing: 0.3px;
     vertical-align: middle;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   td {
-    padding: 8px 10px;
+    padding: 5px 6px;
     border-bottom: 1px solid var(--brand-border);
     color: #2A2A4A;
     vertical-align: top;
+    overflow-wrap: break-word;
+    word-break: break-word;
     hyphens: auto;
     -webkit-hyphens: auto;
   }
 
-  /* First column (label) stays compact */
+  /* First column compact */
   td:first-child {
     font-weight: 600;
-    white-space: nowrap;
     color: var(--brand-dark);
-    min-width: 80px;
-    max-width: 120px;
-  }
-
-  /* Even distribution for remaining columns */
-  td:not(:first-child) {
-    min-width: 100px;
   }
 
   tbody tr:nth-child(even) {
@@ -277,18 +267,10 @@ const ESCALE_BRAND_CSS = `
     page-break-inside: avoid;
   }
 
-  tbody tr:hover {
-    background: #F0F0FF;
-  }
-
-  /* Card-style for very long table cells - convert to vertical layout on narrow tables */
   @media print {
-    table {
-      font-size: 8pt;
-    }
-    th {
-      font-size: 7pt;
-    }
+    table { font-size: 7pt; }
+    th { font-size: 6pt; padding: 4px 5px; }
+    td { padding: 4px 5px; }
   }
 
   /* ── Blockquotes ── */
@@ -374,23 +356,6 @@ function buildBrandedHtml(title: string, content: string): string {
     <span>${today}</span>
   </div>
 
-  <script>
-    // Auto-detect wide tables (4+ columns) and switch to landscape
-    (function() {
-      var tables = document.querySelectorAll('table');
-      var needsLandscape = false;
-      tables.forEach(function(t) {
-        var cols = t.querySelector('tr') ? t.querySelector('tr').children.length : 0;
-        if (cols >= 4) needsLandscape = true;
-      });
-      if (needsLandscape) {
-        var style = document.createElement('style');
-        style.textContent = '@page { size: A4 landscape; margin: 0; }';
-        document.head.appendChild(style);
-        document.querySelector('.page').classList.add('has-table');
-      }
-    })();
-  </script>
 </body>
 </html>`;
 }
