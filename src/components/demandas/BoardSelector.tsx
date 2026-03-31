@@ -48,6 +48,11 @@ export function BoardSelector({ boards, currentBoard, onSelect, onCreate, onDupl
             </DropdownMenuItem>
           ))}
           <DropdownMenuSeparator />
+          {currentBoard && onDuplicate && (
+            <DropdownMenuItem onClick={() => onDuplicate(currentBoard)}>
+              <Copy className="h-4 w-4 mr-2" /> Duplicar Board Atual
+            </DropdownMenuItem>
+          )}
           <DropdownMenuItem onClick={() => setDialogOpen(true)}>
             <Plus className="h-4 w-4 mr-2" /> Novo Board
           </DropdownMenuItem>
