@@ -300,7 +300,7 @@ export default function FormRenderer({
     return (
       <div className="flex items-center justify-center p-6 min-h-[300px]" style={themeStyle}>
         <div className="w-full max-w-md space-y-6">
-          <h1 className="text-xl font-bold text-center">{formName}</h1>
+          {formHeader}
           <p className="text-xs text-center text-muted-foreground">{chatStep + 1} de {chatFields.length}</p>
           {currentField && (
             <div className="animate-fade-in space-y-4">
