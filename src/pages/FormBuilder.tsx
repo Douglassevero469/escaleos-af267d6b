@@ -152,13 +152,40 @@ export default function FormBuilder() {
       if (error) throw error;
       if (newStatus) setStatus(finalStatus);
     },
-    onSuccess: () => {
+    onSuccess: (_, newStatus) => {
       queryClient.invalidateQueries({ queryKey: ["form", id] });
       queryClient.invalidateQueries({ queryKey: ["forms"] });
-      toast({ title: "Formulário salvo!" });
+      if (newStatus !== "__autosave__") {
+        toast({ title: "Formulário salvo!" });
+      }
     },
-    onError: (e: any) => toast({ title: "Erro ao salvar", description: e.message, variant: "destructive" }),
+    onError: (e: any, newStatus) => {
+      if (newStatus !== "__autosave__") {
+        toast({ title: "Erro ao salvar", description: e.message, variant: "destructive" });
+      }
+    },
   });
+
+  // Auto-save: debounce 3s after changes
+  const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const initialLoadDone = useRef(false);
+
+  useEffect(() => {
+    // Skip auto-save until initial data is loaded
+    if (!formData || !initialLoadDone.current) {
+      if (formData) initialLoadDone.current = true;
+      return;
+    }
+    if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
+    autoSaveTimer.current = setTimeout(() => {
+      if (!saveMutation.isPending) {
+        saveMutation.mutate("__autosave__" as any);
+      }
+    }, 3000);
+    return () => {
+      if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
+    };
+  }, [formName, formDesc, slug, layout, fields, settings]);
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
