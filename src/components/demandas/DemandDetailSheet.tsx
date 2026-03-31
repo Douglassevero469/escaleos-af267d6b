@@ -218,8 +218,11 @@ export function DemandDetailSheet({ open, onOpenChange, item, columns, onUpdate,
               </div>
             </div>
             <div>
-              <Label>Responsável</Label>
-              <Input value={editItem.assignee_name || ""} onChange={e => setEditItem({ ...editItem, assignee_name: e.target.value })} />
+              <Label>Responsáveis</Label>
+              <MultiAssigneeInput
+                value={parseAssignees(editItem.assignee_name)}
+                onChange={(names) => setEditItem({ ...editItem, assignee_name: joinAssignees(names) })}
+              />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
