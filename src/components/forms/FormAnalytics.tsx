@@ -591,7 +591,7 @@ export default function FormAnalytics({ formId, formName }: Props) {
 
       {/* Field Interaction Funnel */}
       {fieldFunnel.length > 0 && (
-        <GlassCard className="p-4">
+        <GlassCard className="p-4" data-chart-section data-chart-title="Funil por Campo" data-chart-subtitle="Sessões únicas que interagiram com cada campo">
           <h3 className="text-sm font-semibold mb-1">Funil por Campo</h3>
           <p className="text-xs text-muted-foreground mb-3">Sessões únicas que interagiram com cada campo</p>
           <ChartContainer config={{ sessoes: { label: "Sessões", color: "hsl(var(--chart-2))" } }} className="h-[220px] w-full">
