@@ -17,6 +17,7 @@ import {
   ArrowLeft, Save, Eye, Smartphone, Monitor, Globe, Loader2, Trash2, GripVertical, Plus,
   Type, AlignLeft, Mail, Phone, Hash, ChevronDown, CheckSquare, Circle, ToggleLeft,
   ThumbsUp, List, Calendar, Upload, Heading, FileText, Minus, MoveVertical, Settings,
+  ImageIcon,
 } from "lucide-react";
 import { FormField, FIELD_TYPES, createField } from "@/lib/form-field-types";
 import { FORM_THEMES } from "@/lib/form-themes";
