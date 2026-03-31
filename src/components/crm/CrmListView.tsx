@@ -1,9 +1,10 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import type { CrmLead } from "./LeadCard";
+import { CrmLead, getActionType } from "./LeadCard";
 import type { StageDef } from "./KanbanStageColumn";
 import { format } from "date-fns";
 import { FileText } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface Props {
   leads: CrmLead[];
