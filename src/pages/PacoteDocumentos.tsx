@@ -584,6 +584,17 @@ export default function PacoteDocumentos() {
     } catch (e) {
       console.error(`Error generating ${docType}:`, e);
       await supabase.from("documents").update({ status: "error" }).eq("id", docId);
+      // Notify doc failure
+      const { data: { user: u2 } } = await supabase.auth.getUser();
+      if (u2) {
+        await supabase.from("notifications").insert({
+          user_id: u2.id,
+          type: "doc_failed",
+          title: `Erro: ${doc.title}`,
+          message: `Ocorreu um erro inesperado na geração.`,
+          link: `/pacote/${id}`,
+        } as any);
+      }
     } finally {
       setGeneratingDocs(prev => { const n = new Set(prev); n.delete(docId); return n; });
     }
