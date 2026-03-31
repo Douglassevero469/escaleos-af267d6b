@@ -10,6 +10,7 @@ export interface CrmLead {
   user_id: string;
   form_submission_id: string | null;
   form_id: string | null;
+  form_name?: string | null;
   name: string;
   email: string;
   phone: string;
