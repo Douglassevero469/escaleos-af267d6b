@@ -30,6 +30,7 @@ interface AnalyticsExportData {
   rates: KPIData[];
   respondents: RespondentRow[];
   chartImages: ChartImageData[];
+  orientation?: "portrait" | "landscape";
 }
 
 // SVG icon paths for KPIs
