@@ -443,6 +443,15 @@ export default function FormRenderer({
     }
   };
 
+  const renderField = (field: FormField) => {
+    const el = renderFieldInner(field);
+    const isInput = !["heading", "paragraph", "divider", "spacer"].includes(field.type);
+    if (isInput) {
+      return <div onFocusCapture={() => handleFieldFocus(field)}>{el}</div>;
+    }
+    return el;
+  };
+
   const submitButton = (fullWidth = true) => (
     <Button
       className={fullWidth ? "w-full" : "flex-1"}
