@@ -236,13 +236,13 @@ export default function Perfil() {
 
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Palette className="h-4 w-4 text-muted-foreground" />
+              {theme === "dark" ? <Moon className="h-4 w-4 text-muted-foreground" /> : <Sun className="h-4 w-4 text-muted-foreground" />}
               <div>
                 <p className="text-sm font-medium text-foreground">Modo escuro</p>
-                <p className="text-xs text-muted-foreground">Interface com tema escuro</p>
+                <p className="text-xs text-muted-foreground">Alternar entre tema claro e escuro</p>
               </div>
             </div>
-            <Switch checked={darkMode} onCheckedChange={setDarkMode} />
+            <Switch checked={theme === "dark"} onCheckedChange={(checked) => setTheme(checked ? "dark" : "light")} />
           </div>
 
           <Separator className="bg-border/50" />
