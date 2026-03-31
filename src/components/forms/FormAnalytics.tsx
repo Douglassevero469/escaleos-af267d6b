@@ -324,10 +324,14 @@ export default function FormAnalytics({ formId, formName }: Props) {
             </PopoverContent>
           </Popover>
           {dateRange && (
-            <span className="text-[10px] text-muted-foreground ml-auto">
+            <span className="text-[10px] text-muted-foreground">
               {format(dateRange.from, "dd/MM/yyyy", { locale: ptBR })} – {format(dateRange.to, "dd/MM/yyyy", { locale: ptBR })}
             </span>
           )}
+          <Button variant="outline" size="sm" className="h-7 text-xs ml-auto" onClick={exportPDF} disabled={exporting}>
+            {exporting ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : <FileDown className="h-3 w-3 mr-1" />}
+            Exportar PDF
+          </Button>
         </div>
       </GlassCard>
 
