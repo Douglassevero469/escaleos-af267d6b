@@ -549,6 +549,27 @@ export default function PacoteDocumentos() {
     await streamDocument(doc, briefingData);
   };
 
+  const startEditing = () => {
+    if (!viewDoc) return;
+    setEditContent(getDocContent(viewDoc));
+    setIsEditing(true);
+  };
+
+  const saveEdit = async () => {
+    if (!viewDoc) return;
+    setSavingEdit(true);
+    await supabase.from("documents").update({ content: editContent }).eq("id", viewDoc.id);
+    queryClient.invalidateQueries({ queryKey: ["package-documents", id] });
+    setViewDoc({ ...viewDoc, content: editContent });
+    setIsEditing(false);
+    setSavingEdit(false);
+  };
+
+  const cancelEditing = () => {
+    setIsEditing(false);
+    setEditContent("");
+  };
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
