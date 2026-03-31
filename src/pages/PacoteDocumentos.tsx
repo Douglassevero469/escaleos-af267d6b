@@ -713,6 +713,10 @@ export default function PacoteDocumentos() {
               <div className="flex items-center gap-2">
                 {viewDoc?.content && (viewDoc?.status === "ready" || viewDoc?.status === "completed") && !isEditing && (
                   <>
+                    <Button variant="outline" size="sm" className="gap-1" onClick={() => { setViewDoc(null); retryDoc(viewDoc); }}
+                      disabled={generatingDocs.has(viewDoc?.id)}>
+                      <RefreshCw className="h-3.5 w-3.5" /> Regenerar
+                    </Button>
                     <Button variant="outline" size="sm" className="gap-1" onClick={startEditing}>
                       <Pencil className="h-3.5 w-3.5" /> Editar
                     </Button>
