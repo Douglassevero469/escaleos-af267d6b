@@ -160,6 +160,60 @@ export function LeadDetailSheet({ lead, stages, open, onOpenChange, pipelineId }
               </div>
             </div>
 
+            {/* Próxima Ação */}
+            <div className="p-3 border rounded-lg space-y-3 bg-muted/10">
+              <div className="flex items-center justify-between">
+                <Label className="text-xs font-semibold">Próxima Ação</Label>
+                {form.next_action_type && (
+                  <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => setForm(p => ({ ...p, next_action_type: "", next_action_date: "", next_action_notes: "" }))}>
+                    <X className="h-3 w-3" />
+                  </Button>
+                )}
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {NEXT_ACTION_TYPES.map(action => {
+                  const ActionIcon = action.icon;
+                  const isSelected = form.next_action_type === action.value;
+                  return (
+                    <button
+                      key={action.value}
+                      onClick={() => setForm(p => ({ ...p, next_action_type: action.value }))}
+                      className={`flex items-center gap-1 text-[11px] px-2 py-1 rounded-md border transition-all ${
+                        isSelected
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : "bg-background hover:bg-muted border-border"
+                      }`}
+                    >
+                      <ActionIcon className="h-3 w-3" />
+                      {action.label}
+                    </button>
+                  );
+                })}
+              </div>
+              {form.next_action_type && (
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <Label className="text-xs">Data/Hora</Label>
+                    <Input
+                      type="datetime-local"
+                      value={form.next_action_date}
+                      onChange={e => setForm(p => ({ ...p, next_action_date: e.target.value }))}
+                      className="h-8 text-xs"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-xs">Observação</Label>
+                    <Input
+                      value={form.next_action_notes}
+                      onChange={e => setForm(p => ({ ...p, next_action_notes: e.target.value }))}
+                      placeholder="Ex: Confirmar interesse..."
+                      className="h-8 text-xs"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
             <div>
               <Label className="text-xs">Notas</Label>
               <Textarea value={form.notes} onChange={e => setForm(p => ({ ...p, notes: e.target.value }))} className="min-h-[80px]" />
