@@ -160,6 +160,13 @@ export function LeadDetailSheet({ lead, stages, open, onOpenChange, pipelineId }
               <Badge variant="outline" className="text-xs">Origem: Formulário</Badge>
             )}
 
+            {lead.form_name && (
+              <div className="p-3 border rounded-lg bg-muted/20">
+                <span className="text-xs text-muted-foreground">Origem do lead:</span>
+                <p className="text-sm font-medium">{lead.form_name}</p>
+              </div>
+            )}
+
             <div className="flex gap-2 pt-2">
               <Button onClick={() => updateLead.mutate()} className="flex-1">Salvar</Button>
               <Button variant="destructive" size="icon" onClick={() => deleteLead.mutate()}>
