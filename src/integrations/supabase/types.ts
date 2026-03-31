@@ -162,6 +162,80 @@ export type Database = {
           },
         ]
       }
+      form_submissions: {
+        Row: {
+          created_at: string
+          data: Json
+          form_id: string
+          id: string
+          ip_address: string | null
+        }
+        Insert: {
+          created_at?: string
+          data?: Json
+          form_id: string
+          id?: string
+          ip_address?: string | null
+        }
+        Update: {
+          created_at?: string
+          data?: Json
+          form_id?: string
+          id?: string
+          ip_address?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "form_submissions_form_id_fkey"
+            columns: ["form_id"]
+            isOneToOne: false
+            referencedRelation: "forms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      forms: {
+        Row: {
+          created_at: string
+          description: string | null
+          fields: Json
+          id: string
+          layout: string
+          name: string
+          settings: Json
+          slug: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          fields?: Json
+          id?: string
+          layout?: string
+          name: string
+          settings?: Json
+          slug: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          fields?: Json
+          id?: string
+          layout?: string
+          name?: string
+          settings?: Json
+          slug?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       generation_logs: {
         Row: {
           action: string

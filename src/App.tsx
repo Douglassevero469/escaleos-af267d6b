@@ -16,6 +16,9 @@ import PacoteDocumentos from "./pages/PacoteDocumentos";
 import Templates from "./pages/Templates";
 import Admin from "./pages/Admin";
 import Perfil from "./pages/Perfil";
+import Forms from "./pages/Forms";
+import FormBuilder from "./pages/FormBuilder";
+import FormPublic from "./pages/FormPublic";
 import NotFound from "./pages/NotFound";
 import { AppLayout } from "./components/Layout/AppLayout";
 
@@ -39,9 +42,12 @@ const App = () => (
                 <Route path="/clientes/:id/pacotes" element={<ClientePacotes />} />
                 <Route path="/pacote/:id" element={<PacoteDocumentos />} />
                 <Route path="/templates" element={<Templates />} />
+                <Route path="/forms" element={<Forms />} />
+                <Route path="/forms/:id" element={<FormBuilder />} />
                 <Route path="/admin" element={<Admin />} />
                 <Route path="/perfil" element={<Perfil />} />
               </Route>
+              <Route path="/f/:slug" element={<FormPublic />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

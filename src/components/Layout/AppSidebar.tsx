@@ -6,6 +6,7 @@ import {
   Settings,
   LogOut,
   UserCircle,
+  ClipboardList,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
@@ -33,6 +34,7 @@ const mainItems = [
   { title: "Novo Briefing", url: "/briefing/novo", icon: FilePlus },
   { title: "Clientes", url: "/clientes", icon: Users },
   { title: "Templates", url: "/templates", icon: FileText },
+  { title: "Formulários", url: "/forms", icon: ClipboardList },
   { title: "Admin", url: "/admin", icon: Settings },
   { title: "Meu Perfil", url: "/perfil", icon: UserCircle },
 ];
