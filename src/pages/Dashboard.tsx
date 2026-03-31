@@ -1,6 +1,6 @@
 import { StatsCard } from "@/components/ui/StatsCard";
 import { GlassCard } from "@/components/ui/GlassCard";
-import { Users, FileText, Package, LayoutTemplate, ArrowUpRight, Loader2 } from "lucide-react";
+import { Users, FileText, Package, LayoutTemplate, ArrowUpRight, Loader2, Zap, RefreshCw, Brain } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -37,6 +37,25 @@ export default function Dashboard() {
     queryFn: async () => {
       const { count } = await supabase.from("templates").select("*", { count: "exact", head: true });
       return count ?? 0;
+    },
+  });
+
+  // Usage stats from generation_logs
+  const { data: usageStats = { generations: 0, regenerations: 0, totalTokens: 0, totalWords: 0 } } = useQuery({
+    queryKey: ["stats-usage"],
+    queryFn: async () => {
+      const now = new Date();
+      const firstOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+      const { data } = await supabase
+        .from("generation_logs")
+        .select("action, token_estimate, word_count")
+        .gte("created_at", firstOfMonth);
+      if (!data) return { generations: 0, regenerations: 0, totalTokens: 0, totalWords: 0 };
+      const generations = data.filter(d => d.action === "generate").length;
+      const regenerations = data.filter(d => d.action === "regenerate").length;
+      const totalTokens = data.reduce((sum, d) => sum + (d.token_estimate || 0), 0);
+      const totalWords = data.reduce((sum, d) => sum + (d.word_count || 0), 0);
+      return { generations, regenerations, totalTokens, totalWords };
     },
   });
 
@@ -91,6 +110,52 @@ export default function Dashboard() {
         <StatsCard title="Templates" value={templateCount} icon={LayoutTemplate} />
       </div>
 
+      {/* Usage Stats - Current Month */}
+      <GlassCard>
+        <div className="flex items-center gap-2 mb-4">
+          <Brain className="h-5 w-5 text-primary" />
+          <h3 className="font-display font-semibold">Consumo de IA — {new Date().toLocaleString("pt-BR", { month: "long", year: "numeric" })}</h3>
+        </div>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/30 border border-border/30">
+            <div className="p-2 rounded-lg bg-primary/10">
+              <Zap className="h-4 w-4 text-primary" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold font-display">{usageStats.generations}</p>
+              <p className="text-xs text-muted-foreground">Gerações</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/30 border border-border/30">
+            <div className="p-2 rounded-lg bg-accent/10">
+              <RefreshCw className="h-4 w-4 text-accent" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold font-display">{usageStats.regenerations}</p>
+              <p className="text-xs text-muted-foreground">Regenerações</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/30 border border-border/30">
+            <div className="p-2 rounded-lg bg-success/10">
+              <FileText className="h-4 w-4 text-success" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold font-display">{usageStats.totalWords.toLocaleString()}</p>
+              <p className="text-xs text-muted-foreground">Palavras geradas</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/30 border border-border/30">
+            <div className="p-2 rounded-lg bg-warning/10">
+              <Brain className="h-4 w-4 text-warning" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold font-display">~{usageStats.totalTokens.toLocaleString()}</p>
+              <p className="text-xs text-muted-foreground">Tokens estimados</p>
+            </div>
+          </div>
+        </div>
+      </GlassCard>
+
       <div className="grid lg:grid-cols-3 gap-6">
         <GlassCard className="lg:col-span-2">
           <h3 className="font-display font-semibold mb-4">Pacotes por Mês</h3>
@@ -133,8 +198,8 @@ export default function Dashboard() {
                       <p className="text-sm font-medium">{pkg.clients?.name ?? "Cliente"}</p>
                       <p className="text-xs text-muted-foreground">{new Date(pkg.created_at).toLocaleDateString("pt-BR")}</p>
                     </div>
-                    <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${pkg.status === "ready" ? "bg-success/10 text-success" : "bg-warning/10 text-warning"}`}>
-                      {pkg.status === "ready" ? "pronto" : pkg.status}
+                    <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${pkg.status === "completed" ? "bg-success/10 text-success" : "bg-warning/10 text-warning"}`}>
+                      {pkg.status === "completed" ? "pronto" : pkg.status}
                     </span>
                   </div>
                 </Link>
