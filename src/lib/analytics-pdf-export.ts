@@ -106,17 +106,7 @@ function buildPDFHtml(data: AnalyticsExportData): string {
     .join("");
 
   return `
-<!DOCTYPE html>
-<html>
-<head>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; color: #222; background: #fff; }
-    @page { margin: 0; }
-  </style>
-</head>
-<body>
-  <div style="padding: 32px 36px 24px; min-height: 100vh; position: relative;">
+  <div style="padding: 32px 36px 24px; min-height: 297mm; position: relative; font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; color: #222; background: #fff;">
     
     <!-- HEADER -->
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;padding-bottom:16px;border-bottom:2px solid #0000FF;">
@@ -187,7 +177,7 @@ function buildPDFHtml(data: AnalyticsExportData): string {
     ` : ""}
 
     <!-- FOOTER -->
-    <div style="position:fixed;bottom:0;left:0;right:0;padding:12px 36px;background:#f8f9fc;border-top:1px solid #e8eaf0;display:flex;align-items:center;justify-content:space-between;">
+    <div style="margin-top:40px;padding:12px 0;border-top:1px solid #e8eaf0;display:flex;align-items:center;justify-content:space-between;">
       <div style="display:flex;align-items:center;gap:8px;">
         <img src="${logoSrc}" style="height:16px;width:auto;opacity:0.6;" />
         <span style="font-size:8px;color:#999;">EscaleOS — Relatório gerado automaticamente</span>
@@ -195,33 +185,51 @@ function buildPDFHtml(data: AnalyticsExportData): string {
       <span style="font-size:8px;color:#999;">${data.exportDate}</span>
     </div>
 
-  </div>
-</body>
-</html>`;
+  </div>`;
 }
 
 export async function exportAnalyticsPDF(data: AnalyticsExportData): Promise<void> {
   const html = buildPDFHtml(data);
 
-  // Create off-screen container
+  // Create off-screen container with fixed A4 width
   const container = document.createElement("div");
   container.style.position = "fixed";
   container.style.left = "-9999px";
   container.style.top = "0";
-  container.style.width = "210mm";
+  container.style.width = "794px";
+  container.style.background = "#fff";
   container.innerHTML = html;
   document.body.appendChild(container);
 
+  // Wait for images to load
+  const images = container.querySelectorAll("img");
+  await Promise.all(
+    Array.from(images).map(
+      (img) =>
+        new Promise<void>((resolve) => {
+          if (img.complete) return resolve();
+          img.onload = () => resolve();
+          img.onerror = () => resolve();
+        })
+    )
+  );
+
+  // Small delay for rendering
+  await new Promise((r) => setTimeout(r, 200));
+
   try {
+    const element = container.firstElementChild as HTMLElement;
+    if (!element) throw new Error("No content to export");
+
     await html2pdf()
       .set({
         margin: [0, 0, 0, 0] as [number, number, number, number],
         filename: `analytics-${data.formName.replace(/\s+/g, "-").toLowerCase()}-${data.exportDate.replace(/\//g, "-")}.pdf`,
         image: { type: "jpeg" as const, quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true, logging: false, width: 794 },
+        html2canvas: { scale: 2, useCORS: true, logging: false },
         jsPDF: { unit: "mm" as const, format: "a4" as const, orientation: "portrait" as const },
       } as any)
-      .from(container.firstElementChild as HTMLElement)
+      .from(element)
       .save();
   } finally {
     document.body.removeChild(container);
