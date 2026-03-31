@@ -181,7 +181,7 @@ export function LeadDetailSheet({ lead, stages, open, onOpenChange, pipelineId }
 
           {lead.form_submission_id && (
             <TabsContent value="form" className="mt-4">
-              <FormSubmissionData submissionId={lead.form_submission_id} />
+              <FormSubmissionData submissionId={lead.form_submission_id} formId={lead.form_id} />
             </TabsContent>
           )}
         </Tabs>
