@@ -163,7 +163,7 @@ export default function FormRenderer({
         return (
           <div>
             <Label>{field.label}{field.required && <span className="text-destructive"> *</span>}</Label>
-            <Input value={values[field.id] || ""} onChange={e => setValue(field.id, e.target.value)} placeholder={field.placeholder} />
+            <Input style={inputStyle} value={values[field.id] || ""} onChange={e => setValue(field.id, e.target.value)} placeholder={field.placeholder} />
             {error && <p className="text-xs text-destructive mt-1">{error}</p>}
           </div>
         );
@@ -171,7 +171,7 @@ export default function FormRenderer({
         return (
           <div>
             <Label>{field.label}{field.required && <span className="text-destructive"> *</span>}</Label>
-            <Textarea value={values[field.id] || ""} onChange={e => setValue(field.id, e.target.value)} placeholder={field.placeholder} />
+            <Textarea style={inputStyle} value={values[field.id] || ""} onChange={e => setValue(field.id, e.target.value)} placeholder={field.placeholder} />
             {error && <p className="text-xs text-destructive mt-1">{error}</p>}
           </div>
         );
@@ -179,7 +179,7 @@ export default function FormRenderer({
         return (
           <div>
             <Label>{field.label}{field.required && <span className="text-destructive"> *</span>}</Label>
-            <Input type="email" value={values[field.id] || ""} onChange={e => setValue(field.id, e.target.value)} placeholder={field.placeholder} />
+            <Input style={inputStyle} type="email" value={values[field.id] || ""} onChange={e => setValue(field.id, e.target.value)} placeholder={field.placeholder} />
             {error && <p className="text-xs text-destructive mt-1">{error}</p>}
           </div>
         );
@@ -187,7 +187,7 @@ export default function FormRenderer({
         return (
           <div>
             <Label>{field.label}{field.required && <span className="text-destructive"> *</span>}</Label>
-            <Input type="tel" value={values[field.id] || ""} onChange={e => setValue(field.id, e.target.value)} placeholder={field.placeholder} />
+            <Input style={inputStyle} type="tel" value={values[field.id] || ""} onChange={e => setValue(field.id, e.target.value)} placeholder={field.placeholder} />
             {error && <p className="text-xs text-destructive mt-1">{error}</p>}
           </div>
         );
@@ -195,7 +195,7 @@ export default function FormRenderer({
         return (
           <div>
             <Label>{field.label}{field.required && <span className="text-destructive"> *</span>}</Label>
-            <Input type="number" value={values[field.id] || ""} onChange={e => setValue(field.id, e.target.value)} placeholder={field.placeholder} />
+            <Input style={inputStyle} type="number" value={values[field.id] || ""} onChange={e => setValue(field.id, e.target.value)} placeholder={field.placeholder} />
             {error && <p className="text-xs text-destructive mt-1">{error}</p>}
           </div>
         );
@@ -203,7 +203,7 @@ export default function FormRenderer({
         return (
           <div>
             <Label>{field.label}{field.required && <span className="text-destructive"> *</span>}</Label>
-            <Input type="date" value={values[field.id] || ""} onChange={e => setValue(field.id, e.target.value)} />
+            <Input style={inputStyle} type="date" value={values[field.id] || ""} onChange={e => setValue(field.id, e.target.value)} />
             {error && <p className="text-xs text-destructive mt-1">{error}</p>}
           </div>
         );
@@ -212,7 +212,7 @@ export default function FormRenderer({
           <div>
             <Label>{field.label}{field.required && <span className="text-destructive"> *</span>}</Label>
             <Select value={values[field.id] || ""} onValueChange={v => setValue(field.id, v)}>
-              <SelectTrigger><SelectValue placeholder={field.placeholder || "Selecione"} /></SelectTrigger>
+              <SelectTrigger style={inputStyle}><SelectValue placeholder={field.placeholder || "Selecione"} /></SelectTrigger>
               <SelectContent>
                 {(field.options || []).map(opt => <SelectItem key={opt} value={opt}>{opt}</SelectItem>)}
               </SelectContent>
@@ -290,7 +290,7 @@ export default function FormRenderer({
         return (
           <div>
             <Label>{field.label}{field.required && <span className="text-destructive"> *</span>}</Label>
-            <Input type="file" onChange={e => setValue(field.id, e.target.files?.[0]?.name || "")} />
+            <Input style={inputStyle} type="file" onChange={e => setValue(field.id, e.target.files?.[0]?.name || "")} />
             {error && <p className="text-xs text-destructive mt-1">{error}</p>}
           </div>
         );
@@ -298,7 +298,7 @@ export default function FormRenderer({
         return (
           <div>
             <Label>{field.label}{field.required && <span className="text-destructive"> *</span>}</Label>
-            <Input type="url" value={values[field.id] || ""} onChange={e => setValue(field.id, e.target.value)} placeholder={field.placeholder} />
+            <Input style={inputStyle} type="url" value={values[field.id] || ""} onChange={e => setValue(field.id, e.target.value)} placeholder={field.placeholder} />
             {error && <p className="text-xs text-destructive mt-1">{error}</p>}
           </div>
         );
@@ -437,7 +437,7 @@ export default function FormRenderer({
         return (
           <div>
             <Label>{field.label}{field.required && <span className="text-destructive"> *</span>}</Label>
-            <Input type="time" value={values[field.id] || ""} onChange={e => setValue(field.id, e.target.value)} />
+            <Input style={inputStyle} type="time" value={values[field.id] || ""} onChange={e => setValue(field.id, e.target.value)} />
             {error && <p className="text-xs text-destructive mt-1">{error}</p>}
           </div>
         );
@@ -445,7 +445,7 @@ export default function FormRenderer({
         return (
           <div>
             <Label>{field.label}{field.required && <span className="text-destructive"> *</span>}</Label>
-            <Input type="datetime-local" value={values[field.id] || ""} onChange={e => setValue(field.id, e.target.value)} />
+            <Input style={inputStyle} type="datetime-local" value={values[field.id] || ""} onChange={e => setValue(field.id, e.target.value)} />
             {error && <p className="text-xs text-destructive mt-1">{error}</p>}
           </div>
         );
