@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -124,18 +124,24 @@ export default function FormBuilder() {
 
   const saveMutation = useMutation({
     mutationFn: async (newStatus: string | null = null) => {
-      const finalStatus = newStatus || status;
+      const isAutoSave = newStatus === "__autosave__";
+      const finalStatus = isAutoSave ? status : (newStatus || status);
       const sanitizedSlug = slug.toLowerCase().replace(/[^a-z0-9-]/g, "").slice(0, 50);
-      if (!sanitizedSlug) throw new Error("Slug não pode ficar vazio");
-      // Check slug uniqueness
-      const { data: existing } = await supabase
-        .from("forms")
-        .select("id")
-        .eq("slug", sanitizedSlug)
-        .neq("id", id!)
-        .limit(1);
-      if (existing && existing.length > 0) {
-        throw new Error("Este slug já está em uso por outro formulário. Escolha outro.");
+      if (!sanitizedSlug) {
+        if (isAutoSave) return;
+        throw new Error("Slug não pode ficar vazio");
+      }
+      // Check slug uniqueness (skip on autosave for performance)
+      if (!isAutoSave) {
+        const { data: existing } = await supabase
+          .from("forms")
+          .select("id")
+          .eq("slug", sanitizedSlug)
+          .neq("id", id!)
+          .limit(1);
+        if (existing && existing.length > 0) {
+          throw new Error("Este slug já está em uso por outro formulário. Escolha outro.");
+        }
       }
       const { error } = await supabase
         .from("forms")
@@ -150,15 +156,42 @@ export default function FormBuilder() {
         })
         .eq("id", id!);
       if (error) throw error;
-      if (newStatus) setStatus(finalStatus);
+      if (newStatus && !isAutoSave) setStatus(finalStatus);
     },
-    onSuccess: () => {
+    onSuccess: (_, newStatus) => {
       queryClient.invalidateQueries({ queryKey: ["form", id] });
       queryClient.invalidateQueries({ queryKey: ["forms"] });
-      toast({ title: "Formulário salvo!" });
+      if (newStatus !== "__autosave__") {
+        toast({ title: "Formulário salvo!" });
+      }
     },
-    onError: (e: any) => toast({ title: "Erro ao salvar", description: e.message, variant: "destructive" }),
+    onError: (e: any, newStatus) => {
+      if (newStatus !== "__autosave__") {
+        toast({ title: "Erro ao salvar", description: e.message, variant: "destructive" });
+      }
+    },
   });
+
+  // Auto-save: debounce 3s after changes
+  const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const initialLoadDone = useRef(false);
+
+  useEffect(() => {
+    // Skip auto-save until initial data is loaded
+    if (!formData || !initialLoadDone.current) {
+      if (formData) initialLoadDone.current = true;
+      return;
+    }
+    if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
+    autoSaveTimer.current = setTimeout(() => {
+      if (!saveMutation.isPending) {
+        saveMutation.mutate("__autosave__" as any);
+      }
+    }, 3000);
+    return () => {
+      if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
+    };
+  }, [formName, formDesc, slug, layout, fields, settings]);
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
