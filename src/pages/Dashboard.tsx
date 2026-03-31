@@ -46,16 +46,36 @@ export default function Dashboard() {
     queryFn: async () => {
       const now = new Date();
       const firstOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
-      const { data } = await supabase
+      
+      // Check generation_logs first
+      const { data: logs } = await supabase
         .from("generation_logs")
         .select("action, token_estimate, word_count")
         .gte("created_at", firstOfMonth);
-      if (!data) return { generations: 0, regenerations: 0, totalTokens: 0, totalWords: 0 };
-      const generations = data.filter(d => d.action === "generate").length;
-      const regenerations = data.filter(d => d.action === "regenerate").length;
-      const totalTokens = data.reduce((sum, d) => sum + (d.token_estimate || 0), 0);
-      const totalWords = data.reduce((sum, d) => sum + (d.word_count || 0), 0);
-      return { generations, regenerations, totalTokens, totalWords };
+      
+      if (logs && logs.length > 0) {
+        const generations = logs.filter(d => d.action === "generate").length;
+        const regenerations = logs.filter(d => d.action === "regenerate").length;
+        const totalTokens = logs.reduce((sum, d) => sum + (d.token_estimate || 0), 0);
+        const totalWords = logs.reduce((sum, d) => sum + (d.word_count || 0), 0);
+        return { generations, regenerations, totalTokens, totalWords };
+      }
+      
+      // Fallback: estimate from existing completed documents
+      const { data: docs } = await supabase
+        .from("documents")
+        .select("content, status")
+        .eq("status", "completed");
+      
+      if (!docs || docs.length === 0) return { generations: 0, regenerations: 0, totalTokens: 0, totalWords: 0 };
+      
+      const totalWords = docs.reduce((sum, d) => {
+        const words = d.content ? d.content.split(/\s+/).filter(Boolean).length : 0;
+        return sum + words;
+      }, 0);
+      const totalTokens = Math.round(totalWords * 1.3);
+      
+      return { generations: docs.length, regenerations: 0, totalTokens, totalWords };
     },
   });
 
