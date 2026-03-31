@@ -634,7 +634,7 @@ export default function PacoteDocumentos() {
                   ) : (
                     <>
                       <Button variant="outline" size="sm" className="flex-1 gap-1"
-                        disabled={status !== "ready" && !isActive}
+                        disabled={!isDocReady(status) && !isActive}
                         onClick={() => setViewDoc({ ...doc, content: getDocContent(doc) })}>
                         <Eye className="h-3 w-3" /> {isActive ? "Ver ao vivo" : "Ver"}
                       </Button>
