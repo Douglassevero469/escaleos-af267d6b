@@ -233,30 +233,36 @@ export default function FormBuilder() {
       </div>
 
       {/* Published Link Banner */}
-      {status === "published" && formData?.slug && (
-        <div className="flex items-center gap-3 px-4 py-3 rounded-lg border border-primary/30 bg-primary/5">
-          <Globe className="h-4 w-4 text-primary shrink-0" />
-          <code className="text-xs flex-1 truncate text-muted-foreground">
-            {window.location.origin}/f/{formData.slug}
-          </code>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              navigator.clipboard.writeText(`${window.location.origin}/f/${formData.slug}`);
-              toast({ title: "Link copiado!" });
-            }}
-          >
-            <Copy className="h-3.5 w-3.5 mr-1" /> Copiar
-          </Button>
-          <Button
-            size="sm"
-            onClick={() => window.open(`/f/${formData.slug}`, "_blank")}
-          >
-            <ExternalLink className="h-3.5 w-3.5 mr-1" /> Acessar
-          </Button>
-        </div>
-      )}
+      {status === "published" && formData?.slug && (() => {
+        const baseUrl = window.location.hostname.includes("lovableproject.com") || window.location.hostname.includes("lovable.app")
+          ? "https://escaleos.lovable.app"
+          : window.location.origin;
+        const publicLink = `${baseUrl}/f/${formData.slug}`;
+        return (
+          <div className="flex items-center gap-3 px-4 py-3 rounded-lg border border-primary/30 bg-primary/5">
+            <Globe className="h-4 w-4 text-primary shrink-0" />
+            <code className="text-xs flex-1 truncate text-muted-foreground">
+              {publicLink}
+            </code>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                navigator.clipboard.writeText(publicLink);
+                toast({ title: "Link copiado!" });
+              }}
+            >
+              <Copy className="h-3.5 w-3.5 mr-1" /> Copiar
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => window.open(publicLink, "_blank")}
+            >
+              <ExternalLink className="h-3.5 w-3.5 mr-1" /> Acessar
+            </Button>
+          </div>
+        );
+      })()}
 
       {/* Settings Panel */}
       {settingsOpen && (
