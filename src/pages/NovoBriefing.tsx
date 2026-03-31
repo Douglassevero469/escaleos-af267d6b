@@ -187,12 +187,7 @@ export default function NovoBriefing() {
       const { error: docErr } = await supabase.from("documents").insert(docInserts);
       if (docErr) throw docErr;
 
-      // Trigger generation for each document (fire & forget — the page will poll)
-      for (const docType of DOC_TYPES) {
-        triggerGeneration(pkg.id, docType, data, user.id).catch(console.error);
-      }
-
-      toast({ title: "Briefing enviado!", description: "Seus 8 documentos estão sendo gerados com IA." });
+      toast({ title: "Briefing enviado!", description: "Seus 8 documentos serão gerados com IA." });
       navigate(`/pacote/${pkg.id}`);
     } catch (e: any) {
       toast({ title: "Erro ao salvar briefing", description: e.message, variant: "destructive" });
@@ -429,57 +424,4 @@ function ReviewItem({ label, value }: { label: string; value: string }) {
   );
 }
 
-async function triggerGeneration(packageId: string, docType: string, briefingData: BriefingFormData, userId: string) {
-  try {
-    const resp = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-document`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-      },
-      body: JSON.stringify({ briefingData, docType }),
-    });
 
-    if (!resp.ok || !resp.body) {
-      await supabase.from("documents").update({ status: "error" }).eq("package_id", packageId).eq("doc_type", docType);
-      return;
-    }
-
-    // Read SSE stream and collect content
-    const reader = resp.body.getReader();
-    const decoder = new TextDecoder();
-    let content = "";
-    let buffer = "";
-
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      buffer += decoder.decode(value, { stream: true });
-
-      let newlineIndex: number;
-      while ((newlineIndex = buffer.indexOf("\n")) !== -1) {
-        let line = buffer.slice(0, newlineIndex);
-        buffer = buffer.slice(newlineIndex + 1);
-        if (line.endsWith("\r")) line = line.slice(0, -1);
-        if (!line.startsWith("data: ")) continue;
-        const jsonStr = line.slice(6).trim();
-        if (jsonStr === "[DONE]") break;
-        try {
-          const parsed = JSON.parse(jsonStr);
-          const delta = parsed.choices?.[0]?.delta?.content;
-          if (delta) content += delta;
-        } catch { /* partial chunk */ }
-      }
-    }
-
-    // Update document with generated content
-    await supabase
-      .from("documents")
-      .update({ content, status: "ready" })
-      .eq("package_id", packageId)
-      .eq("doc_type", docType);
-  } catch (e) {
-    console.error(`Error generating ${docType}:`, e);
-    await supabase.from("documents").update({ status: "error" }).eq("package_id", packageId).eq("doc_type", docType);
-  }
-}
