@@ -167,6 +167,9 @@ export type Database = {
           id: string
           lost_at: string | null
           name: string
+          next_action_date: string | null
+          next_action_notes: string | null
+          next_action_type: string | null
           notes: string | null
           phone: string | null
           pipeline_id: string
@@ -188,6 +191,9 @@ export type Database = {
           id?: string
           lost_at?: string | null
           name?: string
+          next_action_date?: string | null
+          next_action_notes?: string | null
+          next_action_type?: string | null
           notes?: string | null
           phone?: string | null
           pipeline_id: string
@@ -209,6 +215,9 @@ export type Database = {
           id?: string
           lost_at?: string | null
           name?: string
+          next_action_date?: string | null
+          next_action_notes?: string | null
+          next_action_type?: string | null
           notes?: string | null
           phone?: string | null
           pipeline_id?: string

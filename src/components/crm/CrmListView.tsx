@@ -1,9 +1,10 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import type { CrmLead } from "./LeadCard";
+import { CrmLead, getActionType } from "./LeadCard";
 import type { StageDef } from "./KanbanStageColumn";
 import { format } from "date-fns";
 import { FileText } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface Props {
   leads: CrmLead[];
@@ -23,6 +24,7 @@ export function CrmListView({ leads, stages, onLeadClick }: Props) {
             <TableHead>Nome</TableHead>
             <TableHead>Email</TableHead>
             <TableHead>Origem</TableHead>
+            <TableHead>Próxima Ação</TableHead>
             <TableHead>Etapa</TableHead>
             <TableHead>Score</TableHead>
             <TableHead>Valor</TableHead>
@@ -50,6 +52,26 @@ export function CrmListView({ leads, stages, onLeadClick }: Props) {
                 )}
               </TableCell>
               <TableCell>
+                {lead.next_action_type ? (() => {
+                  const action = getActionType(lead.next_action_type);
+                  const ActionIcon = action.icon;
+                  const isOverdue = lead.next_action_date && new Date(lead.next_action_date) < new Date();
+                  return (
+                    <div className={cn("flex items-center gap-1 text-xs", isOverdue ? "text-destructive" : action.color)}>
+                      <ActionIcon className="h-3 w-3" />
+                      <span>{action.label}</span>
+                      {lead.next_action_date && (
+                        <span className="text-muted-foreground ml-1">
+                          {format(new Date(lead.next_action_date), "dd/MM")}
+                        </span>
+                      )}
+                    </div>
+                  );
+                })() : (
+                  <span className="text-xs text-muted-foreground">—</span>
+                )}
+              </TableCell>
+              <TableCell>
                 <Badge variant="outline" className="text-xs" style={{ borderColor: stageColor(lead.stage) }}>
                   <div className="h-2 w-2 rounded-full mr-1" style={{ backgroundColor: stageColor(lead.stage) }} />
                   {stageName(lead.stage)}
@@ -65,7 +87,7 @@ export function CrmListView({ leads, stages, onLeadClick }: Props) {
             </TableRow>
           ))}
           {leads.length === 0 && (
-            <TableRow><TableCell colSpan={7} className="text-center text-muted-foreground py-8">Nenhum lead encontrado</TableCell></TableRow>
+            <TableRow><TableCell colSpan={8} className="text-center text-muted-foreground py-8">Nenhum lead encontrado</TableCell></TableRow>
           )}
         </TableBody>
       </Table>

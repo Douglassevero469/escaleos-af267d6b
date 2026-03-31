@@ -7,13 +7,13 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { LeadTimeline } from "./LeadTimeline";
-import type { CrmLead } from "./LeadCard";
+import { CrmLead, NEXT_ACTION_TYPES, getActionType } from "./LeadCard";
 import type { StageDef } from "./KanbanStageColumn";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
-import { Trash2 } from "lucide-react";
+import { Trash2, X } from "lucide-react";
 
 interface Props {
   lead: CrmLead | null;
@@ -25,7 +25,10 @@ interface Props {
 
 export function LeadDetailSheet({ lead, stages, open, onOpenChange, pipelineId }: Props) {
   const qc = useQueryClient();
-  const [form, setForm] = useState({ name: "", email: "", phone: "", company: "", stage: "", score: 0, value: 0, notes: "" });
+  const [form, setForm] = useState({ 
+    name: "", email: "", phone: "", company: "", stage: "", score: 0, value: 0, notes: "",
+    next_action_type: "" as string, next_action_date: "", next_action_notes: "",
+  });
 
   useEffect(() => {
     if (lead) {
@@ -38,6 +41,9 @@ export function LeadDetailSheet({ lead, stages, open, onOpenChange, pipelineId }
         score: lead.score || 0,
         value: Number(lead.value) || 0,
         notes: lead.notes || "",
+        next_action_type: lead.next_action_type || "",
+        next_action_date: lead.next_action_date ? new Date(lead.next_action_date).toISOString().slice(0, 16) : "",
+        next_action_notes: lead.next_action_notes || "",
       });
     }
   }, [lead]);
@@ -55,6 +61,9 @@ export function LeadDetailSheet({ lead, stages, open, onOpenChange, pipelineId }
         score: form.score,
         value: form.value,
         notes: form.notes,
+        next_action_type: form.next_action_type || null,
+        next_action_date: form.next_action_date || null,
+        next_action_notes: form.next_action_notes || null,
       }).eq("id", lead.id);
 
       if (oldStage !== form.stage) {
@@ -149,6 +158,60 @@ export function LeadDetailSheet({ lead, stages, open, onOpenChange, pipelineId }
                 <Label className="text-xs">Valor (R$)</Label>
                 <Input type="number" min={0} value={form.value} onChange={e => setForm(p => ({ ...p, value: Number(e.target.value) }))} />
               </div>
+            </div>
+
+            {/* Próxima Ação */}
+            <div className="p-3 border rounded-lg space-y-3 bg-muted/10">
+              <div className="flex items-center justify-between">
+                <Label className="text-xs font-semibold">Próxima Ação</Label>
+                {form.next_action_type && (
+                  <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => setForm(p => ({ ...p, next_action_type: "", next_action_date: "", next_action_notes: "" }))}>
+                    <X className="h-3 w-3" />
+                  </Button>
+                )}
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {NEXT_ACTION_TYPES.map(action => {
+                  const ActionIcon = action.icon;
+                  const isSelected = form.next_action_type === action.value;
+                  return (
+                    <button
+                      key={action.value}
+                      onClick={() => setForm(p => ({ ...p, next_action_type: action.value }))}
+                      className={`flex items-center gap-1 text-[11px] px-2 py-1 rounded-md border transition-all ${
+                        isSelected
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : "bg-background hover:bg-muted border-border"
+                      }`}
+                    >
+                      <ActionIcon className="h-3 w-3" />
+                      {action.label}
+                    </button>
+                  );
+                })}
+              </div>
+              {form.next_action_type && (
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <Label className="text-xs">Data/Hora</Label>
+                    <Input
+                      type="datetime-local"
+                      value={form.next_action_date}
+                      onChange={e => setForm(p => ({ ...p, next_action_date: e.target.value }))}
+                      className="h-8 text-xs"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-xs">Observação</Label>
+                    <Input
+                      value={form.next_action_notes}
+                      onChange={e => setForm(p => ({ ...p, next_action_notes: e.target.value }))}
+                      placeholder="Ex: Confirmar interesse..."
+                      className="h-8 text-xs"
+                    />
+                  </div>
+                </div>
+              )}
             </div>
 
             <div>

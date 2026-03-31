@@ -2,7 +2,20 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { Mail, Phone, DollarSign, FileText } from "lucide-react";
+import { Mail, Phone, DollarSign, FileText, PhoneCall, CalendarClock, MailOpen, Send, FileCheck, Clock } from "lucide-react";
+
+export const NEXT_ACTION_TYPES = [
+  { value: "call", label: "Ligar", icon: PhoneCall, color: "text-blue-600" },
+  { value: "meeting", label: "Reunião", icon: CalendarClock, color: "text-purple-600" },
+  { value: "email", label: "Enviar Email", icon: MailOpen, color: "text-green-600" },
+  { value: "follow_up", label: "Follow-up", icon: Send, color: "text-orange-600" },
+  { value: "proposal", label: "Enviar Proposta", icon: FileCheck, color: "text-pink-600" },
+  { value: "other", label: "Outro", icon: Clock, color: "text-muted-foreground" },
+] as const;
+
+export function getActionType(value: string) {
+  return NEXT_ACTION_TYPES.find(a => a.value === value) || NEXT_ACTION_TYPES[5];
+}
 
 export interface CrmLead {
   id: string;
@@ -25,6 +38,9 @@ export interface CrmLead {
   created_at: string;
   updated_at: string;
   lost_at: string | null;
+  next_action_type: string | null;
+  next_action_date: string | null;
+  next_action_notes: string | null;
 }
 
 interface LeadCardProps {
@@ -78,6 +94,23 @@ export function LeadCard({ lead, onClick }: LeadCardProps) {
           {Number(lead.value).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
         </div>
       )}
+
+      {lead.next_action_type && (() => {
+        const action = getActionType(lead.next_action_type);
+        const ActionIcon = action.icon;
+        const isOverdue = lead.next_action_date && new Date(lead.next_action_date) < new Date();
+        return (
+          <div className={cn("flex items-center gap-1 text-[10px] font-medium rounded-md px-1.5 py-0.5 bg-muted/60", isOverdue ? "text-destructive" : action.color)}>
+            <ActionIcon className="h-3 w-3 shrink-0" />
+            <span className="truncate">{action.label}</span>
+            {lead.next_action_date && (
+              <span className="ml-auto shrink-0">
+                {new Date(lead.next_action_date).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })}
+              </span>
+            )}
+          </div>
+        );
+      })()}
 
       {lead.form_name && (
         <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
