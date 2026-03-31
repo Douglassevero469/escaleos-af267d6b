@@ -89,35 +89,30 @@ function buildPDFHtml(data: AnalyticsExportData): string {
     )
     .join("");
 
-  // Build charts in a 2-column grid
+  // Build charts in a 2-column grid with controlled sizing
   const chartPairs: string[] = [];
   const charts = data.chartImages;
   for (let i = 0; i < charts.length; i += 2) {
     const left = charts[i];
     const right = charts[i + 1];
-    const maxH = isLandscape ? "180px" : "160px";
+    const imgMaxH = isLandscape ? "140px" : "120px";
 
-    const leftHtml = `
-      <div style="flex:1;min-width:0;">
-        <div style="font-size:9px;font-weight:600;color:#333;margin-bottom:2px;">${left.title}</div>
-        ${left.subtitle ? `<div style="font-size:7px;color:#999;margin-bottom:4px;">${left.subtitle}</div>` : ""}
-        <div style="border:1px solid #eceef2;border-radius:6px;overflow:hidden;background:#fff;">
-          <img src="${left.imageDataUrl}" style="width:100%;max-height:${maxH};object-fit:contain;display:block;" />
+    const chartCard = (chart: ChartImageData) => `
+      <div style="flex:1;min-width:0;max-width:50%;">
+        <div style="font-size:8px;font-weight:700;color:#333;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${chart.title}</div>
+        ${chart.subtitle ? `<div style="font-size:6.5px;color:#999;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${chart.subtitle}</div>` : ""}
+        <div style="border:1px solid #eceef2;border-radius:6px;overflow:hidden;background:#fff;padding:4px;">
+          <img src="${chart.imageDataUrl}" style="width:100%;height:${imgMaxH};object-fit:contain;display:block;" />
         </div>
       </div>`;
 
+    const leftHtml = chartCard(left);
     const rightHtml = right
-      ? `<div style="flex:1;min-width:0;">
-          <div style="font-size:9px;font-weight:600;color:#333;margin-bottom:2px;">${right.title}</div>
-          ${right.subtitle ? `<div style="font-size:7px;color:#999;margin-bottom:4px;">${right.subtitle}</div>` : ""}
-          <div style="border:1px solid #eceef2;border-radius:6px;overflow:hidden;background:#fff;">
-            <img src="${right.imageDataUrl}" style="width:100%;max-height:${maxH};object-fit:contain;display:block;" />
-          </div>
-        </div>`
-      : `<div style="flex:1;min-width:0;"></div>`;
+      ? chartCard(right)
+      : `<div style="flex:1;min-width:0;max-width:50%;"></div>`;
 
     chartPairs.push(`
-      <div style="display:flex;gap:12px;margin-bottom:14px;page-break-inside:avoid;">
+      <div style="display:flex;gap:10px;margin-bottom:10px;page-break-inside:avoid;">
         ${leftHtml}
         ${rightHtml}
       </div>`);
