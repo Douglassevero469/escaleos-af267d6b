@@ -485,6 +485,153 @@ export default function FormRenderer({
     </Button>
   );
 
+  // ChatIA mode - conversational with typing indicator and chat bubbles
+  if (layout === "chatia") {
+    const chatIaFields = fields.filter(f => !["heading", "paragraph", "divider", "spacer"].includes(f.type));
+    const currentIaField = chatIaFields[chatIaStep];
+    const isLastIa = chatIaStep >= chatIaFields.length - 1;
+
+    // Auto-scroll to bottom
+    useEffect(() => {
+      chatIaEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, [chatIaMessages, chatIaTyping]);
+
+    // Show first bot question on mount
+    useEffect(() => {
+      if (chatIaFields.length > 0 && chatIaMessages.length === 0) {
+        setChatIaTyping(true);
+        const timer = setTimeout(() => {
+          setChatIaTyping(false);
+          setChatIaMessages([{ role: "bot", content: chatIaFields[0]?.label + (chatIaFields[0]?.required ? " *" : "") }]);
+          setChatIaReady(true);
+        }, 1200);
+        return () => clearTimeout(timer);
+      }
+    }, []);
+
+    const handleChatIaAnswer = () => {
+      if (!currentIaField || isPreview) return;
+      const val = values[currentIaField.id];
+      if (currentIaField.required && (!val || (typeof val === "string" && !val.trim()))) {
+        setErrors(e => ({ ...e, [currentIaField.id]: "Campo obrigatório" }));
+        return;
+      }
+
+      // Display user answer as text
+      const displayVal = Array.isArray(val) ? val.join(", ") : typeof val === "boolean" ? (val ? "Sim" : "Não") : String(val || "");
+      setChatIaMessages(prev => [...prev, { role: "user", content: displayVal, fieldId: currentIaField.id }]);
+
+      if (isLastIa) {
+        // Show thank you
+        setChatIaTyping(true);
+        setTimeout(() => {
+          setChatIaTyping(false);
+          setChatIaMessages(prev => [...prev, { role: "bot", content: "Perfeito! Obrigado pelas respostas. Enviando..." }]);
+          setTimeout(() => handleSubmit(), 800);
+        }, 1000);
+      } else {
+        // Next question
+        const nextStep = chatIaStep + 1;
+        setChatIaStep(nextStep);
+        setChatIaReady(false);
+        setChatIaTyping(true);
+        setTimeout(() => {
+          setChatIaTyping(false);
+          const nextField = chatIaFields[nextStep];
+          setChatIaMessages(prev => [...prev, { role: "bot", content: nextField?.label + (nextField?.required ? " *" : "") }]);
+          setChatIaReady(true);
+        }, 800 + Math.random() * 800);
+      }
+    };
+
+    const TypingDots = () => (
+      <div className="flex items-center gap-1 px-4 py-3 rounded-2xl rounded-bl-md max-w-[80%]" style={{ backgroundColor: theme.vars["--form-card-bg"], border: `1px solid ${theme.vars["--form-border"]}` }}>
+        <span className="w-2 h-2 rounded-full animate-bounce" style={{ backgroundColor: theme.vars["--form-muted"], animationDelay: "0ms" }} />
+        <span className="w-2 h-2 rounded-full animate-bounce" style={{ backgroundColor: theme.vars["--form-muted"], animationDelay: "150ms" }} />
+        <span className="w-2 h-2 rounded-full animate-bounce" style={{ backgroundColor: theme.vars["--form-muted"], animationDelay: "300ms" }} />
+      </div>
+    );
+
+    return (
+      <div className={`flex flex-col ${wrapperHeight}`} style={themeStyle}>
+        {/* Header */}
+        <div className="px-4 py-3 border-b flex items-center gap-3" style={{ borderColor: theme.vars["--form-border"], backgroundColor: theme.vars["--form-card-bg"] }}>
+          <div className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold" style={{ backgroundColor: settings.buttonColor || theme.vars["--form-accent"], color: theme.vars["--form-accent-fg"] }}>
+            {settings.logoUrl ? (
+              <img src={settings.logoUrl} alt="Bot" className="w-9 h-9 rounded-full object-cover" />
+            ) : "🤖"}
+          </div>
+          <div>
+            <p className="text-sm font-semibold" style={{ color: theme.vars["--form-fg"] }}>{formName}</p>
+            <p className="text-[10px]" style={mutedStyle}>{chatIaTyping ? "Digitando..." : "Online"}</p>
+          </div>
+        </div>
+
+        {/* Messages area */}
+        <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
+          {chatIaMessages.map((msg, i) => (
+            <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"} animate-fade-in`}>
+              <div
+                className={`px-4 py-2.5 max-w-[80%] text-sm ${
+                  msg.role === "user"
+                    ? "rounded-2xl rounded-br-md"
+                    : "rounded-2xl rounded-bl-md"
+                }`}
+                style={
+                  msg.role === "user"
+                    ? { backgroundColor: settings.buttonColor || theme.vars["--form-accent"], color: theme.vars["--form-accent-fg"] }
+                    : { backgroundColor: theme.vars["--form-card-bg"], color: theme.vars["--form-fg"], border: `1px solid ${theme.vars["--form-border"]}` }
+                }
+              >
+                {msg.content}
+              </div>
+            </div>
+          ))}
+          {chatIaTyping && (
+            <div className="flex justify-start animate-fade-in">
+              <TypingDots />
+            </div>
+          )}
+          <div ref={chatIaEndRef} />
+        </div>
+
+        {/* Input area */}
+        {chatIaReady && currentIaField && !submitted && (
+          <div className="px-4 py-3 border-t" style={{ borderColor: theme.vars["--form-border"], backgroundColor: theme.vars["--form-card-bg"] }}>
+            {/* Render inline field based on type */}
+            {["short_text", "email", "phone", "url", "cpf", "number", "currency", "long_text"].includes(currentIaField.type) ? (
+              <div className="flex gap-2 items-end">
+                <div className="flex-1">
+                  <Input
+                    style={{ ...inputStyle, borderRadius: "1.5rem" }}
+                    type={currentIaField.type === "email" ? "email" : currentIaField.type === "phone" ? "tel" : currentIaField.type === "number" ? "number" : currentIaField.type === "url" ? "url" : "text"}
+                    value={values[currentIaField.id] || ""}
+                    onChange={e => setValue(currentIaField.id, e.target.value)}
+                    placeholder={currentIaField.placeholder || "Digite sua resposta..."}
+                    onKeyDown={e => { if (e.key === "Enter") handleChatIaAnswer(); }}
+                  />
+                  {errors[currentIaField.id] && <p className="text-xs text-destructive mt-1 px-3">{errors[currentIaField.id]}</p>}
+                </div>
+                <Button size="icon" className="rounded-full h-10 w-10 shrink-0" style={btnStyle} onClick={handleChatIaAnswer} disabled={submitting}>
+                  <Send className="h-4 w-4" />
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <div className="max-h-48 overflow-y-auto">
+                  {renderField(currentIaField)}
+                </div>
+                <Button className="w-full rounded-full" style={btnStyle} onClick={handleChatIaAnswer} disabled={submitting}>
+                  {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Send className="h-4 w-4 mr-1" /> Responder</>}
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  }
+
   // Chat mode
   if (layout === "chat") {
     const chatFields = fields.filter(f => !["heading", "paragraph", "divider", "spacer"].includes(f.type));
