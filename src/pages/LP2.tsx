@@ -389,7 +389,7 @@ export default function LP2() {
                       Total no mercado
                     </td>
                     <td className="py-5 px-6 text-right text-xl font-extrabold text-red-500 line-through">
-                      <AnimatedPrice value={38700} />
+                      <AnimatedPrice value={35200} />
                     </td>
                   </tr>
                   <tr className="bg-blue-600/10 border-t border-blue-500/30">
