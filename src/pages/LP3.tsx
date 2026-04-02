@@ -412,7 +412,7 @@ export default function LP3() {
       </div>
 
       {/* Social proof - only on result */}
-      {step === totalQuestions + 2 && <SocialProofToast />}
+      {step === totalQuestions + 3 && <SocialProofToast />}
     </div>
   );
 }
