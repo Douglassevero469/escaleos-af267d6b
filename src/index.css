@@ -219,6 +219,10 @@
     font-family: 'Ninetea', system-ui, sans-serif;
   }
 
+  .font-montserrat {
+    font-family: 'Montserrat', sans-serif;
+  }
+
   .glass {
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
