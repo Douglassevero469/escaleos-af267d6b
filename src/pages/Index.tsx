@@ -292,7 +292,7 @@ const faqItems = [
   { q: "A landing page já vem pronta?", a: "Sim, a proposta inclui a landing page dentro do pacote, pensada com foco em alta conversão." },
   { q: "O CRM está incluso no valor?", a: "Sim. O acesso ao CRM por 1 ano já está incluso no pacote." },
   { q: "Esse pacote é só estratégico ou também orienta a execução?", a: "Além da estrutura estratégica, você recebe o passo a passo de implementação para saber como aplicar a solução." },
-  { q: "Qual é o valor?", a: "O investimento é de R$ 9.997, podendo ser parcelado em 12x sem juros de R$ 833,08." },
+  { q: "Qual é o valor?", a: "O investimento é de R$ 8.497, podendo ser parcelado em 12x sem juros de R$ 708,08." },
 ];
 
 const objections = [
@@ -345,8 +345,8 @@ export default function Index() {
               <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 via-cyan/20 to-primary/20 rounded-2xl blur-lg" />
               <div className="relative glass rounded-2xl py-5 px-10 border border-primary/20">
                 <p className="text-muted-foreground text-sm mb-1 uppercase tracking-wider">Investimento</p>
-                <p className="text-3xl md:text-4xl font-bold gradient-text">12x de R$ 833,08</p>
-                <p className="text-muted-foreground text-sm mt-1">sem juros · ou R$ 9.997 à vista</p>
+                <p className="text-3xl md:text-4xl font-bold gradient-text">12x de R$ 708,08</p>
+                <p className="text-muted-foreground text-sm mt-1">sem juros  ou R$ 8.497 à vista</p>
               </div>
             </div>
           </FadeInSection>
@@ -791,9 +791,9 @@ export default function Index() {
                 <img src={escaleIcon} alt="" className="h-14 mx-auto mb-8 opacity-80" />
                 <SectionTitle className="text-center">
                   Tudo isso por apenas{" "}
-                  <span className="gradient-text">12x de R$ 833,08</span>
+                  <span className="gradient-text">12x de R$ 708,08</span>
                 </SectionTitle>
-                <p className="text-muted-foreground mb-10 mt-2">sem juros · ou R$ 9.997 à vista</p>
+                <p className="text-muted-foreground mb-10 mt-2">sem juros  ou R$ 8.497 à vista</p>
 
                 <div className="grid sm:grid-cols-2 gap-3 text-left max-w-md mx-auto mb-10">
                   {[
@@ -938,7 +938,7 @@ export default function Index() {
                   <p className="text-sm text-muted-foreground mt-1">
                     Planejamento + Comercial + Mídia + LP + CRM + Passo a Passo
                   </p>
-                  <p className="text-3xl font-bold gradient-text mt-2">R$ 9.997 em até 12x sem juros</p>
+                  <p className="text-3xl font-bold gradient-text mt-2">R$ 8.497 em até 12x sem juros</p>
                 </div>
 
                 <div className="block">
