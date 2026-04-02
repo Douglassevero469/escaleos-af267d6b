@@ -9,6 +9,7 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Home from "./pages/Home";
 import Index from "./pages/Index";
 import LP2 from "./pages/LP2";
+import LP3 from "./pages/LP3";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import NovoBriefing from "./pages/NovoBriefing";
