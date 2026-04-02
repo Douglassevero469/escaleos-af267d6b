@@ -104,6 +104,9 @@ export default function LP2() {
         
         <div className="relative max-w-4xl mx-auto px-6 text-center">
           <Reveal>
+            <img src={escaleLogoWhite} alt="Escale" className="h-10 mx-auto mb-10" />
+          </Reveal>
+          <Reveal>
             <p className="text-blue-400 font-bold text-sm tracking-[0.3em] uppercase mb-6">
               Para empresas que estão cansadas de improvisar
             </p>
