@@ -340,7 +340,7 @@ export default function LP2() {
               Sua empresa vai continuar <span className="text-red-500">improvisando</span> ou vai começar a <span className="text-blue-400">crescer com estrutura</span>?
             </h2>
             <p className="text-gray-400 mb-10 text-lg">A decisão é sua. O plano é nosso.</p>
-            <a href={WA_LINK} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-3 bg-green-500 hover:bg-green-400 text-black font-bold text-xl px-12 py-6 rounded-full transition-all hover:scale-105 shadow-lg shadow-green-500/30">
+            <a href={WA_LINK} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-3 bg-green-500 hover:bg-green-400 text-black font-bold text-xl px-12 py-6 rounded-full transition-all hover:scale-105 shadow-lg shadow-green-500/30 animate-pulse">
               <MessageCircle className="h-7 w-7" />
               FALAR COM A ESCALE AGORA
               <ArrowRight className="h-6 w-6" />
