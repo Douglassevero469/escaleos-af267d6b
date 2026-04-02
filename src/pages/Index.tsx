@@ -254,7 +254,7 @@ const miniSeals = [
   { icon: Shield, label: "Estrutura completa" },
   { icon: Zap, label: "1 ano de LP de alta conversão" },
   { icon: Users, label: "1 ano de CRM" },
-  { icon: Layout, label: "1 ano de LP" },
+  
   { icon: ListChecks, label: "Implementação orientada" },
 ];
 
