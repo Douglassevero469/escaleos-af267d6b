@@ -557,7 +557,7 @@ export default function LP3() {
             <div className="max-w-lg mx-auto w-full animate-[fade-in_0.6s_ease-out]">
               <div className="text-center mb-8">
                 <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold mb-4 bg-gradient-to-r ${d.bg} ${d.color} border border-current/20`}>
-                  Nível: {d.level}
+                  Nível: {d.level} · Urgência {d.urgency}
                 </div>
                 <h1 className="text-2xl md:text-3xl font-bold mb-3">{d.headline}</h1>
                 <p className="text-white/60">{d.sub}</p>
@@ -571,6 +571,19 @@ export default function LP3() {
                 </div>
                 <div className="h-3 bg-white/10 rounded-full overflow-hidden">
                   <div className="h-full bg-gradient-to-r from-blue-500 to-green-400 rounded-full transition-all duration-1000" style={{ width: `${d.pct}%` }} />
+                </div>
+              </div>
+
+              {/* Personalized recommendations */}
+              <div className="bg-white/5 border border-white/10 rounded-2xl p-6 mb-6">
+                <h3 className="font-bold text-sm text-white/70 mb-3">📋 Recomendações para o seu cenário:</h3>
+                <div className="space-y-2">
+                  {d.recommendations.map((rec) => (
+                    <div key={rec} className="flex items-center gap-2 text-sm">
+                      <CheckCircle2 className="h-4 w-4 text-blue-400 flex-shrink-0" />
+                      <span className="text-white/80">{rec}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
 
