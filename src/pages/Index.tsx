@@ -346,7 +346,7 @@ export default function Index() {
               <div className="relative glass rounded-2xl py-5 px-10 border border-primary/20">
                 <p className="text-muted-foreground text-sm mb-1 uppercase tracking-wider">Investimento</p>
                 <p className="text-3xl md:text-4xl font-bold gradient-text">12x de R$ 833,08</p>
-                <p className="text-muted-foreground text-sm mt-1">sem juros · ou R$ 9.997 à vista</p>
+                <p className="text-muted-foreground text-sm mt-1">sem juros ou R$ 8.497 à vista</p>
               </div>
             </div>
           </FadeInSection>
