@@ -40,6 +40,13 @@ function useCountUp(end: number, duration = 2000) {
   return { count, ref };
 }
 
+/* ─── Animated price (formats as R$ X.XXX) ─── */
+function AnimatedPrice({ value, className = "" }: { value: number; className?: string }) {
+  const { count, ref } = useCountUp(value, 1600);
+  const formatted = count.toLocaleString("pt-BR");
+  return <span ref={ref} className={className}>R$ {formatted}</span>;
+}
+
 const WA_LINK = "https://wa.me/5500000000000?text=Quero%20saber%20mais%20sobre%20o%20Super%20Pacote%20Escale";
 
 /* ─── Social proof push notifications ─── */
