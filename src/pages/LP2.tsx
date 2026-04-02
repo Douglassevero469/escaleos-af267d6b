@@ -351,7 +351,7 @@ export default function LP2() {
 
       {/* ═══ STICKY MOBILE CTA ═══ */}
       <div className="fixed bottom-0 left-0 right-0 z-50 p-3 bg-black/90 backdrop-blur-sm border-t border-gray-800 md:hidden">
-        <a href={WA_LINK} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 bg-green-500 text-black font-bold py-4 rounded-full w-full text-base">
+        <a href={WA_LINK} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 bg-green-500 text-black font-bold py-4 rounded-full w-full text-base animate-pulse">
           <MessageCircle className="h-5 w-5" />
           QUERO CONTRATAR AGORA
         </a>
