@@ -425,6 +425,9 @@ export default function LP3() {
                 </div>
               </div>
 
+              {/* Urgency countdown */}
+              <CountdownBanner />
+
               {/* CTA */}
               <a
                 href={WA_LINK}
@@ -435,7 +438,7 @@ export default function LP3() {
                 <MessageCircle className="h-5 w-5" />
                 Quero contratar agora
               </a>
-              <p className="text-center text-white/30 text-xs mt-3">⚡ Vagas limitadas este mês</p>
+              <p className="text-center text-white/30 text-xs mt-3">⚡ Restam apenas <span className="text-red-400 font-bold">3 vagas</span> este mês</p>
             </div>
           );
         })()}
