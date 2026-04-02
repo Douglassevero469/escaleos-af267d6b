@@ -207,7 +207,7 @@ export default function LP2() {
         <Reveal>
           <h2 className="text-2xl md:text-3xl font-extrabold mb-4">Chega de perder tempo e dinheiro.</h2>
           <p className="text-blue-100 mb-8 text-lg">Fale agora com a Escale e descubra como estruturar seu crescimento.</p>
-          <a href={WA_LINK} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-3 bg-white text-blue-700 font-bold text-lg px-10 py-5 rounded-full hover:bg-gray-100 transition-all hover:scale-105">
+          <a href={WA_LINK} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-3 bg-white text-blue-700 font-bold text-lg px-10 py-5 rounded-full hover:bg-gray-100 transition-all hover:scale-105 animate-pulse">
             <MessageCircle className="h-6 w-6" />
             QUERO FALAR COM A ESCALE
           </a>
