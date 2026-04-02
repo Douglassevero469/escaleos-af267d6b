@@ -14,6 +14,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import escaleLogoWhite from "@/assets/escale-logo-white.png";
+import escaleLogoDark from "@/assets/escale-logo-dark.png";
 import escaleIcon from "@/assets/escale-icon.png";
 import { useEffect, useState } from "react";
 
@@ -120,33 +121,16 @@ export default function Index() {
       <StickyTopBar />
       <StickyBottomCTA />
 
-      {/* Navbar */}
-      <nav className="fixed top-[calc(2rem+4px)] left-0 right-0 z-50 glass-strong">
-        <div className="container mx-auto flex items-center justify-between h-16 px-4">
-          <img src={escaleLogoWhite} alt="Escale" className="h-6" />
-          <div className="flex items-center gap-3">
-            <Link to="/login">
-              <Button variant="ghost" size="sm" className="text-foreground/80 hover:text-foreground">Entrar</Button>
-            </Link>
-            <a href={CTA_LINK} target="_blank" rel="noopener noreferrer">
-              <Button size="sm" className="btn-primary-glow gap-1.5">
-                Falar com especialista <ArrowUpRight className="h-3.5 w-3.5" />
-              </Button>
-            </a>
-          </div>
-        </div>
-      </nav>
 
       {/* ===== 1. HERO ===== */}
-      <section className="relative pt-44 pb-24 px-4 overflow-hidden">
+      <section className="relative pt-20 pb-24 px-4 overflow-hidden">
         <div className="absolute inset-0">
           <div className="absolute top-10 left-1/3 w-[500px] h-[500px] bg-primary/8 rounded-full blur-[150px]" />
           <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-cyan/5 rounded-full blur-[120px]" />
         </div>
         <div className="container mx-auto text-center relative z-10 max-w-4xl">
-          <div className="inline-flex items-center gap-2 glass rounded-full px-5 py-2 text-sm text-muted-foreground mb-10">
-            <Sparkles className="h-3.5 w-3.5 text-primary" />
-            Super Pacote Escale
+          <div className="mb-10">
+            <img src={escaleLogoDark} alt="Escale" className="h-10 mx-auto" />
           </div>
           <h1 className="font-display text-4xl md:text-6xl lg:text-7xl font-black tracking-tight mb-8 leading-[0.95]">
             Sua empresa não precisa de mais uma agência.{" "}
