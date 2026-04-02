@@ -121,7 +121,7 @@ export default function Index() {
       <StickyBottomCTA />
 
       {/* Navbar */}
-      <nav className="fixed top-0 left-0 right-0 z-50 glass-strong">
+      <nav className="fixed top-[calc(2rem+4px)] left-0 right-0 z-50 glass-strong">
         <div className="container mx-auto flex items-center justify-between h-16 px-4">
           <img src={escaleLogoWhite} alt="Escale" className="h-6" />
           <div className="flex items-center gap-3">
@@ -138,7 +138,7 @@ export default function Index() {
       </nav>
 
       {/* ===== 1. HERO ===== */}
-      <section className="relative pt-36 pb-24 px-4 overflow-hidden">
+      <section className="relative pt-44 pb-24 px-4 overflow-hidden">
         <div className="absolute inset-0">
           <div className="absolute top-10 left-1/3 w-[500px] h-[500px] bg-primary/8 rounded-full blur-[150px]" />
           <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-cyan/5 rounded-full blur-[120px]" />
