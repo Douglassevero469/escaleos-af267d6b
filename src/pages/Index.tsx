@@ -117,7 +117,7 @@ const objections = [
 
 export default function Index() {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen" style={{ fontFamily: "'Montserrat', sans-serif" }}>
       <StickyTopBar />
       <StickyBottomCTA />
 
