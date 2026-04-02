@@ -132,15 +132,22 @@ export default function LP3() {
     }, 500);
   };
 
+  // Handle lead capture submit
+  const handleLeadSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    if (!leadName.trim() || !leadEmail.trim()) return;
+    setStep(totalQuestions + 2); // go to loading
+  };
+
   // Loading animation
   useEffect(() => {
-    if (step !== totalQuestions + 1) return;
+    if (step !== totalQuestions + 2) return;
     setLoadingPercent(0);
     const interval = setInterval(() => {
       setLoadingPercent((prev) => {
         if (prev >= 100) {
           clearInterval(interval);
-          setTimeout(() => setStep(totalQuestions + 2), 500);
+          setTimeout(() => setStep(totalQuestions + 3), 500);
           return 100;
         }
         return prev + 2;
