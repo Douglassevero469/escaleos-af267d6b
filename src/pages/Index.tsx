@@ -793,7 +793,7 @@ export default function Index() {
                   Tudo isso por apenas{" "}
                   <span className="gradient-text">12x de R$ 708,08</span>
                 </SectionTitle>
-                <p className="text-muted-foreground mb-10 mt-2">sem juros ou R$ 8.497 à vista</p>
+                <p className="text-muted-foreground mb-10 mt-2">sem juros  ou R$ 8.497 à vista</p>
 
                 <div className="grid sm:grid-cols-2 gap-3 text-left max-w-md mx-auto mb-10">
                   {[
