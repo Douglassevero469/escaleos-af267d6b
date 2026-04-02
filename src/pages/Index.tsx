@@ -120,22 +120,6 @@ export default function Index() {
       <StickyTopBar />
       <StickyBottomCTA />
 
-      {/* Navbar */}
-      <nav className="fixed top-[calc(2rem+4px)] left-0 right-0 z-50 glass-strong">
-        <div className="container mx-auto flex items-center justify-between h-16 px-4">
-          <img src={escaleLogoWhite} alt="Escale" className="h-6" />
-          <div className="flex items-center gap-3">
-            <Link to="/login">
-              <Button variant="ghost" size="sm" className="text-foreground/80 hover:text-foreground">Entrar</Button>
-            </Link>
-            <a href={CTA_LINK} target="_blank" rel="noopener noreferrer">
-              <Button size="sm" className="btn-primary-glow gap-1.5">
-                Falar com especialista <ArrowUpRight className="h-3.5 w-3.5" />
-              </Button>
-            </a>
-          </div>
-        </div>
-      </nav>
 
       {/* ===== 1. HERO ===== */}
       <section className="relative pt-44 pb-24 px-4 overflow-hidden">
