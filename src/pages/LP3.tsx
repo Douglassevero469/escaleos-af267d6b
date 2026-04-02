@@ -102,12 +102,15 @@ function SocialProofToast() {
 
 /* ─── Main component ─── */
 export default function LP3() {
-  const [step, setStep] = useState(0); // 0=welcome, 1-6=questions, 7=loading, 8=result
+  const [step, setStep] = useState(0); // 0=welcome, 1-6=questions, 7=capture, 8=loading, 9=result
   const [answers, setAnswers] = useState<string[]>([]);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [transitioning, setTransitioning] = useState(false);
   const [showEncouragement, setShowEncouragement] = useState(false);
   const [loadingPercent, setLoadingPercent] = useState(0);
+  const [leadName, setLeadName] = useState("");
+  const [leadEmail, setLeadEmail] = useState("");
+  const [leadPhone, setLeadPhone] = useState("");
 
   const totalQuestions = questions.length;
   const progressValue = step === 0 ? 0 : step > totalQuestions ? 100 : Math.round((step / totalQuestions) * 100);
