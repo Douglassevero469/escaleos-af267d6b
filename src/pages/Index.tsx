@@ -345,7 +345,7 @@ export default function Index() {
               <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 via-cyan/20 to-primary/20 rounded-2xl blur-lg" />
               <div className="relative glass rounded-2xl py-5 px-10 border border-primary/20">
                 <p className="text-muted-foreground text-sm mb-1 uppercase tracking-wider">Investimento</p>
-                <p className="text-3xl md:text-4xl font-bold gradient-text">12x de R$ 833,08</p>
+                <p className="text-3xl md:text-4xl font-bold gradient-text">12x de R$ 708,08</p>
                 <p className="text-muted-foreground text-sm mt-1">sem juros ou R$ 8.497 à vista</p>
               </div>
             </div>
