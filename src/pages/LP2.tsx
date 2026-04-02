@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { MessageCircle, ChevronDown, CheckCircle2, XCircle, ArrowRight, Star, Clock, AlertTriangle, Flame, Target, TrendingUp, Zap, Phone } from "lucide-react";
+import escaleLogoWhite from "@/assets/escale-logo-white.png";
 
 /* ─── Utility: scroll-triggered entrance ─── */
 function Reveal({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) {
@@ -102,6 +103,9 @@ export default function LP2() {
         <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-blue-600/10 rounded-full blur-[120px]" />
         
         <div className="relative max-w-4xl mx-auto px-6 text-center">
+          <Reveal>
+            <img src={escaleLogoWhite} alt="Escale" className="h-10 mx-auto mb-10" />
+          </Reveal>
           <Reveal>
             <p className="text-blue-400 font-bold text-sm tracking-[0.3em] uppercase mb-6">
               Para empresas que estão cansadas de improvisar
