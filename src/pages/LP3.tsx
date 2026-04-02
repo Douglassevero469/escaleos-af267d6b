@@ -269,67 +269,34 @@ export default function LP3() {
 
   // BANT Diagnosis logic
   const getDiagnosis = () => {
-    // Scores per BANT dimension (0-10 each)
-    let need = 0, authority = 0, budget = 0, timeline = 0;
-
-    // Q0: Desafio (all options indicate need)
-    need += 2;
+    // MATURITY score: higher = more mature/structured (0-10)
+    let maturity = 10; // start at max, subtract for gaps
 
     // Q1: Plano comercial
-    if (answers[1] === "Sim, completo e atualizado") need += 0;
-    else if (answers[1] === "Tenho algo básico") need += 2;
-    else need += 4;
+    if (answers[1] === "Sim, completo e atualizado") maturity -= 0;
+    else if (answers[1] === "Tenho algo básico") maturity -= 2;
+    else maturity -= 4;
 
     // Q2: Tráfego pago
-    if (answers[2] === "Sim, com bons resultados") need += 0;
-    else if (answers[2] === "Sim, mas sem retorno claro") need += 2;
-    else need += 3;
+    if (answers[2] === "Sim, com bons resultados") maturity -= 0;
+    else if (answers[2] === "Sim, mas sem retorno claro") maturity -= 2;
+    else maturity -= 3;
 
     // Q3: CRM
-    if (answers[3] === "Sim, uso diariamente") need += 0;
-    else if (answers[3] === "Já tentei mas não funcionou") need += 2;
-    else if (answers[3] === "Não uso nenhum") need += 3;
-    else need += 4; // nem sabe
+    if (answers[3] === "Sim, uso diariamente") maturity -= 0;
+    else if (answers[3] === "Já tentei mas não funcionou") maturity -= 1;
+    else if (answers[3] === "Não uso nenhum") maturity -= 2;
+    else maturity -= 3; // nem sabe
 
-    // Q4: Papel na empresa (Authority)
-    if (answers[4] === "Sócio / CEO") authority = 10;
-    else if (answers[4] === "Diretor / Gerente") authority = 8;
-    else if (answers[4] === "Coordenador / Analista") authority = 5;
-    else authority = 3;
-
-    // Q5: Tamanho da equipe
-    if (answers[5] === "Só eu") authority = Math.min(authority, 6);
-    else if (answers[5] === "Mais de 15") authority = Math.max(authority, 8);
-
-    // Q6: Faturamento (Budget indicator)
-    const fatIdx = ["R$ 20k – R$ 50k", "R$ 50k – R$ 100k", "R$ 100k – R$ 200k", "R$ 200k – R$ 500k", "R$ 500k – R$ 1M", "Acima de R$ 1M"].indexOf(answers[6] || "");
-    budget = Math.min(10, (fatIdx + 1) * 2);
-
-    // Q7: Investimento disponível
-    if (answers[7] === "Acima de R$ 20 mil") budget = Math.max(budget, 10);
-    else if (answers[7] === "R$ 10 mil – R$ 20 mil") budget = Math.max(budget, 8);
-    else if (answers[7] === "R$ 5 mil – R$ 10 mil") budget = Math.max(budget, 6);
-    else budget = Math.max(budget, 3);
-
-    // Q8: Timeline
-    if (answers[8] === "Imediatamente, é urgente") timeline = 10;
-    else if (answers[8] === "Nos próximos 30 dias") timeline = 8;
-    else if (answers[8] === "Em 2 a 3 meses") timeline = 5;
-    else timeline = 2;
-
-    // Cap need at 10
-    need = Math.min(need, 10);
-
-    const totalScore = Math.round((need + authority + budget + timeline) / 4);
+    maturity = Math.max(0, maturity);
 
     // Build weaknesses for personalized recommendations
     const weaknesses: string[] = [];
-    if (need >= 7) weaknesses.push("estrutura comercial e processos");
+    if (answers[1] !== "Sim, completo e atualizado") weaknesses.push("planejamento comercial");
     if (answers[2] !== "Sim, com bons resultados") weaknesses.push("estratégia de mídia paga");
     if (answers[3] !== "Sim, uso diariamente") weaknesses.push("gestão de relacionamento (CRM)");
-    if (answers[1] !== "Sim, completo e atualizado") weaknesses.push("planejamento comercial");
 
-    // Personalized headline based on main challenge
+    // Personalized headline based on main challenge (Q0)
     const mainChallenge = answers[0] || "";
     let challengeText = "";
     if (mainChallenge.includes("leads")) challengeText = "Sua máquina de geração de leads precisa de estrutura.";
@@ -337,26 +304,29 @@ export default function LP3() {
     else if (mainChallenge.includes("processos")) challengeText = "Seus processos comerciais precisam de organização urgente.";
     else challengeText = "Sua comunicação precisa de estratégia para gerar resultados.";
 
-    if (totalScore >= 8) {
+    // Convert maturity to percentage (0-100)
+    const pct = maturity * 10;
+
+    if (maturity <= 3) {
       return {
         level: "Crítico",
         color: "text-red-400",
         bg: "from-red-500/20 to-red-600/10",
-        pct: Math.min(30, totalScore * 3),
+        pct,
         headline: `🚨 ${challengeText}`,
-        sub: `Identificamos gaps críticos em: ${weaknesses.slice(0, 3).join(", ")}. Cada dia sem agir é faturamento perdido.`,
+        sub: `Identificamos gaps críticos em: ${weaknesses.join(", ")}. Cada dia sem agir é faturamento perdido.`,
         urgency: "alta",
         recommendations: ["Planejamento Estratégico completo", "Plano Comercial com funil definido", "CRM para não perder nenhum lead", "Landing Page de alta conversão"],
       };
     }
-    if (totalScore >= 5) {
+    if (maturity <= 6) {
       return {
         level: "Atenção",
         color: "text-yellow-400",
         bg: "from-yellow-500/20 to-yellow-600/10",
-        pct: 45 + (10 - totalScore) * 3,
+        pct,
         headline: `⚠️ ${challengeText}`,
-        sub: `Pontos de melhoria: ${weaknesses.slice(0, 2).join(" e ")}. Você tem potencial, mas opera abaixo da capacidade.`,
+        sub: `Pontos de melhoria: ${weaknesses.length > 0 ? weaknesses.join(" e ") : "integração de ferramentas"}. Você tem potencial, mas opera abaixo da capacidade.`,
         urgency: "média",
         recommendations: ["Plano de Mídia otimizado", "CRM para gestão de pipeline", "Implementação orientada passo a passo"],
       };
@@ -365,11 +335,11 @@ export default function LP3() {
       level: "Otimização",
       color: "text-green-400",
       bg: "from-green-500/20 to-green-600/10",
-      pct: 72 + (5 - totalScore) * 3,
+      pct,
       headline: `✅ Você já tem uma base sólida. Hora de escalar.`,
       sub: `Com ajustes em ${weaknesses.length > 0 ? weaknesses[0] : "integração das ferramentas"}, seu crescimento pode acelerar significativamente.`,
       urgency: "baixa",
-      recommendations: ["Integração completa das ferramentas", "Otimização do funil de vendas", "Escala com tráfego pago"],
+      recommendations: ["Integração completa das ferramentas", "Otimização do funil de vendas", "Escala com tráfego pago estruturado"],
     };
   };
 
