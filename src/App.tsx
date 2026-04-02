@@ -7,6 +7,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { ThemeProvider } from "@/hooks/useTheme";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
+import LP2 from "./pages/LP2";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import NovoBriefing from "./pages/NovoBriefing";
@@ -37,6 +38,7 @@ const App = () => (
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />
+              <Route path="/lp2" element={<LP2 />} />
               <Route path="/login" element={<Login />} />
               <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
                 <Route path="/dashboard" element={<Dashboard />} />
