@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ThemeProvider } from "@/hooks/useTheme";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import Home from "./pages/Home";
 import Index from "./pages/Index";
 import LP2 from "./pages/LP2";
 import Login from "./pages/Login";
