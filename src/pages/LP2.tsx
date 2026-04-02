@@ -298,7 +298,7 @@ export default function LP2() {
                 ))}
               </div>
 
-              <a href={WA_LINK} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-3 bg-green-500 hover:bg-green-400 text-black font-bold text-lg px-10 py-5 rounded-full transition-all hover:scale-105 shadow-lg shadow-green-500/30 w-full justify-center">
+              <a href={WA_LINK} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-3 bg-green-500 hover:bg-green-400 text-black font-bold text-lg px-10 py-5 rounded-full transition-all hover:scale-105 shadow-lg shadow-green-500/30 w-full justify-center animate-pulse">
                 <MessageCircle className="h-6 w-6" />
                 QUERO CONTRATAR AGORA
               </a>
