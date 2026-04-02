@@ -6,52 +6,86 @@ import escaleLogoWhite from "@/assets/escale-logo-white.png";
 
 const WA_LINK = "https://wa.me/5500000000000?text=Quero%20saber%20mais%20sobre%20o%20Super%20Pacote%20Escale";
 
-/* ─── Questions data ─── */
+/* ─── Questions data (BANT: Budget, Authority, Need, Timeline + qualificação) ─── */
 const questions = [
+  // NEED — Necessidade
   {
     icon: Target,
+    category: "need",
     question: "Qual o maior desafio da sua empresa hoje?",
-    options: ["Gerar leads qualificados", "Converter vendas", "Organizar processos", "Comunicar melhor"],
+    options: ["Gerar leads qualificados", "Converter vendas", "Organizar processos comerciais", "Comunicar melhor a marca"],
   },
   {
     icon: BarChart3,
+    category: "need",
     question: "Sua empresa tem um plano comercial estruturado?",
-    options: ["Sim, completo", "Mais ou menos", "Não tenho"],
+    options: ["Sim, completo e atualizado", "Tenho algo básico", "Não tenho nenhum"],
   },
   {
     icon: TrendingUp,
+    category: "need",
     question: "Você já investiu em tráfego pago?",
-    options: ["Sim, com resultados", "Sim, sem resultados", "Nunca investi"],
+    options: ["Sim, com bons resultados", "Sim, mas sem retorno claro", "Nunca investi"],
   },
   {
     icon: Zap,
-    question: "Sua empresa tem um CRM?",
-    options: ["Sim, uso diariamente", "Não", "Nem sei o que é"],
+    category: "need",
+    question: "Sua empresa usa um CRM para gerenciar oportunidades?",
+    options: ["Sim, uso diariamente", "Já tentei mas não funcionou", "Não uso nenhum", "Nem sei o que é"],
+  },
+  // AUTHORITY — Autoridade
+  {
+    icon: ShieldCheck,
+    category: "authority",
+    question: "Qual é o seu papel na empresa?",
+    options: ["Sócio / CEO", "Diretor / Gerente", "Coordenador / Analista", "Consultor / Freelancer"],
   },
   {
+    icon: Users,
+    category: "authority",
+    question: "Quantas pessoas atuam na área comercial/marketing?",
+    options: ["Só eu", "2 a 5 pessoas", "6 a 15 pessoas", "Mais de 15"],
+  },
+  // BUDGET — Orçamento
+  {
     icon: DollarSign,
+    category: "budget",
     question: "Qual o faturamento mensal da sua empresa?",
     options: [
-      "R$ 20k – R$ 40k",
-      "R$ 40k – R$ 60k",
-      "R$ 60k – R$ 80k",
-      "R$ 80k – R$ 100k",
-      "R$ 100k – R$ 150k",
-      "R$ 150k – R$ 200k",
-      "R$ 200k – R$ 300k",
-      "R$ 300k – R$ 500k",
+      "R$ 20k – R$ 50k",
+      "R$ 50k – R$ 100k",
+      "R$ 100k – R$ 200k",
+      "R$ 200k – R$ 500k",
       "R$ 500k – R$ 1M",
       "Acima de R$ 1M",
     ],
   },
   {
-    icon: DollarSign,
-    question: "Quanto você investiria para estruturar tudo isso?",
-    options: ["Até R$ 5 mil", "R$ 5 mil – R$ 10 mil", "Acima de R$ 10 mil"],
+    icon: Briefcase,
+    category: "budget",
+    question: "Quanto você investiria para estruturar estratégia + comercial + mídia + CRM?",
+    options: ["Até R$ 5 mil", "R$ 5 mil – R$ 10 mil", "R$ 10 mil – R$ 20 mil", "Acima de R$ 20 mil"],
+  },
+  // TIMELINE — Urgência
+  {
+    icon: CalendarClock,
+    category: "timeline",
+    question: "Quando você precisa ter isso implementado?",
+    options: ["Imediatamente, é urgente", "Nos próximos 30 dias", "Em 2 a 3 meses", "Sem prazo definido"],
   },
 ];
 
-const encouragements = ["Ótima escolha! 🎯", "Perfeito! 🚀", "Excelente! 💡", "Quase lá! 🔥", "Show! ⚡", "Último passo! 🏆"];
+const encouragements = [
+  "Ótima escolha! 🎯",
+  "Perfeito! 🚀",
+  "Excelente! 💡",
+  "Entendi! 🔍",
+  "Boa! 👊",
+  "Importante saber! 📊",
+  "Show! ⚡",
+  "Quase lá! 🔥",
+  "Último passo! 🏆",
+];
 
 /* ─── Social proof ─── */
 const socialProofData = [
