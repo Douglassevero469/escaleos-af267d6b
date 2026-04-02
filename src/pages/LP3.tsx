@@ -268,8 +268,62 @@ export default function LP3() {
           </div>
         )}
 
-        {/* ─── LOADING ─── */}
+        {/* ─── LEAD CAPTURE ─── */}
         {step === totalQuestions + 1 && (
+          <div className="max-w-md mx-auto w-full animate-[fade-in_0.5s_ease-out]">
+            <div className="text-center mb-6">
+              <div className="inline-flex items-center gap-2 bg-green-500/10 border border-green-500/20 text-green-400 px-4 py-2 rounded-full text-xs font-semibold mb-4">
+                <CheckCircle2 className="h-3.5 w-3.5" /> QUIZ COMPLETO!
+              </div>
+              <h2 className="text-2xl font-bold mb-2">Seu diagnóstico está pronto! 🎉</h2>
+              <p className="text-white/50 text-sm">Preencha seus dados para receber o resultado personalizado:</p>
+            </div>
+            <form onSubmit={handleLeadSubmit} className="space-y-4">
+              <div className="relative">
+                <User className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30" />
+                <input
+                  type="text"
+                  placeholder="Seu nome"
+                  value={leadName}
+                  onChange={(e) => setLeadName(e.target.value)}
+                  required
+                  className="w-full pl-11 pr-4 py-4 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-blue-500/50 focus:bg-white/10 transition-all"
+                />
+              </div>
+              <div className="relative">
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30" />
+                <input
+                  type="email"
+                  placeholder="Seu melhor e-mail"
+                  value={leadEmail}
+                  onChange={(e) => setLeadEmail(e.target.value)}
+                  required
+                  className="w-full pl-11 pr-4 py-4 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-blue-500/50 focus:bg-white/10 transition-all"
+                />
+              </div>
+              <div className="relative">
+                <Phone className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30" />
+                <input
+                  type="tel"
+                  placeholder="WhatsApp (opcional)"
+                  value={leadPhone}
+                  onChange={(e) => setLeadPhone(e.target.value)}
+                  className="w-full pl-11 pr-4 py-4 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-blue-500/50 focus:bg-white/10 transition-all"
+                />
+              </div>
+              <button
+                type="submit"
+                className="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-bold text-lg px-8 py-4 rounded-xl transition-all duration-300 animate-[pulse_2s_ease-in-out_infinite] hover:animate-none hover:scale-105 shadow-[0_0_30px_rgba(59,130,246,0.4)]"
+              >
+                Ver meu diagnóstico →
+              </button>
+            </form>
+            <p className="text-center text-white/30 text-xs mt-4">🔒 Seus dados estão seguros e não serão compartilhados</p>
+          </div>
+        )}
+
+        {/* ─── LOADING ─── */}
+        {step === totalQuestions + 2 && (
           <div className="max-w-md mx-auto text-center">
             <div className="relative h-32 w-32 mx-auto mb-8">
               <svg className="h-32 w-32 -rotate-90" viewBox="0 0 120 120">
