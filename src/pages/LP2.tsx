@@ -362,7 +362,7 @@ export default function LP2() {
                     { item: "Planejamento Estratégico Completo", pro: "Consultoria de gestão", price: 5500 },
                     { item: "Plano Comercial Estruturado", pro: "Consultor de vendas", price: 4500 },
                     { item: "Plano de Mídia e Tráfego Pago", pro: "Gestor de tráfego", price: 3500 },
-                    { item: "Landing Page de Alta Conversão", pro: "Designer + Desenvolvedor", price: 7000 },
+                    { item: "Landing Page de Alta Conversão", pro: "Designer + Desenvolvedor", price: 3500 },
                     { item: "CRM Completo (12 meses)", pro: "Plataforma SaaS + setup", price: 5400 },
                     { item: "Implementação Orientada", pro: "Consultor de processos", price: 3800 },
                     { item: "Hospedagem + Domínio (12 meses)", pro: "Infra e manutenção", price: 2400 },
