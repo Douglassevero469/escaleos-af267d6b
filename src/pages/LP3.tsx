@@ -1,5 +1,5 @@
-import { useState, useEffect, FormEvent } from "react";
-import { CheckCircle2, MessageCircle, Zap, Target, TrendingUp, BarChart3, DollarSign, User, Mail, Phone } from "lucide-react";
+import { useState, useEffect, FormEvent, useMemo } from "react";
+import { CheckCircle2, MessageCircle, Zap, Target, TrendingUp, BarChart3, DollarSign, User, Mail, Phone, Clock, AlertTriangle } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import escaleLogoWhite from "@/assets/escale-logo-white.png";
 
@@ -96,6 +96,68 @@ function SocialProofToast() {
           <p className="text-[10px] text-gray-400">{item.city} · {item.time}</p>
         </div>
       </div>
+    </div>
+  );
+}
+
+/* ─── Countdown timer hook ─── */
+function useCountdown() {
+  const target = useMemo(() => {
+    // Set deadline to end of current day + 2 days (rolling urgency)
+    const d = new Date();
+    d.setDate(d.getDate() + 2);
+    d.setHours(23, 59, 59, 0);
+    return d.getTime();
+  }, []);
+
+  const [timeLeft, setTimeLeft] = useState(() => {
+    const diff = target - Date.now();
+    return diff > 0 ? diff : 0;
+  });
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const diff = target - Date.now();
+      setTimeLeft(diff > 0 ? diff : 0);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [target]);
+
+  const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+  const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+  return { hours, minutes, seconds };
+}
+
+function CountdownBanner() {
+  const { hours, minutes, seconds } = useCountdown();
+  const pad = (n: number) => String(n).padStart(2, "0");
+
+  return (
+    <div className="bg-gradient-to-r from-red-600/20 to-orange-500/10 border border-red-500/30 rounded-2xl p-4 mb-6 animate-[fade-in_0.5s_ease-out]">
+      <div className="flex items-center justify-center gap-2 mb-3">
+        <AlertTriangle className="h-4 w-4 text-red-400" />
+        <span className="text-sm font-bold text-red-400">OFERTA EXPIRA EM:</span>
+      </div>
+      <div className="flex items-center justify-center gap-3">
+        {[
+          { value: pad(hours), label: "horas" },
+          { value: pad(minutes), label: "min" },
+          { value: pad(seconds), label: "seg" },
+        ].map((t) => (
+          <div key={t.label} className="flex flex-col items-center">
+            <div className="bg-white/10 border border-white/10 rounded-lg px-3 py-2 min-w-[52px] text-center">
+              <span className="text-2xl font-bold tabular-nums">{t.value}</span>
+            </div>
+            <span className="text-[10px] text-white/40 mt-1">{t.label}</span>
+          </div>
+        ))}
+      </div>
+      <p className="text-center text-xs text-white/40 mt-3">
+        <Clock className="inline h-3 w-3 mr-1" />
+        Apenas <span className="text-red-400 font-bold">3 vagas</span> restantes com condição especial
+      </p>
     </div>
   );
 }
@@ -395,6 +457,9 @@ export default function LP3() {
                 </div>
               </div>
 
+              {/* Urgency countdown */}
+              <CountdownBanner />
+
               {/* CTA */}
               <a
                 href={WA_LINK}
@@ -405,7 +470,7 @@ export default function LP3() {
                 <MessageCircle className="h-5 w-5" />
                 Quero contratar agora
               </a>
-              <p className="text-center text-white/30 text-xs mt-3">⚡ Vagas limitadas este mês</p>
+              <p className="text-center text-white/30 text-xs mt-3">⚡ Restam apenas <span className="text-red-400 font-bold">3 vagas</span> este mês</p>
             </div>
           );
         })()}
