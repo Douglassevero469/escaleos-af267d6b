@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { MessageCircle, ChevronDown, CheckCircle2, XCircle, ArrowRight, Star, Clock, AlertTriangle, Flame, Target, TrendingUp, Zap, Phone } from "lucide-react";
+import { MessageCircle, ChevronDown, CheckCircle2, XCircle, ArrowRight, Star, Clock, AlertTriangle, Flame, Target, TrendingUp, Zap, Phone, ShieldCheck } from "lucide-react";
 import escaleLogoWhite from "@/assets/escale-logo-white.png";
 
 /* ─── Utility: scroll-triggered entrance ─── */
@@ -441,6 +441,43 @@ export default function LP2() {
                 QUERO CONTRATAR AGORA
               </a>
               <p className="text-gray-600 text-xs mt-4">Pagamento seguro · Parcelamento no cartão</p>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ═══ GUARANTEE ═══ */}
+      <section className="py-16 md:py-24 bg-black">
+        <div className="max-w-3xl mx-auto px-6">
+          <Reveal>
+            <div className="bg-gradient-to-br from-gray-900 to-gray-950 border-2 border-green-500/30 rounded-3xl p-8 md:p-12 text-center relative overflow-hidden">
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[400px] h-[400px] bg-green-500/5 rounded-full blur-[100px]" />
+              <div className="relative">
+                <div className="h-20 w-20 bg-green-500/10 border-2 border-green-500/30 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <ShieldCheck className="h-10 w-10 text-green-400" />
+                </div>
+                <p className="text-green-400 font-bold text-sm tracking-[0.3em] uppercase mb-4">Garantia incondicional</p>
+                <h2 className="text-2xl md:text-3xl font-extrabold mb-4">
+                  7 dias de garantia <span className="text-green-400">total</span>
+                </h2>
+                <p className="text-gray-300 max-w-xl mx-auto leading-relaxed mb-6">
+                  Se dentro de <strong className="text-white">7 dias</strong> após a entrega você sentir que o pacote não atende suas expectativas, 
+                  devolvemos <strong className="text-white">100% do seu investimento</strong>. Sem burocracia, sem perguntas.
+                </p>
+                <div className="grid md:grid-cols-3 gap-4 mt-8">
+                  {[
+                    { title: "Sem risco", desc: "Devolução integral em até 7 dias" },
+                    { title: "Sem burocracia", desc: "Um simples e-mail resolve tudo" },
+                    { title: "Sem letras miúdas", desc: "Garantia clara, direta e honesta" },
+                  ].map((g, i) => (
+                    <div key={i} className="bg-green-500/5 border border-green-500/20 rounded-xl p-4">
+                      <CheckCircle2 className="h-5 w-5 text-green-400 mx-auto mb-2" />
+                      <p className="font-bold text-sm text-white">{g.title}</p>
+                      <p className="text-gray-400 text-xs mt-1">{g.desc}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </Reveal>
         </div>
