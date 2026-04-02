@@ -400,10 +400,10 @@ export default function LP3() {
               <Zap className="h-3.5 w-3.5" /> DIAGNÓSTICO GRATUITO
             </div>
             <h1 className="text-3xl md:text-4xl font-bold leading-tight mb-4">
-              Descubra em <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-green-400">60 segundos</span> o que está travando o crescimento da sua empresa
+              Descubra em <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-green-400">90 segundos</span> o que está travando o crescimento da sua empresa
             </h1>
             <p className="text-white/60 text-lg mb-8">
-              Responda 6 perguntas rápidas e receba um diagnóstico personalizado com a solução ideal para escalar seus resultados.
+              Responda 9 perguntas rápidas e receba um diagnóstico BANT personalizado com a solução ideal para escalar.
             </p>
             <button
               onClick={() => { setTransitioning(true); setTimeout(() => { setStep(1); setTransitioning(false); }, 400); }}

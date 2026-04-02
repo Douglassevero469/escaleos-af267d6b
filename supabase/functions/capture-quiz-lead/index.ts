@@ -65,8 +65,11 @@ Deno.serve(async (req) => {
       "Plano comercial estruturado",
       "Investiu em tráfego pago",
       "Tem CRM",
+      "Papel na empresa",
+      "Tamanho da equipe comercial",
       "Faturamento mensal",
       "Investimento disponível",
+      "Urgência de implementação",
     ];
 
     const custom_fields: Record<string, string> = { origem: "LP3 Quiz" };
