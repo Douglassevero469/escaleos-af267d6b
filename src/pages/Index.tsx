@@ -938,7 +938,7 @@ export default function Index() {
                   <p className="text-sm text-muted-foreground mt-1">
                     Planejamento + Comercial + Mídia + LP + CRM + Passo a Passo
                   </p>
-                  <p className="text-3xl font-bold gradient-text mt-2">R$ 9.997 em até 12x sem juros</p>
+                  <p className="text-3xl font-bold gradient-text mt-2">R$ 8.497 em até 12x sem juros</p>
                 </div>
 
                 <div className="block">
