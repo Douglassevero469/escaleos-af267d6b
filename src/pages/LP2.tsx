@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { MessageCircle, ChevronDown, CheckCircle2, XCircle, ArrowRight, Star, Clock, AlertTriangle, Flame, Target, TrendingUp, Zap, Phone } from "lucide-react";
+import { MessageCircle, ChevronDown, CheckCircle2, XCircle, ArrowRight, Star, Clock, AlertTriangle, Flame, Target, TrendingUp, Zap, Phone, ShieldCheck } from "lucide-react";
 import escaleLogoWhite from "@/assets/escale-logo-white.png";
 
 /* ─── Utility: scroll-triggered entrance ─── */
