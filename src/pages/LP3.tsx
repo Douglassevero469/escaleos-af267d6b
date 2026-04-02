@@ -196,10 +196,24 @@ export default function LP3() {
   };
 
   // Handle lead capture submit
-  const handleLeadSubmit = (e: FormEvent) => {
+  const handleLeadSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!leadName.trim() || !leadEmail.trim()) return;
     setStep(totalQuestions + 2); // go to loading
+
+    // Fire and forget - send lead to backend
+    try {
+      await supabase.functions.invoke("capture-quiz-lead", {
+        body: {
+          name: leadName.trim(),
+          email: leadEmail.trim(),
+          phone: leadPhone.trim(),
+          answers,
+        },
+      });
+    } catch {
+      // silently fail - don't block the user experience
+    }
   };
 
   // Loading animation
