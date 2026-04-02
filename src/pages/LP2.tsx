@@ -122,7 +122,7 @@ export default function LP2() {
             </p>
           </Reveal>
           <Reveal delay={300}>
-            <a href={WA_LINK} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-3 bg-green-500 hover:bg-green-400 text-black font-bold text-lg px-10 py-5 rounded-full transition-all hover:scale-105 shadow-lg shadow-green-500/30">
+            <a href={WA_LINK} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-3 bg-green-500 hover:bg-green-400 text-black font-bold text-lg px-10 py-5 rounded-full transition-all hover:scale-105 shadow-lg shadow-green-500/30 animate-pulse">
               <MessageCircle className="h-6 w-6" />
               QUERO PARAR DE PERDER VENDAS
             </a>
@@ -207,7 +207,7 @@ export default function LP2() {
         <Reveal>
           <h2 className="text-2xl md:text-3xl font-extrabold mb-4">Chega de perder tempo e dinheiro.</h2>
           <p className="text-blue-100 mb-8 text-lg">Fale agora com a Escale e descubra como estruturar seu crescimento.</p>
-          <a href={WA_LINK} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-3 bg-white text-blue-700 font-bold text-lg px-10 py-5 rounded-full hover:bg-gray-100 transition-all hover:scale-105">
+          <a href={WA_LINK} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-3 bg-white text-blue-700 font-bold text-lg px-10 py-5 rounded-full hover:bg-gray-100 transition-all hover:scale-105 animate-pulse">
             <MessageCircle className="h-6 w-6" />
             QUERO FALAR COM A ESCALE
           </a>
@@ -298,7 +298,7 @@ export default function LP2() {
                 ))}
               </div>
 
-              <a href={WA_LINK} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-3 bg-green-500 hover:bg-green-400 text-black font-bold text-lg px-10 py-5 rounded-full transition-all hover:scale-105 shadow-lg shadow-green-500/30 w-full justify-center">
+              <a href={WA_LINK} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-3 bg-green-500 hover:bg-green-400 text-black font-bold text-lg px-10 py-5 rounded-full transition-all hover:scale-105 shadow-lg shadow-green-500/30 w-full justify-center animate-pulse">
                 <MessageCircle className="h-6 w-6" />
                 QUERO CONTRATAR AGORA
               </a>
@@ -340,7 +340,7 @@ export default function LP2() {
               Sua empresa vai continuar <span className="text-red-500">improvisando</span> ou vai começar a <span className="text-blue-400">crescer com estrutura</span>?
             </h2>
             <p className="text-gray-400 mb-10 text-lg">A decisão é sua. O plano é nosso.</p>
-            <a href={WA_LINK} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-3 bg-green-500 hover:bg-green-400 text-black font-bold text-xl px-12 py-6 rounded-full transition-all hover:scale-105 shadow-lg shadow-green-500/30">
+            <a href={WA_LINK} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-3 bg-green-500 hover:bg-green-400 text-black font-bold text-xl px-12 py-6 rounded-full transition-all hover:scale-105 shadow-lg shadow-green-500/30 animate-pulse">
               <MessageCircle className="h-7 w-7" />
               FALAR COM A ESCALE AGORA
               <ArrowRight className="h-6 w-6" />
@@ -351,7 +351,7 @@ export default function LP2() {
 
       {/* ═══ STICKY MOBILE CTA ═══ */}
       <div className="fixed bottom-0 left-0 right-0 z-50 p-3 bg-black/90 backdrop-blur-sm border-t border-gray-800 md:hidden">
-        <a href={WA_LINK} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 bg-green-500 text-black font-bold py-4 rounded-full w-full text-base">
+        <a href={WA_LINK} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 bg-green-500 text-black font-bold py-4 rounded-full w-full text-base animate-pulse">
           <MessageCircle className="h-5 w-5" />
           QUERO CONTRATAR AGORA
         </a>
