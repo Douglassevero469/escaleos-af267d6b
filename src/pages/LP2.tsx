@@ -352,15 +352,15 @@ export default function LP2() {
                 </thead>
                 <tbody>
                   {[
-                    { item: "Planejamento Estratégico Completo", pro: "Consultoria de gestão", price: "R$ 3.000" },
-                    { item: "Plano Comercial Estruturado", pro: "Consultor de vendas", price: "R$ 2.500" },
-                    { item: "Plano de Mídia e Tráfego Pago", pro: "Gestor de tráfego", price: "R$ 2.000" },
-                    { item: "Landing Page de Alta Conversão", pro: "Designer + Desenvolvedor", price: "R$ 4.000" },
-                    { item: "CRM Completo (12 meses)", pro: "Plataforma SaaS + setup", price: "R$ 3.600" },
-                    { item: "Implementação Orientada", pro: "Consultor de processos", price: "R$ 2.000" },
-                    { item: "Hospedagem + Domínio (12 meses)", pro: "Infra e manutenção", price: "R$ 1.200" },
-                    { item: "Setup de Funil de Vendas", pro: "Especialista em funis", price: "R$ 1.500" },
-                    { item: "Copywriting para LP e Anúncios", pro: "Copywriter profissional", price: "R$ 2.500" },
+                    { item: "Planejamento Estratégico Completo", pro: "Consultoria de gestão", price: "R$ 5.500" },
+                    { item: "Plano Comercial Estruturado", pro: "Consultor de vendas", price: "R$ 4.500" },
+                    { item: "Plano de Mídia e Tráfego Pago", pro: "Gestor de tráfego", price: "R$ 3.500" },
+                    { item: "Landing Page de Alta Conversão", pro: "Designer + Desenvolvedor", price: "R$ 7.000" },
+                    { item: "CRM Completo (12 meses)", pro: "Plataforma SaaS + setup", price: "R$ 5.400" },
+                    { item: "Implementação Orientada", pro: "Consultor de processos", price: "R$ 3.800" },
+                    { item: "Hospedagem + Domínio (12 meses)", pro: "Infra e manutenção", price: "R$ 2.400" },
+                    { item: "Setup de Funil de Vendas", pro: "Especialista em funis", price: "R$ 3.100" },
+                    { item: "Copywriting para LP e Anúncios", pro: "Copywriter profissional", price: "R$ 3.500" },
                   ].map((row, i) => (
                     <tr key={i} className="border-b border-gray-800/50 hover:bg-gray-800/30 transition-colors">
                       <td className="py-4 px-6">
@@ -380,7 +380,7 @@ export default function LP2() {
                       Total no mercado
                     </td>
                     <td className="py-5 px-6 text-right text-xl font-extrabold text-red-500 line-through">
-                      R$ 22.300
+                      R$ 38.700
                     </td>
                   </tr>
                   <tr className="bg-blue-600/10 border-t border-blue-500/30">
@@ -398,7 +398,7 @@ export default function LP2() {
           <Reveal delay={200}>
             <div className="text-center mt-8">
               <p className="text-2xl md:text-3xl font-extrabold text-white mb-2">
-                Economia de mais de <span className="text-green-400">R$ 13.800</span>
+                Economia de mais de <span className="text-green-400">R$ 30.000</span>
               </p>
               <p className="text-gray-400">Você paga menos da metade e recebe tudo pronto, integrado e orientado.</p>
             </div>
