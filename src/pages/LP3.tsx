@@ -352,7 +352,7 @@ export default function LP3() {
         )}
 
         {/* ─── RESULT ─── */}
-        {step === totalQuestions + 2 && (() => {
+        {step === totalQuestions + 3 && (() => {
           const d = getDiagnosis();
           return (
             <div className="max-w-lg mx-auto w-full animate-[fade-in_0.6s_ease-out]">
