@@ -9,6 +9,7 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Home from "./pages/Home";
 import Index from "./pages/Index";
 import LP2 from "./pages/LP2";
+import LP3 from "./pages/LP3";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import NovoBriefing from "./pages/NovoBriefing";
@@ -41,6 +42,7 @@ const App = () => (
               <Route path="/" element={<Home />} />
               <Route path="/lp1" element={<Index />} />
               <Route path="/lp2" element={<LP2 />} />
+              <Route path="/lp3" element={<LP3 />} />
               <Route path="/login" element={<Login />} />
               <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
                 <Route path="/dashboard" element={<Dashboard />} />
