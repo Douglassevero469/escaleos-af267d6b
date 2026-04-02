@@ -42,6 +42,62 @@ function useCountUp(end: number, duration = 2000) {
 
 const WA_LINK = "https://wa.me/5500000000000?text=Quero%20saber%20mais%20sobre%20o%20Super%20Pacote%20Escale";
 
+/* ─── Social proof push notifications ─── */
+const socialProofData = [
+  { name: "Marcelo R.", city: "São Paulo, SP", time: "agora mesmo" },
+  { name: "Camila S.", city: "Belo Horizonte, MG", time: "há 2 min" },
+  { name: "André L.", city: "Curitiba, PR", time: "há 3 min" },
+  { name: "Tatiane F.", city: "Rio de Janeiro, RJ", time: "há 5 min" },
+  { name: "Bruno M.", city: "Florianópolis, SC", time: "há 7 min" },
+  { name: "Luciana P.", city: "Goiânia, GO", time: "há 8 min" },
+  { name: "Felipe G.", city: "Campinas, SP", time: "há 10 min" },
+  { name: "Renata C.", city: "Salvador, BA", time: "há 12 min" },
+  { name: "Diego A.", city: "Porto Alegre, RS", time: "há 14 min" },
+  { name: "Vanessa K.", city: "Brasília, DF", time: "há 15 min" },
+  { name: "Rodrigo T.", city: "Recife, PE", time: "há 18 min" },
+  { name: "Aline B.", city: "Vitória, ES", time: "há 20 min" },
+];
+
+function SocialProofToast() {
+  const [current, setCurrent] = useState<number | null>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    let idx = 0;
+    const show = () => {
+      setCurrent(idx);
+      setVisible(true);
+      setTimeout(() => setVisible(false), 3500);
+      idx = (idx + 1) % socialProofData.length;
+    };
+    const timer = setInterval(show, 5000);
+    const initialTimer = setTimeout(show, 3000);
+    return () => { clearInterval(timer); clearTimeout(initialTimer); };
+  }, []);
+
+  if (current === null) return null;
+  const item = socialProofData[current];
+
+  return (
+    <div
+      className={`fixed bottom-20 md:bottom-6 left-4 z-[60] max-w-xs transition-all duration-500 ${
+        visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 pointer-events-none"
+      }`}
+    >
+      <div className="bg-white text-black rounded-xl shadow-2xl px-4 py-3 flex items-center gap-3 border border-gray-200">
+        <div className="h-10 w-10 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
+          <CheckCircle2 className="h-5 w-5 text-white" />
+        </div>
+        <div className="min-w-0">
+          <p className="text-sm font-bold truncate">{item.name}</p>
+          <p className="text-xs text-gray-600">Contratou o Super Pacote</p>
+          <p className="text-[10px] text-gray-400">{item.city} · {item.time}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ─── Pain points ─── */
 const painPoints = [
   "Você já investiu em marketing e não viu retorno?",
@@ -93,6 +149,7 @@ export default function LP2() {
 
   return (
     <div className="min-h-screen bg-black text-white" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+      <SocialProofToast />
 
       {/* ═══ URGENCY BAR ═══ */}
       <div className="fixed top-0 left-0 right-0 z-50 bg-red-600 text-white text-center py-2 text-sm font-bold tracking-wide animate-pulse">
