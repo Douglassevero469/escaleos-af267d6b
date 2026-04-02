@@ -257,6 +257,32 @@ export function LeadDetailSheet({ lead, stages, open, onOpenChange, pipelineId }
   );
 }
 
+function hasQuizData(lead: CrmLead): boolean {
+  const cf = lead.custom_fields as Record<string, any> | null;
+  return !!cf && cf.origem === "LP3 Quiz";
+}
+
+function QuizData({ lead }: { lead: CrmLead }) {
+  const cf = lead.custom_fields as Record<string, string> | null;
+  if (!cf) return <p className="text-sm text-muted-foreground">Sem dados</p>;
+
+  const entries = Object.entries(cf).filter(([key]) => key !== "origem");
+
+  return (
+    <div className="space-y-3">
+      <Badge variant="secondary" className="text-xs">Origem: LP3 Quiz</Badge>
+      <div className="space-y-2">
+        {entries.map(([key, val]) => (
+          <div key={key} className="text-sm">
+            <span className="font-medium text-xs text-muted-foreground">{key}</span>
+            <p>{String(val)}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function FormSubmissionData({ submissionId, formId }: { submissionId: string; formId?: string | null }) {
   const [submission, setSubmission] = useState<any>(null);
   const [formFields, setFormFields] = useState<string[]>([]);
