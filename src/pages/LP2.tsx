@@ -40,6 +40,13 @@ function useCountUp(end: number, duration = 2000) {
   return { count, ref };
 }
 
+/* ─── Animated price (formats as R$ X.XXX) ─── */
+function AnimatedPrice({ value, className = "" }: { value: number; className?: string }) {
+  const { count, ref } = useCountUp(value, 1600);
+  const formatted = count.toLocaleString("pt-BR");
+  return <span ref={ref} className={className}>R$ {formatted}</span>;
+}
+
 const WA_LINK = "https://wa.me/5500000000000?text=Quero%20saber%20mais%20sobre%20o%20Super%20Pacote%20Escale";
 
 /* ─── Social proof push notifications ─── */
@@ -352,15 +359,15 @@ export default function LP2() {
                 </thead>
                 <tbody>
                   {[
-                    { item: "Planejamento Estratégico Completo", pro: "Consultoria de gestão", price: "R$ 5.500" },
-                    { item: "Plano Comercial Estruturado", pro: "Consultor de vendas", price: "R$ 4.500" },
-                    { item: "Plano de Mídia e Tráfego Pago", pro: "Gestor de tráfego", price: "R$ 3.500" },
-                    { item: "Landing Page de Alta Conversão", pro: "Designer + Desenvolvedor", price: "R$ 7.000" },
-                    { item: "CRM Completo (12 meses)", pro: "Plataforma SaaS + setup", price: "R$ 5.400" },
-                    { item: "Implementação Orientada", pro: "Consultor de processos", price: "R$ 3.800" },
-                    { item: "Hospedagem + Domínio (12 meses)", pro: "Infra e manutenção", price: "R$ 2.400" },
-                    { item: "Setup de Funil de Vendas", pro: "Especialista em funis", price: "R$ 3.100" },
-                    { item: "Copywriting para LP e Anúncios", pro: "Copywriter profissional", price: "R$ 3.500" },
+                    { item: "Planejamento Estratégico Completo", pro: "Consultoria de gestão", price: 5500 },
+                    { item: "Plano Comercial Estruturado", pro: "Consultor de vendas", price: 4500 },
+                    { item: "Plano de Mídia e Tráfego Pago", pro: "Gestor de tráfego", price: 3500 },
+                    { item: "Landing Page de Alta Conversão", pro: "Designer + Desenvolvedor", price: 7000 },
+                    { item: "CRM Completo (12 meses)", pro: "Plataforma SaaS + setup", price: 5400 },
+                    { item: "Implementação Orientada", pro: "Consultor de processos", price: 3800 },
+                    { item: "Hospedagem + Domínio (12 meses)", pro: "Infra e manutenção", price: 2400 },
+                    { item: "Setup de Funil de Vendas", pro: "Especialista em funis", price: 3100 },
+                    { item: "Copywriting para LP e Anúncios", pro: "Copywriter profissional", price: 3500 },
                   ].map((row, i) => (
                     <tr key={i} className="border-b border-gray-800/50 hover:bg-gray-800/30 transition-colors">
                       <td className="py-4 px-6">
@@ -370,7 +377,9 @@ export default function LP2() {
                         </div>
                       </td>
                       <td className="py-4 px-6 text-sm text-gray-500 hidden md:table-cell">{row.pro}</td>
-                      <td className="py-4 px-6 text-right text-sm font-semibold text-gray-400">{row.price}</td>
+                      <td className="py-4 px-6 text-right text-sm font-semibold text-gray-400">
+                        <AnimatedPrice value={row.price} />
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -380,7 +389,7 @@ export default function LP2() {
                       Total no mercado
                     </td>
                     <td className="py-5 px-6 text-right text-xl font-extrabold text-red-500 line-through">
-                      R$ 38.700
+                      <AnimatedPrice value={38700} />
                     </td>
                   </tr>
                   <tr className="bg-blue-600/10 border-t border-blue-500/30">
@@ -388,7 +397,7 @@ export default function LP2() {
                       ✨ Super Pacote Escale — tudo incluso
                     </td>
                     <td className="py-5 px-6 text-right text-2xl font-extrabold text-green-400">
-                      R$ 8.497
+                      <AnimatedPrice value={8497} />
                     </td>
                   </tr>
                 </tfoot>
@@ -398,7 +407,7 @@ export default function LP2() {
           <Reveal delay={200}>
             <div className="text-center mt-8">
               <p className="text-2xl md:text-3xl font-extrabold text-white mb-2">
-                Economia de mais de <span className="text-green-400">R$ 30.000</span>
+                Economia de mais de <span className="text-green-400"><AnimatedPrice value={30000} /></span>
               </p>
               <p className="text-gray-400">Você paga menos da metade e recebe tudo pronto, integrado e orientado.</p>
             </div>
