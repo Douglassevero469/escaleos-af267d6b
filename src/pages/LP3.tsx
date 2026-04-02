@@ -100,6 +100,36 @@ function SocialProofToast() {
   );
 }
 
+/* ─── Countdown timer hook ─── */
+function useCountdown() {
+  const target = useMemo(() => {
+    // Set deadline to end of current day + 2 days (rolling urgency)
+    const d = new Date();
+    d.setDate(d.getDate() + 2);
+    d.setHours(23, 59, 59, 0);
+    return d.getTime();
+  }, []);
+
+  const [timeLeft, setTimeLeft] = useState(() => {
+    const diff = target - Date.now();
+    return diff > 0 ? diff : 0;
+  });
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const diff = target - Date.now();
+      setTimeLeft(diff > 0 ? diff : 0);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [target]);
+
+  const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+  const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+  return { hours, minutes, seconds };
+}
+
 /* ─── Main component ─── */
 export default function LP3() {
   const [step, setStep] = useState(0); // 0=welcome, 1-6=questions, 7=capture, 8=loading, 9=result
