@@ -97,7 +97,7 @@ function SocialProofToast() {
         </div>
         <div className="min-w-0">
           <p className="text-sm font-bold truncate">{item.name}</p>
-          <p className="text-xs text-gray-600">Contratou o Super Pacote</p>
+          <p className="text-xs text-gray-600">Acabou de comprar o Super Pacote</p>
           <p className="text-[10px] text-gray-400">{item.city} · {item.time}</p>
         </div>
       </div>
