@@ -267,22 +267,110 @@ export default function LP3() {
     return () => clearInterval(interval);
   }, [step, totalQuestions]);
 
-  // Diagnosis logic
+  // BANT Diagnosis logic
   const getDiagnosis = () => {
-    let score = 0;
-    // Q1: all challenges = needs structure
-    // Q2: plan
-    if (answers[1] === "Sim, completo") score += 2;
-    else if (answers[1] === "Mais ou menos") score += 1;
-    // Q3: traffic
-    if (answers[2] === "Sim, com resultados") score += 2;
-    else if (answers[2] === "Sim, sem resultados") score += 1;
-    // Q4: CRM
-    if (answers[3] === "Sim, uso diariamente") score += 2;
+    // Scores per BANT dimension (0-10 each)
+    let need = 0, authority = 0, budget = 0, timeline = 0;
 
-    if (score <= 2) return { level: "Crítico", color: "text-red-400", bg: "from-red-500/20 to-red-600/10", pct: 25, headline: "Sua empresa precisa urgentemente de estrutura comercial", sub: "Você está perdendo vendas todos os dias por falta de processo." };
-    if (score <= 4) return { level: "Atenção", color: "text-yellow-400", bg: "from-yellow-500/20 to-yellow-600/10", pct: 55, headline: "Sua empresa tem potencial, mas opera no improviso", sub: "Com a estrutura certa, seu faturamento pode dobrar em meses." };
-    return { level: "Bom", color: "text-green-400", bg: "from-green-500/20 to-green-600/10", pct: 78, headline: "Você já tem base, agora precisa escalar com método", sub: "O Super Pacote vai integrar tudo e acelerar seus resultados." };
+    // Q0: Desafio (all options indicate need)
+    need += 2;
+
+    // Q1: Plano comercial
+    if (answers[1] === "Sim, completo e atualizado") need += 0;
+    else if (answers[1] === "Tenho algo básico") need += 2;
+    else need += 4;
+
+    // Q2: Tráfego pago
+    if (answers[2] === "Sim, com bons resultados") need += 0;
+    else if (answers[2] === "Sim, mas sem retorno claro") need += 2;
+    else need += 3;
+
+    // Q3: CRM
+    if (answers[3] === "Sim, uso diariamente") need += 0;
+    else if (answers[3] === "Já tentei mas não funcionou") need += 2;
+    else if (answers[3] === "Não uso nenhum") need += 3;
+    else need += 4; // nem sabe
+
+    // Q4: Papel na empresa (Authority)
+    if (answers[4] === "Sócio / CEO") authority = 10;
+    else if (answers[4] === "Diretor / Gerente") authority = 8;
+    else if (answers[4] === "Coordenador / Analista") authority = 5;
+    else authority = 3;
+
+    // Q5: Tamanho da equipe
+    if (answers[5] === "Só eu") authority = Math.min(authority, 6);
+    else if (answers[5] === "Mais de 15") authority = Math.max(authority, 8);
+
+    // Q6: Faturamento (Budget indicator)
+    const fatIdx = ["R$ 20k – R$ 50k", "R$ 50k – R$ 100k", "R$ 100k – R$ 200k", "R$ 200k – R$ 500k", "R$ 500k – R$ 1M", "Acima de R$ 1M"].indexOf(answers[6] || "");
+    budget = Math.min(10, (fatIdx + 1) * 2);
+
+    // Q7: Investimento disponível
+    if (answers[7] === "Acima de R$ 20 mil") budget = Math.max(budget, 10);
+    else if (answers[7] === "R$ 10 mil – R$ 20 mil") budget = Math.max(budget, 8);
+    else if (answers[7] === "R$ 5 mil – R$ 10 mil") budget = Math.max(budget, 6);
+    else budget = Math.max(budget, 3);
+
+    // Q8: Timeline
+    if (answers[8] === "Imediatamente, é urgente") timeline = 10;
+    else if (answers[8] === "Nos próximos 30 dias") timeline = 8;
+    else if (answers[8] === "Em 2 a 3 meses") timeline = 5;
+    else timeline = 2;
+
+    // Cap need at 10
+    need = Math.min(need, 10);
+
+    const totalScore = Math.round((need + authority + budget + timeline) / 4);
+
+    // Build weaknesses for personalized recommendations
+    const weaknesses: string[] = [];
+    if (need >= 7) weaknesses.push("estrutura comercial e processos");
+    if (answers[2] !== "Sim, com bons resultados") weaknesses.push("estratégia de mídia paga");
+    if (answers[3] !== "Sim, uso diariamente") weaknesses.push("gestão de relacionamento (CRM)");
+    if (answers[1] !== "Sim, completo e atualizado") weaknesses.push("planejamento comercial");
+
+    // Personalized headline based on main challenge
+    const mainChallenge = answers[0] || "";
+    let challengeText = "";
+    if (mainChallenge.includes("leads")) challengeText = "Sua máquina de geração de leads precisa de estrutura.";
+    else if (mainChallenge.includes("vendas")) challengeText = "Suas vendas estão travadas por falta de processo.";
+    else if (mainChallenge.includes("processos")) challengeText = "Seus processos comerciais precisam de organização urgente.";
+    else challengeText = "Sua comunicação precisa de estratégia para gerar resultados.";
+
+    if (totalScore >= 8) {
+      return {
+        level: "Crítico",
+        color: "text-red-400",
+        bg: "from-red-500/20 to-red-600/10",
+        pct: Math.min(30, totalScore * 3),
+        headline: `🚨 ${challengeText}`,
+        sub: `Identificamos gaps críticos em: ${weaknesses.slice(0, 3).join(", ")}. Cada dia sem agir é faturamento perdido.`,
+        urgency: "alta",
+        recommendations: ["Planejamento Estratégico completo", "Plano Comercial com funil definido", "CRM para não perder nenhum lead", "Landing Page de alta conversão"],
+      };
+    }
+    if (totalScore >= 5) {
+      return {
+        level: "Atenção",
+        color: "text-yellow-400",
+        bg: "from-yellow-500/20 to-yellow-600/10",
+        pct: 45 + (10 - totalScore) * 3,
+        headline: `⚠️ ${challengeText}`,
+        sub: `Pontos de melhoria: ${weaknesses.slice(0, 2).join(" e ")}. Você tem potencial, mas opera abaixo da capacidade.`,
+        urgency: "média",
+        recommendations: ["Plano de Mídia otimizado", "CRM para gestão de pipeline", "Implementação orientada passo a passo"],
+      };
+    }
+    return {
+      level: "Otimização",
+      color: "text-green-400",
+      bg: "from-green-500/20 to-green-600/10",
+      pct: 72 + (5 - totalScore) * 3,
+      headline: `✅ Você já tem uma base sólida. Hora de escalar.`,
+      sub: `Com ajustes em ${weaknesses.length > 0 ? weaknesses[0] : "integração das ferramentas"}, seu crescimento pode acelerar significativamente.`,
+      urgency: "baixa",
+      recommendations: ["Integração completa das ferramentas", "Otimização do funil de vendas", "Escala com tráfego pago"],
+    };
   };
 
   return (
