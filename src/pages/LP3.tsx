@@ -1,5 +1,5 @@
-import { useState, useEffect, FormEvent } from "react";
-import { CheckCircle2, MessageCircle, Zap, Target, TrendingUp, BarChart3, DollarSign, User, Mail, Phone } from "lucide-react";
+import { useState, useEffect, FormEvent, useMemo } from "react";
+import { CheckCircle2, MessageCircle, Zap, Target, TrendingUp, BarChart3, DollarSign, User, Mail, Phone, Clock, AlertTriangle } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import escaleLogoWhite from "@/assets/escale-logo-white.png";
 
