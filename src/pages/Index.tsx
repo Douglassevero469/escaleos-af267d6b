@@ -128,9 +128,8 @@ export default function Index() {
           <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-cyan/5 rounded-full blur-[120px]" />
         </div>
         <div className="container mx-auto text-center relative z-10 max-w-4xl">
-          <div className="inline-flex items-center gap-2 glass rounded-full px-5 py-2 text-sm text-muted-foreground mb-10">
-            <Sparkles className="h-3.5 w-3.5 text-primary" />
-            Super Pacote Escale
+          <div className="mb-10">
+            <img src={escaleLogoDark} alt="Escale" className="h-10 mx-auto" />
           </div>
           <h1 className="font-display text-4xl md:text-6xl lg:text-7xl font-black tracking-tight mb-8 leading-[0.95]">
             Sua empresa não precisa de mais uma agência.{" "}
