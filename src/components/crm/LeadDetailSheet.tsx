@@ -110,7 +110,7 @@ export function LeadDetailSheet({ lead, stages, open, onOpenChange, pipelineId }
           <TabsList className="w-full">
             <TabsTrigger value="info" className="flex-1">Dados</TabsTrigger>
             <TabsTrigger value="timeline" className="flex-1">Timeline</TabsTrigger>
-            {lead.form_submission_id && <TabsTrigger value="form" className="flex-1">Formulário</TabsTrigger>}
+            {(lead.form_submission_id || hasQuizData(lead)) && <TabsTrigger value="form" className="flex-1">Formulário</TabsTrigger>}
           </TabsList>
 
           <TabsContent value="info" className="space-y-4 mt-4">
@@ -242,14 +242,44 @@ export function LeadDetailSheet({ lead, stages, open, onOpenChange, pipelineId }
             <LeadTimeline leadId={lead.id} />
           </TabsContent>
 
-          {lead.form_submission_id && (
+          {(lead.form_submission_id || hasQuizData(lead)) && (
             <TabsContent value="form" className="mt-4">
-              <FormSubmissionData submissionId={lead.form_submission_id} formId={lead.form_id} />
+              {lead.form_submission_id ? (
+                <FormSubmissionData submissionId={lead.form_submission_id} formId={lead.form_id} />
+              ) : (
+                <QuizData lead={lead} />
+              )}
             </TabsContent>
           )}
         </Tabs>
       </SheetContent>
     </Sheet>
+  );
+}
+
+function hasQuizData(lead: CrmLead): boolean {
+  const cf = lead.custom_fields as Record<string, any> | null;
+  return !!cf && cf.origem === "LP3 Quiz";
+}
+
+function QuizData({ lead }: { lead: CrmLead }) {
+  const cf = lead.custom_fields as Record<string, string> | null;
+  if (!cf) return <p className="text-sm text-muted-foreground">Sem dados</p>;
+
+  const entries = Object.entries(cf).filter(([key]) => key !== "origem");
+
+  return (
+    <div className="space-y-3">
+      <Badge variant="secondary" className="text-xs">Origem: LP3 Quiz</Badge>
+      <div className="space-y-2">
+        {entries.map(([key, val]) => (
+          <div key={key} className="text-sm">
+            <span className="font-medium text-xs text-muted-foreground">{key}</span>
+            <p>{String(val)}</p>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 
