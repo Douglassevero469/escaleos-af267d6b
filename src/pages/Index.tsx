@@ -292,7 +292,7 @@ const faqItems = [
   { q: "A landing page já vem pronta?", a: "Sim, a proposta inclui a landing page dentro do pacote, pensada com foco em alta conversão." },
   { q: "O CRM está incluso no valor?", a: "Sim. O acesso ao CRM por 1 ano já está incluso no pacote." },
   { q: "Esse pacote é só estratégico ou também orienta a execução?", a: "Além da estrutura estratégica, você recebe o passo a passo de implementação para saber como aplicar a solução." },
-  { q: "Qual é o valor?", a: "O investimento é de R$ 9.997, podendo ser parcelado em 12x sem juros de R$ 833,08." },
+  { q: "Qual é o valor?", a: "O investimento é de R$ 8.497, podendo ser parcelado em 12x sem juros de R$ 708,08." },
 ];
 
 const objections = [
