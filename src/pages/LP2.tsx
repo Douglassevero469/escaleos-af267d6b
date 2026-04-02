@@ -407,7 +407,7 @@ export default function LP2() {
           <Reveal delay={200}>
             <div className="text-center mt-8">
               <p className="text-2xl md:text-3xl font-extrabold text-white mb-2">
-                Economia de mais de <span className="text-green-400"><AnimatedPrice value={30000} /></span>
+                Economia de mais de <span className="text-green-400"><AnimatedPrice value={26700} /></span>
               </p>
               <p className="text-gray-400">Você paga menos da metade e recebe tudo pronto, integrado e orientado.</p>
             </div>
