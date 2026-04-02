@@ -369,7 +369,7 @@ export default function Index() {
 
           {/* Mini seals */}
           <FadeInSection delay={600}>
-            <div className="flex flex-wrap justify-center gap-3 mt-14">
+            <div className="flex flex-wrap justify-center gap-3 mt-14 flex-nowrap">
               {miniSeals.map((s, i) => (
                 <div key={i} className="rounded-full border border-border/50 bg-card/50 backdrop-blur-sm px-5 py-2.5 flex items-center gap-2.5 text-xs font-medium text-muted-foreground transition-all hover:border-primary/30 hover:text-foreground">
                   <s.icon className="h-4 w-4 text-primary" />
