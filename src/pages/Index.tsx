@@ -21,15 +21,8 @@ const WHATSAPP_LINK = "https://wa.me/5500000000000?text=Quero%20saber%20mais%20s
 const CTA_LINK = WHATSAPP_LINK;
 
 function StickyTopBar() {
-  const [visible, setVisible] = useState(false);
-  useEffect(() => {
-    const onScroll = () => setVisible(window.scrollY > 400);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
   return (
-    <div className={`fixed top-0 left-0 right-0 z-[60] transition-transform duration-300 ${visible ? "translate-y-0" : "-translate-y-full"}`}>
+    <div className="fixed top-0 left-0 right-0 z-[60]">
       <div className="bg-primary/95 backdrop-blur-md text-primary-foreground py-2 px-4 text-center text-sm font-medium">
         Estratégia + Comercial + Mídia + Landing Page + CRM em uma única solução
       </div>
