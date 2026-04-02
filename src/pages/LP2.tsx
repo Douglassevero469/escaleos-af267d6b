@@ -362,7 +362,7 @@ export default function LP2() {
                     { item: "Planejamento Estratégico Completo", pro: "Consultoria de gestão", price: 5500 },
                     { item: "Plano Comercial Estruturado", pro: "Consultor de vendas", price: 4500 },
                     { item: "Plano de Mídia e Tráfego Pago", pro: "Gestor de tráfego", price: 3500 },
-                    { item: "Landing Page de Alta Conversão", pro: "Designer + Desenvolvedor", price: 7000 },
+                    { item: "Landing Page de Alta Conversão", pro: "Designer + Desenvolvedor", price: 3500 },
                     { item: "CRM Completo (12 meses)", pro: "Plataforma SaaS + setup", price: 5400 },
                     { item: "Implementação Orientada", pro: "Consultor de processos", price: 3800 },
                     { item: "Hospedagem + Domínio (12 meses)", pro: "Infra e manutenção", price: 2400 },
@@ -389,7 +389,7 @@ export default function LP2() {
                       Total no mercado
                     </td>
                     <td className="py-5 px-6 text-right text-xl font-extrabold text-red-500 line-through">
-                      <AnimatedPrice value={38700} />
+                      <AnimatedPrice value={35200} />
                     </td>
                   </tr>
                   <tr className="bg-blue-600/10 border-t border-blue-500/30">
@@ -407,7 +407,7 @@ export default function LP2() {
           <Reveal delay={200}>
             <div className="text-center mt-8">
               <p className="text-2xl md:text-3xl font-extrabold text-white mb-2">
-                Economia de mais de <span className="text-green-400"><AnimatedPrice value={30000} /></span>
+                Economia de mais de <span className="text-green-400"><AnimatedPrice value={26700} /></span>
               </p>
               <p className="text-gray-400">Você paga menos da metade e recebe tudo pronto, integrado e orientado.</p>
             </div>
