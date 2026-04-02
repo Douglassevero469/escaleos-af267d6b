@@ -177,7 +177,7 @@ export default function LP3() {
   return (
     <div className="min-h-screen bg-[#0a0a0f] text-white font-['Montserrat',sans-serif] flex flex-col">
       {/* Progress bar */}
-      {step > 0 && step <= totalQuestions + 2 && (
+      {step > 0 && step <= totalQuestions + 3 && (
         <div className="fixed top-0 left-0 right-0 z-50 bg-[#0a0a0f]/90 backdrop-blur-md px-4 py-3">
           <div className="max-w-lg mx-auto flex items-center gap-3">
             <img src={escaleLogoWhite} alt="Escale" className="h-6" />
