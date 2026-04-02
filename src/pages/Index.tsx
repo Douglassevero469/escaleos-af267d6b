@@ -14,6 +14,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import escaleLogoWhite from "@/assets/escale-logo-white.png";
+import escaleLogoDark from "@/assets/escale-logo-dark.png";
 import escaleIcon from "@/assets/escale-icon.png";
 import { useEffect, useState } from "react";
 
