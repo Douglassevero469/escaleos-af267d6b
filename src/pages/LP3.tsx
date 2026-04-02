@@ -1,57 +1,91 @@
 import { useState, useEffect, FormEvent, useMemo } from "react";
-import { CheckCircle2, MessageCircle, Zap, Target, TrendingUp, BarChart3, DollarSign, User, Mail, Phone, Clock, AlertTriangle } from "lucide-react";
+import { CheckCircle2, MessageCircle, Zap, Target, TrendingUp, BarChart3, DollarSign, User, Mail, Phone, Clock, AlertTriangle, Users, CalendarClock, ShieldCheck, Briefcase } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
 import escaleLogoWhite from "@/assets/escale-logo-white.png";
 
 const WA_LINK = "https://wa.me/5500000000000?text=Quero%20saber%20mais%20sobre%20o%20Super%20Pacote%20Escale";
 
-/* ─── Questions data ─── */
+/* ─── Questions data (BANT: Budget, Authority, Need, Timeline + qualificação) ─── */
 const questions = [
+  // NEED — Necessidade
   {
     icon: Target,
+    category: "need",
     question: "Qual o maior desafio da sua empresa hoje?",
-    options: ["Gerar leads qualificados", "Converter vendas", "Organizar processos", "Comunicar melhor"],
+    options: ["Gerar leads qualificados", "Converter vendas", "Organizar processos comerciais", "Comunicar melhor a marca"],
   },
   {
     icon: BarChart3,
+    category: "need",
     question: "Sua empresa tem um plano comercial estruturado?",
-    options: ["Sim, completo", "Mais ou menos", "Não tenho"],
+    options: ["Sim, completo e atualizado", "Tenho algo básico", "Não tenho nenhum"],
   },
   {
     icon: TrendingUp,
+    category: "need",
     question: "Você já investiu em tráfego pago?",
-    options: ["Sim, com resultados", "Sim, sem resultados", "Nunca investi"],
+    options: ["Sim, com bons resultados", "Sim, mas sem retorno claro", "Nunca investi"],
   },
   {
     icon: Zap,
-    question: "Sua empresa tem um CRM?",
-    options: ["Sim, uso diariamente", "Não", "Nem sei o que é"],
+    category: "need",
+    question: "Sua empresa usa um CRM para gerenciar oportunidades?",
+    options: ["Sim, uso diariamente", "Já tentei mas não funcionou", "Não uso nenhum", "Nem sei o que é"],
+  },
+  // AUTHORITY — Autoridade
+  {
+    icon: ShieldCheck,
+    category: "authority",
+    question: "Qual é o seu papel na empresa?",
+    options: ["Sócio / CEO", "Diretor / Gerente", "Coordenador / Analista", "Consultor / Freelancer"],
   },
   {
+    icon: Users,
+    category: "authority",
+    question: "Quantas pessoas atuam na área comercial/marketing?",
+    options: ["Só eu", "2 a 5 pessoas", "6 a 15 pessoas", "Mais de 15"],
+  },
+  // BUDGET — Orçamento
+  {
     icon: DollarSign,
+    category: "budget",
     question: "Qual o faturamento mensal da sua empresa?",
     options: [
-      "R$ 20k – R$ 40k",
-      "R$ 40k – R$ 60k",
-      "R$ 60k – R$ 80k",
-      "R$ 80k – R$ 100k",
-      "R$ 100k – R$ 150k",
-      "R$ 150k – R$ 200k",
-      "R$ 200k – R$ 300k",
-      "R$ 300k – R$ 500k",
+      "R$ 20k – R$ 50k",
+      "R$ 50k – R$ 100k",
+      "R$ 100k – R$ 200k",
+      "R$ 200k – R$ 500k",
       "R$ 500k – R$ 1M",
       "Acima de R$ 1M",
     ],
   },
   {
-    icon: DollarSign,
-    question: "Quanto você investiria para estruturar tudo isso?",
-    options: ["Até R$ 5 mil", "R$ 5 mil – R$ 10 mil", "Acima de R$ 10 mil"],
+    icon: Briefcase,
+    category: "budget",
+    question: "Quanto você investiria para estruturar estratégia + comercial + mídia + CRM?",
+    options: ["Até R$ 5 mil", "R$ 5 mil – R$ 10 mil", "R$ 10 mil – R$ 20 mil", "Acima de R$ 20 mil"],
+  },
+  // TIMELINE — Urgência
+  {
+    icon: CalendarClock,
+    category: "timeline",
+    question: "Quando você precisa ter isso implementado?",
+    options: ["Imediatamente, é urgente", "Nos próximos 30 dias", "Em 2 a 3 meses", "Sem prazo definido"],
   },
 ];
 
-const encouragements = ["Ótima escolha! 🎯", "Perfeito! 🚀", "Excelente! 💡", "Quase lá! 🔥", "Show! ⚡", "Último passo! 🏆"];
+const encouragements = [
+  "Ótima escolha! 🎯",
+  "Perfeito! 🚀",
+  "Excelente! 💡",
+  "Entendi! 🔍",
+  "Boa! 👊",
+  "Importante saber! 📊",
+  "Show! ⚡",
+  "Quase lá! 🔥",
+  "Último passo! 🏆",
+];
 
 /* ─── Social proof ─── */
 const socialProofData = [
@@ -233,22 +267,110 @@ export default function LP3() {
     return () => clearInterval(interval);
   }, [step, totalQuestions]);
 
-  // Diagnosis logic
+  // BANT Diagnosis logic
   const getDiagnosis = () => {
-    let score = 0;
-    // Q1: all challenges = needs structure
-    // Q2: plan
-    if (answers[1] === "Sim, completo") score += 2;
-    else if (answers[1] === "Mais ou menos") score += 1;
-    // Q3: traffic
-    if (answers[2] === "Sim, com resultados") score += 2;
-    else if (answers[2] === "Sim, sem resultados") score += 1;
-    // Q4: CRM
-    if (answers[3] === "Sim, uso diariamente") score += 2;
+    // Scores per BANT dimension (0-10 each)
+    let need = 0, authority = 0, budget = 0, timeline = 0;
 
-    if (score <= 2) return { level: "Crítico", color: "text-red-400", bg: "from-red-500/20 to-red-600/10", pct: 25, headline: "Sua empresa precisa urgentemente de estrutura comercial", sub: "Você está perdendo vendas todos os dias por falta de processo." };
-    if (score <= 4) return { level: "Atenção", color: "text-yellow-400", bg: "from-yellow-500/20 to-yellow-600/10", pct: 55, headline: "Sua empresa tem potencial, mas opera no improviso", sub: "Com a estrutura certa, seu faturamento pode dobrar em meses." };
-    return { level: "Bom", color: "text-green-400", bg: "from-green-500/20 to-green-600/10", pct: 78, headline: "Você já tem base, agora precisa escalar com método", sub: "O Super Pacote vai integrar tudo e acelerar seus resultados." };
+    // Q0: Desafio (all options indicate need)
+    need += 2;
+
+    // Q1: Plano comercial
+    if (answers[1] === "Sim, completo e atualizado") need += 0;
+    else if (answers[1] === "Tenho algo básico") need += 2;
+    else need += 4;
+
+    // Q2: Tráfego pago
+    if (answers[2] === "Sim, com bons resultados") need += 0;
+    else if (answers[2] === "Sim, mas sem retorno claro") need += 2;
+    else need += 3;
+
+    // Q3: CRM
+    if (answers[3] === "Sim, uso diariamente") need += 0;
+    else if (answers[3] === "Já tentei mas não funcionou") need += 2;
+    else if (answers[3] === "Não uso nenhum") need += 3;
+    else need += 4; // nem sabe
+
+    // Q4: Papel na empresa (Authority)
+    if (answers[4] === "Sócio / CEO") authority = 10;
+    else if (answers[4] === "Diretor / Gerente") authority = 8;
+    else if (answers[4] === "Coordenador / Analista") authority = 5;
+    else authority = 3;
+
+    // Q5: Tamanho da equipe
+    if (answers[5] === "Só eu") authority = Math.min(authority, 6);
+    else if (answers[5] === "Mais de 15") authority = Math.max(authority, 8);
+
+    // Q6: Faturamento (Budget indicator)
+    const fatIdx = ["R$ 20k – R$ 50k", "R$ 50k – R$ 100k", "R$ 100k – R$ 200k", "R$ 200k – R$ 500k", "R$ 500k – R$ 1M", "Acima de R$ 1M"].indexOf(answers[6] || "");
+    budget = Math.min(10, (fatIdx + 1) * 2);
+
+    // Q7: Investimento disponível
+    if (answers[7] === "Acima de R$ 20 mil") budget = Math.max(budget, 10);
+    else if (answers[7] === "R$ 10 mil – R$ 20 mil") budget = Math.max(budget, 8);
+    else if (answers[7] === "R$ 5 mil – R$ 10 mil") budget = Math.max(budget, 6);
+    else budget = Math.max(budget, 3);
+
+    // Q8: Timeline
+    if (answers[8] === "Imediatamente, é urgente") timeline = 10;
+    else if (answers[8] === "Nos próximos 30 dias") timeline = 8;
+    else if (answers[8] === "Em 2 a 3 meses") timeline = 5;
+    else timeline = 2;
+
+    // Cap need at 10
+    need = Math.min(need, 10);
+
+    const totalScore = Math.round((need + authority + budget + timeline) / 4);
+
+    // Build weaknesses for personalized recommendations
+    const weaknesses: string[] = [];
+    if (need >= 7) weaknesses.push("estrutura comercial e processos");
+    if (answers[2] !== "Sim, com bons resultados") weaknesses.push("estratégia de mídia paga");
+    if (answers[3] !== "Sim, uso diariamente") weaknesses.push("gestão de relacionamento (CRM)");
+    if (answers[1] !== "Sim, completo e atualizado") weaknesses.push("planejamento comercial");
+
+    // Personalized headline based on main challenge
+    const mainChallenge = answers[0] || "";
+    let challengeText = "";
+    if (mainChallenge.includes("leads")) challengeText = "Sua máquina de geração de leads precisa de estrutura.";
+    else if (mainChallenge.includes("vendas")) challengeText = "Suas vendas estão travadas por falta de processo.";
+    else if (mainChallenge.includes("processos")) challengeText = "Seus processos comerciais precisam de organização urgente.";
+    else challengeText = "Sua comunicação precisa de estratégia para gerar resultados.";
+
+    if (totalScore >= 8) {
+      return {
+        level: "Crítico",
+        color: "text-red-400",
+        bg: "from-red-500/20 to-red-600/10",
+        pct: Math.min(30, totalScore * 3),
+        headline: `🚨 ${challengeText}`,
+        sub: `Identificamos gaps críticos em: ${weaknesses.slice(0, 3).join(", ")}. Cada dia sem agir é faturamento perdido.`,
+        urgency: "alta",
+        recommendations: ["Planejamento Estratégico completo", "Plano Comercial com funil definido", "CRM para não perder nenhum lead", "Landing Page de alta conversão"],
+      };
+    }
+    if (totalScore >= 5) {
+      return {
+        level: "Atenção",
+        color: "text-yellow-400",
+        bg: "from-yellow-500/20 to-yellow-600/10",
+        pct: 45 + (10 - totalScore) * 3,
+        headline: `⚠️ ${challengeText}`,
+        sub: `Pontos de melhoria: ${weaknesses.slice(0, 2).join(" e ")}. Você tem potencial, mas opera abaixo da capacidade.`,
+        urgency: "média",
+        recommendations: ["Plano de Mídia otimizado", "CRM para gestão de pipeline", "Implementação orientada passo a passo"],
+      };
+    }
+    return {
+      level: "Otimização",
+      color: "text-green-400",
+      bg: "from-green-500/20 to-green-600/10",
+      pct: 72 + (5 - totalScore) * 3,
+      headline: `✅ Você já tem uma base sólida. Hora de escalar.`,
+      sub: `Com ajustes em ${weaknesses.length > 0 ? weaknesses[0] : "integração das ferramentas"}, seu crescimento pode acelerar significativamente.`,
+      urgency: "baixa",
+      recommendations: ["Integração completa das ferramentas", "Otimização do funil de vendas", "Escala com tráfego pago"],
+    };
   };
 
   return (
@@ -278,10 +400,10 @@ export default function LP3() {
               <Zap className="h-3.5 w-3.5" /> DIAGNÓSTICO GRATUITO
             </div>
             <h1 className="text-3xl md:text-4xl font-bold leading-tight mb-4">
-              Descubra em <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-green-400">60 segundos</span> o que está travando o crescimento da sua empresa
+              Descubra em <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-green-400">90 segundos</span> o que está travando o crescimento da sua empresa
             </h1>
             <p className="text-white/60 text-lg mb-8">
-              Responda 6 perguntas rápidas e receba um diagnóstico personalizado com a solução ideal para escalar seus resultados.
+              Responda 9 perguntas rápidas e receba um diagnóstico BANT personalizado com a solução ideal para escalar.
             </p>
             <button
               onClick={() => { setTransitioning(true); setTimeout(() => { setStep(1); setTransitioning(false); }, 400); }}
@@ -435,7 +557,7 @@ export default function LP3() {
             <div className="max-w-lg mx-auto w-full animate-[fade-in_0.6s_ease-out]">
               <div className="text-center mb-8">
                 <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold mb-4 bg-gradient-to-r ${d.bg} ${d.color} border border-current/20`}>
-                  Nível: {d.level}
+                  Nível: {d.level} · Urgência {d.urgency}
                 </div>
                 <h1 className="text-2xl md:text-3xl font-bold mb-3">{d.headline}</h1>
                 <p className="text-white/60">{d.sub}</p>
@@ -449,6 +571,19 @@ export default function LP3() {
                 </div>
                 <div className="h-3 bg-white/10 rounded-full overflow-hidden">
                   <div className="h-full bg-gradient-to-r from-blue-500 to-green-400 rounded-full transition-all duration-1000" style={{ width: `${d.pct}%` }} />
+                </div>
+              </div>
+
+              {/* Personalized recommendations */}
+              <div className="bg-white/5 border border-white/10 rounded-2xl p-6 mb-6">
+                <h3 className="font-bold text-sm text-white/70 mb-3">📋 Recomendações para o seu cenário:</h3>
+                <div className="space-y-2">
+                  {d.recommendations.map((rec) => (
+                    <div key={rec} className="flex items-center gap-2 text-sm">
+                      <CheckCircle2 className="h-4 w-4 text-blue-400 flex-shrink-0" />
+                      <span className="text-white/80">{rec}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
 
