@@ -242,9 +242,13 @@ export function LeadDetailSheet({ lead, stages, open, onOpenChange, pipelineId }
             <LeadTimeline leadId={lead.id} />
           </TabsContent>
 
-          {lead.form_submission_id && (
+          {(lead.form_submission_id || hasQuizData(lead)) && (
             <TabsContent value="form" className="mt-4">
-              <FormSubmissionData submissionId={lead.form_submission_id} formId={lead.form_id} />
+              {lead.form_submission_id ? (
+                <FormSubmissionData submissionId={lead.form_submission_id} formId={lead.form_id} />
+              ) : (
+                <QuizData lead={lead} />
+              )}
             </TabsContent>
           )}
         </Tabs>
