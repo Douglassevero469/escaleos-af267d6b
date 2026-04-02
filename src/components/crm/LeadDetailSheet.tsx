@@ -110,7 +110,7 @@ export function LeadDetailSheet({ lead, stages, open, onOpenChange, pipelineId }
           <TabsList className="w-full">
             <TabsTrigger value="info" className="flex-1">Dados</TabsTrigger>
             <TabsTrigger value="timeline" className="flex-1">Timeline</TabsTrigger>
-            {lead.form_submission_id && <TabsTrigger value="form" className="flex-1">Formulário</TabsTrigger>}
+            {(lead.form_submission_id || hasQuizData(lead)) && <TabsTrigger value="form" className="flex-1">Formulário</TabsTrigger>}
           </TabsList>
 
           <TabsContent value="info" className="space-y-4 mt-4">
