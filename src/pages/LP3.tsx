@@ -1,6 +1,7 @@
 import { useState, useEffect, FormEvent, useMemo } from "react";
 import { CheckCircle2, MessageCircle, Zap, Target, TrendingUp, BarChart3, DollarSign, User, Mail, Phone, Clock, AlertTriangle } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { supabase } from "@/integrations/supabase/client";
 import escaleLogoWhite from "@/assets/escale-logo-white.png";
 
 const WA_LINK = "https://wa.me/5500000000000?text=Quero%20saber%20mais%20sobre%20o%20Super%20Pacote%20Escale";
@@ -195,10 +196,24 @@ export default function LP3() {
   };
 
   // Handle lead capture submit
-  const handleLeadSubmit = (e: FormEvent) => {
+  const handleLeadSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!leadName.trim() || !leadEmail.trim()) return;
     setStep(totalQuestions + 2); // go to loading
+
+    // Fire and forget - send lead to backend
+    try {
+      await supabase.functions.invoke("capture-quiz-lead", {
+        body: {
+          name: leadName.trim(),
+          email: leadEmail.trim(),
+          phone: leadPhone.trim(),
+          answers,
+        },
+      });
+    } catch {
+      // silently fail - don't block the user experience
+    }
   };
 
   // Loading animation
