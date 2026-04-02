@@ -1,6 +1,7 @@
 import { useState, useEffect, FormEvent, useMemo } from "react";
 import { CheckCircle2, MessageCircle, Zap, Target, TrendingUp, BarChart3, DollarSign, User, Mail, Phone, Clock, AlertTriangle } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { supabase } from "@/integrations/supabase/client";
 import escaleLogoWhite from "@/assets/escale-logo-white.png";
 
 const WA_LINK = "https://wa.me/5500000000000?text=Quero%20saber%20mais%20sobre%20o%20Super%20Pacote%20Escale";
