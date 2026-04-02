@@ -328,6 +328,84 @@ export default function LP2() {
         </div>
       </section>
 
+      {/* ═══ VALUE COMPARISON TABLE ═══ */}
+      <section className="py-16 md:py-24 bg-black">
+        <div className="max-w-4xl mx-auto px-6">
+          <Reveal>
+            <p className="text-blue-400 font-bold text-sm tracking-[0.3em] uppercase text-center mb-4">Comparativo de mercado</p>
+            <h2 className="text-2xl md:text-4xl font-extrabold text-center mb-4">
+              Quanto custaria contratar tudo isso <span className="text-red-500">separadamente</span>?
+            </h2>
+            <p className="text-gray-400 text-center mb-12 max-w-2xl mx-auto">
+              Veja o valor real de cada entregável se você contratasse profissionais e ferramentas no mercado:
+            </p>
+          </Reveal>
+          <Reveal delay={100}>
+            <div className="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-gray-800 bg-gray-900/80">
+                    <th className="text-left py-4 px-6 text-sm font-bold text-gray-300 uppercase tracking-wider">Entregável</th>
+                    <th className="text-left py-4 px-6 text-sm font-bold text-gray-300 uppercase tracking-wider hidden md:table-cell">Profissional / Ferramenta</th>
+                    <th className="text-right py-4 px-6 text-sm font-bold text-gray-300 uppercase tracking-wider">Valor de Mercado</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { item: "Planejamento Estratégico Completo", pro: "Consultoria de gestão", price: "R$ 3.000" },
+                    { item: "Plano Comercial Estruturado", pro: "Consultor de vendas", price: "R$ 2.500" },
+                    { item: "Plano de Mídia e Tráfego Pago", pro: "Gestor de tráfego", price: "R$ 2.000" },
+                    { item: "Landing Page de Alta Conversão", pro: "Designer + Desenvolvedor", price: "R$ 4.000" },
+                    { item: "CRM Completo (12 meses)", pro: "Plataforma SaaS + setup", price: "R$ 3.600" },
+                    { item: "Implementação Orientada", pro: "Consultor de processos", price: "R$ 2.000" },
+                    { item: "Hospedagem + Domínio (12 meses)", pro: "Infra e manutenção", price: "R$ 1.200" },
+                    { item: "Setup de Funil de Vendas", pro: "Especialista em funis", price: "R$ 1.500" },
+                    { item: "Copywriting para LP e Anúncios", pro: "Copywriter profissional", price: "R$ 2.500" },
+                  ].map((row, i) => (
+                    <tr key={i} className="border-b border-gray-800/50 hover:bg-gray-800/30 transition-colors">
+                      <td className="py-4 px-6">
+                        <div className="flex items-center gap-3">
+                          <CheckCircle2 className="h-4 w-4 text-green-400 flex-shrink-0" />
+                          <span className="text-sm md:text-base font-medium text-white">{row.item}</span>
+                        </div>
+                      </td>
+                      <td className="py-4 px-6 text-sm text-gray-500 hidden md:table-cell">{row.pro}</td>
+                      <td className="py-4 px-6 text-right text-sm font-semibold text-gray-400">{row.price}</td>
+                    </tr>
+                  ))}
+                </tbody>
+                <tfoot>
+                  <tr className="border-t-2 border-gray-700">
+                    <td colSpan={2} className="py-5 px-6 text-lg font-extrabold text-white">
+                      Total no mercado
+                    </td>
+                    <td className="py-5 px-6 text-right text-xl font-extrabold text-red-500 line-through">
+                      R$ 22.300
+                    </td>
+                  </tr>
+                  <tr className="bg-blue-600/10 border-t border-blue-500/30">
+                    <td colSpan={2} className="py-5 px-6 text-lg font-extrabold text-blue-400">
+                      ✨ Super Pacote Escale — tudo incluso
+                    </td>
+                    <td className="py-5 px-6 text-right text-2xl font-extrabold text-green-400">
+                      R$ 8.497
+                    </td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </Reveal>
+          <Reveal delay={200}>
+            <div className="text-center mt-8">
+              <p className="text-2xl md:text-3xl font-extrabold text-white mb-2">
+                Economia de mais de <span className="text-green-400">R$ 13.800</span>
+              </p>
+              <p className="text-gray-400">Você paga menos da metade e recebe tudo pronto, integrado e orientado.</p>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
       {/* ═══ PRICE / OFFER ═══ */}
       <section className="py-16 md:py-24 bg-gray-950 relative overflow-hidden">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-blue-600/5 rounded-full blur-[100px]" />
