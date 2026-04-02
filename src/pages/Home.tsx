@@ -3,7 +3,7 @@ import escaleLogoWhite from "@/assets/escale-logo-white.png";
 
 export default function Home() {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-6 relative overflow-hidden">
+    <div className="min-h-screen flex flex-col items-center justify-center p-6 relative overflow-hidden bg-[hsl(240,20%,4%)]">
       <AnimatedShaderBackground />
 
       <div className="relative z-10 flex flex-col items-center gap-8 animate-fade-in-up text-center max-w-3xl">
