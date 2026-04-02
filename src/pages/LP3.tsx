@@ -130,6 +130,38 @@ function useCountdown() {
   return { hours, minutes, seconds };
 }
 
+function CountdownBanner() {
+  const { hours, minutes, seconds } = useCountdown();
+  const pad = (n: number) => String(n).padStart(2, "0");
+
+  return (
+    <div className="bg-gradient-to-r from-red-600/20 to-orange-500/10 border border-red-500/30 rounded-2xl p-4 mb-6 animate-[fade-in_0.5s_ease-out]">
+      <div className="flex items-center justify-center gap-2 mb-3">
+        <AlertTriangle className="h-4 w-4 text-red-400" />
+        <span className="text-sm font-bold text-red-400">OFERTA EXPIRA EM:</span>
+      </div>
+      <div className="flex items-center justify-center gap-3">
+        {[
+          { value: pad(hours), label: "horas" },
+          { value: pad(minutes), label: "min" },
+          { value: pad(seconds), label: "seg" },
+        ].map((t) => (
+          <div key={t.label} className="flex flex-col items-center">
+            <div className="bg-white/10 border border-white/10 rounded-lg px-3 py-2 min-w-[52px] text-center">
+              <span className="text-2xl font-bold tabular-nums">{t.value}</span>
+            </div>
+            <span className="text-[10px] text-white/40 mt-1">{t.label}</span>
+          </div>
+        ))}
+      </div>
+      <p className="text-center text-xs text-white/40 mt-3">
+        <Clock className="inline h-3 w-3 mr-1" />
+        Apenas <span className="text-red-400 font-bold">3 vagas</span> restantes com condição especial
+      </p>
+    </div>
+  );
+}
+
 /* ─── Main component ─── */
 export default function LP3() {
   const [step, setStep] = useState(0); // 0=welcome, 1-6=questions, 7=capture, 8=loading, 9=result
