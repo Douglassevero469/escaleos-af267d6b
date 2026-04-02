@@ -73,6 +73,9 @@ const testimonials = [
   { name: "Carlos M.", role: "CEO — Construtora", text: "Em 3 meses triplicamos os leads qualificados. A estrutura que a Escale montou mudou nosso jogo comercial.", stars: 5 },
   { name: "Fernanda R.", role: "Diretora — Clínica Estética", text: "Paramos de depender de indicação. Hoje temos um fluxo previsível de pacientes todo mês.", stars: 5 },
   { name: "Ricardo S.", role: "Sócio — Escritório de Advocacia", text: "O plano comercial sozinho já valeu o investimento. Organizamos tudo que estava solto.", stars: 5 },
+  { name: "Juliana T.", role: "Proprietária — E-commerce de Moda", text: "Antes eu postava todo dia e não vendia nada. Com o plano de mídia da Escale, cada real investido volta multiplicado.", stars: 5 },
+  { name: "Marcos A.", role: "Diretor — Consultoria Financeira", text: "O CRM mudou nossa operação. Antes perdíamos leads no WhatsApp, hoje nenhum escapa do funil.", stars: 5 },
+  { name: "Patricia L.", role: "Sócia — Agência de Turismo", text: "Achava que precisava de uma agência cara. O pacote da Escale me deu autonomia para crescer sozinha.", stars: 5 },
 ];
 
 export default function LP2() {
