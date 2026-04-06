@@ -652,10 +652,41 @@ export default function PacoteDocumentos() {
     generateSequentially();
   }, [docs, pkg, streamDocument, id, queryClient]);
 
+  // Elapsed time ticker
+  useEffect(() => {
+    if (generatingDocs.size === 0) return;
+    const interval = setInterval(() => {
+      setDocElapsed(prev => {
+        const next = { ...prev };
+        generatingDocs.forEach(docId => {
+          const start = docStartTimes[docId];
+          if (start) next[docId] = Math.floor((Date.now() - start) / 1000);
+        });
+        return next;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [generatingDocs, docStartTimes]);
+
   const completedCount = docs.filter((d: any) => d.status === "completed").length;
   const totalCount = docs.length;
   const progress = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
-  const isGenerating = generatingDocs.size > 0 || docs.some((d: any) => d.status === "pending" || d.status === "generating");
+  const pendingCount = docs.filter((d: any) => d.status === "pending").length;
+  const generatingCount = generatingDocs.size;
+  const isGenerating = generatingCount > 0 || docs.some((d: any) => d.status === "pending" || d.status === "generating");
+
+  // Estimate: ~45s per doc, 2 concurrent
+  const AVG_DOC_TIME = 45;
+  const CONCURRENCY = 2;
+  const remainingDocs = totalCount - completedCount;
+  const estimatedTotalMin = Math.ceil((remainingDocs * AVG_DOC_TIME) / CONCURRENCY / 60);
+  const elapsedTotal = generationStartTime ? Math.floor((Date.now() - generationStartTime) / 1000) : 0;
+
+  const formatTime = (secs: number) => {
+    const m = Math.floor(secs / 60);
+    const s = secs % 60;
+    return m > 0 ? `${m}min ${s.toString().padStart(2, "0")}s` : `${s}s`;
+  };
 
   const isDocReady = (status: string) => status === "completed";
 
