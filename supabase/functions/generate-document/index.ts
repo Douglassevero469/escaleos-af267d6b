@@ -781,6 +781,101 @@ Tabela: Dia | Formato | Pilar | Tema | Horário | Status
 - Alcance, Engajamento, Salvamentos, Compartilhamentos, Cliques no link, DMs recebidas
 - Meta semanal sugerida para cada métrica
 - Como ajustar a estratégia com base nos resultados`,
+
+    email_marketing: `${instrucaoGeral}
+Crie o documento "Estratégia Completa de Email Marketing — ${empresa}".
+
+Este documento deve ser o manual definitivo de email marketing para ${empresa}, com sequências automatizadas prontas para copiar e usar.
+
+Use TODAS as informações do briefing:
+${contexto}
+
+---
+
+### ESTRUTURA OBRIGATÓRIA:
+
+## 1. DIAGNÓSTICO E ESTRATÉGIA GERAL
+- Análise do cenário atual de email marketing para ${briefing.nichoAtuacao}
+- Objetivos mensuráveis (taxa de abertura, cliques, conversão)
+- Segmentação de lista baseada no perfil: ${briefing.perfilClienteIdeal}
+- Frequência ideal de envio por segmento
+- KPIs e benchmarks do setor
+
+## 2. SEQUÊNCIA DE BOAS-VINDAS (5-7 emails)
+Para novos inscritos/leads. Cada email com:
+- Assunto (2 variações para teste A/B)
+- Preview text
+- Corpo completo do email
+- CTA principal
+- Timing (quando enviar após o anterior)
+
+Emails:
+1. Boas-vindas + entrega do lead magnet (imediato)
+2. História da marca + autoridade (Dia 1)
+3. Dor principal + agitação (Dia 3)
+4. Case de sucesso / prova social: ${briefing.provaSocial || "depoimentos de clientes"} (Dia 5)
+5. Apresentação da oferta ${briefing.nomeProduto} (Dia 7)
+6. Objeções respondidas: ${briefing.objecoes?.filter(Boolean).join(", ") || "preço, tempo, confiança"} (Dia 9)
+7. Urgência + última chance (Dia 11)
+
+## 3. SEQUÊNCIA DE NUTRIÇÃO (Evergreen - 4 emails/mês)
+Conteúdo educativo para manter engajamento:
+- Semana 1: Conteúdo educativo sobre ${briefing.nichoAtuacao}
+- Semana 2: Dicas práticas resolvendo ${briefing.doresPublico?.filter(Boolean).join(", ") || "dores do público"}
+- Semana 3: Bastidores / humanização da marca
+- Semana 4: Oferta suave com prova social
+
+Cada email com assunto, corpo e CTA completos.
+
+## 4. SEQUÊNCIA DE CARRINHO ABANDONADO (3 emails)
+Para leads que demonstraram interesse mas não converteram:
+1. Lembrete gentil (1 hora após)
+2. Prova social + benefícios (24 horas)
+3. Oferta especial / bônus exclusivo (48 horas)
+
+## 5. SEQUÊNCIA PÓS-VENDA (5 emails)
+Para clientes que compraram ${briefing.nomeProduto}:
+1. Confirmação + onboarding (imediato)
+2. Dicas de uso / primeiros passos (Dia 2)
+3. Check-in de satisfação (Dia 7)
+4. Pedido de depoimento/avaliação (Dia 14)
+5. Upsell / cross-sell (Dia 30)
+
+## 6. SEQUÊNCIA DE REATIVAÇÃO (3 emails)
+Para contatos inativos (sem abrir há 30+ dias):
+1. "Sentimos sua falta" + conteúdo de valor
+2. Pesquisa rápida "o que você quer receber?"
+3. Última tentativa com oferta exclusiva
+
+## 7. SEQUÊNCIA DE LANÇAMENTO (7 emails)
+Para lançamentos e promoções de ${briefing.nomeProduto}:
+1. Antecipação / teaser (7 dias antes)
+2. Revelação do que vem (5 dias antes)
+3. Prova social massiva (3 dias antes)
+4. Abertura de vendas (Dia D)
+5. Lembrete + bônus early bird (Dia D+1)
+6. Últimas vagas / FAQ (Dia D+3)
+7. Encerramento com urgência (último dia)
+
+## 8. TEMPLATES DE EMAIL
+- Template visual sugerido (layout em blocos)
+- Cores da marca: ${briefing.coresMarca || "cores do cliente"}
+- Tom de voz: ${briefing.tomDeVoz || "profissional e acessível"}
+- Rodapé padrão com links sociais
+- Disclaimer / opt-out
+
+## 9. AUTOMAÇÕES E TRIGGERS
+Mapa visual de automações:
+- Trigger → Condição → Ação → Email
+- Tags e segmentos recomendados
+- Integração com ${briefing.ferramentas || "CRM/ferramentas do cliente"}
+
+## 10. MÉTRICAS E OTIMIZAÇÃO
+- Dashboard de KPIs sugerido
+- Benchmarks por sequência
+- Checklist de otimização mensal
+- Testes A/B recomendados (assuntos, horários, CTAs)
+- Plano de limpeza de lista`,
   };
 
   return prompts[docType];
