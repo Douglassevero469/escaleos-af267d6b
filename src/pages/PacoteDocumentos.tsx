@@ -290,20 +290,17 @@ const ESCALE_BRAND_CSS = `
     margin: 24px 0;
   }
 
-  /* ── Footer ── */
+  /* ── Footer (not fixed – handled by html2pdf margins) ── */
   .doc-footer {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 10px 56px;
+    padding: 10px 44px;
     background: var(--brand-dark);
     color: rgba(255,255,255,0.5);
     font-size: 7.5pt;
     letter-spacing: 0.3px;
+    margin-top: 48px;
   }
 
   .doc-footer .brand {
@@ -312,7 +309,12 @@ const ESCALE_BRAND_CSS = `
   }
 
   @media print {
-    .doc-footer { position: fixed; }
+    .doc-footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+    }
     .page { padding-bottom: 56px; }
   }
 `;
