@@ -22,6 +22,7 @@ import Perfil from "./pages/Perfil";
 import Forms from "./pages/Forms";
 import FormBuilder from "./pages/FormBuilder";
 import FormPublic from "./pages/FormPublic";
+import BriefingPublico from "./pages/BriefingPublico";
 import FormSubmissionsPage from "./pages/FormSubmissions";
 import Demandas from "./pages/Demandas";
 import CRM from "./pages/CRM";
@@ -60,6 +61,7 @@ const App = () => (
                 <Route path="/perfil" element={<Perfil />} />
               </Route>
               <Route path="/f/:slug" element={<FormPublic />} />
+              <Route path="/briefing-publico" element={<BriefingPublico />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
