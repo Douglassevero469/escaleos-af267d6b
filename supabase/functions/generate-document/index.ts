@@ -41,7 +41,7 @@ interface BriefingData {
   provaSocial: string;
 }
 
-const DOC_TYPES = ["planejamento","concorrentes","funil","midia","criativos","playbook","script","objecoes"] as const;
+const DOC_TYPES = ["planejamento","concorrentes","funil","midia","criativos","playbook","script","objecoes","landing_page"] as const;
 type DocType = typeof DOC_TYPES[number];
 
 const DOC_TITLES: Record<DocType, string> = {
@@ -53,6 +53,7 @@ const DOC_TITLES: Record<DocType, string> = {
   playbook: "Playbook Comercial",
   script: "Script de Vendas",
   objecoes: "Tabela de Objeções",
+  landing_page: "Landing Page de Alta Conversão",
 };
 
 // ── Briefing to text ─────────────────────────────────────────────────────────
@@ -404,6 +405,90 @@ Para cada objeção informada: ${(briefing.objecoes||[]).filter(Boolean).join(",
 1. O Espelho, 2. Ancoragem de Valor (${briefing.precoProduto}), 3. Custo da Inação, 4. Prova Social Cirúrgica, 5. Fechamento Condicional
 
 ## O que NUNCA Fazer (10 erros fatais)`,
+
+    landing_page: `${instrucaoGeral}
+Crie o documento "Conteúdo Completo para Landing Page de Alta Conversão — ${empresa}".
+
+Este documento deve conter TODO o conteúdo textual pronto para ser implementado em uma landing page de alta conversão. Cada seção (dobra) deve ter textos finais, prontos para copiar e colar. O desenvolvedor/designer deve conseguir montar a página inteira apenas com este documento.
+
+# Landing Page de Alta Conversão
+## ${empresa} | ${briefing.nomeProduto} | ${briefing.nichoAtuacao}
+
+### DOBRA 1 — HERO (Acima da Dobra)
+- **Headline Principal** (máx. 10 palavras, impactante, focada no resultado/desejo "${desejo1}")
+- **Sub-headline** (1-2 frases complementando a headline, mencionando a transformação)
+- **CTA Principal** (texto exato do botão, ex: "Quero Minha Vaga", "Agendar Diagnóstico Gratuito")
+- **CTA Secundário** (texto menor abaixo do botão, ex: "Sem compromisso • Resultado em 7 dias")
+- **Prova Social Rápida** (ex: "+500 clientes atendidos", "${briefing.provaSocial || 'resultados comprovados'}")
+- **Elemento de Urgência** (ex: "Últimas vagas para ${regiao}")
+
+### DOBRA 2 — PROBLEMA / DOR
+- **Título da Seção** (ex: "Você se identifica com isso?")
+- **Lista de Dores** (5-7 bullets baseados em: ${(briefing.doresPublico||[]).filter(Boolean).join(", ")})
+- **Parágrafo de Agitação** (amplificar a dor, mostrar o custo de não resolver)
+- **Frase de Transição** (conectar o problema à solução)
+
+### DOBRA 3 — SOLUÇÃO / APRESENTAÇÃO DO PRODUTO
+- **Título** (ex: "Conheça o ${briefing.nomeProduto}")
+- **Descrição** (2-3 parágrafos explicando o que é e como funciona)
+- **Lista de Benefícios** (6-8 benefícios com ícone sugerido + texto)
+- **Diferencial Principal** vs concorrentes (${concorrentesNomes})
+
+### DOBRA 4 — COMO FUNCIONA (Passo a Passo)
+- **Título** (ex: "Como Funciona em 3 Passos Simples")
+- **Passo 1**: Título + Descrição (1-2 frases)
+- **Passo 2**: Título + Descrição
+- **Passo 3**: Título + Descrição
+- **CTA Intermediário**
+
+### DOBRA 5 — PROVA SOCIAL / DEPOIMENTOS
+- **Título** (ex: "Veja o que nossos clientes dizem")
+- **Depoimento 1**: Nome fictício realista, cargo/empresa, texto de 2-3 frases focado em resultado
+- **Depoimento 2**: Diferente ângulo (facilidade, suporte, ROI)
+- **Depoimento 3**: Diferente ângulo (transformação, antes/depois)
+- **Números de Impacto** (ex: "98% de satisfação", "+${briefing.tempoMercado} no mercado")
+
+### DOBRA 6 — BENEFÍCIOS DETALHADOS / ENTREGÁVEIS
+- **Título** (ex: "Tudo que você recebe")
+- **Lista de Entregáveis** (8-12 itens com título + descrição curta de cada)
+- Inclua os diferenciais reais: ${(briefing.diferenciais||[]).filter(Boolean).join(", ")}
+
+### DOBRA 7 — AUTORIDADE / SOBRE A EMPRESA
+- **Título** (ex: "Por que a ${empresa}?")
+- **Texto institucional** (2-3 parágrafos: história, missão, experiência no nicho ${briefing.nichoAtuacao})
+- **Números de Autoridade** (tempo de mercado: ${briefing.tempoMercado}, região: ${regiao}, etc.)
+- **Selos / Certificações** (sugestões de elementos visuais de confiança)
+
+### DOBRA 8 — OFERTA E PREÇO
+- **Título** (ex: "Investimento")
+- **Preço**: ${briefing.precoProduto}
+- **Ancoragem de Valor** (mostrar valor total vs preço real)
+- **Garantia**: ${briefing.garantia}
+- **Condições de Pagamento** (sugestões: parcelamento, desconto à vista)
+- **CTA Principal** com urgência
+- **Elemento de Escassez** (vagas limitadas, bônus por tempo limitado)
+
+### DOBRA 9 — FAQ (Perguntas Frequentes)
+Crie 8-10 perguntas e respostas baseadas nas objeções reais: ${(briefing.objecoes||[]).filter(Boolean).join(", ")}
+Cada resposta deve reverter a objeção e reforçar o valor.
+
+### DOBRA 10 — CTA FINAL / FECHAMENTO
+- **Título de Urgência** (ex: "Não deixe para depois")
+- **Parágrafo Final** (resumo emocional da transformação)
+- **CTA Final** (mesmo botão do hero, com urgência reforçada)
+- **Informações de Contato** (canais: ${(briefing.canaisAtendimento || []).filter(Boolean).join(", ") || "WhatsApp"})
+- **Texto Legal** (direitos reservados, CNPJ, etc.)
+
+### DOBRA EXTRA — BÔNUS (Opcional)
+- **Título** (ex: "Bônus Exclusivos por Tempo Limitado")
+- Crie 3 bônus relevantes para o nicho ${briefing.nichoAtuacao} com valor percebido alto
+
+### NOTAS PARA O DESENVOLVEDOR
+- Cores sugeridas: ${briefing.coresMarca || "definir com o cliente"}
+- Tom de voz: ${briefing.tomDeVoz}
+- Plataformas de anúncio que direcionarão tráfego: ${plataformas}
+- Sugestão de ferramentas de captura: formulário com nome, email, telefone
+- Mobile-first: todas as dobras devem funcionar em telas pequenas`,
   };
 
   return prompts[docType];
@@ -428,7 +513,7 @@ serve(async (req) => {
     const prompt = buildPrompt(docType as DocType, briefingData);
 
     // Docs complexos usam modelo premium para maior qualidade
-    const complexDocs: DocType[] = ["planejamento", "playbook", "funil", "script"];
+    const complexDocs: DocType[] = ["planejamento", "playbook", "funil", "script", "landing_page"];
     const model = complexDocs.includes(docType as DocType)
       ? "google/gemini-2.5-pro"
       : "google/gemini-2.5-flash";
