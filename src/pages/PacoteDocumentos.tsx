@@ -315,7 +315,8 @@ const ESCALE_BRAND_CSS = `
       left: 0;
       right: 0;
     }
-    .page { padding-bottom: 56px; }
+    .page { padding-bottom: 72px; }
+    body { margin: 12mm 10mm 16mm 10mm; }
   }
 `;
 
@@ -409,7 +410,7 @@ async function generatePdfBlob(title: string, content: string): Promise<Blob> {
   await new Promise(r => setTimeout(r, 500));
 
   const opt = {
-    margin: [8, 0, 12, 0] as [number, number, number, number],
+    margin: [12, 10, 16, 10] as [number, number, number, number],
     filename: `${title}.pdf`,
     image: { type: "jpeg" as const, quality: 0.95 },
     html2canvas: { scale: 2, useCORS: true, letterRendering: true, width: 794 },
