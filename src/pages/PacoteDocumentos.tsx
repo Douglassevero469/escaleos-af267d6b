@@ -700,27 +700,54 @@ export default function PacoteDocumentos() {
             {(pkg as any)?.clients?.name ?? "..."} · {docs.length} documentos
           </p>
         </div>
-        {completedCount > 0 && !isGenerating && (
-          <Button
-            onClick={async () => {
-              setIsZipping(true);
-              await downloadAllAsZip(docs, (pkg as any)?.clients?.name || "cliente", setZipProgress);
-              setIsZipping(false);
-            }}
-            disabled={isZipping}
-            className="gap-2 btn-primary-glow font-semibold"
-          >
-            {isZipping ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin" /> Gerando PDFs... {zipProgress}%
-              </>
-            ) : (
-              <>
-                <Archive className="h-4 w-4" /> Baixar Todos (ZIP)
-              </>
-            )}
-          </Button>
-        )}
+        <div className="flex gap-2">
+          {docs.some((d: any) => d.status === "pending" || d.status === "error") && !isGenerating && (
+            <Button
+              onClick={async () => {
+                const briefingData = (pkg as any)?.briefings?.data;
+                if (!briefingData) return;
+                const pendingDocs = docs.filter((d: any) => d.status === "pending" || d.status === "error");
+                const queue = [...pendingDocs];
+                const concurrency = 2;
+                const runNext = async () => {
+                  const doc = queue.shift();
+                  if (!doc) return;
+                  await streamDocument(doc, briefingData, doc.status === "error");
+                  await new Promise(r => setTimeout(r, 1500));
+                  await runNext();
+                };
+                const workers = Array.from({ length: Math.min(concurrency, queue.length) }, () => runNext());
+                await Promise.all(workers);
+                queryClient.invalidateQueries({ queryKey: ["package-documents", id] });
+              }}
+              className="gap-2 font-semibold"
+              variant="outline"
+            >
+              <Sparkles className="h-4 w-4" /> Gerar Todos ({docs.filter((d: any) => d.status === "pending" || d.status === "error").length})
+            </Button>
+          )}
+          {completedCount > 0 && !isGenerating && (
+            <Button
+              onClick={async () => {
+                setIsZipping(true);
+                await downloadAllAsZip(docs, (pkg as any)?.clients?.name || "cliente", setZipProgress);
+                setIsZipping(false);
+              }}
+              disabled={isZipping}
+              className="gap-2 btn-primary-glow font-semibold"
+            >
+              {isZipping ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" /> Gerando PDFs... {zipProgress}%
+                </>
+              ) : (
+                <>
+                  <Archive className="h-4 w-4" /> Baixar Todos (ZIP)
+                </>
+              )}
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Progress bar */}

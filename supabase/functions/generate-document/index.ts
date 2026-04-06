@@ -788,7 +788,7 @@ Crie o documento "Estratégia Completa de Email Marketing — ${empresa}".
 Este documento deve ser o manual definitivo de email marketing para ${empresa}, com sequências automatizadas prontas para copiar e usar.
 
 Use TODAS as informações do briefing:
-${contexto}
+${ctx}
 
 ---
 
