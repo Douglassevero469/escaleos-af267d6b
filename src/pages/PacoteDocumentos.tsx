@@ -91,10 +91,9 @@ const ESCALE_BRAND_CSS = `
   }
 
   .page {
-    padding: 40px 44px 72px;
+    padding: 40px 44px 80px;
     max-width: 100%;
     position: relative;
-    min-height: 100vh;
   }
 
   /* ── Header ── */
