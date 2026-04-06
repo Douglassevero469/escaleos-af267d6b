@@ -41,7 +41,7 @@ interface BriefingData {
   provaSocial: string;
 }
 
-const DOC_TYPES = ["planejamento","concorrentes","funil","midia","criativos","playbook","script","objecoes","landing_page"] as const;
+const DOC_TYPES = ["planejamento","concorrentes","funil","midia","criativos","playbook","script","objecoes","landing_page","followup"] as const;
 type DocType = typeof DOC_TYPES[number];
 
 const DOC_TITLES: Record<DocType, string> = {
@@ -54,6 +54,7 @@ const DOC_TITLES: Record<DocType, string> = {
   script: "Script de Vendas",
   objecoes: "Tabela de Objeções",
   landing_page: "Landing Page de Alta Conversão",
+  followup: "Cadência de Mensagens Follow-up",
 };
 
 // ── Briefing to text ─────────────────────────────────────────────────────────
@@ -489,6 +490,152 @@ Cada resposta deve reverter a objeção e reforçar o valor.
 - Plataformas de anúncio que direcionarão tráfego: ${plataformas}
 - Sugestão de ferramentas de captura: formulário com nome, email, telefone
 - Mobile-first: todas as dobras devem funcionar em telas pequenas`,
+
+    followup: `${instrucaoGeral}
+Crie o documento "Cadência Completa de Mensagens Follow-up — ${empresa}".
+
+Este documento deve ser o manual definitivo de follow-up. O vendedor deve poder copiar e colar cada mensagem sem precisar pensar. Cada mensagem deve ser EXATA, pronta para enviar.
+
+# Cadência Completa de Mensagens Follow-up
+## ${empresa} | ${canais} | Tom: ${briefing.tomDeVoz}
+
+### Introdução: A Importância do Follow-up
+Contextualize com dados: 80% das vendas acontecem entre o 5º e 12º contato. Explique a estratégia de cadência para ${briefing.nichoAtuacao}.
+
+### FASE 1: LEAD QUENTE (Acabou de Demonstrar Interesse)
+#### Dia 0 — Resposta Imediata (SLA: 5 minutos)
+- Mensagem via ${canais}: texto exato, personalizado para quem busca ${briefing.nomeProduto}
+- Variação A (tom direto)
+- Variação B (tom consultivo)
+
+#### Dia 0 — 2ª Mensagem (2 horas depois, se não respondeu)
+- Texto exato com gatilho de curiosidade
+
+#### Dia 1 — Manhã
+- Mensagem com prova social (${briefing.provaSocial || "case de sucesso"})
+
+#### Dia 1 — Tarde (se não respondeu)
+- Áudio sugerido (roteiro exato do que falar em 30 segundos)
+
+#### Dia 2
+- Mensagem com conteúdo de valor (dica rápida sobre ${dor1})
+
+#### Dia 3
+- Mensagem de escassez/urgência
+
+#### Dia 5
+- Última tentativa direta + pergunta aberta
+
+### FASE 2: LEAD MORNO (Respondeu mas não agendou/comprou)
+#### Dia 1 após último contato
+- Retomada suave
+
+#### Dia 3
+- Envio de material de valor (link para conteúdo sobre ${briefing.nichoAtuacao})
+
+#### Dia 7
+- Case de sucesso detalhado (antes/depois de cliente similar)
+
+#### Dia 10
+- Mensagem "thinking of you" — novidade ou insight do mercado
+
+#### Dia 14
+- Oferta especial ou bônus por tempo limitado
+
+#### Dia 21
+- Mensagem de despedida elegante (gatilho de perda)
+
+### FASE 3: LEAD FRIO (Não respondeu nenhuma mensagem)
+#### Semana 1
+- Tentativa por canal diferente (se tem email, ligar; se tem WhatsApp, email)
+
+#### Semana 2
+- Conteúdo educativo sem pedir nada
+
+#### Semana 3
+- Pesquisa rápida ("O que te impede de...")
+
+#### Mês 2
+- Reativação com novidade ou mudança de oferta
+
+#### Mês 3
+- Última tentativa + link para conteúdo evergreen
+
+### FASE 4: PÓS-REUNIÃO (Fez reunião mas não fechou)
+#### Mesmo dia (até 2h após reunião)
+- Resumo da reunião + próximos passos + ${briefing.precoProduto}
+
+#### Dia 1
+- Material complementar (proposta formal, apresentação)
+
+#### Dia 2
+- Pergunta sobre dúvidas + reforço de garantia (${briefing.garantia})
+
+#### Dia 3
+- Depoimento de cliente em situação similar
+
+#### Dia 5
+- Urgência: vaga/condição especial expirando
+
+#### Dia 7
+- Check-in final + facilidade de pagamento
+
+#### Dia 10
+- Mensagem de "porta aberta" para retomada futura
+
+### FASE 5: PÓS-VENDA (Cliente fechou)
+#### Dia 0 — Boas-vindas
+- Mensagem de onboarding
+
+#### Dia 3
+- Check-in: está tudo certo?
+
+#### Dia 7
+- Pedido de feedback rápido
+
+#### Dia 15
+- Conteúdo exclusivo para clientes
+
+#### Dia 30
+- Pedido de depoimento/avaliação
+
+#### Dia 45
+- Oferta de upsell/cross-sell
+
+#### Dia 60
+- Programa de indicação
+
+### FASE 6: REATIVAÇÃO DE CLIENTES INATIVOS
+#### Mensagem 1 — Saudade
+#### Mensagem 2 — Novidade (7 dias depois)
+#### Mensagem 3 — Oferta especial (14 dias depois)
+#### Mensagem 4 — Última chance (21 dias depois)
+
+### FASE 7: PERDIDO PARA CONCORRENTE (${concorrentesNomes})
+#### Mensagem 1 — Aceitação elegante (mesmo dia)
+#### Mensagem 2 — 30 dias depois (check-in)
+#### Mensagem 3 — 60 dias depois (oferta de migração)
+
+### TEMPLATES DE ÁUDIO (Roteiros para gravar)
+- Áudio 1: Apresentação inicial (20s)
+- Áudio 2: Follow-up de valor (15s)
+- Áudio 3: Urgência (10s)
+- Áudio 4: Pós-reunião (25s)
+
+### REGRAS DE OURO DO FOLLOW-UP
+1. Nunca enviar mais de 2 mensagens por dia
+2. Variar entre texto, áudio e conteúdo
+3. Sempre personalizar com o nome do lead
+4. Respeitar horário comercial (8h-20h)
+5. Se o lead pedir para parar, parar imediatamente
+6. Registrar cada interação no CRM (${briefing.ferramentas || "CRM"})
+7. Medir taxa de resposta por fase e ajustar
+
+### MÉTRICAS DE FOLLOW-UP
+Tabela: Fase | Mensagens | Taxa de Resposta Esperada | Conversão Esperada | Ação se Abaixo da Meta
+
+### CONFIGURAÇÃO NO CRM
+Como configurar automações de follow-up no ${briefing.ferramentas || "CRM"} para ${empresa}.`,
   };
 
   return prompts[docType];
