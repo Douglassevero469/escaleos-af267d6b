@@ -16,7 +16,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 
 const stepNames = ["Identidade", "Financeiro", "Produto", "Concorrentes", "Operacional", "Mídia", "Revisão"];
 
-const DOC_TYPES = ["planejamento", "concorrentes", "funil", "midia", "criativos", "playbook", "script", "objecoes", "landing_page", "followup"] as const;
+const DOC_TYPES = ["planejamento", "concorrentes", "funil", "midia", "criativos", "playbook", "script", "objecoes", "landing_page", "followup", "calendario_editorial"] as const;
 const DOC_TITLES: Record<string, string> = {
   planejamento: "Planejamento Estratégico",
   concorrentes: "Análise de Concorrentes",
@@ -28,6 +28,7 @@ const DOC_TITLES: Record<string, string> = {
   objecoes: "Tabela de Objeções",
   landing_page: "Landing Page de Alta Conversão",
   followup: "Cadência de Mensagens Follow-up",
+  calendario_editorial: "Calendário Editorial de Conteúdo",
 };
 
 interface Concorrente {
@@ -240,7 +241,7 @@ export default function NovoBriefing() {
       const { error: docErr } = await supabase.from("documents").insert(docInserts);
       if (docErr) throw docErr;
 
-      toast({ title: "Briefing enviado!", description: "Seus 10 documentos serão gerados com IA." });
+      toast({ title: "Briefing enviado!", description: "Seus 11 documentos serão gerados com IA." });
       navigate(`/pacote/${pkg.id}`);
     } catch (e: any) {
       toast({ title: "Erro ao salvar briefing", description: e.message, variant: "destructive" });

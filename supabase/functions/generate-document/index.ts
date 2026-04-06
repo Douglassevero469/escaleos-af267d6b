@@ -41,7 +41,7 @@ interface BriefingData {
   provaSocial: string;
 }
 
-const DOC_TYPES = ["planejamento","concorrentes","funil","midia","criativos","playbook","script","objecoes","landing_page","followup"] as const;
+const DOC_TYPES = ["planejamento","concorrentes","funil","midia","criativos","playbook","script","objecoes","landing_page","followup","calendario_editorial"] as const;
 type DocType = typeof DOC_TYPES[number];
 
 const DOC_TITLES: Record<DocType, string> = {
@@ -55,6 +55,7 @@ const DOC_TITLES: Record<DocType, string> = {
   objecoes: "Tabela de Objeções",
   landing_page: "Landing Page de Alta Conversão",
   followup: "Cadência de Mensagens Follow-up",
+  calendario_editorial: "Calendário Editorial de Conteúdo",
 };
 
 // ── Briefing to text ─────────────────────────────────────────────────────────
@@ -636,6 +637,149 @@ Tabela: Fase | Mensagens | Taxa de Resposta Esperada | Conversão Esperada | Aç
 
 ### CONFIGURAÇÃO NO CRM
 Como configurar automações de follow-up no ${briefing.ferramentas || "CRM"} para ${empresa}.`,
+
+    calendario_editorial: `${instrucaoGeral}
+Crie o documento "Calendário Editorial de Conteúdo — 30 Dias — ${empresa}".
+
+Este documento deve ser um calendário completo de 30 dias com posts prontos para redes sociais. O social media deve poder copiar e publicar sem precisar de mais nada.
+
+# Calendário Editorial de Conteúdo — 30 Dias
+## ${empresa} | ${briefing.nichoAtuacao} | Tom: ${briefing.tomDeVoz}
+
+### Estratégia Editorial
+- **Objetivo**: ${briefing.objetivoCampanha || "Gerar autoridade e leads qualificados"}
+- **Público-alvo**: ${briefing.perfilClienteIdeal}
+- **Plataformas**: Instagram, ${(briefing.plataformasAnuncio || []).filter(Boolean).join(", ") || "redes sociais"}
+- **Frequência**: 1 post/dia (mínimo)
+- **Pilares de Conteúdo**:
+  1. **Educativo** (40%) — Ensinar sobre ${briefing.nichoAtuacao}, resolver dores (${(briefing.doresPublico||[]).filter(Boolean).join(", ")})
+  2. **Autoridade** (25%) — Cases, bastidores, provas sociais (${briefing.provaSocial || "resultados"})
+  3. **Engajamento** (20%) — Enquetes, perguntas, trends, humor
+  4. **Venda Direta** (15%) — Ofertas, ${briefing.nomeProduto}, depoimentos
+
+### Identidade Visual
+- Cores: ${briefing.coresMarca || "da marca"}
+- Tom de voz: ${briefing.tomDeVoz}
+- Hashtags fixas: crie 10 hashtags de marca + 10 de nicho para ${briefing.nichoAtuacao} em ${regiao}
+
+---
+
+## SEMANA 1 — Posicionamento e Autoridade
+
+### Dia 1 (Segunda) — Carrossel Educativo
+- **Formato**: Carrossel (8-10 slides)
+- **Tema**: "${dor1}" — Como resolver
+- **Slide 1 (Capa)**: Headline impactante (texto exato)
+- **Slides 2-8**: Conteúdo passo a passo (texto exato de cada slide)
+- **Slide Final**: CTA + contato
+- **Legenda**: Texto completo com emojis, quebras de linha, hashtags
+- **Horário**: 10h
+
+### Dia 2 (Terça) — Reels / Vídeo Curto
+- **Formato**: Reels (15-30s)
+- **Roteiro**: Hook (3s) + Conteúdo (20s) + CTA (5s) — texto exato
+- **Legenda**: Texto completo
+- **Horário**: 12h
+
+### Dia 3 (Quarta) — Post Estático de Prova Social
+- **Formato**: Imagem única
+- **Conteúdo**: Depoimento/resultado de cliente
+- **Texto da arte**: Exato
+- **Legenda**: Texto completo com storytelling
+- **Horário**: 18h
+
+### Dia 4 (Quinta) — Stories Interativos (5 stories)
+- **Story 1**: Enquete sobre ${dor1}
+- **Story 2**: Caixinha de perguntas
+- **Story 3**: Bastidores
+- **Story 4**: Dica rápida
+- **Story 5**: CTA para ${briefing.nomeProduto}
+- Texto exato de cada story
+
+### Dia 5 (Sexta) — Post de Engajamento
+- **Formato**: Imagem com pergunta
+- **Texto da arte**: Pergunta provocativa sobre ${briefing.nichoAtuacao}
+- **Legenda**: Texto completo estimulando comentários
+- **Horário**: 11h
+
+### Dia 6 (Sábado) — Carrossel de Venda
+- **Formato**: Carrossel (6-8 slides)
+- **Tema**: Apresentação de ${briefing.nomeProduto} por ${briefing.precoProduto}
+- Texto exato de cada slide + legenda completa
+- **Horário**: 10h
+
+### Dia 7 (Domingo) — Reels Inspiracional/Bastidores
+- **Formato**: Reels (30-60s)
+- **Roteiro**: Texto exato — história da ${empresa}, missão, por que fazemos
+- **Legenda**: Texto completo
+- **Horário**: 19h
+
+---
+
+## SEMANA 2 — Educação e Engajamento
+
+### Dia 8 a Dia 14
+Para cada dia, forneça:
+- Formato (Carrossel, Reels, Estático, Stories)
+- Tema específico relacionado a: diferenciais (${(briefing.diferenciais||[]).filter(Boolean).join(", ")}), dores e desejos do público
+- Texto completo da arte
+- Legenda completa com hashtags
+- Horário sugerido
+- Dia 8: Mitos sobre ${briefing.nichoAtuacao} (Carrossel)
+- Dia 9: Antes e Depois de cliente (Reels)
+- Dia 10: Dica prática rápida (Post estático)
+- Dia 11: Caixinha de perguntas + respostas (Stories)
+- Dia 12: Comparativo ${empresa} vs concorrência (Carrossel)
+- Dia 13: Oferta/Promoção relâmpago (Post + Stories)
+- Dia 14: Conteúdo lifestyle/bastidores (Reels)
+
+---
+
+## SEMANA 3 — Conversão e Prova Social
+
+### Dia 15 a Dia 21
+- Dia 15: Case de sucesso detalhado (Carrossel)
+- Dia 16: FAQ — Respondendo objeções: ${(briefing.objecoes||[]).filter(Boolean).slice(0,3).join(", ")} (Reels)
+- Dia 17: Depoimento em vídeo / print (Post)
+- Dia 18: Conteúdo colaborativo / trend (Reels)
+- Dia 19: Garantia ${briefing.garantia} explicada (Carrossel)
+- Dia 20: Urgência/Escassez — vagas limitadas (Post + Stories)
+- Dia 21: Recap da semana + CTA forte (Reels)
+
+---
+
+## SEMANA 4 — Fechamento e Autoridade
+
+### Dia 22 a Dia 28
+- Dia 22: Os ${(briefing.diferenciais||[]).length || 5} diferenciais de ${empresa} (Carrossel)
+- Dia 23: Rotina/dia a dia da equipe (Reels bastidores)
+- Dia 24: Erro comum no nicho ${briefing.nichoAtuacao} (Post educativo)
+- Dia 25: Live / Q&A anunciada nos stories (Stories + Post)
+- Dia 26: Resultado de cliente com números (Post)
+- Dia 27: Oferta especial de fim de mês (Carrossel de venda)
+- Dia 28: Reels emocional — transformação do cliente (Reels)
+
+### Dia 29 e 30 — Bônus
+- Dia 29: Retrospectiva do mês + resultados alcançados (Carrossel)
+- Dia 30: Teaser do próximo mês + CTA de antecipação (Reels + Stories)
+
+---
+
+### BANCO DE LEGENDAS EXTRAS
+Crie 10 legendas extras genéricas adaptáveis para ${briefing.nichoAtuacao} que podem ser usadas em qualquer dia.
+
+### BANCO DE HASHTAGS
+- 15 hashtags de nicho para ${briefing.nichoAtuacao}
+- 10 hashtags de localização para ${regiao}
+- 5 hashtags de marca para ${empresa}
+
+### CALENDÁRIO RESUMO (Tabela)
+Tabela: Dia | Formato | Pilar | Tema | Horário | Status
+
+### MÉTRICAS PARA ACOMPANHAR
+- Alcance, Engajamento, Salvamentos, Compartilhamentos, Cliques no link, DMs recebidas
+- Meta semanal sugerida para cada métrica
+- Como ajustar a estratégia com base nos resultados`,
   };
 
   return prompts[docType];
@@ -660,7 +804,7 @@ serve(async (req) => {
     const prompt = buildPrompt(docType as DocType, briefingData);
 
     // Docs complexos usam modelo premium para maior qualidade
-    const complexDocs: DocType[] = ["planejamento", "playbook", "funil", "script", "landing_page", "followup"];
+    const complexDocs: DocType[] = ["planejamento", "playbook", "funil", "script", "landing_page", "followup", "calendario_editorial"];
     const model = complexDocs.includes(docType as DocType)
       ? "google/gemini-2.5-pro"
       : "google/gemini-2.5-flash";
