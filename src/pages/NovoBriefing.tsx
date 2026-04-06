@@ -241,7 +241,7 @@ export default function NovoBriefing() {
       const { error: docErr } = await supabase.from("documents").insert(docInserts);
       if (docErr) throw docErr;
 
-      toast({ title: "Briefing enviado!", description: "Seus 10 documentos serão gerados com IA." });
+      toast({ title: "Briefing enviado!", description: "Seus 11 documentos serão gerados com IA." });
       navigate(`/pacote/${pkg.id}`);
     } catch (e: any) {
       toast({ title: "Erro ao salvar briefing", description: e.message, variant: "destructive" });
