@@ -26,6 +26,7 @@ import BriefingPublico from "./pages/BriefingPublico";
 import FormSubmissionsPage from "./pages/FormSubmissions";
 import Demandas from "./pages/Demandas";
 import CRM from "./pages/CRM";
+import CloserAI from "./pages/CloserAI";
 import NotFound from "./pages/NotFound";
 import { AppLayout } from "./components/Layout/AppLayout";
 
@@ -57,6 +58,7 @@ const App = () => (
                 <Route path="/forms/:id/respostas" element={<FormSubmissionsPage />} />
                 <Route path="/demandas" element={<Demandas />} />
                 <Route path="/crm" element={<CRM />} />
+                <Route path="/closer-ai" element={<CloserAI />} />
                 <Route path="/admin" element={<Admin />} />
                 <Route path="/perfil" element={<Perfil />} />
               </Route>
