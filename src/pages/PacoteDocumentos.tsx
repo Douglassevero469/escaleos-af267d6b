@@ -468,6 +468,9 @@ export default function PacoteDocumentos() {
   const [isZipping, setIsZipping] = useState(false);
   const [streamingContent, setStreamingContent] = useState<Record<string, string>>({});
   const [generatingDocs, setGeneratingDocs] = useState<Set<string>>(new Set());
+  const [docStartTimes, setDocStartTimes] = useState<Record<string, number>>({});
+  const [docElapsed, setDocElapsed] = useState<Record<string, number>>({});
+  const [generationStartTime, setGenerationStartTime] = useState<number | null>(null);
   const generationStarted = useRef(false);
   const queryClient = useQueryClient();
 
