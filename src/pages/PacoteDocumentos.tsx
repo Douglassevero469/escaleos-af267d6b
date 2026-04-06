@@ -843,7 +843,7 @@ export default function PacoteDocumentos() {
                   <p className="font-semibold text-sm">{doc.title}</p>
                   {isActive && (
                     <p className="text-xs text-accent mt-1 animate-pulse">
-                      {wordCount.toLocaleString()} palavras...
+                      {wordCount.toLocaleString()} palavras... · {formatTime(docElapsed[doc.id] || 0)}
                     </p>
                   )}
                   {(status === "pending" || status === "generating") && !isActive && (
