@@ -736,17 +736,10 @@ export default function PacoteDocumentos() {
                 const briefingData = (pkg as any)?.briefings?.data;
                 if (!briefingData) return;
                 const pendingDocs = docs.filter((d: any) => d.status === "pending" || d.status === "error");
-                const queue = [...pendingDocs];
-                const concurrency = 2;
-                const runNext = async () => {
-                  const doc = queue.shift();
-                  if (!doc) return;
+                for (const doc of pendingDocs) {
                   await streamDocument(doc, briefingData, doc.status === "error");
-                  await new Promise(r => setTimeout(r, 1500));
-                  await runNext();
-                };
-                const workers = Array.from({ length: Math.min(concurrency, queue.length) }, () => runNext());
-                await Promise.all(workers);
+                  await new Promise(r => setTimeout(r, 3000));
+                }
                 queryClient.invalidateQueries({ queryKey: ["package-documents", id] });
               }}
               className="gap-2 font-semibold"
