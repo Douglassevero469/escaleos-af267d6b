@@ -9,6 +9,7 @@ import {
   ClipboardList,
   KanbanSquare,
   Contact,
+  Phone,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
@@ -39,6 +40,7 @@ const mainItems = [
   { title: "Formulários", url: "/forms", icon: ClipboardList },
   { title: "Demandas", url: "/demandas", icon: KanbanSquare },
   { title: "CRM", url: "/crm", icon: Contact },
+  { title: "CloserAI", url: "/closer-ai", icon: Phone },
   { title: "Admin", url: "/admin", icon: Settings },
   { title: "Meu Perfil", url: "/perfil", icon: UserCircle },
 ];
