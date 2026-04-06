@@ -797,6 +797,17 @@ export default function PacoteDocumentos() {
             <span className="text-xs text-muted-foreground">{completedCount}/{totalCount} concluídos</span>
           </div>
           <Progress value={progress} className="h-2" />
+          <div className="flex items-center justify-between text-xs text-muted-foreground">
+            <div className="flex items-center gap-1">
+              <Clock className="h-3 w-3" />
+              <span>Tempo decorrido: {formatTime(elapsedTotal)}</span>
+            </div>
+            <span>
+              {remainingDocs > 0
+                ? `~${estimatedTotalMin} min restante${estimatedTotalMin > 1 ? "s" : ""} (${remainingDocs} docs × ~45s)`
+                : "Finalizando..."}
+            </span>
+          </div>
         </GlassCard>
       )}
 
