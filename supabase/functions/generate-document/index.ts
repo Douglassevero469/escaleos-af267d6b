@@ -660,7 +660,7 @@ serve(async (req) => {
     const prompt = buildPrompt(docType as DocType, briefingData);
 
     // Docs complexos usam modelo premium para maior qualidade
-    const complexDocs: DocType[] = ["planejamento", "playbook", "funil", "script", "landing_page"];
+    const complexDocs: DocType[] = ["planejamento", "playbook", "funil", "script", "landing_page", "followup"];
     const model = complexDocs.includes(docType as DocType)
       ? "google/gemini-2.5-pro"
       : "google/gemini-2.5-flash";
