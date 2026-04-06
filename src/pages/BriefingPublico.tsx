@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, ArrowRight, Send, Loader2, Plus, Trash2, CheckCircle } from "lucide-react";
+import { ArrowLeft, ArrowRight, Send, Loader2, Plus, Trash2, CheckCircle, Upload, FileText, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const stepNames = ["Identidade", "Financeiro", "Produto", "Concorrentes", "Operacional", "Mídia", "Revisão"];
