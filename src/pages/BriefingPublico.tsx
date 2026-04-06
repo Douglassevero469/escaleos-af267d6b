@@ -264,6 +264,62 @@ export default function BriefingPublico() {
   const steps = [
     // Step 0: Identidade
     <div key={0} className="space-y-4 animate-fade-in">
+      {/* Upload Section */}
+      <div className="rounded-lg border-2 border-dashed border-primary/30 bg-primary/5 p-6 text-center space-y-3">
+        <div className="flex items-center justify-center gap-2 text-primary">
+          <Sparkles className="h-5 w-5" />
+          <h3 className="text-base font-semibold">Preenchimento Inteligente</h3>
+        </div>
+        <p className="text-sm text-muted-foreground">
+          Envie um documento (PDF ou DOC) com as informações do seu negócio e preencheremos o formulário automaticamente.
+        </p>
+
+        {uploading ? (
+          <div className="flex items-center justify-center gap-2 py-4">
+            <Loader2 className="h-5 w-5 animate-spin text-primary" />
+            <span className="text-sm text-muted-foreground">Analisando documento com IA...</span>
+          </div>
+        ) : uploadedFileName ? (
+          <div className="flex items-center justify-center gap-2 py-2">
+            <FileText className="h-4 w-4 text-primary" />
+            <span className="text-sm font-medium text-primary">{uploadedFileName}</span>
+            <span className="text-xs text-green-600 font-medium">✓ Processado</span>
+          </div>
+        ) : null}
+
+        <div className="flex items-center justify-center gap-3">
+          <label className="cursor-pointer">
+            <input
+              type="file"
+              accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) handleFileUpload(file);
+                e.target.value = "";
+              }}
+              disabled={uploading}
+            />
+            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors">
+              <Upload className="h-4 w-4" />
+              {uploadedFileName ? "Enviar outro arquivo" : "Enviar Documento"}
+            </span>
+          </label>
+        </div>
+
+        {uploadedFileName && (
+          <p className="text-xs text-muted-foreground">
+            Revise os campos preenchidos abaixo e ajuste o que for necessário.
+          </p>
+        )}
+      </div>
+
+      <div className="relative flex items-center gap-3 py-2">
+        <div className="flex-1 h-px bg-border" />
+        <span className="text-xs text-muted-foreground uppercase tracking-wider">ou preencha manualmente</span>
+        <div className="flex-1 h-px bg-border" />
+      </div>
+
       <h3 className="text-lg font-semibold">Identidade do Negócio</h3>
       {renderField("Nome da Empresa *", "nomeEmpresa", "Ex: Studio Fitness Prime")}
       {renderField("Nicho / Segmento *", "nichoAtuacao", "Ex: Academia, Personal Trainer")}
