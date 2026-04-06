@@ -300,7 +300,7 @@ const ESCALE_BRAND_CSS = `
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 12px 56px;
+    padding: 10px 56px;
     background: var(--brand-dark);
     color: rgba(255,255,255,0.5);
     font-size: 7.5pt;
@@ -314,7 +314,7 @@ const ESCALE_BRAND_CSS = `
 
   @media print {
     .doc-footer { position: fixed; }
-    .page { padding-bottom: 60px; }
+    .page { padding-bottom: 56px; }
   }
 `;
 
