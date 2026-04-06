@@ -22,7 +22,7 @@ serve(async (req) => {
       });
     }
 
-    const maxSize = 10 * 1024 * 1024; // 10MB
+    const maxSize = 10 * 1024 * 1024;
     if (file.size > maxSize) {
       return new Response(JSON.stringify({ error: "Arquivo muito grande (máx 10MB)" }), {
         status: 400,
@@ -30,15 +30,11 @@ serve(async (req) => {
       });
     }
 
-    // Read file as base64
     const arrayBuffer = await file.arrayBuffer();
     const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
     const mimeType = file.type || "application/pdf";
 
-    // Use Gemini to extract briefing data from document
-    const LOVABLE_API_URL = Deno.env.get("LOVABLE_API_URL") || "https://api.lovable.dev";
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-
     if (!LOVABLE_API_KEY) {
       throw new Error("LOVABLE_API_KEY not configured");
     }
@@ -101,6 +97,14 @@ Regras:
           role: "user",
           content: [
             { type: "text", text: prompt },
+            {
+              type: "file",
+              file: {
+                filename: file.name,
+                content_type: mimeType,
+                data: base64,
+              },
+            },
           ],
         },
       ],
@@ -108,29 +112,7 @@ Regras:
       max_tokens: 4000,
     };
 
-    // For PDFs, use file URL approach; for text-based, inline
-    if (mimeType === "application/pdf") {
-      requestBody.messages[0].content.push({
-        type: "file",
-        file: {
-          filename: file.name,
-          content_type: mimeType,
-          data: base64,
-        },
-      });
-    } else {
-      // For DOC/DOCX, send as file
-      requestBody.messages[0].content.push({
-        type: "file",
-        file: {
-          filename: file.name,
-          content_type: mimeType,
-          data: base64,
-        },
-      });
-    }
-
-    const aiResp = await fetch(`${LOVABLE_API_URL}/api/ai/chat`, {
+    const aiResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -142,16 +124,26 @@ Regras:
     if (!aiResp.ok) {
       const errText = await aiResp.text();
       console.error("AI API error:", errText);
+      if (aiResp.status === 429) {
+        return new Response(JSON.stringify({ error: "Limite de requisições excedido. Tente novamente em alguns segundos." }), {
+          status: 429,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      if (aiResp.status === 402) {
+        return new Response(JSON.stringify({ error: "Créditos de IA esgotados." }), {
+          status: 402,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
       throw new Error(`AI API error: ${aiResp.status}`);
     }
 
     const aiData = await aiResp.json();
     let content = aiData.choices?.[0]?.message?.content || "";
 
-    // Clean up response - remove markdown code blocks if present
     content = content.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
 
-    // Parse the JSON
     let briefingData;
     try {
       briefingData = JSON.parse(content);
