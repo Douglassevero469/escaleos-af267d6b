@@ -98,11 +98,9 @@ Regras:
           content: [
             { type: "text", text: prompt },
             {
-              type: "file",
-              file: {
-                filename: file.name,
-                content_type: mimeType,
-                data: base64,
+              type: "image_url",
+              image_url: {
+                url: `data:${mimeType};base64,${base64}`,
               },
             },
           ],
