@@ -1,0 +1,2 @@
+ALTER TABLE public.briefings DROP CONSTRAINT briefings_status_check;
+ALTER TABLE public.briefings ADD CONSTRAINT briefings_status_check CHECK (status = ANY (ARRAY['draft'::text, 'submitted'::text, 'processing'::text, 'completed'::text, 'error'::text, 'pending_approval'::text, 'rejected'::text]));
