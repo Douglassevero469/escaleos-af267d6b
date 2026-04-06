@@ -41,7 +41,7 @@ interface BriefingData {
   provaSocial: string;
 }
 
-const DOC_TYPES = ["planejamento","concorrentes","funil","midia","criativos","playbook","script","objecoes","landing_page","followup","calendario_editorial"] as const;
+const DOC_TYPES = ["planejamento","concorrentes","funil","midia","criativos","playbook","script","objecoes","landing_page","followup","calendario_editorial","email_marketing"] as const;
 type DocType = typeof DOC_TYPES[number];
 
 const DOC_TITLES: Record<DocType, string> = {
@@ -56,6 +56,7 @@ const DOC_TITLES: Record<DocType, string> = {
   landing_page: "Landing Page de Alta Conversão",
   followup: "Cadência de Mensagens Follow-up",
   calendario_editorial: "Calendário Editorial de Conteúdo",
+  email_marketing: "Estratégia de Email Marketing",
 };
 
 // ── Briefing to text ─────────────────────────────────────────────────────────
@@ -804,7 +805,7 @@ serve(async (req) => {
     const prompt = buildPrompt(docType as DocType, briefingData);
 
     // Docs complexos usam modelo premium para maior qualidade
-    const complexDocs: DocType[] = ["planejamento", "playbook", "funil", "script", "landing_page", "followup", "calendario_editorial"];
+    const complexDocs: DocType[] = ["planejamento", "playbook", "funil", "script", "landing_page", "followup", "calendario_editorial", "email_marketing"];
     const model = complexDocs.includes(docType as DocType)
       ? "google/gemini-2.5-pro"
       : "google/gemini-2.5-flash";
