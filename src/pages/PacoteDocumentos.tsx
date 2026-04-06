@@ -633,8 +633,11 @@ export default function PacoteDocumentos() {
       const queue = [...pendingDocs];
 
       for (const doc of queue) {
-        await streamDocument(doc, briefingData);
-        // Delay between docs to avoid rate limits
+        try {
+          await streamDocument(doc, briefingData);
+        } catch (e: any) {
+          if (e?.message === "CREDITS_EXHAUSTED") break;
+        }
         await new Promise(r => setTimeout(r, 3000));
       }
 
