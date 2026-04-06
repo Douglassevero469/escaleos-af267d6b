@@ -505,6 +505,8 @@ export default function PacoteDocumentos() {
 
     setGeneratingDocs(prev => new Set(prev).add(docId));
     setStreamingContent(prev => ({ ...prev, [docId]: "" }));
+    setDocStartTimes(prev => ({ ...prev, [docId]: Date.now() }));
+    if (!generationStartTime) setGenerationStartTime(Date.now());
 
     // Mark as generating in DB
     await supabase.from("documents").update({ status: "generating" }).eq("id", docId);
