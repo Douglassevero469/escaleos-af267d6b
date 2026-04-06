@@ -471,6 +471,7 @@ export default function PacoteDocumentos() {
   const [docStartTimes, setDocStartTimes] = useState<Record<string, number>>({});
   const [docElapsed, setDocElapsed] = useState<Record<string, number>>({});
   const [generationStartTime, setGenerationStartTime] = useState<number | null>(null);
+  const [creditError, setCreditError] = useState(false);
   const generationStarted = useRef(false);
   const queryClient = useQueryClient();
 
@@ -522,7 +523,18 @@ export default function PacoteDocumentos() {
       });
 
       if (!resp.ok || !resp.body) {
+        const is402 = resp.status === 402;
+        const errorBody = await resp.text().catch(() => "");
+        const isCreditsError = is402 || errorBody.toLowerCase().includes("insufficient") || errorBody.toLowerCase().includes("credits");
+        
         await supabase.from("documents").update({ status: "error" }).eq("id", docId);
+        
+        if (isCreditsError) {
+          setCreditError(true);
+          setGeneratingDocs(prev => { const n = new Set(prev); n.delete(docId); return n; });
+          throw new Error("CREDITS_EXHAUSTED");
+        }
+        
         // Notify doc failure
         const { data: { user: u } } = await supabase.auth.getUser();
         if (u) {
@@ -621,8 +633,11 @@ export default function PacoteDocumentos() {
       const queue = [...pendingDocs];
 
       for (const doc of queue) {
-        await streamDocument(doc, briefingData);
-        // Delay between docs to avoid rate limits
+        try {
+          await streamDocument(doc, briefingData);
+        } catch (e: any) {
+          if (e?.message === "CREDITS_EXHAUSTED") break;
+        }
         await new Promise(r => setTimeout(r, 3000));
       }
 
@@ -730,14 +745,19 @@ export default function PacoteDocumentos() {
           </p>
         </div>
         <div className="flex gap-2">
-          {docs.some((d: any) => d.status === "pending" || d.status === "error") && !isGenerating && (
+          {docs.some((d: any) => d.status === "pending" || d.status === "error") && !isGenerating && !creditError && (
             <Button
               onClick={async () => {
+                setCreditError(false);
                 const briefingData = (pkg as any)?.briefings?.data;
                 if (!briefingData) return;
                 const pendingDocs = docs.filter((d: any) => d.status === "pending" || d.status === "error");
                 for (const doc of pendingDocs) {
-                  await streamDocument(doc, briefingData, doc.status === "error");
+                  try {
+                    await streamDocument(doc, briefingData, doc.status === "error");
+                  } catch (e: any) {
+                    if (e?.message === "CREDITS_EXHAUSTED") break;
+                  }
                   await new Promise(r => setTimeout(r, 3000));
                 }
                 queryClient.invalidateQueries({ queryKey: ["package-documents", id] });
@@ -771,6 +791,28 @@ export default function PacoteDocumentos() {
           )}
         </div>
       </div>
+
+      {/* Credit error banner */}
+      {creditError && (
+        <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-4 flex items-start gap-3">
+          <AlertCircle className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
+          <div className="flex-1 space-y-1">
+            <p className="font-semibold text-destructive">Créditos de IA insuficientes</p>
+            <p className="text-sm text-muted-foreground">
+              A geração foi interrompida porque os créditos de IA do workspace acabaram. 
+              Para continuar, adicione mais créditos em <strong>Settings → Workspace → Cloud & AI Balance</strong> e tente novamente.
+            </p>
+            <Button
+              size="sm"
+              variant="outline"
+              className="mt-2"
+              onClick={() => setCreditError(false)}
+            >
+              Tentar novamente
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* Progress bar */}
       {isGenerating && totalCount > 0 && (
