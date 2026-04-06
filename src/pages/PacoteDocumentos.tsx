@@ -315,7 +315,8 @@ const ESCALE_BRAND_CSS = `
       left: 0;
       right: 0;
     }
-    .page { padding-bottom: 56px; }
+    .page { padding-bottom: 72px; }
+    body { margin: 12mm 10mm 16mm 10mm; }
   }
 `;
 
