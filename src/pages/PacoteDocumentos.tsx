@@ -471,6 +471,7 @@ export default function PacoteDocumentos() {
   const [docStartTimes, setDocStartTimes] = useState<Record<string, number>>({});
   const [docElapsed, setDocElapsed] = useState<Record<string, number>>({});
   const [generationStartTime, setGenerationStartTime] = useState<number | null>(null);
+  const [creditError, setCreditError] = useState(false);
   const generationStarted = useRef(false);
   const queryClient = useQueryClient();
 
@@ -522,7 +523,18 @@ export default function PacoteDocumentos() {
       });
 
       if (!resp.ok || !resp.body) {
+        const is402 = resp.status === 402;
+        const errorBody = await resp.text().catch(() => "");
+        const isCreditsError = is402 || errorBody.toLowerCase().includes("insufficient") || errorBody.toLowerCase().includes("credits");
+        
         await supabase.from("documents").update({ status: "error" }).eq("id", docId);
+        
+        if (isCreditsError) {
+          setCreditError(true);
+          setGeneratingDocs(prev => { const n = new Set(prev); n.delete(docId); return n; });
+          throw new Error("CREDITS_EXHAUSTED");
+        }
+        
         // Notify doc failure
         const { data: { user: u } } = await supabase.auth.getUser();
         if (u) {
