@@ -792,6 +792,28 @@ export default function PacoteDocumentos() {
         </div>
       </div>
 
+      {/* Credit error banner */}
+      {creditError && (
+        <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-4 flex items-start gap-3">
+          <AlertCircle className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
+          <div className="flex-1 space-y-1">
+            <p className="font-semibold text-destructive">Créditos de IA insuficientes</p>
+            <p className="text-sm text-muted-foreground">
+              A geração foi interrompida porque os créditos de IA do workspace acabaram. 
+              Para continuar, adicione mais créditos em <strong>Settings → Workspace → Cloud & AI Balance</strong> e tente novamente.
+            </p>
+            <Button
+              size="sm"
+              variant="outline"
+              className="mt-2"
+              onClick={() => setCreditError(false)}
+            >
+              Tentar novamente
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Progress bar */}
       {isGenerating && totalCount > 0 && (
         <GlassCard className="space-y-3">
