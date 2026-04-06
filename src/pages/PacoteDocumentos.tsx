@@ -745,14 +745,19 @@ export default function PacoteDocumentos() {
           </p>
         </div>
         <div className="flex gap-2">
-          {docs.some((d: any) => d.status === "pending" || d.status === "error") && !isGenerating && (
+          {docs.some((d: any) => d.status === "pending" || d.status === "error") && !isGenerating && !creditError && (
             <Button
               onClick={async () => {
+                setCreditError(false);
                 const briefingData = (pkg as any)?.briefings?.data;
                 if (!briefingData) return;
                 const pendingDocs = docs.filter((d: any) => d.status === "pending" || d.status === "error");
                 for (const doc of pendingDocs) {
-                  await streamDocument(doc, briefingData, doc.status === "error");
+                  try {
+                    await streamDocument(doc, briefingData, doc.status === "error");
+                  } catch (e: any) {
+                    if (e?.message === "CREDITS_EXHAUSTED") break;
+                  }
                   await new Promise(r => setTimeout(r, 3000));
                 }
                 queryClient.invalidateQueries({ queryKey: ["package-documents", id] });
