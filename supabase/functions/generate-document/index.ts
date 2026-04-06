@@ -41,7 +41,7 @@ interface BriefingData {
   provaSocial: string;
 }
 
-const DOC_TYPES = ["planejamento","concorrentes","funil","midia","criativos","playbook","script","objecoes"] as const;
+const DOC_TYPES = ["planejamento","concorrentes","funil","midia","criativos","playbook","script","objecoes","landing_page"] as const;
 type DocType = typeof DOC_TYPES[number];
 
 const DOC_TITLES: Record<DocType, string> = {
@@ -53,6 +53,7 @@ const DOC_TITLES: Record<DocType, string> = {
   playbook: "Playbook Comercial",
   script: "Script de Vendas",
   objecoes: "Tabela de Objeções",
+  landing_page: "Landing Page de Alta Conversão",
 };
 
 // ── Briefing to text ─────────────────────────────────────────────────────────
