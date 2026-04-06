@@ -616,22 +616,15 @@ export default function PacoteDocumentos() {
 
     generationStarted.current = true;
 
-    // Generate docs sequentially (2 at a time to balance speed/rate limits)
+    // Generate docs one at a time to avoid rate limits
     const generateSequentially = async () => {
       const queue = [...pendingDocs];
-      const concurrency = 2;
 
-      const runNext = async () => {
-        const doc = queue.shift();
-        if (!doc) return;
+      for (const doc of queue) {
         await streamDocument(doc, briefingData);
-        // Small delay between docs
-        await new Promise(r => setTimeout(r, 1500));
-        await runNext();
-      };
-
-      const workers = Array.from({ length: Math.min(concurrency, queue.length) }, () => runNext());
-      await Promise.all(workers);
+        // Delay between docs to avoid rate limits
+        await new Promise(r => setTimeout(r, 3000));
+      }
 
       // Update package status & notify
       await supabase.from("packages").update({ status: "completed" }).eq("id", id!);
