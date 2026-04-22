@@ -282,9 +282,11 @@ export default function LP4() {
                 Seu comercial
               </span>
               <span className="block">
-                cresce por <span style={{ color: t.white }}>estratégia</span>
+                cresce por estratégia
               </span>
-              <span className="block">ou por achismo?</span>
+              <span className="block">
+                ou por <span style={{ color: t.white }}>achismo?</span>
+              </span>
             </h1>
 
             <p className="text-lg lg:text-xl leading-relaxed mb-5 max-w-2xl" style={{ color: t.textOnDarkMuted }}>
@@ -295,47 +297,46 @@ export default function LP4() {
               Você passa a tomar decisões com base em números reais — não feeling.
             </p>
 
-            {/* 17 anos — selo horizontal premium */}
-            <div
-              className="inline-flex items-stretch gap-0 mb-12 rounded-2xl overflow-hidden backdrop-blur-md"
-              style={{
-                background: "linear-gradient(135deg, rgba(43,91,255,0.18), rgba(43,91,255,0.06))",
-                border: "1px solid rgba(91,130,255,0.35)",
-                boxShadow: "0 10px 40px rgba(43,91,255,0.15)",
-              }}
-            >
+            {/* 17 anos — selo vertical premium */}
+            <div className="flex flex-col items-start gap-4 mb-12">
               <div
-                className="flex items-baseline gap-1.5 px-6 py-4 shrink-0"
-                style={{ borderRight: "1px solid rgba(91,130,255,0.25)" }}
+                className="inline-flex flex-col items-center gap-1 px-8 py-6 rounded-2xl backdrop-blur-md"
+                style={{
+                  background: "linear-gradient(135deg, rgba(43,91,255,0.22), rgba(43,91,255,0.08))",
+                  border: "1px solid rgba(91,130,255,0.4)",
+                  boxShadow: "0 12px 50px rgba(43,91,255,0.18), inset 0 1px 0 rgba(255,255,255,0.1)",
+                }}
               >
+                <div className="flex items-baseline gap-2">
+                  <span
+                    className="text-5xl lg:text-6xl font-bold tracking-tight leading-none"
+                    style={{ color: t.white }}
+                  >
+                    17
+                  </span>
+                  <span
+                    className="text-sm uppercase tracking-[0.15em] font-medium"
+                    style={{ color: t.blueLight }}
+                  >
+                    anos
+                  </span>
+                </div>
                 <span
-                  className="text-4xl lg:text-5xl font-semibold tracking-tight leading-none"
-                  style={{ color: t.white }}
-                >
-                  17
-                </span>
-                <span
-                  className="text-xs uppercase tracking-[0.18em]"
-                  style={{ color: t.blueLight }}
-                >
-                  anos
-                </span>
-              </div>
-              <div className="flex flex-col justify-center px-6 py-4">
-                <span
-                  className="text-[10px] uppercase tracking-[0.22em] mb-1"
-                  style={{ color: t.blueLight }}
+                  className="text-[11px] uppercase tracking-[0.2em] mt-1"
+                  style={{ color: "rgba(160,171,204,0.8)" }}
                 >
                   de mercado
                 </span>
-                <p className="text-sm lg:text-[15px] leading-snug" style={{ color: t.white }}>
-                  <span style={{ fontWeight: 500 }}>Comunicação</span>
-                  <span style={{ color: "rgba(232,236,247,0.5)" }}> · </span>
-                  <span style={{ fontWeight: 500 }}>Performance</span>
-                  <span style={{ color: "rgba(232,236,247,0.5)" }}> · </span>
-                  <span style={{ fontWeight: 500 }}>Tecnologia</span>
-                </p>
               </div>
+
+              {/* Texto abaixo do box */}
+              <p className="text-base lg:text-lg" style={{ color: t.textOnDarkMuted }}>
+                <span style={{ color: t.white, fontWeight: 500 }}>Comunicação</span>
+                <span style={{ color: "rgba(232,236,247,0.4)" }}> · </span>
+                <span style={{ color: t.white, fontWeight: 500 }}>Performance</span>
+                <span style={{ color: "rgba(232,236,247,0.4)" }}> · </span>
+                <span style={{ color: t.white, fontWeight: 500 }}>Tecnologia</span>
+              </p>
             </div>
 
             <div className="flex flex-wrap items-center gap-6">
