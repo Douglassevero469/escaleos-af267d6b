@@ -444,15 +444,14 @@ export default function LP4() {
 
                 {/* Espaço reservado para embed do formulário */}
                 <div
-                  className="rounded-xl flex items-center justify-center text-center text-sm px-6 py-12"
+                  className="rounded-xl flex items-center justify-center text-center text-xs lowercase tracking-wider"
                   style={{
                     background: t.white,
-                    border: `1px dashed ${t.border}`,
-                    color: t.inkMuted,
+                    color: "rgba(91,100,120,0.45)",
                     minHeight: 320,
                   }}
                 >
-                  Espaço reservado para embedar o formulário aqui.
+                  embed do formulário
                 </div>
               </div>
             </div>
