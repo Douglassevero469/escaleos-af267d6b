@@ -781,7 +781,7 @@ export default function LP4() {
             </p>
           </div>
 
-          <div data-stagger className="grid md:grid-cols-2 lg:grid-cols-4 gap-px" style={{ background: t.border }}>
+          <div data-stagger className="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
             {[
               {
                 title: "Comercial",
@@ -799,11 +799,11 @@ export default function LP4() {
               <div
                 key={title}
                 data-stagger-item
-                className="p-7 transition-all hover:bg-[#FAFBFE]"
-                style={{ background: t.white }}
+                className="p-7 rounded-2xl transition-all hover:-translate-y-1"
+                style={{ background: t.white, border: `1px solid ${t.border}` }}
               >
                 <div
-                  className="w-10 h-10 rounded-lg flex items-center justify-center mb-5"
+                  className="w-11 h-11 rounded-xl flex items-center justify-center mb-5"
                   style={{ background: `${t.blue}10`, color: t.blue }}
                 >
                   <Icon className="w-5 h-5" />
