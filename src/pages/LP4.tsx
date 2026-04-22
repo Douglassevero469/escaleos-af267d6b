@@ -250,29 +250,23 @@ export default function LP4() {
               Você passa a tomar decisões com base em números reais — não feeling.
             </p>
 
-            {/* 17 anos — destaque */}
-            <div
-              className="inline-flex flex-wrap items-center gap-3 px-5 py-3 rounded-2xl mb-10"
-              style={{
-                background: "rgba(43,91,255,0.10)",
-                border: "1px solid rgba(91,130,255,0.30)",
-              }}
-            >
-              <span
-                className="text-2xl lg:text-3xl font-semibold tracking-tight"
-                style={{ color: t.white }}
+            {/* 17 anos — destaque elegante em linha */}
+            <div className="flex items-center gap-5 mb-12 max-w-2xl">
+              <div className="flex flex-col items-center justify-center px-5 py-3 rounded-2xl shrink-0"
+                style={{
+                  background: "rgba(43,91,255,0.12)",
+                  border: "1px solid rgba(91,130,255,0.30)",
+                }}
               >
-                17 anos
-              </span>
-              <span className="text-sm lg:text-base" style={{ color: t.textOnDarkMuted }}>
-                de mercado unindo
-              </span>
-              <span className="text-sm lg:text-base font-medium" style={{ color: t.blueLight }}>
-                comunicação · performance · tecnologia
-              </span>
-              <span className="text-sm lg:text-base" style={{ color: t.textOnDarkMuted }}>
-                para escalar empresas.
-              </span>
+                <span className="text-3xl lg:text-4xl font-semibold tracking-tight leading-none" style={{ color: t.white }}>17</span>
+                <span className="text-[10px] uppercase tracking-[0.2em] mt-1" style={{ color: t.blueLight }}>anos</span>
+              </div>
+              <p className="text-sm lg:text-base leading-relaxed" style={{ color: t.textOnDarkMuted }}>
+                de mercado unindo{" "}
+                <span style={{ color: t.white, fontWeight: 500 }}>comunicação</span>,{" "}
+                <span style={{ color: t.white, fontWeight: 500 }}>performance</span> e{" "}
+                <span style={{ color: t.white, fontWeight: 500 }}>tecnologia</span> para escalar empresas.
+              </p>
             </div>
 
             <div className="flex flex-wrap items-center gap-6">
