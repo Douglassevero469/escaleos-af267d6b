@@ -338,6 +338,8 @@ export default function LP4() {
                 <span style={{ color: t.white, fontWeight: 500 }}>Tecnologia</span>
               </p>
             </div>
+
+            <div className="flex flex-wrap items-center gap-6">
               <a
                 href="#cta-final"
                 className="group inline-flex items-center gap-3 px-8 py-5 rounded-full font-medium text-base transition-all hover:scale-[1.02]"
