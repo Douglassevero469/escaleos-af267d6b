@@ -104,6 +104,22 @@ export default function LP4() {
     if (!canonical.parentNode) document.head.appendChild(canonical);
   }, []);
 
+  // Auto-resize do iframe do formulário embedado
+  useEffect(() => {
+    const handler = (e: MessageEvent) => {
+      const data = e.data as { type?: string; height?: number } | null;
+      if (!data || data.type !== "form:resize") return;
+      const iframe = document.querySelector<HTMLIFrameElement>(
+        'iframe[data-form-embed="rkxlmpyn"]',
+      );
+      if (iframe && typeof data.height === "number") {
+        iframe.style.height = `${data.height}px`;
+      }
+    };
+    window.addEventListener("message", handler);
+    return () => window.removeEventListener("message", handler);
+  }, []);
+
   // Lenis smooth scroll synced with gsap ticker (avoids ScrollTrigger lag)
   useEffect(() => {
     const lenis = new Lenis({ duration: 1.1, smoothWheel: true });
