@@ -104,17 +104,17 @@ export default function LP4() {
     if (!canonical.parentNode) document.head.appendChild(canonical);
   }, []);
 
-  // Lenis smooth scroll
+  // Lenis smooth scroll synced with gsap ticker (avoids ScrollTrigger lag)
   useEffect(() => {
     const lenis = new Lenis({ duration: 1.1, smoothWheel: true });
-    function raf(time: number) {
-      lenis.raf(time);
-      requestAnimationFrame(raf);
-    }
-    const id = requestAnimationFrame(raf);
     lenis.on("scroll", ScrollTrigger.update);
+    const tickerCb = (time: number) => lenis.raf(time * 1000);
+    gsap.ticker.add(tickerCb);
+    gsap.ticker.lagSmoothing(0);
+    const refreshTimeout = setTimeout(() => ScrollTrigger.refresh(), 200);
     return () => {
-      cancelAnimationFrame(id);
+      clearTimeout(refreshTimeout);
+      gsap.ticker.remove(tickerCb);
       lenis.destroy();
     };
   }, []);
@@ -123,24 +123,32 @@ export default function LP4() {
   useEffect(() => {
     const ctx = gsap.context(() => {
       gsap.utils.toArray<HTMLElement>("[data-reveal]").forEach((el) => {
-        gsap.from(el, {
-          y: 40,
-          opacity: 0,
-          duration: 0.9,
-          ease: "power3.out",
-          scrollTrigger: { trigger: el, start: "top 88%" },
-        });
+        gsap.fromTo(
+          el,
+          { y: 40, opacity: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            duration: 0.9,
+            ease: "power3.out",
+            scrollTrigger: { trigger: el, start: "top 92%", toggleActions: "play none none none" },
+          },
+        );
       });
       gsap.utils.toArray<HTMLElement>("[data-stagger]").forEach((parent) => {
         const items = parent.querySelectorAll("[data-stagger-item]");
-        gsap.from(items, {
-          y: 30,
-          opacity: 0,
-          duration: 0.7,
-          ease: "power3.out",
-          stagger: 0.07,
-          scrollTrigger: { trigger: parent, start: "top 88%" },
-        });
+        gsap.fromTo(
+          items,
+          { y: 30, opacity: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            duration: 0.7,
+            ease: "power3.out",
+            stagger: 0.07,
+            scrollTrigger: { trigger: parent, start: "top 92%", toggleActions: "play none none none" },
+          },
+        );
       });
 
       // Hero progressive reveal
@@ -162,17 +170,21 @@ export default function LP4() {
 
       // Stack-on-scroll
       gsap.utils.toArray<HTMLElement>(".stack-section").forEach((section) => {
-        gsap.from(section, {
-          y: 80,
-          scale: 0.985,
-          ease: "none",
-          scrollTrigger: {
-            trigger: section,
-            start: "top bottom",
-            end: "top 60%",
-            scrub: true,
+        gsap.fromTo(
+          section,
+          { y: 80, scale: 0.985 },
+          {
+            y: 0,
+            scale: 1,
+            ease: "none",
+            scrollTrigger: {
+              trigger: section,
+              start: "top bottom",
+              end: "top 60%",
+              scrub: true,
+            },
           },
-        });
+        );
       });
 
       // Pipeline animation
@@ -183,7 +195,22 @@ export default function LP4() {
         onEnter: () => setPipelineProgress([78, 62, 45, 30]),
       });
     }, rootRef);
-    return () => ctx.revert();
+
+    // Failsafe: força visibilidade caso algum trigger não dispare
+    const failsafe = setTimeout(() => {
+      document.querySelectorAll<HTMLElement>("[data-reveal], [data-stagger-item]").forEach((el) => {
+        if (parseFloat(getComputedStyle(el).opacity) < 0.05) {
+          el.style.opacity = "1";
+          el.style.transform = "none";
+        }
+      });
+      ScrollTrigger.refresh();
+    }, 2500);
+
+    return () => {
+      clearTimeout(failsafe);
+      ctx.revert();
+    };
   }, []);
 
   return (
