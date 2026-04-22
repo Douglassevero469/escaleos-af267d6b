@@ -337,6 +337,66 @@ export default function LP4() {
                 <span style={{ color: "rgba(232,236,247,0.4)" }}> · </span>
                 <span style={{ color: t.white, fontWeight: 500 }}>Tecnologia</span>
               </p>
+            <h1 className="hero-headline text-[40px] sm:text-[52px] lg:text-[76px] leading-[1.04] font-semibold tracking-[-0.035em] mb-10">
+              <span className="block" style={{ color: "rgba(232,236,247,0.45)" }}>
+                Seu comercial
+              </span>
+              <span className="block">
+                cresce por estratégia
+              </span>
+              <span className="block">
+                ou por <span style={{ color: t.white }}>achismo?</span>
+              </span>
+            </h1>
+
+            <p className="text-lg lg:text-xl leading-relaxed mb-5 max-w-2xl" style={{ color: t.textOnDarkMuted }}>
+              Organizamos o setor comercial da sua empresa com processos, indicadores, inteligência operacional e
+              tecnologia aplicada para gerar crescimento previsível.
+            </p>
+            <p className="text-lg lg:text-xl mb-12 max-w-2xl" style={{ color: t.white }}>
+              Você passa a tomar decisões com base em números reais — não feeling.
+            </p>
+
+            {/* 17 anos — selo vertical premium */}
+            <div className="flex flex-col items-start gap-4 mb-12">
+              <div
+                className="inline-flex flex-col items-center gap-1 px-8 py-6 rounded-2xl backdrop-blur-md"
+                style={{
+                  background: "linear-gradient(135deg, rgba(43,91,255,0.22), rgba(43,91,255,0.08))",
+                  border: "1px solid rgba(91,130,255,0.4)",
+                  boxShadow: "0 12px 50px rgba(43,91,255,0.18), inset 0 1px 0 rgba(255,255,255,0.1)",
+                }}
+              >
+                <div className="flex items-baseline gap-2">
+                  <span
+                    className="text-5xl lg:text-6xl font-bold tracking-tight leading-none"
+                    style={{ color: t.white }}
+                  >
+                    17
+                  </span>
+                  <span
+                    className="text-sm uppercase tracking-[0.15em] font-medium"
+                    style={{ color: t.blueLight }}
+                  >
+                    anos
+                  </span>
+                </div>
+                <span
+                  className="text-[11px] uppercase tracking-[0.2em] mt-1"
+                  style={{ color: "rgba(160,171,204,0.8)" }}
+                >
+                  de mercado
+                </span>
+              </div>
+
+              {/* Texto abaixo do box */}
+              <p className="text-base lg:text-lg" style={{ color: t.textOnDarkMuted }}>
+                <span style={{ color: t.white, fontWeight: 500 }}>Comunicação</span>
+                <span style={{ color: "rgba(232,236,247,0.4)" }}> · </span>
+                <span style={{ color: t.white, fontWeight: 500 }}>Performance</span>
+                <span style={{ color: "rgba(232,236,247,0.4)" }}> · </span>
+                <span style={{ color: t.white, fontWeight: 500 }}>Tecnologia</span>
+              </p>
             </div>
 
             <div className="flex flex-wrap items-center gap-6">
