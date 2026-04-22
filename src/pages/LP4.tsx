@@ -23,19 +23,37 @@ import {
 
 gsap.registerPlugin(ScrollTrigger);
 
-/* ---------- Design tokens (escopados à LP4) ---------- */
-const tokens = {
-  bg: "#0A0F1C",
-  bgAlt: "#0F172A",
-  blue: "#3B82F6",
-  green: "#22C55E",
-  purple: "#6366F1",
-  text: "#E5E7EB",
-  textMuted: "#9CA3AF",
+/* ---------- Design tokens (LP4 — Deep Blue / White) ---------- */
+const t = {
+  // Deep blue palette
+  navy: "#0A1A3F",
+  navyDeep: "#050E26",
+  navyMid: "#13265C",
+  blue: "#2B5BFF",
+  blueLight: "#5B82FF",
+  // Light palette
+  white: "#FFFFFF",
+  offWhite: "#F5F6FA",
+  ink: "#0A1428",
+  inkMuted: "#5B6478",
+  border: "#E6E8EF",
+  // Dark text on dark
+  textOnDark: "#E8ECF7",
+  textOnDarkMuted: "#8E9BBF",
 };
 
 /* ---------- Count up ---------- */
-function CountUp({ end, prefix = "", suffix = "", duration = 1.6 }: { end: number; prefix?: string; suffix?: string; duration?: number }) {
+function CountUp({
+  end,
+  prefix = "",
+  suffix = "",
+  duration = 1.6,
+}: {
+  end: number;
+  prefix?: string;
+  suffix?: string;
+  duration?: number;
+}) {
   const ref = useRef<HTMLSpanElement>(null);
   useEffect(() => {
     const el = ref.current;
@@ -43,7 +61,7 @@ function CountUp({ end, prefix = "", suffix = "", duration = 1.6 }: { end: numbe
     const obj = { val: 0 };
     const trigger = ScrollTrigger.create({
       trigger: el,
-      start: "top 85%",
+      start: "top 90%",
       once: true,
       onEnter: () => {
         gsap.to(obj, {
@@ -58,13 +76,16 @@ function CountUp({ end, prefix = "", suffix = "", duration = 1.6 }: { end: numbe
     });
     return () => trigger.kill();
   }, [end, prefix, suffix, duration]);
-  return <span ref={ref}>{prefix}0{suffix}</span>;
+  return (
+    <span ref={ref}>
+      {prefix}0{suffix}
+    </span>
+  );
 }
 
 /* ---------- Page ---------- */
 export default function LP4() {
   const rootRef = useRef<HTMLDivElement>(null);
-  const cursorRef = useRef<HTMLDivElement>(null);
   const [pipelineProgress, setPipelineProgress] = useState([0, 0, 0, 0]);
 
   // SEO
@@ -75,7 +96,7 @@ export default function LP4() {
       Object.assign(document.createElement("meta"), { name: "description" });
     meta.setAttribute(
       "content",
-      "Organize seu comercial com processos, indicadores e tecnologia. Crescimento previsível em 30 dias."
+      "Organize seu comercial com processos, indicadores e tecnologia. Crescimento previsível em 30 dias.",
     );
     if (!meta.parentNode) document.head.appendChild(meta);
 
@@ -101,17 +122,6 @@ export default function LP4() {
     };
   }, []);
 
-  // Cursor glow
-  useEffect(() => {
-    const cursor = cursorRef.current;
-    if (!cursor) return;
-    const move = (e: MouseEvent) => {
-      gsap.to(cursor, { x: e.clientX, y: e.clientY, duration: 0.4, ease: "power2.out" });
-    };
-    window.addEventListener("mousemove", move);
-    return () => window.removeEventListener("mousemove", move);
-  }, []);
-
   // Reveals
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -121,7 +131,7 @@ export default function LP4() {
           opacity: 0,
           duration: 0.9,
           ease: "power3.out",
-          scrollTrigger: { trigger: el, start: "top 85%" },
+          scrollTrigger: { trigger: el, start: "top 88%" },
         });
       });
       gsap.utils.toArray<HTMLElement>("[data-stagger]").forEach((parent) => {
@@ -131,19 +141,19 @@ export default function LP4() {
           opacity: 0,
           duration: 0.7,
           ease: "power3.out",
-          stagger: 0.08,
-          scrollTrigger: { trigger: parent, start: "top 85%" },
+          stagger: 0.07,
+          scrollTrigger: { trigger: parent, start: "top 88%" },
         });
       });
 
-      // Hero highlight progressivo
+      // Hero progressive reveal
       gsap.from(".hero-headline span", {
         y: 30,
         opacity: 0,
-        duration: 0.8,
+        duration: 0.9,
         ease: "power3.out",
-        stagger: 0.15,
-        delay: 0.2,
+        stagger: 0.12,
+        delay: 0.15,
       });
       gsap.from(".hero-mock", {
         y: 60,
@@ -153,19 +163,27 @@ export default function LP4() {
         delay: 0.4,
       });
 
-      // Pipeline animação
+      // Stack-on-scroll: sections with .stack-section overlap previous
+      gsap.utils.toArray<HTMLElement>(".stack-section").forEach((section) => {
+        gsap.from(section, {
+          y: 80,
+          scale: 0.985,
+          ease: "none",
+          scrollTrigger: {
+            trigger: section,
+            start: "top bottom",
+            end: "top 60%",
+            scrub: true,
+          },
+        });
+      });
+
+      // Pipeline animation
       ScrollTrigger.create({
         trigger: ".crm-section",
         start: "top 70%",
         once: true,
         onEnter: () => setPipelineProgress([78, 62, 45, 30]),
-      });
-
-      // Parallax background hero
-      gsap.to(".hero-bg-orb", {
-        yPercent: 30,
-        ease: "none",
-        scrollTrigger: { trigger: rootRef.current, start: "top top", end: "bottom top", scrub: true },
       });
     }, rootRef);
     return () => ctx.revert();
@@ -174,338 +192,447 @@ export default function LP4() {
   return (
     <div
       ref={rootRef}
-      className="min-h-screen overflow-hidden relative"
+      className="min-h-screen relative"
       style={{
-        background: `linear-gradient(135deg, ${tokens.bg}, ${tokens.bgAlt}, #1E3A8A)`,
-        color: tokens.text,
+        background: t.navyDeep,
+        color: t.textOnDark,
         fontFamily: "'Inter', system-ui, sans-serif",
       }}
     >
-      {/* Cursor glow */}
-      <div
-        ref={cursorRef}
-        className="pointer-events-none fixed top-0 left-0 z-50 hidden lg:block"
-        style={{
-          width: 400,
-          height: 400,
-          marginLeft: -200,
-          marginTop: -200,
-          background: "radial-gradient(circle, rgba(59,130,246,0.12) 0%, transparent 60%)",
-          mixBlendMode: "screen",
-        }}
-      />
-
-      {/* Floating orbs background */}
-      <div className="hero-bg-orb pointer-events-none absolute top-[-200px] right-[-200px] w-[600px] h-[600px] rounded-full"
-        style={{ background: "radial-gradient(circle, rgba(99,102,241,0.25), transparent 70%)", filter: "blur(40px)" }} />
-      <div className="hero-bg-orb pointer-events-none absolute top-[40%] left-[-300px] w-[500px] h-[500px] rounded-full"
-        style={{ background: "radial-gradient(circle, rgba(59,130,246,0.18), transparent 70%)", filter: "blur(60px)" }} />
-
-      {/* Top nav minimal */}
-      <header className="relative z-20 max-w-[1200px] mx-auto px-6 lg:px-8 py-6 flex items-center justify-between">
-        <div className="text-sm font-semibold tracking-tight lowercase">escale<span style={{ color: tokens.blue }}>.</span></div>
+      {/* ============== TOP NAV ============== */}
+      <header className="relative z-30 max-w-[1280px] mx-auto px-6 lg:px-10 py-7 flex items-center justify-between">
+        <div className="text-base font-semibold tracking-tight lowercase flex items-center gap-1.5">
+          <span
+            className="inline-block w-5 h-5 rounded-[6px]"
+            style={{ background: `linear-gradient(135deg, ${t.blue}, ${t.blueLight})` }}
+          />
+          escale
+          <sup className="text-[9px] font-normal opacity-60">®</sup>
+        </div>
+        <nav className="hidden md:flex items-center gap-8 text-[13px]" style={{ color: t.textOnDarkMuted }}>
+          <a href="#solucao" className="hover:text-white transition-colors">solução</a>
+          <a href="#metodologia" className="hover:text-white transition-colors">metodologia</a>
+          <a href="#valores" className="hover:text-white transition-colors">valores</a>
+        </nav>
         <a
           href="#cta-final"
-          className="text-xs lowercase tracking-wide px-4 py-2 rounded-lg border transition-all hover:scale-[1.02]"
-          style={{ borderColor: "rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.02)" }}
+          className="text-[12px] lowercase tracking-wide px-4 py-2 rounded-full transition-all hover:scale-[1.02]"
+          style={{ background: t.white, color: t.ink }}
         >
           falar com especialista
         </a>
       </header>
 
-      {/* ============== HERO ============== */}
-      <section className="relative z-10 max-w-[1200px] mx-auto px-6 lg:px-8 pt-16 pb-32 lg:pt-24 lg:pb-40 grid lg:grid-cols-2 gap-16 items-center">
-        <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-8 text-[11px] tracking-wide lowercase"
-            style={{ background: "rgba(59,130,246,0.08)", border: "1px solid rgba(59,130,246,0.2)", color: "#93C5FD" }}>
-            <CircleDot className="w-3 h-3" /> sistema operacional de crescimento previsível
-          </div>
+      {/* ============== HERO — Deep Navy ============== */}
+      <section
+        className="relative overflow-hidden"
+        style={{
+          background: `radial-gradient(ellipse at 30% 20%, ${t.navyMid} 0%, ${t.navy} 40%, ${t.navyDeep} 100%)`,
+        }}
+      >
+        {/* subtle light beam */}
+        <div
+          className="pointer-events-none absolute -top-40 -left-40 w-[700px] h-[700px] rounded-full opacity-60"
+          style={{ background: `radial-gradient(circle, ${t.blue}30, transparent 70%)`, filter: "blur(80px)" }}
+        />
 
-          <h1 className="hero-headline text-[44px] lg:text-[64px] leading-[1.05] font-semibold tracking-[-0.03em] lowercase mb-8">
-            <span className="block">seu comercial cresce</span>
-            <span className="block">por estratégia</span>
-            <span className="block" style={{ color: tokens.blue }}>ou por achismo?</span>
-          </h1>
-
-          <p className="text-lg leading-relaxed mb-4 max-w-xl" style={{ color: tokens.textMuted }}>
-            Organizamos o setor comercial da sua empresa com processos, indicadores, inteligência operacional e tecnologia aplicada para gerar crescimento previsível.
-          </p>
-          <p className="text-base mb-10 max-w-xl" style={{ color: tokens.text }}>
-            Você passa a tomar decisões com base em números reais — não feeling.
-          </p>
-
-          <div className="flex items-center gap-4 mb-8 text-sm" style={{ color: tokens.textMuted }}>
-            <span style={{ color: tokens.green }} className="font-semibold">17 anos</span>
-            de mercado unindo comunicação, performance e tecnologia.
-          </div>
-
-          <a
-            href="#cta-final"
-            className="group inline-flex items-center gap-3 px-7 py-4 rounded-xl font-medium text-[15px] transition-all relative overflow-hidden"
-            style={{
-              background: tokens.blue,
-              color: "white",
-              boxShadow: `0 0 0 0 ${tokens.blue}60, 0 8px 30px rgba(59,130,246,0.35)`,
-              animation: "lp4-pulse 2.4s ease-in-out infinite",
-            }}
-          >
-            Quero Diagnóstico Estratégico
-            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-          </a>
-        </div>
-
-        {/* CRM mock floating */}
-        <div className="hero-mock relative">
-          <div
-            className="relative rounded-2xl p-6 backdrop-blur-xl"
-            style={{
-              background: "rgba(255,255,255,0.03)",
-              border: "1px solid rgba(255,255,255,0.08)",
-              boxShadow: "0 30px 80px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05)",
-            }}
-          >
-            {/* mock header */}
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-2">
-                <div className="w-2.5 h-2.5 rounded-full bg-red-400/70" />
-                <div className="w-2.5 h-2.5 rounded-full bg-yellow-400/70" />
-                <div className="w-2.5 h-2.5 rounded-full bg-green-400/70" />
-              </div>
-              <span className="text-[10px] lowercase tracking-wider" style={{ color: tokens.textMuted }}>escale · pipeline</span>
-            </div>
-
-            {/* metrics row */}
-            <div className="grid grid-cols-3 gap-3 mb-6">
-              {[
-                { label: "leads/mês", value: 1248, color: tokens.blue },
-                { label: "conversão", value: 24, suffix: "%", color: tokens.green },
-                { label: "ticket médio", value: 8497, prefix: "R$ ", color: tokens.purple },
-              ].map((m) => (
-                <div key={m.label} className="rounded-lg p-3" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)" }}>
-                  <div className="text-[10px] lowercase mb-1.5" style={{ color: tokens.textMuted }}>{m.label}</div>
-                  <div className="text-lg font-semibold tracking-tight" style={{ color: m.color }}>
-                    <CountUp end={m.value} prefix={m.prefix} suffix={m.suffix} />
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* pipeline bars */}
-            <div className="space-y-3">
-              {["prospect", "qualificado", "proposta", "fechamento"].map((stage, i) => (
-                <div key={stage}>
-                  <div className="flex justify-between text-[11px] mb-1.5 lowercase" style={{ color: tokens.textMuted }}>
-                    <span>{stage}</span>
-                    <span style={{ color: tokens.text }}>{pipelineProgress[i]}%</span>
-                  </div>
-                  <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.05)" }}>
-                    <div
-                      className="h-full rounded-full transition-all duration-[1400ms] ease-out"
-                      style={{
-                        width: `${pipelineProgress[i]}%`,
-                        background: `linear-gradient(90deg, ${tokens.blue}, ${tokens.purple})`,
-                        boxShadow: `0 0 12px ${tokens.blue}80`,
-                      }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* AI badge */}
-            <div className="mt-6 flex items-center gap-2 text-[11px] px-3 py-2 rounded-lg lowercase"
-              style={{ background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.2)", color: "#86EFAC" }}>
-              <Bot className="w-3.5 h-3.5" /> IA monitorando 12 oportunidades agora
-            </div>
-          </div>
-
-          {/* glow behind mock */}
-          <div className="absolute inset-0 -z-10 rounded-2xl"
-            style={{ background: `radial-gradient(circle at 50% 50%, ${tokens.blue}30, transparent 70%)`, filter: "blur(40px)" }} />
-        </div>
-      </section>
-
-      {/* ============== AUTORIDADE ============== */}
-      <section className="relative z-10 max-w-[1200px] mx-auto px-6 lg:px-8 py-24 lg:py-32">
-        <div data-reveal className="max-w-2xl mb-14">
-          <div className="text-xs lowercase tracking-[0.2em] mb-4" style={{ color: tokens.blue }}>autoridade</div>
-          <h2 className="text-3xl lg:text-5xl font-semibold tracking-tight lowercase mb-5">
-            experiência prática de quem já construiu resultado
-          </h2>
-          <p className="text-base lg:text-lg" style={{ color: tokens.textMuted }}>
-            Há 17 anos ajudamos empresas de diferentes segmentos a vender mais através de estrutura, gestão e performance.
-          </p>
-        </div>
-
-        <div data-stagger className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {[
-            { icon: Target, label: "Estratégia Comercial" },
-            { icon: TrendingUp, label: "Growth e Aquisição" },
-            { icon: BarChart3, label: "Gestão orientada por dados" },
-            { icon: Zap, label: "Tecnologia aplicada ao negócio" },
-            { icon: Settings, label: "Processos escaláveis" },
-            { icon: Brain, label: "Inteligência operacional" },
-          ].map(({ icon: Icon, label }) => (
+        <div className="relative max-w-[1280px] mx-auto px-6 lg:px-10 pt-12 pb-32 lg:pt-20 lg:pb-44 grid lg:grid-cols-12 gap-12 items-center">
+          <div className="lg:col-span-7">
             <div
-              key={label}
-              data-stagger-item
-              className="group flex items-center gap-3 p-5 rounded-xl backdrop-blur-md transition-all hover:translate-y-[-2px]"
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-10 text-[11px] tracking-wide lowercase"
               style={{
-                background: "rgba(255,255,255,0.02)",
-                border: "1px solid rgba(255,255,255,0.05)",
+                background: "rgba(255,255,255,0.04)",
+                border: "1px solid rgba(255,255,255,0.08)",
+                color: t.textOnDarkMuted,
               }}
             >
-              <div className="w-9 h-9 rounded-lg flex items-center justify-center transition-all group-hover:scale-110"
-                style={{ background: "rgba(59,130,246,0.1)", color: tokens.blue }}>
-                <Icon className="w-4 h-4" />
-              </div>
-              <span className="text-sm">{label}</span>
+              <CircleDot className="w-3 h-3" /> sistema operacional de crescimento previsível
             </div>
-          ))}
+
+            <h1 className="hero-headline text-[44px] lg:text-[76px] leading-[1.02] font-semibold tracking-[-0.035em] mb-10">
+              <span className="block" style={{ color: "rgba(232,236,247,0.4)" }}>
+                seu comercial cresce
+              </span>
+              <span className="block">por estratégia</span>
+              <span className="block">ou por achismo?</span>
+            </h1>
+
+            <p className="text-base lg:text-lg leading-relaxed mb-4 max-w-xl" style={{ color: t.textOnDarkMuted }}>
+              Organizamos o setor comercial da sua empresa com processos, indicadores, inteligência operacional e
+              tecnologia aplicada para gerar crescimento previsível.
+            </p>
+            <p className="text-base mb-12 max-w-xl">
+              Você passa a tomar decisões com base em números reais — não feeling.
+            </p>
+
+            <div className="flex flex-wrap items-center gap-6">
+              <a
+                href="#cta-final"
+                className="group inline-flex items-center gap-3 px-7 py-4 rounded-full font-medium text-[14px] transition-all hover:scale-[1.02]"
+                style={{
+                  background: t.white,
+                  color: t.ink,
+                  boxShadow: "0 10px 40px rgba(255,255,255,0.15)",
+                }}
+              >
+                Quero Diagnóstico Estratégico
+                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+              </a>
+
+              <div className="text-[13px]" style={{ color: t.textOnDarkMuted }}>
+                <span className="font-semibold" style={{ color: t.white }}>
+                  17 anos
+                </span>{" "}
+                · comunicação · performance · tecnologia
+              </div>
+            </div>
+          </div>
+
+          {/* Floating CRM mock */}
+          <div className="hero-mock lg:col-span-5 relative">
+            <div
+              className="relative rounded-2xl p-6 backdrop-blur-xl"
+              style={{
+                background: "rgba(255,255,255,0.04)",
+                border: "1px solid rgba(255,255,255,0.08)",
+                boxShadow: "0 30px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05)",
+              }}
+            >
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-2">
+                  <div className="w-2.5 h-2.5 rounded-full" style={{ background: "rgba(255,255,255,0.2)" }} />
+                  <div className="w-2.5 h-2.5 rounded-full" style={{ background: "rgba(255,255,255,0.2)" }} />
+                  <div className="w-2.5 h-2.5 rounded-full" style={{ background: t.blue }} />
+                </div>
+                <span className="text-[10px] lowercase tracking-wider" style={{ color: t.textOnDarkMuted }}>
+                  escale · pipeline
+                </span>
+              </div>
+
+              <div className="grid grid-cols-3 gap-3 mb-6">
+                {[
+                  { label: "leads/mês", value: 1248 },
+                  { label: "conversão", value: 24, suffix: "%" },
+                  { label: "ticket médio", value: 8497, prefix: "R$ " },
+                ].map((m) => (
+                  <div
+                    key={m.label}
+                    className="rounded-lg p-3"
+                    style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.05)" }}
+                  >
+                    <div className="text-[10px] lowercase mb-1.5" style={{ color: t.textOnDarkMuted }}>
+                      {m.label}
+                    </div>
+                    <div className="text-base font-semibold tracking-tight" style={{ color: t.white }}>
+                      <CountUp end={m.value} prefix={m.prefix} suffix={m.suffix} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="space-y-3">
+                {["prospect", "qualificado", "proposta", "fechamento"].map((stage, i) => (
+                  <div key={stage}>
+                    <div className="flex justify-between text-[11px] mb-1.5 lowercase" style={{ color: t.textOnDarkMuted }}>
+                      <span>{stage}</span>
+                      <span style={{ color: t.white }}>{pipelineProgress[i]}%</span>
+                    </div>
+                    <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.06)" }}>
+                      <div
+                        className="h-full rounded-full transition-all duration-[1400ms] ease-out"
+                        style={{
+                          width: `${pipelineProgress[i]}%`,
+                          background: `linear-gradient(90deg, ${t.blue}, ${t.blueLight})`,
+                        }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div
+                className="mt-6 flex items-center gap-2 text-[11px] px-3 py-2 rounded-lg lowercase"
+                style={{
+                  background: "rgba(43,91,255,0.12)",
+                  border: "1px solid rgba(43,91,255,0.25)",
+                  color: t.blueLight,
+                }}
+              >
+                <Bot className="w-3.5 h-3.5" /> IA monitorando 12 oportunidades agora
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom soft chip — like Tirtus "Sustainable Future" */}
+        <div className="relative max-w-[1280px] mx-auto px-6 lg:px-10 pb-12">
+          <span
+            className="inline-flex items-center px-4 py-2 rounded-full text-[12px] lowercase"
+            style={{ background: "rgba(255,255,255,0.06)", color: t.textOnDarkMuted, border: "1px solid rgba(255,255,255,0.08)" }}
+          >
+            crescimento previsível
+          </span>
         </div>
       </section>
 
-      {/* ============== DOR ============== */}
-      <section className="relative z-10 max-w-[1200px] mx-auto px-6 lg:px-8 py-24 lg:py-32">
-        <div data-reveal className="max-w-3xl mb-16">
-          <div className="text-xs lowercase tracking-[0.2em] mb-4" style={{ color: "#F87171" }}>o problema</div>
-          <h2 className="text-4xl lg:text-6xl font-semibold tracking-tight lowercase mb-4">
-            o problema não é vender.
-          </h2>
-          <h3 className="text-2xl lg:text-3xl font-medium tracking-tight lowercase" style={{ color: tokens.textMuted }}>
-            é crescer sem controle.
-          </h3>
-        </div>
-
-        <p className="text-lg mb-10 max-w-2xl" style={{ color: tokens.textMuted }} data-reveal>
-          Muitas empresas até faturam, mas operam no escuro. Não sabem:
-        </p>
-
-        <div data-stagger className="grid md:grid-cols-2 gap-3 max-w-3xl mb-16">
-          {[
-            "Quantos leads realmente entram",
-            "Qual canal gera lucro",
-            "Onde perdem vendas",
-            "Taxa real de conversão",
-            "Performance do time comercial",
-            "Previsão real de receita",
-            "Gargalos da operação",
-          ].map((item) => (
-            <div
-              key={item}
-              data-stagger-item
-              className="flex items-center gap-3 py-3 px-4 rounded-lg"
-              style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)" }}
-            >
-              <div className="w-1.5 h-1.5 rounded-full" style={{ background: tokens.blue }} />
-              <span className="text-sm" style={{ color: tokens.text }}>{item}</span>
+      {/* ============== AUTORIDADE — White, stacked on top of Hero ============== */}
+      <section
+        id="solucao"
+        className="stack-section relative z-10 -mt-10 rounded-t-[40px] lg:rounded-t-[56px]"
+        style={{ background: t.white, color: t.ink }}
+      >
+        <div className="max-w-[1280px] mx-auto px-6 lg:px-10 py-24 lg:py-32">
+          <div className="grid lg:grid-cols-12 gap-10 mb-14">
+            <div className="lg:col-span-5">
+              <h2
+                data-reveal
+                className="text-3xl lg:text-5xl font-semibold tracking-[-0.025em] leading-[1.05]"
+              >
+                Para construir<br />operações sólidas
+              </h2>
             </div>
-          ))}
-        </div>
+            <div className="lg:col-span-6 lg:col-start-7" data-reveal>
+              <div className="text-[10px] uppercase tracking-[0.25em] mb-3" style={{ color: t.inkMuted }}>
+                experiência prática
+              </div>
+              <p className="text-base lg:text-lg leading-relaxed" style={{ color: t.inkMuted }}>
+                <span style={{ color: t.ink, fontWeight: 500 }}>
+                  Há 17 anos ajudamos empresas de diferentes segmentos a vender mais
+                </span>{" "}
+                através de estrutura, gestão e performance. Atuamos na interseção entre estratégia, growth, dados e
+                tecnologia.
+              </p>
 
-        <div data-reveal className="rounded-2xl p-8 lg:p-10 backdrop-blur-md"
-          style={{ background: "rgba(248,113,113,0.04)", border: "1px solid rgba(248,113,113,0.15)" }}>
-          <div className="text-sm lowercase mb-5" style={{ color: "#FCA5A5" }}>resultado</div>
-          <div data-stagger className="grid md:grid-cols-5 gap-4">
+              <a
+                href="#cta-final"
+                className="inline-flex items-center gap-2 mt-8 px-5 py-2.5 rounded-full text-sm transition-all hover:scale-[1.02]"
+                style={{ background: t.blue, color: t.white }}
+              >
+                Saiba mais
+              </a>
+            </div>
+          </div>
+
+          {/* Pillars grid */}
+          <div data-stagger className="grid sm:grid-cols-2 lg:grid-cols-3 gap-px" style={{ background: t.border }}>
             {[
-              "Crescimento inconsistente",
-              "Decisões emocionais",
-              "Equipe desalinhada",
-              "Baixa margem",
-              "Escala travada",
-            ].map((r) => (
-              <div key={r} data-stagger-item className="flex items-start gap-2">
-                <X className="w-4 h-4 mt-0.5 shrink-0" style={{ color: "#F87171" }} />
-                <span className="text-sm">{r}</span>
+              { icon: Target, label: "Estratégia Comercial" },
+              { icon: TrendingUp, label: "Growth e Aquisição" },
+              { icon: BarChart3, label: "Gestão orientada por dados" },
+              { icon: Zap, label: "Tecnologia aplicada ao negócio" },
+              { icon: Settings, label: "Processos escaláveis" },
+              { icon: Brain, label: "Inteligência operacional" },
+            ].map(({ icon: Icon, label }) => (
+              <div
+                key={label}
+                data-stagger-item
+                className="group p-8 transition-all"
+                style={{ background: t.white }}
+              >
+                <Icon className="w-5 h-5 mb-6" style={{ color: t.blue }} />
+                <p className="text-base font-medium" style={{ color: t.ink }}>
+                  {label}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          {/* Bottom small label like reference */}
+          <div className="flex justify-between items-end mt-10 pt-10 border-t" style={{ borderColor: t.border }}>
+            <span className="text-[10px] uppercase tracking-[0.25em]" style={{ color: t.inkMuted }}>
+              filosofia da operação
+            </span>
+            <span className="text-[10px] uppercase tracking-[0.25em]" style={{ color: t.inkMuted }}>
+              fazendo a diferença
+            </span>
+          </div>
+        </div>
+      </section>
+
+      {/* ============== DOR — Deep Navy stacked ============== */}
+      <section
+        className="stack-section relative z-20 -mt-10 rounded-t-[40px] lg:rounded-t-[56px] overflow-hidden"
+        style={{
+          background: `radial-gradient(ellipse at 70% 30%, ${t.navyMid} 0%, ${t.navy} 50%, ${t.navyDeep} 100%)`,
+          color: t.textOnDark,
+        }}
+      >
+        <div className="max-w-[1280px] mx-auto px-6 lg:px-10 py-24 lg:py-36">
+          <div className="grid lg:grid-cols-12 gap-10 mb-16">
+            <div className="lg:col-span-7" data-reveal>
+              <div className="text-[10px] uppercase tracking-[0.25em] mb-4" style={{ color: t.blueLight }}>
+                o problema
+              </div>
+              <h2 className="text-4xl lg:text-6xl font-semibold tracking-[-0.03em] leading-[1.02]">
+                <span style={{ color: t.textOnDarkMuted }}>O problema não é vender.</span>
+                <br />
+                É crescer sem controle.
+              </h2>
+            </div>
+            <div className="lg:col-span-4 lg:col-start-9 flex lg:items-end" data-reveal>
+              <p className="text-base" style={{ color: t.textOnDarkMuted }}>
+                Muitas empresas até faturam, mas operam no escuro. Elas não sabem o que realmente está acontecendo na
+                própria operação.
+              </p>
+            </div>
+          </div>
+
+          <div data-stagger className="grid md:grid-cols-2 gap-px max-w-4xl mb-14" style={{ background: "rgba(255,255,255,0.06)" }}>
+            {[
+              "Quantos leads realmente entram",
+              "Qual canal gera lucro",
+              "Onde perdem vendas",
+              "Taxa real de conversão",
+              "Performance do time comercial",
+              "Previsão real de receita",
+              "Gargalos da operação",
+            ].map((item) => (
+              <div
+                key={item}
+                data-stagger-item
+                className="flex items-center gap-3 py-5 px-5"
+                style={{ background: t.navy }}
+              >
+                <div className="w-1 h-1 rounded-full" style={{ background: t.blueLight }} />
+                <span className="text-sm" style={{ color: t.textOnDark }}>
+                  {item}
+                </span>
+              </div>
+            ))}
+          </div>
+
+          <div
+            data-reveal
+            className="rounded-2xl p-8 lg:p-10"
+            style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}
+          >
+            <div className="text-[10px] uppercase tracking-[0.25em] mb-6" style={{ color: t.blueLight }}>
+              resultado
+            </div>
+            <div data-stagger className="grid md:grid-cols-5 gap-4">
+              {["Crescimento inconsistente", "Decisões emocionais", "Equipe desalinhada", "Baixa margem", "Escala travada"].map(
+                (r) => (
+                  <div key={r} data-stagger-item className="flex items-start gap-2">
+                    <X className="w-4 h-4 mt-0.5 shrink-0" style={{ color: t.blueLight }} />
+                    <span className="text-sm">{r}</span>
+                  </div>
+                ),
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ============== SOLUÇÃO — White stacked ============== */}
+      <section
+        className="stack-section relative z-30 -mt-10 rounded-t-[40px] lg:rounded-t-[56px]"
+        style={{ background: t.white, color: t.ink }}
+      >
+        <div className="max-w-[1280px] mx-auto px-6 lg:px-10 py-24 lg:py-32">
+          <div className="grid lg:grid-cols-12 gap-10 mb-16">
+            <div className="lg:col-span-7" data-reveal>
+              <div className="text-[10px] uppercase tracking-[0.25em] mb-4" style={{ color: t.blue }}>
+                solução
+              </div>
+              <h2 className="text-4xl lg:text-6xl font-semibold tracking-[-0.03em] leading-[1.02]">
+                Transformamos seu comercial em uma{" "}
+                <span style={{ color: t.blue }}>operação previsível</span>.
+              </h2>
+            </div>
+            <div className="lg:col-span-4 lg:col-start-9 flex lg:items-end" data-reveal>
+              <p className="text-base" style={{ color: t.inkMuted }}>
+                Criamos a base estratégica e operacional para sua empresa crescer com clareza.
+              </p>
+            </div>
+          </div>
+
+          <div
+            data-stagger
+            className="grid md:grid-cols-2 lg:grid-cols-4 gap-px"
+            style={{ background: t.border }}
+          >
+            {[
+              { icon: Settings, label: "Processos comerciais definidos" },
+              { icon: LineChart, label: "Indicadores em tempo real" },
+              { icon: Target, label: "Funil estruturado" },
+              { icon: Users, label: "Time mais produtivo" },
+              { icon: BarChart3, label: "Rotina de gestão clara" },
+              { icon: Database, label: "Tecnologia integrada" },
+              { icon: Zap, label: "Automação operacional" },
+              { icon: Brain, label: "Inteligência para decisão" },
+            ].map(({ icon: Icon, label }) => (
+              <div
+                key={label}
+                data-stagger-item
+                className="group p-7 transition-all hover:bg-[#FAFBFE]"
+                style={{ background: t.white }}
+              >
+                <div
+                  className="w-10 h-10 rounded-lg flex items-center justify-center mb-5 transition-transform group-hover:scale-110"
+                  style={{ background: `${t.blue}10`, color: t.blue }}
+                >
+                  <Icon className="w-5 h-5" />
+                </div>
+                <p className="text-sm leading-relaxed font-medium">{label}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ============== SOLUÇÃO ============== */}
-      <section className="relative z-10 max-w-[1200px] mx-auto px-6 lg:px-8 py-24 lg:py-32">
-        <div data-reveal className="max-w-3xl mb-16">
-          <div className="text-xs lowercase tracking-[0.2em] mb-4" style={{ color: tokens.green }}>solução</div>
-          <h2 className="text-4xl lg:text-6xl font-semibold tracking-tight lowercase mb-5">
-            transformamos seu comercial em uma <span style={{ color: tokens.green }}>operação previsível</span>.
-          </h2>
-          <p className="text-lg" style={{ color: tokens.textMuted }}>
-            Criamos a base estratégica e operacional para sua empresa crescer com clareza.
-          </p>
-        </div>
-
-        <div data-stagger className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {[
-            { icon: Settings, label: "Processos comerciais definidos", color: tokens.blue },
-            { icon: LineChart, label: "Indicadores em tempo real", color: tokens.green },
-            { icon: Target, label: "Funil estruturado", color: tokens.blue },
-            { icon: Users, label: "Time mais produtivo", color: tokens.purple },
-            { icon: BarChart3, label: "Rotina de gestão clara", color: tokens.green },
-            { icon: Database, label: "Tecnologia integrada", color: tokens.blue },
-            { icon: Zap, label: "Automação operacional", color: tokens.purple },
-            { icon: Brain, label: "Inteligência para decisão", color: tokens.green },
-          ].map(({ icon: Icon, label, color }) => (
-            <div
-              key={label}
-              data-stagger-item
-              className="group p-6 rounded-xl backdrop-blur-md transition-all duration-300 hover:translate-y-[-3px]"
-              style={{
-                background: "rgba(255,255,255,0.02)",
-                border: "1px solid rgba(255,255,255,0.05)",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.boxShadow = `0 0 30px ${color}30, 0 0 0 1px ${color}40`;
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.boxShadow = "none";
-              }}
-            >
-              <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-4 transition-transform group-hover:scale-110"
-                style={{ background: `${color}15`, color }}>
-                <Icon className="w-5 h-5" />
-              </div>
-              <p className="text-sm leading-relaxed">{label}</p>
+      {/* ============== CRM SECTION — Navy stacked ============== */}
+      <section
+        className="crm-section stack-section relative z-40 -mt-10 rounded-t-[40px] lg:rounded-t-[56px] overflow-hidden"
+        style={{
+          background: `radial-gradient(ellipse at 50% 0%, ${t.navyMid} 0%, ${t.navy} 50%, ${t.navyDeep} 100%)`,
+          color: t.textOnDark,
+        }}
+      >
+        <div className="max-w-[1280px] mx-auto px-6 lg:px-10 py-24 lg:py-36">
+          <div data-reveal className="max-w-3xl mb-16">
+            <div className="text-[10px] uppercase tracking-[0.25em] mb-4" style={{ color: t.blueLight }}>
+              plataforma
             </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ============== CRM SECTION ============== */}
-      <section className="crm-section relative z-10 py-24 lg:py-32"
-        style={{ background: "linear-gradient(180deg, transparent, rgba(15,23,42,0.6), transparent)" }}>
-        <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
-          <div data-reveal className="max-w-3xl mb-16 text-center mx-auto">
-            <div className="text-xs lowercase tracking-[0.2em] mb-4" style={{ color: tokens.blue }}>plataforma</div>
-            <h2 className="text-4xl lg:text-6xl font-semibold tracking-tight lowercase mb-5">
-              sua operação funcionando em <span style={{ color: tokens.blue }}>tempo real</span>
+            <h2 className="text-4xl lg:text-6xl font-semibold tracking-[-0.03em] leading-[1.02]">
+              Sua operação funcionando em <span style={{ color: t.blueLight }}>tempo real</span>
             </h2>
-            <p className="text-lg" style={{ color: tokens.textMuted }}>
+            <p className="text-lg mt-5" style={{ color: t.textOnDarkMuted }}>
               Tenha controle total do seu marketing, vendas e crescimento em um só lugar.
             </p>
           </div>
 
-          {/* Big mock */}
-          <div data-reveal className="relative rounded-2xl p-6 lg:p-10 backdrop-blur-xl"
+          <div
+            data-reveal
+            className="relative rounded-3xl p-6 lg:p-10"
             style={{
-              background: "rgba(255,255,255,0.025)",
-              border: "1px solid rgba(255,255,255,0.06)",
+              background: "rgba(255,255,255,0.03)",
+              border: "1px solid rgba(255,255,255,0.08)",
               boxShadow: "0 40px 100px rgba(0,0,0,0.5)",
-            }}>
+            }}
+          >
             <div className="grid lg:grid-cols-3 gap-6">
               {/* leads */}
-              <div className="rounded-xl p-5" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)" }}>
-                <div className="text-[11px] lowercase mb-2" style={{ color: tokens.textMuted }}>leads gerados (mês)</div>
-                <div className="text-3xl font-semibold tracking-tight mb-4" style={{ color: tokens.blue }}>
+              <div
+                className="rounded-xl p-5"
+                style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
+              >
+                <div className="text-[11px] lowercase mb-2" style={{ color: t.textOnDarkMuted }}>
+                  leads gerados (mês)
+                </div>
+                <div className="text-3xl font-semibold tracking-tight mb-4" style={{ color: t.white }}>
                   <CountUp end={1248} />
                 </div>
                 <div className="space-y-1.5">
                   {[80, 65, 90, 72, 88, 95, 70].map((h, i) => (
                     <div key={i} className="flex items-center gap-2">
-                      <div className="text-[9px] w-6" style={{ color: tokens.textMuted }}>D{i + 1}</div>
-                      <div className="flex-1 h-1.5 rounded-full" style={{ background: "rgba(255,255,255,0.04)" }}>
-                        <div className="h-full rounded-full transition-all duration-[1400ms]"
-                          style={{ width: `${h}%`, background: tokens.blue, boxShadow: `0 0 8px ${tokens.blue}80` }} />
+                      <div className="text-[9px] w-6" style={{ color: t.textOnDarkMuted }}>
+                        D{i + 1}
+                      </div>
+                      <div className="flex-1 h-1.5 rounded-full" style={{ background: "rgba(255,255,255,0.06)" }}>
+                        <div
+                          className="h-full rounded-full transition-all duration-[1400ms]"
+                          style={{ width: `${h}%`, background: t.blue }}
+                        />
                       </div>
                     </div>
                   ))}
@@ -513,9 +640,14 @@ export default function LP4() {
               </div>
 
               {/* conversão */}
-              <div className="rounded-xl p-5" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)" }}>
-                <div className="text-[11px] lowercase mb-2" style={{ color: tokens.textMuted }}>conversão acompanhada</div>
-                <div className="text-3xl font-semibold tracking-tight mb-4" style={{ color: tokens.green }}>
+              <div
+                className="rounded-xl p-5"
+                style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
+              >
+                <div className="text-[11px] lowercase mb-2" style={{ color: t.textOnDarkMuted }}>
+                  conversão acompanhada
+                </div>
+                <div className="text-3xl font-semibold tracking-tight mb-4" style={{ color: t.white }}>
                   <CountUp end={24} suffix="%" />
                 </div>
                 <div className="space-y-3">
@@ -526,23 +658,36 @@ export default function LP4() {
                     { label: "Clientes", val: 24 },
                   ].map((s) => (
                     <div key={s.label}>
-                      <div className="flex justify-between text-[11px] mb-1 lowercase" style={{ color: tokens.textMuted }}>
+                      <div
+                        className="flex justify-between text-[11px] mb-1 lowercase"
+                        style={{ color: t.textOnDarkMuted }}
+                      >
                         <span>{s.label}</span>
                         <span>{s.val}%</span>
                       </div>
-                      <div className="h-1.5 rounded-full" style={{ background: "rgba(255,255,255,0.04)" }}>
-                        <div className="h-full rounded-full transition-all duration-[1600ms]"
-                          style={{ width: `${s.val}%`, background: `linear-gradient(90deg, ${tokens.green}, ${tokens.blue})` }} />
+                      <div className="h-1.5 rounded-full" style={{ background: "rgba(255,255,255,0.06)" }}>
+                        <div
+                          className="h-full rounded-full transition-all duration-[1600ms]"
+                          style={{
+                            width: `${s.val}%`,
+                            background: `linear-gradient(90deg, ${t.blueLight}, ${t.blue})`,
+                          }}
+                        />
                       </div>
                     </div>
                   ))}
                 </div>
               </div>
 
-              {/* IA + pipeline */}
-              <div className="rounded-xl p-5" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)" }}>
-                <div className="text-[11px] lowercase mb-2" style={{ color: tokens.textMuted }}>IA operando junto com seu time</div>
-                <div className="text-3xl font-semibold tracking-tight mb-4" style={{ color: tokens.purple }}>
+              {/* IA */}
+              <div
+                className="rounded-xl p-5"
+                style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
+              >
+                <div className="text-[11px] lowercase mb-2" style={{ color: t.textOnDarkMuted }}>
+                  IA operando junto com seu time
+                </div>
+                <div className="text-3xl font-semibold tracking-tight mb-4" style={{ color: t.white }}>
                   <CountUp end={342} suffix=" ações/dia" />
                 </div>
                 <div className="space-y-3">
@@ -551,13 +696,18 @@ export default function LP4() {
                     { icon: Sparkles, label: "Scoring de leads", val: "tempo real" },
                     { icon: Brain, label: "Insights gerados", val: "12 hoje" },
                   ].map(({ icon: Icon, label, val }) => (
-                    <div key={label} className="flex items-center justify-between p-2.5 rounded-lg"
-                      style={{ background: "rgba(99,102,241,0.06)", border: "1px solid rgba(99,102,241,0.15)" }}>
+                    <div
+                      key={label}
+                      className="flex items-center justify-between p-2.5 rounded-lg"
+                      style={{ background: "rgba(43,91,255,0.08)", border: "1px solid rgba(43,91,255,0.18)" }}
+                    >
                       <div className="flex items-center gap-2">
-                        <Icon className="w-3.5 h-3.5" style={{ color: tokens.purple }} />
+                        <Icon className="w-3.5 h-3.5" style={{ color: t.blueLight }} />
                         <span className="text-[11px]">{label}</span>
                       </div>
-                      <span className="text-[10px]" style={{ color: tokens.textMuted }}>{val}</span>
+                      <span className="text-[10px]" style={{ color: t.textOnDarkMuted }}>
+                        {val}
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -567,117 +717,97 @@ export default function LP4() {
 
           {/* feature bullets */}
           <div data-stagger className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-8">
-            {["Pipeline de vendas organizado", "Leads sendo gerados diariamente", "Conversão sendo acompanhada", "IA operando junto com seu time"].map((f) => (
-              <div key={f} data-stagger-item className="flex items-center gap-2 text-sm p-3 rounded-lg"
-                style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)" }}>
-                <Check className="w-4 h-4 shrink-0" style={{ color: tokens.green }} />
-                <span style={{ color: tokens.textMuted }}>{f}</span>
+            {[
+              "Pipeline de vendas organizado",
+              "Leads sendo gerados diariamente",
+              "Conversão sendo acompanhada",
+              "IA operando junto com seu time",
+            ].map((f) => (
+              <div
+                key={f}
+                data-stagger-item
+                className="flex items-center gap-2 text-sm p-3 rounded-lg"
+                style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
+              >
+                <Check className="w-4 h-4 shrink-0" style={{ color: t.blueLight }} />
+                <span style={{ color: t.textOnDarkMuted }}>{f}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Big stats à la Tirtus */}
+          <div data-stagger className="grid grid-cols-2 lg:grid-cols-3 gap-px mt-16" style={{ background: "rgba(255,255,255,0.06)" }}>
+            {[
+              { val: "200+", label: "operações estruturadas" },
+              { val: "97%", label: "clientes confiam para o próximo projeto" },
+              { val: "10x", label: "produtividade do time comercial" },
+            ].map((s) => (
+              <div key={s.label} data-stagger-item className="p-8 lg:p-10" style={{ background: t.navy }}>
+                <div className="text-5xl lg:text-6xl font-semibold tracking-[-0.03em] mb-4">{s.val}</div>
+                <div className="text-sm" style={{ color: t.textOnDarkMuted }}>
+                  {s.label}
+                </div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ============== IA / OPERAÇÃO INTELIGENTE ============== */}
-      <section className="relative z-10 max-w-[1200px] mx-auto px-6 lg:px-8 py-24 lg:py-32">
-        <div data-reveal className="max-w-3xl mb-16">
-          <div className="text-xs lowercase tracking-[0.2em] mb-4" style={{ color: tokens.purple }}>inteligência artificial</div>
-          <h2 className="text-4xl lg:text-6xl font-semibold tracking-tight lowercase mb-5">
-            sua operação <span style={{ color: tokens.purple }}>já nasce inteligente</span>
-          </h2>
-          <p className="text-lg" style={{ color: tokens.textMuted }}>
-            Implementamos agentes treinados com contexto da empresa para acelerar produtividade.
-          </p>
-        </div>
-
-        <div data-stagger className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {[
-            { title: "Comercial", icon: TrendingUp, items: ["Assistente de vendas", "Follow-up inteligente", "Apoio ao time comercial"] },
-            { title: "Marketing", icon: Sparkles, items: ["Copywriter IA", "Conteúdo estratégico", "Criativos"] },
-            { title: "Gestão", icon: BarChart3, items: ["Relatórios automáticos", "Insights de performance", "Alertas estratégicos"] },
-            { title: "RH", icon: Users, items: ["Recrutamento e seleção"] },
-          ].map(({ title, icon: Icon, items }) => (
-            <div
-              key={title}
-              data-stagger-item
-              className="rounded-xl p-6 backdrop-blur-md transition-all hover:translate-y-[-3px]"
-              style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)" }}
-            >
-              <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-4"
-                style={{ background: "rgba(99,102,241,0.12)", color: tokens.purple }}>
-                <Icon className="w-5 h-5" />
+      {/* ============== IA / OPERAÇÃO INTELIGENTE — White stacked ============== */}
+      <section
+        className="stack-section relative z-50 -mt-10 rounded-t-[40px] lg:rounded-t-[56px]"
+        style={{ background: t.white, color: t.ink }}
+      >
+        <div className="max-w-[1280px] mx-auto px-6 lg:px-10 py-24 lg:py-32">
+          <div className="grid lg:grid-cols-12 gap-10 mb-16">
+            <div className="lg:col-span-7" data-reveal>
+              <div className="text-[10px] uppercase tracking-[0.25em] mb-4" style={{ color: t.blue }}>
+                inteligência artificial
               </div>
-              <h3 className="text-lg font-semibold tracking-tight lowercase mb-4">{title}</h3>
-              <ul className="space-y-2">
-                {items.map((it) => (
-                  <li key={it} className="flex items-start gap-2 text-sm" style={{ color: tokens.textMuted }}>
-                    <CircleDot className="w-3 h-3 mt-1 shrink-0" style={{ color: tokens.purple }} />
-                    {it}
-                  </li>
-                ))}
-              </ul>
+              <h2 className="text-4xl lg:text-6xl font-semibold tracking-[-0.03em] leading-[1.02]">
+                Sua operação <span style={{ color: t.blue }}>já nasce inteligente</span>
+              </h2>
             </div>
-          ))}
-        </div>
-      </section>
+            <div className="lg:col-span-4 lg:col-start-9 flex lg:items-end" data-reveal>
+              <p className="text-base" style={{ color: t.inkMuted }}>
+                Implementamos agentes treinados com contexto da empresa para acelerar produtividade.
+              </p>
+            </div>
+          </div>
 
-      {/* ============== METODOLOGIA ============== */}
-      <section className="relative z-10 max-w-[1200px] mx-auto px-6 lg:px-8 py-24 lg:py-32">
-        <div data-reveal className="max-w-3xl mb-16">
-          <div className="text-xs lowercase tracking-[0.2em] mb-4" style={{ color: tokens.blue }}>metodologia escale</div>
-          <h2 className="text-4xl lg:text-6xl font-semibold tracking-tight lowercase">
-            como entregamos isso em <span style={{ color: tokens.green }}>menos de 30 dias</span>
-          </h2>
-        </div>
-
-        {/* timeline */}
-        <div className="relative">
-          <div className="hidden lg:block absolute top-8 left-0 right-0 h-px"
-            style={{ background: `linear-gradient(90deg, ${tokens.blue}, ${tokens.purple}, ${tokens.green})` }} />
-
-          <div data-stagger className="grid lg:grid-cols-4 gap-6">
+          <div data-stagger className="grid md:grid-cols-2 lg:grid-cols-4 gap-px" style={{ background: t.border }}>
             {[
               {
-                step: "01",
-                title: "Diagnóstico Estratégico",
-                desc: "Mergulho completo no negócio para mapear cenário atual e oportunidades.",
-                items: ["Diagnóstico da empresa", "Análise de mercado", "Concorrência", "Posicionamento", "Oportunidades comerciais", "Comunicação estratégica", "Planejamento macro de crescimento"],
+                title: "Comercial",
+                icon: TrendingUp,
+                items: ["Assistente de vendas", "Follow-up inteligente", "Apoio ao time comercial"],
               },
+              { title: "Marketing", icon: Sparkles, items: ["Copywriter IA", "Conteúdo estratégico", "Criativos"] },
               {
-                step: "02",
-                title: "Estruturação Comercial",
-                desc: "Organizamos a operação de vendas.",
-                items: ["Funil comercial", "Etapas de vendas", "Scripts", "Playbook comercial", "Tabela de objeções", "Cadência de follow-up", "KPIs comerciais", "Metas e indicadores"],
+                title: "Gestão",
+                icon: BarChart3,
+                items: ["Relatórios automáticos", "Insights de performance", "Alertas estratégicos"],
               },
-              {
-                step: "03",
-                title: "Aquisição e Crescimento",
-                desc: "Planejamento de geração de demanda.",
-                items: ["Estratégia de mídia", "Meta Ads / Google Ads", "KPIs", "Plano trimestral", "Criativos", "Escala previsível"],
-              },
-              {
-                step: "04",
-                title: "Operação Inteligente",
-                desc: "Implementação da estrutura de gestão.",
-                items: ["Central comercial integrada", "Dashboard executivo", "Automação de processos", "Gestão de leads", "Landing page de captação", "IA aplicada ao negócio", "Relatórios gerenciais"],
-              },
-            ].map(({ step, title, desc, items }) => (
-              <div key={step} data-stagger-item className="relative">
-                <div className="relative z-10 w-16 h-16 rounded-2xl flex items-center justify-center mb-5 backdrop-blur-md"
-                  style={{
-                    background: "rgba(15,23,42,0.9)",
-                    border: `1px solid ${tokens.blue}40`,
-                    boxShadow: `0 0 30px ${tokens.blue}30`,
-                  }}>
-                  <span className="text-lg font-semibold" style={{ color: tokens.blue }}>{step}</span>
+              { title: "RH", icon: Users, items: ["Recrutamento e seleção"] },
+            ].map(({ title, icon: Icon, items }) => (
+              <div
+                key={title}
+                data-stagger-item
+                className="p-7 transition-all hover:bg-[#FAFBFE]"
+                style={{ background: t.white }}
+              >
+                <div
+                  className="w-10 h-10 rounded-lg flex items-center justify-center mb-5"
+                  style={{ background: `${t.blue}10`, color: t.blue }}
+                >
+                  <Icon className="w-5 h-5" />
                 </div>
-                <h3 className="text-xl font-semibold tracking-tight lowercase mb-2">{title}</h3>
-                <p className="text-sm mb-4" style={{ color: tokens.textMuted }}>{desc}</p>
-                <ul className="space-y-1.5">
+                <h3 className="text-lg font-semibold tracking-tight mb-4">{title}</h3>
+                <ul className="space-y-2">
                   {items.map((it) => (
-                    <li key={it} className="flex items-start gap-2 text-[13px]">
-                      <Check className="w-3.5 h-3.5 mt-0.5 shrink-0" style={{ color: tokens.green }} />
-                      <span style={{ color: tokens.textMuted }}>{it}</span>
+                    <li key={it} className="flex items-start gap-2 text-sm" style={{ color: t.inkMuted }}>
+                      <CircleDot className="w-3 h-3 mt-1 shrink-0" style={{ color: t.blue }} />
+                      {it}
                     </li>
                   ))}
                 </ul>
@@ -685,141 +815,313 @@ export default function LP4() {
             ))}
           </div>
         </div>
-
-        <p className="text-center mt-12 text-sm lowercase" style={{ color: tokens.textMuted }} data-reveal>
-          baseado no método escale
-        </p>
       </section>
 
-      {/* ============== CRONOGRAMA ============== */}
-      <section className="relative z-10 max-w-[1200px] mx-auto px-6 lg:px-8 py-24 lg:py-32">
-        <div data-reveal className="max-w-3xl mb-16">
-          <div className="text-xs lowercase tracking-[0.2em] mb-4" style={{ color: tokens.green }}>cronograma</div>
-          <h2 className="text-4xl lg:text-6xl font-semibold tracking-tight lowercase">
-            tudo estruturado em <span style={{ color: tokens.green }}>30 dias</span>
-          </h2>
-        </div>
-
-        <div data-stagger className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
-          {[
-            { week: "Semana 1", title: "Diagnóstico Estratégico" },
-            { week: "Semana 2", title: "Estruturação Comercial" },
-            { week: "Semana 3", title: "Plano de Mídia" },
-            { week: "Semana 4", title: "CRM + Landing Page + Escala" },
-          ].map(({ week, title }, i) => (
-            <div
-              key={week}
-              data-stagger-item
-              className="relative rounded-xl p-6 backdrop-blur-md transition-all hover:translate-y-[-3px]"
-              style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)" }}
-            >
-              <div className="text-[11px] lowercase tracking-wider mb-3" style={{ color: tokens.blue }}>{week}</div>
-              <h3 className="text-lg font-semibold tracking-tight lowercase mb-4">{title}</h3>
-              <div className="h-1 rounded-full" style={{ background: "rgba(255,255,255,0.04)" }}>
-                <div className="h-full rounded-full" style={{ width: `${(i + 1) * 25}%`, background: `linear-gradient(90deg, ${tokens.blue}, ${tokens.green})` }} />
-              </div>
+      {/* ============== METODOLOGIA — Navy stacked ============== */}
+      <section
+        id="metodologia"
+        className="stack-section relative z-[60] -mt-10 rounded-t-[40px] lg:rounded-t-[56px] overflow-hidden"
+        style={{
+          background: `radial-gradient(ellipse at 30% 0%, ${t.navyMid} 0%, ${t.navy} 50%, ${t.navyDeep} 100%)`,
+          color: t.textOnDark,
+        }}
+      >
+        <div className="max-w-[1280px] mx-auto px-6 lg:px-10 py-24 lg:py-36">
+          <div data-reveal className="max-w-3xl mb-16">
+            <div className="text-[10px] uppercase tracking-[0.25em] mb-4" style={{ color: t.blueLight }}>
+              metodologia escale
             </div>
-          ))}
-        </div>
-
-        <p className="text-lg lowercase" style={{ color: tokens.text }} data-reveal>
-          você sai com tudo pronto. <span style={{ color: tokens.green }}>não é teoria.</span>
-        </p>
-      </section>
-
-      {/* ============== COMPARATIVO ============== */}
-      <section className="relative z-10 max-w-[1200px] mx-auto px-6 lg:px-8 py-24 lg:py-32">
-        <div data-reveal className="max-w-3xl mb-16">
-          <div className="text-xs lowercase tracking-[0.2em] mb-4" style={{ color: "#FBBF24" }}>comparativo</div>
-          <h2 className="text-4xl lg:text-6xl font-semibold tracking-tight lowercase">
-            quanto custaria montar tudo isso <span style={{ color: "#FBBF24" }}>separado?</span>
-          </h2>
-        </div>
-
-        <div data-reveal className="rounded-2xl overflow-hidden backdrop-blur-xl"
-          style={{ background: "rgba(255,255,255,0.025)", border: "1px solid rgba(255,255,255,0.06)" }}>
-          <div className="grid grid-cols-3 px-6 py-4 text-[11px] lowercase tracking-wider"
-            style={{ color: tokens.textMuted, borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
-            <span className="col-span-2">estrutura / serviço</span>
-            <span className="text-right">valor médio</span>
+            <h2 className="text-4xl lg:text-6xl font-semibold tracking-[-0.03em] leading-[1.02]">
+              Como entregamos isso em <span style={{ color: t.blueLight }}>menos de 30 dias</span>
+            </h2>
           </div>
 
-          <div data-stagger>
-            {[
-              { label: "Planejamento Estratégico", val: 5500 },
-              { label: "Consultoria Comercial", val: 4500 },
-              { label: "Plano de Aquisição", val: 3500 },
-              { label: "Landing Page Estratégica", val: 3500 },
-              { label: "Plataforma + Setup", val: 5400 },
-              { label: "Implementação Operacional", val: 3800 },
-              { label: "Infraestrutura Técnica", val: 2400 },
-              { label: "Estrutura de Funil", val: 3100 },
-              { label: "Copywriting Comercial", val: 3500 },
-            ].map((row) => (
+          <div className="relative">
+            <div
+              className="hidden lg:block absolute top-8 left-0 right-0 h-px"
+              style={{ background: "rgba(255,255,255,0.1)" }}
+            />
+
+            <div data-stagger className="grid lg:grid-cols-4 gap-8">
+              {[
+                {
+                  step: "01",
+                  title: "Diagnóstico Estratégico",
+                  desc: "Mergulho completo no negócio para mapear cenário atual e oportunidades.",
+                  items: [
+                    "Diagnóstico da empresa",
+                    "Análise de mercado",
+                    "Concorrência",
+                    "Posicionamento",
+                    "Oportunidades comerciais",
+                    "Comunicação estratégica",
+                    "Planejamento macro de crescimento",
+                  ],
+                },
+                {
+                  step: "02",
+                  title: "Estruturação Comercial",
+                  desc: "Organizamos a operação de vendas.",
+                  items: [
+                    "Funil comercial",
+                    "Etapas de vendas",
+                    "Scripts",
+                    "Playbook comercial",
+                    "Tabela de objeções",
+                    "Cadência de follow-up",
+                    "KPIs comerciais",
+                    "Metas e indicadores",
+                  ],
+                },
+                {
+                  step: "03",
+                  title: "Aquisição e Crescimento",
+                  desc: "Planejamento de geração de demanda.",
+                  items: [
+                    "Estratégia de mídia",
+                    "Meta Ads / Google Ads",
+                    "KPIs",
+                    "Plano trimestral",
+                    "Criativos",
+                    "Escala previsível",
+                  ],
+                },
+                {
+                  step: "04",
+                  title: "Operação Inteligente",
+                  desc: "Implementação da estrutura de gestão.",
+                  items: [
+                    "Central comercial integrada",
+                    "Dashboard executivo",
+                    "Automação de processos",
+                    "Gestão de leads",
+                    "Landing page de captação",
+                    "IA aplicada ao negócio",
+                    "Relatórios gerenciais",
+                  ],
+                },
+              ].map(({ step, title, desc, items }) => (
+                <div key={step} data-stagger-item className="relative">
+                  <div
+                    className="relative z-10 w-16 h-16 rounded-2xl flex items-center justify-center mb-5"
+                    style={{
+                      background: t.navyDeep,
+                      border: "1px solid rgba(255,255,255,0.15)",
+                    }}
+                  >
+                    <span className="text-lg font-semibold" style={{ color: t.blueLight }}>
+                      {step}
+                    </span>
+                  </div>
+                  <h3 className="text-xl font-semibold tracking-tight mb-2">{title}</h3>
+                  <p className="text-sm mb-4" style={{ color: t.textOnDarkMuted }}>
+                    {desc}
+                  </p>
+                  <ul className="space-y-1.5">
+                    {items.map((it) => (
+                      <li key={it} className="flex items-start gap-2 text-[13px]">
+                        <Check className="w-3.5 h-3.5 mt-0.5 shrink-0" style={{ color: t.blueLight }} />
+                        <span style={{ color: t.textOnDarkMuted }}>{it}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <p className="mt-16 text-sm" style={{ color: t.textOnDarkMuted }} data-reveal>
+            Baseado no método Escale.
+          </p>
+
+          {/* Cronograma */}
+          <div className="mt-24">
+            <h3 data-reveal className="text-2xl lg:text-4xl font-semibold tracking-[-0.025em] mb-10">
+              Tudo estruturado em <span style={{ color: t.blueLight }}>30 dias</span>
+            </h3>
+
+            <div data-stagger className="grid md:grid-cols-2 lg:grid-cols-4 gap-px" style={{ background: "rgba(255,255,255,0.08)" }}>
+              {[
+                { week: "Semana 1", title: "Diagnóstico Estratégico" },
+                { week: "Semana 2", title: "Estruturação Comercial" },
+                { week: "Semana 3", title: "Plano de Mídia" },
+                { week: "Semana 4", title: "CRM + Landing Page + Escala" },
+              ].map(({ week, title }, i) => (
+                <div
+                  key={week}
+                  data-stagger-item
+                  className="relative p-7"
+                  style={{ background: t.navy }}
+                >
+                  <div
+                    className="text-[10px] uppercase tracking-[0.25em] mb-3"
+                    style={{ color: t.blueLight }}
+                  >
+                    {week}
+                  </div>
+                  <h4 className="text-lg font-semibold tracking-tight mb-5">{title}</h4>
+                  <div className="h-1 rounded-full" style={{ background: "rgba(255,255,255,0.08)" }}>
+                    <div
+                      className="h-full rounded-full"
+                      style={{ width: `${(i + 1) * 25}%`, background: t.blueLight }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <p className="text-base mt-8" style={{ color: t.textOnDark }} data-reveal>
+              Você sai com tudo pronto. <span style={{ color: t.blueLight }}>Não é teoria.</span>
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ============== COMPARATIVO — White stacked ============== */}
+      <section
+        id="valores"
+        className="stack-section relative z-[70] -mt-10 rounded-t-[40px] lg:rounded-t-[56px]"
+        style={{ background: t.offWhite, color: t.ink }}
+      >
+        <div className="max-w-[1280px] mx-auto px-6 lg:px-10 py-24 lg:py-32">
+          <div className="grid lg:grid-cols-12 gap-10 mb-16">
+            <div className="lg:col-span-8" data-reveal>
+              <div className="text-[10px] uppercase tracking-[0.25em] mb-4" style={{ color: t.blue }}>
+                comparativo
+              </div>
+              <h2 className="text-4xl lg:text-6xl font-semibold tracking-[-0.03em] leading-[1.02]">
+                Quanto custaria montar tudo isso <span style={{ color: t.blue }}>separado?</span>
+              </h2>
+            </div>
+          </div>
+
+          <div
+            data-reveal
+            className="rounded-2xl overflow-hidden"
+            style={{ background: t.white, border: `1px solid ${t.border}` }}
+          >
+            <div
+              className="grid grid-cols-3 px-6 py-4 text-[11px] uppercase tracking-[0.18em]"
+              style={{ color: t.inkMuted, borderBottom: `1px solid ${t.border}` }}
+            >
+              <span className="col-span-2">estrutura / serviço</span>
+              <span className="text-right">valor médio</span>
+            </div>
+
+            <div data-stagger>
+              {[
+                { label: "Planejamento Estratégico", val: 5500 },
+                { label: "Consultoria Comercial", val: 4500 },
+                { label: "Plano de Aquisição", val: 3500 },
+                { label: "Landing Page Estratégica", val: 3500 },
+                { label: "Plataforma + Setup", val: 5400 },
+                { label: "Implementação Operacional", val: 3800 },
+                { label: "Infraestrutura Técnica", val: 2400 },
+                { label: "Estrutura de Funil", val: 3100 },
+                { label: "Copywriting Comercial", val: 3500 },
+              ].map((row) => (
+                <div
+                  key={row.label}
+                  data-stagger-item
+                  className="grid grid-cols-3 px-6 py-4 transition-colors hover:bg-[#FAFBFE]"
+                  style={{ borderBottom: `1px solid ${t.border}` }}
+                >
+                  <span className="col-span-2 text-sm">{row.label}</span>
+                  <span className="text-right text-sm tabular-nums" style={{ color: t.inkMuted }}>
+                    <CountUp end={row.val} prefix="R$ " />
+                  </span>
+                </div>
+              ))}
+
               <div
-                key={row.label}
-                data-stagger-item
-                className="grid grid-cols-3 px-6 py-4 transition-colors hover:bg-white/[0.02]"
-                style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}
+                className="px-6 py-5 grid grid-cols-3"
+                style={{ borderBottom: `1px solid ${t.border}` }}
               >
-                <span className="col-span-2 text-sm">{row.label}</span>
-                <span className="text-right text-sm tabular-nums" style={{ color: tokens.textMuted }}>
-                  <CountUp end={row.val} prefix="R$ " />
+                <span className="col-span-2 text-sm" style={{ color: t.inkMuted }}>
+                  Total no mercado
+                </span>
+                <span
+                  className="text-right text-lg font-semibold tabular-nums line-through"
+                  style={{ color: t.inkMuted }}
+                >
+                  <CountUp end={35200} prefix="R$ " />
                 </span>
               </div>
-            ))}
 
-            {/* Totals */}
-            <div className="px-6 py-5 grid grid-cols-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
-              <span className="col-span-2 text-sm lowercase" style={{ color: tokens.textMuted }}>total no mercado</span>
-              <span className="text-right text-lg font-semibold tabular-nums line-through" style={{ color: "#9CA3AF" }}>
-                <CountUp end={35200} prefix="R$ " />
-              </span>
-            </div>
-            <div className="px-6 py-5 grid grid-cols-3" style={{ background: "rgba(34,197,94,0.05)", borderBottom: "1px solid rgba(34,197,94,0.15)" }}>
-              <span className="col-span-2 text-base lowercase font-medium">com a escale</span>
-              <span className="text-right text-2xl font-semibold tabular-nums" style={{ color: tokens.green, textShadow: `0 0 20px ${tokens.green}80` }}>
-                <CountUp end={8497} prefix="R$ " />
-              </span>
-            </div>
-            <div className="px-6 py-5 grid grid-cols-3">
-              <span className="col-span-2 text-sm lowercase" style={{ color: tokens.textMuted }}>economia superior a</span>
-              <span className="text-right text-xl font-semibold tabular-nums" style={{ color: tokens.green }}>
-                <CountUp end={26700} prefix="R$ " />
-              </span>
+              <div
+                className="px-6 py-6 grid grid-cols-3"
+                style={{ background: t.navy, color: t.white }}
+              >
+                <span className="col-span-2 text-base font-medium">Com a Escale</span>
+                <span className="text-right text-2xl font-semibold tabular-nums">
+                  <CountUp end={8497} prefix="R$ " />
+                </span>
+              </div>
+
+              <div className="px-6 py-5 grid grid-cols-3">
+                <span className="col-span-2 text-sm" style={{ color: t.inkMuted }}>
+                  Economia superior a
+                </span>
+                <span className="text-right text-xl font-semibold tabular-nums" style={{ color: t.blue }}>
+                  <CountUp end={26700} prefix="R$ " />
+                </span>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ============== PROVA DE VALOR ============== */}
-      <section className="relative z-10 py-32 lg:py-40" style={{ background: "rgba(10,15,28,0.6)" }}>
-        <div className="max-w-4xl mx-auto px-6 lg:px-8 text-center">
-          <h2 data-reveal className="text-4xl lg:text-6xl font-semibold tracking-tight lowercase leading-[1.1] mb-8">
-            você não contrata ferramentas.
+      {/* ============== PROVA DE VALOR — Deep Navy minimal stacked ============== */}
+      <section
+        className="stack-section relative z-[80] -mt-10 rounded-t-[40px] lg:rounded-t-[56px] overflow-hidden"
+        style={{
+          background: t.navyDeep,
+          color: t.textOnDark,
+        }}
+      >
+        <div className="max-w-5xl mx-auto px-6 lg:px-10 py-32 lg:py-44 text-center">
+          <h2
+            data-reveal
+            className="text-4xl lg:text-7xl font-semibold tracking-[-0.035em] leading-[1.02] mb-10"
+          >
+            Você não contrata ferramentas.
             <br />
-            contrata <span style={{ color: tokens.green }}>clareza</span>, <span style={{ color: tokens.blue }}>controle</span> e <span style={{ color: tokens.purple }}>crescimento</span>.
+            Contrata <span style={{ color: t.blueLight }}>clareza</span>,{" "}
+            <span style={{ color: t.blueLight }}>controle</span> e{" "}
+            <span style={{ color: t.blueLight }}>crescimento</span>.
           </h2>
-          <div data-reveal className="text-lg lg:text-xl space-y-2" style={{ color: tokens.textMuted }}>
-            <p>tecnologia sem estratégia vira custo.</p>
-            <p style={{ color: tokens.text }}>estrutura bem construída vira lucro.</p>
+          <div data-reveal className="text-lg lg:text-xl space-y-2" style={{ color: t.textOnDarkMuted }}>
+            <p>Tecnologia sem estratégia vira custo.</p>
+            <p style={{ color: t.white }}>Estrutura bem construída vira lucro.</p>
           </div>
         </div>
       </section>
 
-      {/* ============== CTA FINAL ============== */}
-      <section id="cta-final" className="relative z-10 py-32 lg:py-40">
-        <div className="max-w-3xl mx-auto px-6 lg:px-8 text-center">
-          <div className="absolute inset-0 -z-10 max-w-3xl mx-auto"
-            style={{ background: `radial-gradient(circle at 50% 50%, ${tokens.blue}25, transparent 60%)`, filter: "blur(60px)" }} />
+      {/* ============== CTA FINAL — White stacked ============== */}
+      <section
+        id="cta-final"
+        className="stack-section relative z-[90] -mt-10 rounded-t-[40px] lg:rounded-t-[56px]"
+        style={{ background: t.white, color: t.ink }}
+      >
+        <div className="max-w-3xl mx-auto px-6 lg:px-10 py-32 lg:py-44 text-center relative">
+          <div
+            className="absolute inset-0 -z-10 pointer-events-none"
+            style={{
+              background: `radial-gradient(circle at 50% 50%, ${t.blue}15, transparent 60%)`,
+              filter: "blur(60px)",
+            }}
+          />
 
-          <Rocket className="w-10 h-10 mx-auto mb-6" style={{ color: tokens.blue }} data-reveal />
+          <Rocket className="w-10 h-10 mx-auto mb-6" style={{ color: t.blue }} data-reveal />
 
-          <h2 data-reveal className="text-4xl lg:text-6xl font-semibold tracking-tight lowercase leading-[1.1] mb-6">
-            se sua empresa quer crescer com <span style={{ color: tokens.green }}>previsibilidade</span>, fale com a escale.
+          <h2
+            data-reveal
+            className="text-4xl lg:text-6xl font-semibold tracking-[-0.03em] leading-[1.02] mb-6"
+          >
+            Se sua empresa quer crescer com <span style={{ color: t.blue }}>previsibilidade</span>, fale com a Escale.
           </h2>
 
-          <p data-reveal className="text-lg mb-12" style={{ color: tokens.textMuted }}>
+          <p data-reveal className="text-lg mb-12" style={{ color: t.inkMuted }}>
             Vamos mostrar onde estão os gargalos e como estruturar uma operação que escala.
           </p>
 
@@ -828,11 +1130,11 @@ export default function LP4() {
             href="https://wa.me/5500000000000"
             target="_blank"
             rel="noopener noreferrer"
-            className="group inline-flex items-center gap-3 px-8 py-5 rounded-xl font-medium text-base transition-all relative overflow-hidden hover:scale-[1.03]"
+            className="group inline-flex items-center gap-3 px-8 py-5 rounded-full font-medium text-base transition-all hover:scale-[1.03]"
             style={{
-              background: tokens.blue,
-              color: "white",
-              boxShadow: `0 0 0 0 ${tokens.blue}80, 0 12px 40px rgba(59,130,246,0.45)`,
+              background: t.blue,
+              color: t.white,
+              boxShadow: `0 12px 40px ${t.blue}40`,
               animation: "lp4-pulse 2.4s ease-in-out infinite",
             }}
           >
@@ -840,22 +1142,25 @@ export default function LP4() {
             <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1.5" />
           </a>
 
-          <p data-reveal className="mt-10 text-xs lowercase tracking-wider" style={{ color: tokens.textMuted }}>
+          <p data-reveal className="mt-12 text-[10px] uppercase tracking-[0.25em]" style={{ color: t.inkMuted }}>
             17 anos · estratégia · performance · tecnologia
           </p>
         </div>
       </section>
 
-      {/* footer */}
-      <footer className="relative z-10 max-w-[1200px] mx-auto px-6 lg:px-8 py-10 text-center text-xs lowercase tracking-wider" style={{ color: tokens.textMuted, borderTop: "1px solid rgba(255,255,255,0.04)" }}>
+      {/* ============== FOOTER ============== */}
+      <footer
+        className="relative z-[100] py-10 text-center text-xs lowercase tracking-wider"
+        style={{ background: t.white, color: t.inkMuted, borderTop: `1px solid ${t.border}` }}
+      >
         © escale · sistema operacional de crescimento previsível
       </footer>
 
       {/* keyframes */}
       <style>{`
         @keyframes lp4-pulse {
-          0%, 100% { box-shadow: 0 0 0 0 ${tokens.blue}50, 0 8px 30px rgba(59,130,246,0.35); }
-          50% { box-shadow: 0 0 0 12px ${tokens.blue}00, 0 8px 30px rgba(59,130,246,0.45); }
+          0%, 100% { box-shadow: 0 0 0 0 ${t.blue}50, 0 12px 40px ${t.blue}40; }
+          50% { box-shadow: 0 0 0 14px ${t.blue}00, 0 12px 40px ${t.blue}55; }
         }
       `}</style>
     </div>
