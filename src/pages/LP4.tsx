@@ -578,8 +578,7 @@ export default function LP4() {
 
           <div
             data-stagger
-            className="grid md:grid-cols-2 lg:grid-cols-4 gap-px"
-            style={{ background: t.border }}
+            className="grid md:grid-cols-2 lg:grid-cols-4 gap-5"
           >
             {[
               { icon: Settings, label: "Processos comerciais definidos" },
@@ -594,11 +593,11 @@ export default function LP4() {
               <div
                 key={label}
                 data-stagger-item
-                className="group p-7 transition-all hover:bg-[#FAFBFE]"
-                style={{ background: t.white }}
+                className="group p-7 rounded-2xl transition-all hover:-translate-y-1"
+                style={{ background: t.white, border: `1px solid ${t.border}` }}
               >
                 <div
-                  className="w-10 h-10 rounded-lg flex items-center justify-center mb-5 transition-transform group-hover:scale-110"
+                  className="w-11 h-11 rounded-xl flex items-center justify-center mb-5 transition-transform group-hover:scale-110"
                   style={{ background: `${t.blue}10`, color: t.blue }}
                 >
                   <Icon className="w-5 h-5" />
