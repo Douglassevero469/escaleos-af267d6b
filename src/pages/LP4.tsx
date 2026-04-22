@@ -463,17 +463,20 @@ export default function LP4() {
                   Preencha seus dados e nossa equipe entra em contato.
                 </p>
 
-                {/* Espaço reservado para embed do formulário */}
-                <div
-                  className="rounded-xl flex items-center justify-center text-center text-xs lowercase tracking-wider"
+                {/* Embed do formulário */}
+                <iframe
+                  src="https://escaleoscrm.lovable.app/f/rkxlmpyn?embed=1"
+                  title="Formulário de Diagnóstico"
+                  loading="lazy"
+                  className="w-full rounded-xl block"
                   style={{
+                    border: 0,
                     background: t.white,
-                    color: "rgba(91,100,120,0.45)",
-                    minHeight: 320,
+                    minHeight: 720,
+                    height: 720,
                   }}
-                >
-                  embed do formulário
-                </div>
+                  data-form-embed="rkxlmpyn"
+                />
               </div>
             </div>
           </div>
