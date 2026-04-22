@@ -282,9 +282,11 @@ export default function LP4() {
                 Seu comercial
               </span>
               <span className="block">
-                cresce por <span style={{ color: t.white }}>estratégia</span>
+                cresce por estratégia
               </span>
-              <span className="block">ou por achismo?</span>
+              <span className="block">
+                ou por <span style={{ color: t.white }}>achismo?</span>
+              </span>
             </h1>
 
             <p className="text-lg lg:text-xl leading-relaxed mb-5 max-w-2xl" style={{ color: t.textOnDarkMuted }}>
@@ -295,47 +297,46 @@ export default function LP4() {
               Você passa a tomar decisões com base em números reais — não feeling.
             </p>
 
-            {/* 17 anos — selo horizontal premium */}
-            <div
-              className="inline-flex items-stretch gap-0 mb-12 rounded-2xl overflow-hidden backdrop-blur-md"
-              style={{
-                background: "linear-gradient(135deg, rgba(43,91,255,0.18), rgba(43,91,255,0.06))",
-                border: "1px solid rgba(91,130,255,0.35)",
-                boxShadow: "0 10px 40px rgba(43,91,255,0.15)",
-              }}
-            >
+            {/* 17 anos — selo vertical premium */}
+            <div className="flex flex-col items-start gap-4 mb-12">
               <div
-                className="flex items-baseline gap-1.5 px-6 py-4 shrink-0"
-                style={{ borderRight: "1px solid rgba(91,130,255,0.25)" }}
+                className="inline-flex flex-col items-center gap-1 px-8 py-6 rounded-2xl backdrop-blur-md"
+                style={{
+                  background: "linear-gradient(135deg, rgba(43,91,255,0.22), rgba(43,91,255,0.08))",
+                  border: "1px solid rgba(91,130,255,0.4)",
+                  boxShadow: "0 12px 50px rgba(43,91,255,0.18), inset 0 1px 0 rgba(255,255,255,0.1)",
+                }}
               >
+                <div className="flex items-baseline gap-2">
+                  <span
+                    className="text-5xl lg:text-6xl font-bold tracking-tight leading-none"
+                    style={{ color: t.white }}
+                  >
+                    17
+                  </span>
+                  <span
+                    className="text-sm uppercase tracking-[0.15em] font-medium"
+                    style={{ color: t.blueLight }}
+                  >
+                    anos
+                  </span>
+                </div>
                 <span
-                  className="text-4xl lg:text-5xl font-semibold tracking-tight leading-none"
-                  style={{ color: t.white }}
-                >
-                  17
-                </span>
-                <span
-                  className="text-xs uppercase tracking-[0.18em]"
-                  style={{ color: t.blueLight }}
-                >
-                  anos
-                </span>
-              </div>
-              <div className="flex flex-col justify-center px-6 py-4">
-                <span
-                  className="text-[10px] uppercase tracking-[0.22em] mb-1"
-                  style={{ color: t.blueLight }}
+                  className="text-[11px] uppercase tracking-[0.2em] mt-1"
+                  style={{ color: "rgba(160,171,204,0.8)" }}
                 >
                   de mercado
                 </span>
-                <p className="text-sm lg:text-[15px] leading-snug" style={{ color: t.white }}>
-                  <span style={{ fontWeight: 500 }}>Comunicação</span>
-                  <span style={{ color: "rgba(232,236,247,0.5)" }}> · </span>
-                  <span style={{ fontWeight: 500 }}>Performance</span>
-                  <span style={{ color: "rgba(232,236,247,0.5)" }}> · </span>
-                  <span style={{ fontWeight: 500 }}>Tecnologia</span>
-                </p>
               </div>
+
+              {/* Texto abaixo do box */}
+              <p className="text-base lg:text-lg" style={{ color: t.textOnDarkMuted }}>
+                <span style={{ color: t.white, fontWeight: 500 }}>Comunicação</span>
+                <span style={{ color: "rgba(232,236,247,0.4)" }}> · </span>
+                <span style={{ color: t.white, fontWeight: 500 }}>Performance</span>
+                <span style={{ color: "rgba(232,236,247,0.4)" }}> · </span>
+                <span style={{ color: t.white, fontWeight: 500 }}>Tecnologia</span>
+              </p>
             </div>
 
             <div className="flex flex-wrap items-center gap-6">
@@ -598,22 +599,21 @@ export default function LP4() {
               "Crescimento inconsistente",
               "Decisões emocionais",
               "Equipe desalinhada",
-              "Baixa margem",
-              "Escala travada",
-            ].map((r) => (
+              "Metas sem base",
+              "Burnout da liderança",
+              "Dinheiro deixado na mesa",
+            ].map((item) => (
               <div
-                key={r}
+                key={item}
                 data-stagger-item
-                className="inline-flex items-center gap-2 px-5 py-3 rounded-full"
+                className="flex items-center gap-2 text-base py-3 px-5 rounded-full"
                 style={{
                   background: "rgba(255,255,255,0.04)",
-                  border: "1px solid rgba(255,255,255,0.10)",
+                  border: "1px solid rgba(255,255,255,0.08)",
                 }}
               >
-                <X className="w-4 h-4 shrink-0" style={{ color: t.blueLight }} />
-                <span className="text-base" style={{ color: t.textOnDark }}>
-                  {r}
-                </span>
+                <X className="w-4 h-4 shrink-0" style={{ color: "#FF5B5B" }} />
+                <span style={{ color: t.textOnDark }}>{item}</span>
               </div>
             ))}
           </div>
@@ -947,53 +947,49 @@ export default function LP4() {
                 },
                 {
                   step: "03",
-                  title: "Aquisição e Crescimento",
-                  desc: "Planejamento de geração de demanda.",
+                  title: "Ativação de Aquisição",
+                  desc: "Ligamos o motor de crescimento.",
                   items: [
-                    "Estratégia de mídia",
-                    "Meta Ads / Google Ads",
-                    "KPIs",
-                    "Plano trimestral",
-                    "Criativos",
-                    "Escala previsível",
+                    "Campanhas de tráfego",
+                    "Anúncios e criativos",
+                    "Copy estratégica",
+                    "Landing pages",
+                    "Formulários inteligentes",
+                    "Captação de leads",
+                    "Nutrição automatizada",
                   ],
                 },
                 {
                   step: "04",
-                  title: "Operação Inteligente",
-                  desc: "Implementação da estrutura de gestão.",
+                  title: "Gestão e Escala",
+                  desc: "Operamos e otimizamos continuamente.",
                   items: [
-                    "Central comercial integrada",
-                    "Dashboard executivo",
-                    "Automação de processos",
-                    "Gestão de leads",
-                    "Landing page de captação",
-                    "IA aplicada ao negócio",
-                    "Relatórios gerenciais",
+                    "Acompanhamento de métricas",
+                    "Reuniões de alinhamento",
+                    "Ajustes de rota",
+                    "Testes e otimizações",
+                    "Relatórios de performance",
+                    "Planejamento mensal",
+                    "Escala de investimento",
                   ],
                 },
               ].map(({ step, title, desc, items }) => (
                 <div key={step} data-stagger-item className="relative">
                   <div
-                    className="relative z-10 w-16 h-16 rounded-2xl flex items-center justify-center mb-5"
-                    style={{
-                      background: t.navyDeep,
-                      border: "1px solid rgba(255,255,255,0.15)",
-                    }}
+                    className="w-16 h-16 rounded-2xl flex items-center justify-center mb-6 relative z-10"
+                    style={{ background: t.blue, color: t.white }}
                   >
-                    <span className="text-lg font-semibold" style={{ color: t.blueLight }}>
-                      {step}
-                    </span>
+                    <span className="text-xl font-bold">{step}</span>
                   </div>
                   <h3 className="text-xl font-semibold tracking-tight mb-2">{title}</h3>
-                  <p className="text-base mb-4" style={{ color: t.textOnDarkMuted }}>
+                  <p className="text-base mb-4" style={{ color: t.inkMuted }}>
                     {desc}
                   </p>
                   <ul className="space-y-1.5">
                     {items.map((it) => (
-                      <li key={it} className="flex items-start gap-2 text-[14px]">
-                        <Check className="w-3.5 h-3.5 mt-1 shrink-0" style={{ color: t.blueLight }} />
-                        <span style={{ color: t.textOnDarkMuted }}>{it}</span>
+                      <li key={it} className="flex items-start gap-2 text-sm" style={{ color: t.inkMuted }}>
+                        <Check className="w-3.5 h-3.5 mt-0.5 shrink-0" style={{ color: t.blue }} />
+                        {it}
                       </li>
                     ))}
                   </ul>
@@ -1001,141 +997,70 @@ export default function LP4() {
               ))}
             </div>
           </div>
-
-          <p className="mt-16 text-base" style={{ color: t.textOnDarkMuted }} data-reveal>
-            Baseado no método Escale.
-          </p>
-
-          {/* Cronograma */}
-          <div className="mt-24">
-            <h3 data-reveal className="text-3xl lg:text-5xl font-semibold tracking-[-0.025em] mb-10">
-              Tudo estruturado em <span style={{ color: t.blueLight }}>30 dias</span>
-            </h3>
-
-            <div data-stagger className="grid md:grid-cols-2 lg:grid-cols-4 gap-px" style={{ background: "rgba(255,255,255,0.08)" }}>
-              {[
-                { week: "Semana 1", title: "Diagnóstico Estratégico" },
-                { week: "Semana 2", title: "Estruturação Comercial" },
-                { week: "Semana 3", title: "Plano de Mídia" },
-                { week: "Semana 4", title: "CRM + Landing Page + Escala" },
-              ].map(({ week, title }, i) => (
-                <div
-                  key={week}
-                  data-stagger-item
-                  className="relative p-7"
-                  style={{ background: t.navy }}
-                >
-                  <div
-                    className="text-[11px] uppercase tracking-[0.25em] mb-3"
-                    style={{ color: t.blueLight }}
-                  >
-                    {week}
-                  </div>
-                  <h4 className="text-lg font-semibold tracking-tight mb-5">{title}</h4>
-                  <div className="h-1 rounded-full" style={{ background: "rgba(255,255,255,0.08)" }}>
-                    <div
-                      className="h-full rounded-full"
-                      style={{ width: `${(i + 1) * 25}%`, background: t.blueLight }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <p className="text-lg mt-8" style={{ color: t.textOnDark }} data-reveal>
-              Você sai com tudo pronto. <span style={{ color: t.blueLight }}>Não é teoria.</span>
-            </p>
-          </div>
         </div>
       </section>
 
-      {/* ============== COMPARATIVO ============== */}
+      {/* ============== VALORES / INVESTIMENTO ============== */}
       <section
         id="valores"
         className="stack-section relative z-[70] -mt-10 rounded-t-[40px] lg:rounded-t-[56px]"
-        style={{ background: t.offWhite, color: t.ink }}
+        style={{ background: t.white, color: t.ink }}
       >
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10 py-24 lg:py-32">
-          <div className="max-w-4xl mb-16">
-            <h2
-              data-reveal
-              className="text-4xl lg:text-6xl font-semibold tracking-[-0.03em] leading-[1.05]"
-            >
-              Quanto custaria montar tudo isso <span style={{ color: t.blue }}>separado?</span>
-            </h2>
-          </div>
-
-          <div
-            data-reveal
-            className="rounded-2xl overflow-hidden"
-            style={{ background: t.white, border: `1px solid ${t.border}` }}
-          >
-            <div
-              className="grid grid-cols-3 px-6 py-4 text-[12px] uppercase tracking-[0.18em]"
-              style={{ color: t.inkMuted, borderBottom: `1px solid ${t.border}` }}
-            >
-              <span className="col-span-2">estrutura / serviço</span>
-              <span className="text-right">valor médio</span>
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-start">
+            <div>
+              <h2
+                data-reveal
+                className="text-4xl lg:text-6xl font-semibold tracking-[-0.03em] leading-[1.05] mb-6"
+              >
+                Para construir operações sólidas
+              </h2>
+              <p data-reveal className="text-lg lg:text-xl" style={{ color: t.inkMuted }}>
+                Você precisaria contratar especialistas separados — ou ter uma equipe interna robusta.
+              </p>
             </div>
 
-            <div data-stagger>
+            <div data-reveal className="space-y-4">
               {[
-                { label: "Planejamento Estratégico", val: 5500 },
-                { label: "Consultoria Comercial", val: 4500 },
-                { label: "Plano de Aquisição", val: 3500 },
-                { label: "Landing Page Estratégica", val: 3500 },
-                { label: "Plataforma + Setup", val: 5400 },
-                { label: "Implementação Operacional", val: 3800 },
-                { label: "Infraestrutura Técnica", val: 2400 },
-                { label: "Estrutura de Funil", val: 3100 },
-                { label: "Copywriting Comercial", val: 3500 },
-              ].map((row) => (
+                { label: "Estratégia Comercial", value: 8000 },
+                { label: "Tráfego e Performance", value: 5000 },
+                { label: "Tecnologia e Automação", value: 6500 },
+                { label: "Gestão de Dados", value: 4500 },
+                { label: "Copywriting Comercial", value: 3500 },
+              ].map(({ label, value }) => (
                 <div
-                  key={row.label}
-                  data-stagger-item
-                  className="grid grid-cols-3 px-6 py-4 transition-colors hover:bg-[#FAFBFE]"
-                  style={{ borderBottom: `1px solid ${t.border}` }}
+                  key={label}
+                  className="flex items-center justify-between py-3 px-4 rounded-xl"
+                  style={{ background: t.offWhite }}
                 >
-                  <span className="col-span-2 text-base">{row.label}</span>
-                  <span className="text-right text-base tabular-nums" style={{ color: t.inkMuted }}>
-                    <CountUp end={row.val} prefix="R$ " />
+                  <span className="text-base" style={{ color: t.inkMuted }}>
+                    {label}
+                  </span>
+                  <span className="text-base font-medium" style={{ color: t.ink }}>
+                    R$ {value.toLocaleString("pt-BR")}
                   </span>
                 </div>
               ))}
 
               <div
-                className="px-6 py-5 grid grid-cols-3"
-                style={{ borderBottom: `1px solid ${t.border}` }}
+                className="flex items-center justify-between py-4 px-5 rounded-xl mt-6"
+                style={{ background: t.navy, color: t.white }}
               >
-                <span className="col-span-2 text-base" style={{ color: t.inkMuted }}>
-                  Total no mercado
-                </span>
-                <span
-                  className="text-right text-lg font-semibold tabular-nums line-through"
-                  style={{ color: t.inkMuted }}
-                >
-                  <CountUp end={35200} prefix="R$ " />
-                </span>
+                <span className="text-base font-medium">Total no mercado</span>
+                <span className="text-xl font-bold">R$ 35.200</span>
               </div>
 
               <div
-                className="px-6 py-6 grid grid-cols-3"
-                style={{ background: t.navy, color: t.white }}
+                className="flex items-center justify-between py-4 px-5 rounded-xl"
+                style={{ background: t.blue, color: t.white }}
               >
-                <span className="col-span-2 text-base font-medium">Com a Escale</span>
-                <span className="text-right text-2xl font-semibold tabular-nums">
-                  <CountUp end={8497} prefix="R$ " />
-                </span>
+                <span className="text-base font-medium">Com a Escale</span>
+                <span className="text-xl font-bold">R$ 8.497</span>
               </div>
 
-              <div className="px-6 py-5 grid grid-cols-3">
-                <span className="col-span-2 text-base" style={{ color: t.inkMuted }}>
-                  Economia superior a
-                </span>
-                <span className="text-right text-xl font-semibold tabular-nums" style={{ color: t.blue }}>
-                  <CountUp end={26700} prefix="R$ " />
-                </span>
-              </div>
+              <p className="text-center text-base pt-2" style={{ color: t.inkMuted }}>
+                Economia superior a: <span className="font-semibold" style={{ color: t.blue }}>R$ 26.700</span>
+              </p>
             </div>
           </div>
         </div>
@@ -1145,24 +1070,29 @@ export default function LP4() {
       <section
         className="stack-section relative z-[80] -mt-10 rounded-t-[40px] lg:rounded-t-[56px] overflow-hidden"
         style={{
-          background: t.navyDeep,
+          background: `radial-gradient(ellipse at 50% 30%, ${t.navyMid} 0%, ${t.navy} 50%, ${t.navyDeep} 100%)`,
           color: t.textOnDark,
         }}
       >
-        <div className="max-w-5xl mx-auto px-6 lg:px-10 py-32 lg:py-44 text-center">
+        <div className="max-w-4xl mx-auto px-6 lg:px-10 py-24 lg:py-36 text-center">
           <h2
             data-reveal
-            className="text-4xl lg:text-7xl font-semibold tracking-[-0.035em] leading-[1.05] mb-12"
+            className="text-4xl lg:text-6xl font-semibold tracking-[-0.03em] leading-[1.05] mb-8"
           >
             Você não contrata ferramentas.
-            <br />
-            Contrata <span style={{ color: t.blueLight }}>clareza</span>,{" "}
-            <span style={{ color: t.blueLight }}>controle</span> e{" "}
-            <span style={{ color: t.blueLight }}>crescimento</span>.
           </h2>
-          <div data-reveal className="text-xl lg:text-2xl space-y-3" style={{ color: t.textOnDarkMuted }}>
-            <p>Tecnologia sem estratégia vira custo.</p>
-            <p style={{ color: t.white }}>Estrutura bem construída vira lucro.</p>
+
+          <p data-reveal className="text-2xl lg:text-3xl font-medium mb-6" style={{ color: t.blueLight }}>
+            Contrata clareza, controle e crescimento.
+          </p>
+
+          <div data-reveal className="max-w-2xl mx-auto space-y-4">
+            <p className="text-lg lg:text-xl" style={{ color: t.textOnDarkMuted }}>
+              Tecnologia sem estratégia vira custo.
+            </p>
+            <p className="text-lg lg:text-xl font-medium" style={{ color: t.white }}>
+              Estrutura bem construída vira lucro.
+            </p>
           </div>
         </div>
       </section>
@@ -1173,25 +1103,19 @@ export default function LP4() {
         className="stack-section relative z-[90] -mt-10 rounded-t-[40px] lg:rounded-t-[56px]"
         style={{ background: t.white, color: t.ink }}
       >
-        <div className="max-w-3xl mx-auto px-6 lg:px-10 py-32 lg:py-44 text-center relative">
-          <div
-            className="absolute inset-0 -z-10 pointer-events-none"
-            style={{
-              background: `radial-gradient(circle at 50% 50%, ${t.blue}15, transparent 60%)`,
-              filter: "blur(60px)",
-            }}
-          />
-
-          <Rocket className="w-10 h-10 mx-auto mb-6" style={{ color: t.blue }} data-reveal />
-
+        <div className="max-w-4xl mx-auto px-6 lg:px-10 py-24 lg:py-36 text-center">
           <h2
             data-reveal
-            className="text-4xl lg:text-6xl font-semibold tracking-[-0.03em] leading-[1.05] mb-8"
+            className="text-4xl lg:text-6xl font-semibold tracking-[-0.03em] leading-[1.05] mb-6"
           >
-            Se sua empresa quer crescer com <span style={{ color: t.blue }}>previsibilidade</span>, fale com a Escale.
+            Se sua empresa quer crescer com previsibilidade, fale com a Escale.
           </h2>
 
-          <p data-reveal className="text-lg lg:text-xl mb-12" style={{ color: t.inkMuted }}>
+          <p
+            data-reveal
+            className="text-lg lg:text-xl mb-12 max-w-2xl mx-auto"
+            style={{ color: t.inkMuted }}
+          >
             Vamos mostrar onde estão os gargalos e como estruturar uma operação que escala.
           </p>
 
