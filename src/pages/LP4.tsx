@@ -438,9 +438,9 @@ export default function LP4() {
         style={{ background: t.white, color: t.ink }}
       >
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10 py-24 lg:py-32">
-          <div className="grid lg:grid-cols-12 gap-12 items-start">
+          <div className="grid lg:grid-cols-12 gap-10 lg:gap-14 items-start">
             {/* Esquerda: título + texto */}
-            <div className="lg:col-span-7">
+            <div className="lg:col-span-6">
               <h2
                 data-reveal
                 className="text-4xl lg:text-6xl font-semibold tracking-[-0.03em] leading-[1.05] mb-8"
