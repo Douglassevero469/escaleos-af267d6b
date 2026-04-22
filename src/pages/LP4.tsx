@@ -104,6 +104,22 @@ export default function LP4() {
     if (!canonical.parentNode) document.head.appendChild(canonical);
   }, []);
 
+  // Auto-resize do iframe do formulário embedado
+  useEffect(() => {
+    const handler = (e: MessageEvent) => {
+      const data = e.data as { type?: string; height?: number } | null;
+      if (!data || data.type !== "form:resize") return;
+      const iframe = document.querySelector<HTMLIFrameElement>(
+        'iframe[data-form-embed="rkxlmpyn"]',
+      );
+      if (iframe && typeof data.height === "number") {
+        iframe.style.height = `${data.height}px`;
+      }
+    };
+    window.addEventListener("message", handler);
+    return () => window.removeEventListener("message", handler);
+  }, []);
+
   // Lenis smooth scroll synced with gsap ticker (avoids ScrollTrigger lag)
   useEffect(() => {
     const lenis = new Lenis({ duration: 1.1, smoothWheel: true });
@@ -463,17 +479,20 @@ export default function LP4() {
                   Preencha seus dados e nossa equipe entra em contato.
                 </p>
 
-                {/* Espaço reservado para embed do formulário */}
-                <div
-                  className="rounded-xl flex items-center justify-center text-center text-xs lowercase tracking-wider"
+                {/* Embed do formulário */}
+                <iframe
+                  src="https://escaleoscrm.lovable.app/f/rkxlmpyn?embed=1"
+                  title="Formulário de Diagnóstico"
+                  loading="lazy"
+                  className="w-full rounded-xl block"
                   style={{
+                    border: 0,
                     background: t.white,
-                    color: "rgba(91,100,120,0.45)",
-                    minHeight: 320,
+                    minHeight: 720,
+                    height: 720,
                   }}
-                >
-                  embed do formulário
-                </div>
+                  data-form-embed="rkxlmpyn"
+                />
               </div>
             </div>
           </div>
