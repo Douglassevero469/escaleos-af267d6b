@@ -25,21 +25,18 @@ gsap.registerPlugin(ScrollTrigger);
 
 /* ---------- Design tokens (LP4 — Deep Blue / White) ---------- */
 const t = {
-  // Deep blue palette
   navy: "#0A1A3F",
   navyDeep: "#050E26",
   navyMid: "#13265C",
   blue: "#2B5BFF",
   blueLight: "#5B82FF",
-  // Light palette
   white: "#FFFFFF",
   offWhite: "#F5F6FA",
   ink: "#0A1428",
   inkMuted: "#5B6478",
   border: "#E6E8EF",
-  // Dark text on dark
   textOnDark: "#E8ECF7",
-  textOnDarkMuted: "#8E9BBF",
+  textOnDarkMuted: "#A0ABCC",
 };
 
 /* ---------- Count up ---------- */
@@ -90,7 +87,7 @@ export default function LP4() {
 
   // SEO
   useEffect(() => {
-    document.title = "Escale — Sistema operacional de crescimento previsível";
+    document.title = "Escale — Crescimento previsível para o seu comercial";
     const meta =
       document.querySelector('meta[name="description"]') ||
       Object.assign(document.createElement("meta"), { name: "description" });
@@ -163,7 +160,7 @@ export default function LP4() {
         delay: 0.4,
       });
 
-      // Stack-on-scroll: sections with .stack-section overlap previous
+      // Stack-on-scroll
       gsap.utils.toArray<HTMLElement>(".stack-section").forEach((section) => {
         gsap.from(section, {
           y: 80,
@@ -192,7 +189,7 @@ export default function LP4() {
   return (
     <div
       ref={rootRef}
-      className="min-h-screen relative"
+      className="min-h-screen relative text-[17px] lg:text-[18px] leading-relaxed"
       style={{
         background: t.navyDeep,
         color: t.textOnDark,
@@ -209,28 +206,27 @@ export default function LP4() {
           escale
           <sup className="text-[9px] font-normal opacity-60">®</sup>
         </div>
-        <nav className="hidden md:flex items-center gap-8 text-[13px]" style={{ color: t.textOnDarkMuted }}>
+        <nav className="hidden md:flex items-center gap-8 text-[14px]" style={{ color: t.textOnDarkMuted }}>
           <a href="#solucao" className="hover:text-white transition-colors">solução</a>
           <a href="#metodologia" className="hover:text-white transition-colors">metodologia</a>
           <a href="#valores" className="hover:text-white transition-colors">valores</a>
         </nav>
         <a
           href="#cta-final"
-          className="text-[12px] lowercase tracking-wide px-4 py-2 rounded-full transition-all hover:scale-[1.02]"
+          className="text-[13px] lowercase tracking-wide px-4 py-2 rounded-full transition-all hover:scale-[1.02]"
           style={{ background: t.white, color: t.ink }}
         >
           falar com especialista
         </a>
       </header>
 
-      {/* ============== HERO — Deep Navy ============== */}
+      {/* ============== HERO ============== */}
       <section
         className="relative overflow-hidden"
         style={{
           background: `radial-gradient(ellipse at 30% 20%, ${t.navyMid} 0%, ${t.navy} 40%, ${t.navyDeep} 100%)`,
         }}
       >
-        {/* subtle light beam */}
         <div
           className="pointer-events-none absolute -top-40 -left-40 w-[700px] h-[700px] rounded-full opacity-60"
           style={{ background: `radial-gradient(circle, ${t.blue}30, transparent 70%)`, filter: "blur(80px)" }}
@@ -238,37 +234,51 @@ export default function LP4() {
 
         <div className="relative max-w-[1280px] mx-auto px-6 lg:px-10 pt-12 pb-32 lg:pt-20 lg:pb-44 grid lg:grid-cols-12 gap-12 items-center">
           <div className="lg:col-span-7">
-            <div
-              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-10 text-[11px] tracking-wide lowercase"
-              style={{
-                background: "rgba(255,255,255,0.04)",
-                border: "1px solid rgba(255,255,255,0.08)",
-                color: t.textOnDarkMuted,
-              }}
-            >
-              <CircleDot className="w-3 h-3" /> sistema operacional de crescimento previsível
-            </div>
-
-            <h1 className="hero-headline text-[44px] lg:text-[76px] leading-[1.02] font-semibold tracking-[-0.035em] mb-10">
-              <span className="block" style={{ color: "rgba(232,236,247,0.4)" }}>
-                seu comercial cresce
+            <h1 className="hero-headline text-[44px] lg:text-[80px] leading-[1.02] font-semibold tracking-[-0.035em] mb-10">
+              <span className="block" style={{ color: "rgba(232,236,247,0.45)" }}>
+                Seu comercial cresce
               </span>
               <span className="block">por estratégia</span>
               <span className="block">ou por achismo?</span>
             </h1>
 
-            <p className="text-base lg:text-lg leading-relaxed mb-4 max-w-xl" style={{ color: t.textOnDarkMuted }}>
+            <p className="text-lg lg:text-xl leading-relaxed mb-5 max-w-2xl" style={{ color: t.textOnDarkMuted }}>
               Organizamos o setor comercial da sua empresa com processos, indicadores, inteligência operacional e
               tecnologia aplicada para gerar crescimento previsível.
             </p>
-            <p className="text-base mb-12 max-w-xl">
+            <p className="text-lg lg:text-xl mb-12 max-w-2xl" style={{ color: t.white }}>
               Você passa a tomar decisões com base em números reais — não feeling.
             </p>
+
+            {/* 17 anos — destaque */}
+            <div
+              className="inline-flex flex-wrap items-center gap-3 px-5 py-3 rounded-2xl mb-10"
+              style={{
+                background: "rgba(43,91,255,0.10)",
+                border: "1px solid rgba(91,130,255,0.30)",
+              }}
+            >
+              <span
+                className="text-2xl lg:text-3xl font-semibold tracking-tight"
+                style={{ color: t.white }}
+              >
+                17 anos
+              </span>
+              <span className="text-sm lg:text-base" style={{ color: t.textOnDarkMuted }}>
+                de mercado unindo
+              </span>
+              <span className="text-sm lg:text-base font-medium" style={{ color: t.blueLight }}>
+                comunicação · performance · tecnologia
+              </span>
+              <span className="text-sm lg:text-base" style={{ color: t.textOnDarkMuted }}>
+                para escalar empresas.
+              </span>
+            </div>
 
             <div className="flex flex-wrap items-center gap-6">
               <a
                 href="#cta-final"
-                className="group inline-flex items-center gap-3 px-7 py-4 rounded-full font-medium text-[14px] transition-all hover:scale-[1.02]"
+                className="group inline-flex items-center gap-3 px-8 py-5 rounded-full font-medium text-base transition-all hover:scale-[1.02]"
                 style={{
                   background: t.white,
                   color: t.ink,
@@ -278,13 +288,6 @@ export default function LP4() {
                 Quero Diagnóstico Estratégico
                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
               </a>
-
-              <div className="text-[13px]" style={{ color: t.textOnDarkMuted }}>
-                <span className="font-semibold" style={{ color: t.white }}>
-                  17 anos
-                </span>{" "}
-                · comunicação · performance · tecnologia
-              </div>
             </div>
           </div>
 
@@ -304,7 +307,7 @@ export default function LP4() {
                   <div className="w-2.5 h-2.5 rounded-full" style={{ background: "rgba(255,255,255,0.2)" }} />
                   <div className="w-2.5 h-2.5 rounded-full" style={{ background: t.blue }} />
                 </div>
-                <span className="text-[10px] lowercase tracking-wider" style={{ color: t.textOnDarkMuted }}>
+                <span className="text-[11px] lowercase tracking-wider" style={{ color: t.textOnDarkMuted }}>
                   escale · pipeline
                 </span>
               </div>
@@ -320,7 +323,7 @@ export default function LP4() {
                     className="rounded-lg p-3"
                     style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.05)" }}
                   >
-                    <div className="text-[10px] lowercase mb-1.5" style={{ color: t.textOnDarkMuted }}>
+                    <div className="text-[11px] lowercase mb-1.5" style={{ color: t.textOnDarkMuted }}>
                       {m.label}
                     </div>
                     <div className="text-base font-semibold tracking-tight" style={{ color: t.white }}>
@@ -333,7 +336,7 @@ export default function LP4() {
               <div className="space-y-3">
                 {["prospect", "qualificado", "proposta", "fechamento"].map((stage, i) => (
                   <div key={stage}>
-                    <div className="flex justify-between text-[11px] mb-1.5 lowercase" style={{ color: t.textOnDarkMuted }}>
+                    <div className="flex justify-between text-[12px] mb-1.5 lowercase" style={{ color: t.textOnDarkMuted }}>
                       <span>{stage}</span>
                       <span style={{ color: t.white }}>{pipelineProgress[i]}%</span>
                     </div>
@@ -351,7 +354,7 @@ export default function LP4() {
               </div>
 
               <div
-                className="mt-6 flex items-center gap-2 text-[11px] px-3 py-2 rounded-lg lowercase"
+                className="mt-6 flex items-center gap-2 text-[12px] px-3 py-2 rounded-lg lowercase"
                 style={{
                   background: "rgba(43,91,255,0.12)",
                   border: "1px solid rgba(43,91,255,0.25)",
@@ -363,121 +366,134 @@ export default function LP4() {
             </div>
           </div>
         </div>
-
-        {/* Bottom soft chip — like Tirtus "Sustainable Future" */}
-        <div className="relative max-w-[1280px] mx-auto px-6 lg:px-10 pb-12">
-          <span
-            className="inline-flex items-center px-4 py-2 rounded-full text-[12px] lowercase"
-            style={{ background: "rgba(255,255,255,0.06)", color: t.textOnDarkMuted, border: "1px solid rgba(255,255,255,0.08)" }}
-          >
-            crescimento previsível
-          </span>
-        </div>
       </section>
 
-      {/* ============== AUTORIDADE — White, stacked on top of Hero ============== */}
+      {/* ============== AUTORIDADE — title+text à esquerda, slot de form à direita ============== */}
       <section
         id="solucao"
         className="stack-section relative z-10 -mt-10 rounded-t-[40px] lg:rounded-t-[56px]"
         style={{ background: t.white, color: t.ink }}
       >
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10 py-24 lg:py-32">
-          <div className="grid lg:grid-cols-12 gap-10 mb-14">
-            <div className="lg:col-span-5">
+          <div className="grid lg:grid-cols-12 gap-12 items-start">
+            {/* Esquerda: título + texto */}
+            <div className="lg:col-span-7">
               <h2
                 data-reveal
-                className="text-3xl lg:text-5xl font-semibold tracking-[-0.025em] leading-[1.05]"
+                className="text-4xl lg:text-6xl font-semibold tracking-[-0.03em] leading-[1.05] mb-8"
               >
-                Para construir<br />operações sólidas
+                Experiência prática de quem já construiu resultado
               </h2>
-            </div>
-            <div className="lg:col-span-6 lg:col-start-7" data-reveal>
-              <div className="text-[10px] uppercase tracking-[0.25em] mb-3" style={{ color: t.inkMuted }}>
-                experiência prática
-              </div>
-              <p className="text-base lg:text-lg leading-relaxed" style={{ color: t.inkMuted }}>
-                <span style={{ color: t.ink, fontWeight: 500 }}>
-                  Há 17 anos ajudamos empresas de diferentes segmentos a vender mais
-                </span>{" "}
-                através de estrutura, gestão e performance. Atuamos na interseção entre estratégia, growth, dados e
-                tecnologia.
+
+              <p data-reveal className="text-lg lg:text-xl leading-relaxed mb-10" style={{ color: t.inkMuted }}>
+                Há <span style={{ color: t.ink, fontWeight: 600 }}>17 anos</span> ajudamos empresas de diferentes
+                segmentos a vender mais através de estrutura, gestão e performance.
               </p>
 
-              <a
-                href="#cta-final"
-                className="inline-flex items-center gap-2 mt-8 px-5 py-2.5 rounded-full text-sm transition-all hover:scale-[1.02]"
-                style={{ background: t.blue, color: t.white }}
-              >
-                Saiba mais
-              </a>
-            </div>
-          </div>
+              <p data-reveal className="text-lg lg:text-xl mb-6" style={{ color: t.ink, fontWeight: 500 }}>
+                Atuamos na interseção entre:
+              </p>
 
-          {/* Pillars grid */}
-          <div data-stagger className="grid sm:grid-cols-2 lg:grid-cols-3 gap-px" style={{ background: t.border }}>
-            {[
-              { icon: Target, label: "Estratégia Comercial" },
-              { icon: TrendingUp, label: "Growth e Aquisição" },
-              { icon: BarChart3, label: "Gestão orientada por dados" },
-              { icon: Zap, label: "Tecnologia aplicada ao negócio" },
-              { icon: Settings, label: "Processos escaláveis" },
-              { icon: Brain, label: "Inteligência operacional" },
-            ].map(({ icon: Icon, label }) => (
-              <div
-                key={label}
-                data-stagger-item
-                className="group p-8 transition-all"
-                style={{ background: t.white }}
-              >
-                <Icon className="w-5 h-5 mb-6" style={{ color: t.blue }} />
-                <p className="text-base font-medium" style={{ color: t.ink }}>
-                  {label}
-                </p>
+              <div data-stagger className="grid sm:grid-cols-2 gap-3">
+                {[
+                  "Estratégia Comercial",
+                  "Growth e Aquisição",
+                  "Gestão orientada por dados",
+                  "Tecnologia aplicada ao negócio",
+                  "Processos escaláveis",
+                  "Inteligência operacional",
+                ].map((label) => (
+                  <div
+                    key={label}
+                    data-stagger-item
+                    className="flex items-center gap-3 py-3"
+                  >
+                    <div
+                      className="w-6 h-6 rounded-full flex items-center justify-center shrink-0"
+                      style={{ background: `${t.blue}15` }}
+                    >
+                      <Check className="w-3.5 h-3.5" style={{ color: t.blue }} />
+                    </div>
+                    <span className="text-base lg:text-lg" style={{ color: t.ink }}>
+                      {label}
+                    </span>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            </div>
 
-          {/* Bottom small label like reference */}
-          <div className="flex justify-between items-end mt-10 pt-10 border-t" style={{ borderColor: t.border }}>
-            <span className="text-[10px] uppercase tracking-[0.25em]" style={{ color: t.inkMuted }}>
-              filosofia da operação
-            </span>
-            <span className="text-[10px] uppercase tracking-[0.25em]" style={{ color: t.inkMuted }}>
-              fazendo a diferença
-            </span>
+            {/* Direita: slot de formulário (placeholder funcional para embed) */}
+            <div className="lg:col-span-5 lg:sticky lg:top-10" data-reveal>
+              <div
+                id="form-embed-slot"
+                className="rounded-2xl p-8 lg:p-10"
+                style={{
+                  background: t.offWhite,
+                  border: `1px solid ${t.border}`,
+                }}
+              >
+                <div className="text-[11px] uppercase tracking-[0.25em] mb-3" style={{ color: t.blue }}>
+                  formulário
+                </div>
+                <h3 className="text-2xl lg:text-3xl font-semibold tracking-tight mb-3" style={{ color: t.ink }}>
+                  Solicite seu Diagnóstico
+                </h3>
+                <p className="text-base mb-6" style={{ color: t.inkMuted }}>
+                  Preencha seus dados e nossa equipe entra em contato.
+                </p>
+
+                {/* Espaço reservado para embed do formulário */}
+                <div
+                  className="rounded-xl flex items-center justify-center text-center text-sm px-6 py-12"
+                  style={{
+                    background: t.white,
+                    border: `1px dashed ${t.border}`,
+                    color: t.inkMuted,
+                    minHeight: 320,
+                  }}
+                >
+                  Espaço reservado para embedar o formulário aqui.
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ============== DOR — Deep Navy stacked ============== */}
+      {/* ============== DOR — centralizada ============== */}
       <section
         className="stack-section relative z-20 -mt-10 rounded-t-[40px] lg:rounded-t-[56px] overflow-hidden"
         style={{
-          background: `radial-gradient(ellipse at 70% 30%, ${t.navyMid} 0%, ${t.navy} 50%, ${t.navyDeep} 100%)`,
+          background: `radial-gradient(ellipse at 50% 20%, ${t.navyMid} 0%, ${t.navy} 50%, ${t.navyDeep} 100%)`,
           color: t.textOnDark,
         }}
       >
-        <div className="max-w-[1280px] mx-auto px-6 lg:px-10 py-24 lg:py-36">
-          <div className="grid lg:grid-cols-12 gap-10 mb-16">
-            <div className="lg:col-span-7" data-reveal>
-              <div className="text-[10px] uppercase tracking-[0.25em] mb-4" style={{ color: t.blueLight }}>
-                o problema
-              </div>
-              <h2 className="text-4xl lg:text-6xl font-semibold tracking-[-0.03em] leading-[1.02]">
-                <span style={{ color: t.textOnDarkMuted }}>O problema não é vender.</span>
-                <br />
-                É crescer sem controle.
-              </h2>
-            </div>
-            <div className="lg:col-span-4 lg:col-start-9 flex lg:items-end" data-reveal>
-              <p className="text-base" style={{ color: t.textOnDarkMuted }}>
-                Muitas empresas até faturam, mas operam no escuro. Elas não sabem o que realmente está acontecendo na
-                própria operação.
-              </p>
-            </div>
-          </div>
+        <div className="max-w-4xl mx-auto px-6 lg:px-10 py-24 lg:py-36 text-center">
+          <h2
+            data-reveal
+            className="text-4xl lg:text-6xl font-semibold tracking-[-0.03em] leading-[1.05] mb-6"
+          >
+            <span style={{ color: t.textOnDarkMuted }}>O problema não é vender.</span>
+            <br />É crescer sem controle.
+          </h2>
 
-          <div data-stagger className="grid md:grid-cols-2 gap-px max-w-4xl mb-14" style={{ background: "rgba(255,255,255,0.06)" }}>
+          <p
+            data-reveal
+            className="text-lg lg:text-xl mb-14 max-w-2xl mx-auto"
+            style={{ color: t.textOnDarkMuted }}
+          >
+            Muitas empresas até faturam, mas operam no escuro.
+          </p>
+
+          <p
+            data-reveal
+            className="text-base lg:text-lg uppercase tracking-[0.25em] mb-8"
+            style={{ color: t.blueLight }}
+          >
+            Não sabem
+          </p>
+
+          <div data-stagger className="grid sm:grid-cols-2 gap-3 max-w-2xl mx-auto mb-16">
             {[
               "Quantos leads realmente entram",
               "Qual canal gera lucro",
@@ -490,60 +506,75 @@ export default function LP4() {
               <div
                 key={item}
                 data-stagger-item
-                className="flex items-center gap-3 py-5 px-5"
-                style={{ background: t.navy }}
+                className="flex items-center gap-3 py-4 px-5 rounded-xl text-left"
+                style={{
+                  background: "rgba(255,255,255,0.04)",
+                  border: "1px solid rgba(255,255,255,0.08)",
+                }}
               >
-                <div className="w-1 h-1 rounded-full" style={{ background: t.blueLight }} />
-                <span className="text-sm" style={{ color: t.textOnDark }}>
+                <CircleDot className="w-4 h-4 shrink-0" style={{ color: t.blueLight }} />
+                <span className="text-base" style={{ color: t.textOnDark }}>
                   {item}
                 </span>
               </div>
             ))}
           </div>
 
-          <div
+          <p
             data-reveal
-            className="rounded-2xl p-8 lg:p-10"
-            style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}
+            className="text-base lg:text-lg uppercase tracking-[0.25em] mb-8"
+            style={{ color: t.blueLight }}
           >
-            <div className="text-[10px] uppercase tracking-[0.25em] mb-6" style={{ color: t.blueLight }}>
-              resultado
-            </div>
-            <div data-stagger className="grid md:grid-cols-5 gap-4">
-              {["Crescimento inconsistente", "Decisões emocionais", "Equipe desalinhada", "Baixa margem", "Escala travada"].map(
-                (r) => (
-                  <div key={r} data-stagger-item className="flex items-start gap-2">
-                    <X className="w-4 h-4 mt-0.5 shrink-0" style={{ color: t.blueLight }} />
-                    <span className="text-sm">{r}</span>
-                  </div>
-                ),
-              )}
-            </div>
+            Resultado
+          </p>
+
+          <div data-stagger className="flex flex-wrap justify-center gap-3 max-w-3xl mx-auto">
+            {[
+              "Crescimento inconsistente",
+              "Decisões emocionais",
+              "Equipe desalinhada",
+              "Baixa margem",
+              "Escala travada",
+            ].map((r) => (
+              <div
+                key={r}
+                data-stagger-item
+                className="inline-flex items-center gap-2 px-5 py-3 rounded-full"
+                style={{
+                  background: "rgba(255,255,255,0.04)",
+                  border: "1px solid rgba(255,255,255,0.10)",
+                }}
+              >
+                <X className="w-4 h-4 shrink-0" style={{ color: t.blueLight }} />
+                <span className="text-base" style={{ color: t.textOnDark }}>
+                  {r}
+                </span>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* ============== SOLUÇÃO — White stacked ============== */}
+      {/* ============== SOLUÇÃO ============== */}
       <section
         className="stack-section relative z-30 -mt-10 rounded-t-[40px] lg:rounded-t-[56px]"
         style={{ background: t.white, color: t.ink }}
       >
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10 py-24 lg:py-32">
-          <div className="grid lg:grid-cols-12 gap-10 mb-16">
-            <div className="lg:col-span-7" data-reveal>
-              <div className="text-[10px] uppercase tracking-[0.25em] mb-4" style={{ color: t.blue }}>
-                solução
-              </div>
-              <h2 className="text-4xl lg:text-6xl font-semibold tracking-[-0.03em] leading-[1.02]">
-                Transformamos seu comercial em uma{" "}
-                <span style={{ color: t.blue }}>operação previsível</span>.
-              </h2>
-            </div>
-            <div className="lg:col-span-4 lg:col-start-9 flex lg:items-end" data-reveal>
-              <p className="text-base" style={{ color: t.inkMuted }}>
-                Criamos a base estratégica e operacional para sua empresa crescer com clareza.
-              </p>
-            </div>
+          <div className="max-w-4xl mb-16">
+            <h2
+              data-reveal
+              className="text-4xl lg:text-6xl font-semibold tracking-[-0.03em] leading-[1.05] mb-6"
+            >
+              Nós transformamos seu comercial em uma{" "}
+              <span style={{ color: t.blue }}>operação previsível</span>.
+            </h2>
+            <p data-reveal className="text-lg lg:text-xl" style={{ color: t.inkMuted }}>
+              Criamos a base estratégica e operacional para sua empresa crescer com clareza.
+            </p>
+            <p data-reveal className="text-lg lg:text-xl mt-6 font-medium" style={{ color: t.ink }}>
+              Você recebe:
+            </p>
           </div>
 
           <div
@@ -559,7 +590,7 @@ export default function LP4() {
               { icon: BarChart3, label: "Rotina de gestão clara" },
               { icon: Database, label: "Tecnologia integrada" },
               { icon: Zap, label: "Automação operacional" },
-              { icon: Brain, label: "Inteligência para decisão" },
+              { icon: Brain, label: "Inteligência para tomada de decisão" },
             ].map(({ icon: Icon, label }) => (
               <div
                 key={label}
@@ -573,14 +604,14 @@ export default function LP4() {
                 >
                   <Icon className="w-5 h-5" />
                 </div>
-                <p className="text-sm leading-relaxed font-medium">{label}</p>
+                <p className="text-base leading-relaxed font-medium">{label}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ============== CRM SECTION — Navy stacked ============== */}
+      {/* ============== CRM SECTION ============== */}
       <section
         className="crm-section stack-section relative z-40 -mt-10 rounded-t-[40px] lg:rounded-t-[56px] overflow-hidden"
         style={{
@@ -590,13 +621,10 @@ export default function LP4() {
       >
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10 py-24 lg:py-36">
           <div data-reveal className="max-w-3xl mb-16">
-            <div className="text-[10px] uppercase tracking-[0.25em] mb-4" style={{ color: t.blueLight }}>
-              plataforma
-            </div>
-            <h2 className="text-4xl lg:text-6xl font-semibold tracking-[-0.03em] leading-[1.02]">
+            <h2 className="text-4xl lg:text-6xl font-semibold tracking-[-0.03em] leading-[1.05]">
               Sua operação funcionando em <span style={{ color: t.blueLight }}>tempo real</span>
             </h2>
-            <p className="text-lg mt-5" style={{ color: t.textOnDarkMuted }}>
+            <p className="text-lg lg:text-xl mt-6" style={{ color: t.textOnDarkMuted }}>
               Tenha controle total do seu marketing, vendas e crescimento em um só lugar.
             </p>
           </div>
@@ -616,7 +644,7 @@ export default function LP4() {
                 className="rounded-xl p-5"
                 style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
               >
-                <div className="text-[11px] lowercase mb-2" style={{ color: t.textOnDarkMuted }}>
+                <div className="text-[12px] lowercase mb-2" style={{ color: t.textOnDarkMuted }}>
                   leads gerados (mês)
                 </div>
                 <div className="text-3xl font-semibold tracking-tight mb-4" style={{ color: t.white }}>
@@ -625,7 +653,7 @@ export default function LP4() {
                 <div className="space-y-1.5">
                   {[80, 65, 90, 72, 88, 95, 70].map((h, i) => (
                     <div key={i} className="flex items-center gap-2">
-                      <div className="text-[9px] w-6" style={{ color: t.textOnDarkMuted }}>
+                      <div className="text-[10px] w-6" style={{ color: t.textOnDarkMuted }}>
                         D{i + 1}
                       </div>
                       <div className="flex-1 h-1.5 rounded-full" style={{ background: "rgba(255,255,255,0.06)" }}>
@@ -644,7 +672,7 @@ export default function LP4() {
                 className="rounded-xl p-5"
                 style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
               >
-                <div className="text-[11px] lowercase mb-2" style={{ color: t.textOnDarkMuted }}>
+                <div className="text-[12px] lowercase mb-2" style={{ color: t.textOnDarkMuted }}>
                   conversão acompanhada
                 </div>
                 <div className="text-3xl font-semibold tracking-tight mb-4" style={{ color: t.white }}>
@@ -659,7 +687,7 @@ export default function LP4() {
                   ].map((s) => (
                     <div key={s.label}>
                       <div
-                        className="flex justify-between text-[11px] mb-1 lowercase"
+                        className="flex justify-between text-[12px] mb-1 lowercase"
                         style={{ color: t.textOnDarkMuted }}
                       >
                         <span>{s.label}</span>
@@ -684,7 +712,7 @@ export default function LP4() {
                 className="rounded-xl p-5"
                 style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
               >
-                <div className="text-[11px] lowercase mb-2" style={{ color: t.textOnDarkMuted }}>
+                <div className="text-[12px] lowercase mb-2" style={{ color: t.textOnDarkMuted }}>
                   IA operando junto com seu time
                 </div>
                 <div className="text-3xl font-semibold tracking-tight mb-4" style={{ color: t.white }}>
@@ -703,9 +731,9 @@ export default function LP4() {
                     >
                       <div className="flex items-center gap-2">
                         <Icon className="w-3.5 h-3.5" style={{ color: t.blueLight }} />
-                        <span className="text-[11px]">{label}</span>
+                        <span className="text-[12px]">{label}</span>
                       </div>
-                      <span className="text-[10px]" style={{ color: t.textOnDarkMuted }}>
+                      <span className="text-[11px]" style={{ color: t.textOnDarkMuted }}>
                         {val}
                       </span>
                     </div>
@@ -726,53 +754,33 @@ export default function LP4() {
               <div
                 key={f}
                 data-stagger-item
-                className="flex items-center gap-2 text-sm p-3 rounded-lg"
+                className="flex items-center gap-2 text-base p-4 rounded-lg"
                 style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
               >
                 <Check className="w-4 h-4 shrink-0" style={{ color: t.blueLight }} />
-                <span style={{ color: t.textOnDarkMuted }}>{f}</span>
-              </div>
-            ))}
-          </div>
-
-          {/* Big stats à la Tirtus */}
-          <div data-stagger className="grid grid-cols-2 lg:grid-cols-3 gap-px mt-16" style={{ background: "rgba(255,255,255,0.06)" }}>
-            {[
-              { val: "200+", label: "operações estruturadas" },
-              { val: "97%", label: "clientes confiam para o próximo projeto" },
-              { val: "10x", label: "produtividade do time comercial" },
-            ].map((s) => (
-              <div key={s.label} data-stagger-item className="p-8 lg:p-10" style={{ background: t.navy }}>
-                <div className="text-5xl lg:text-6xl font-semibold tracking-[-0.03em] mb-4">{s.val}</div>
-                <div className="text-sm" style={{ color: t.textOnDarkMuted }}>
-                  {s.label}
-                </div>
+                <span style={{ color: t.textOnDark }}>{f}</span>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ============== IA / OPERAÇÃO INTELIGENTE — White stacked ============== */}
+      {/* ============== IA / OPERAÇÃO INTELIGENTE ============== */}
       <section
         className="stack-section relative z-50 -mt-10 rounded-t-[40px] lg:rounded-t-[56px]"
         style={{ background: t.white, color: t.ink }}
       >
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10 py-24 lg:py-32">
-          <div className="grid lg:grid-cols-12 gap-10 mb-16">
-            <div className="lg:col-span-7" data-reveal>
-              <div className="text-[10px] uppercase tracking-[0.25em] mb-4" style={{ color: t.blue }}>
-                inteligência artificial
-              </div>
-              <h2 className="text-4xl lg:text-6xl font-semibold tracking-[-0.03em] leading-[1.02]">
-                Sua operação <span style={{ color: t.blue }}>já nasce inteligente</span>
-              </h2>
-            </div>
-            <div className="lg:col-span-4 lg:col-start-9 flex lg:items-end" data-reveal>
-              <p className="text-base" style={{ color: t.inkMuted }}>
-                Implementamos agentes treinados com contexto da empresa para acelerar produtividade.
-              </p>
-            </div>
+          <div className="max-w-4xl mb-16">
+            <h2
+              data-reveal
+              className="text-4xl lg:text-6xl font-semibold tracking-[-0.03em] leading-[1.05] mb-6"
+            >
+              Sua operação <span style={{ color: t.blue }}>já nasce inteligente</span>
+            </h2>
+            <p data-reveal className="text-lg lg:text-xl" style={{ color: t.inkMuted }}>
+              Implementamos agentes treinados com contexto da empresa para acelerar produtividade.
+            </p>
           </div>
 
           <div data-stagger className="grid md:grid-cols-2 lg:grid-cols-4 gap-px" style={{ background: t.border }}>
@@ -802,11 +810,11 @@ export default function LP4() {
                 >
                   <Icon className="w-5 h-5" />
                 </div>
-                <h3 className="text-lg font-semibold tracking-tight mb-4">{title}</h3>
+                <h3 className="text-xl font-semibold tracking-tight mb-4">{title}</h3>
                 <ul className="space-y-2">
                   {items.map((it) => (
-                    <li key={it} className="flex items-start gap-2 text-sm" style={{ color: t.inkMuted }}>
-                      <CircleDot className="w-3 h-3 mt-1 shrink-0" style={{ color: t.blue }} />
+                    <li key={it} className="flex items-start gap-2 text-base" style={{ color: t.inkMuted }}>
+                      <CircleDot className="w-3 h-3 mt-1.5 shrink-0" style={{ color: t.blue }} />
                       {it}
                     </li>
                   ))}
@@ -817,7 +825,7 @@ export default function LP4() {
         </div>
       </section>
 
-      {/* ============== METODOLOGIA — Navy stacked ============== */}
+      {/* ============== METODOLOGIA ============== */}
       <section
         id="metodologia"
         className="stack-section relative z-[60] -mt-10 rounded-t-[40px] lg:rounded-t-[56px] overflow-hidden"
@@ -828,10 +836,10 @@ export default function LP4() {
       >
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10 py-24 lg:py-36">
           <div data-reveal className="max-w-3xl mb-16">
-            <div className="text-[10px] uppercase tracking-[0.25em] mb-4" style={{ color: t.blueLight }}>
-              metodologia escale
-            </div>
-            <h2 className="text-4xl lg:text-6xl font-semibold tracking-[-0.03em] leading-[1.02]">
+            <p className="text-base lg:text-lg uppercase tracking-[0.25em] mb-5" style={{ color: t.blueLight }}>
+              Metodologia Escale
+            </p>
+            <h2 className="text-4xl lg:text-6xl font-semibold tracking-[-0.03em] leading-[1.05]">
               Como entregamos isso em <span style={{ color: t.blueLight }}>menos de 30 dias</span>
             </h2>
           </div>
@@ -914,13 +922,13 @@ export default function LP4() {
                     </span>
                   </div>
                   <h3 className="text-xl font-semibold tracking-tight mb-2">{title}</h3>
-                  <p className="text-sm mb-4" style={{ color: t.textOnDarkMuted }}>
+                  <p className="text-base mb-4" style={{ color: t.textOnDarkMuted }}>
                     {desc}
                   </p>
                   <ul className="space-y-1.5">
                     {items.map((it) => (
-                      <li key={it} className="flex items-start gap-2 text-[13px]">
-                        <Check className="w-3.5 h-3.5 mt-0.5 shrink-0" style={{ color: t.blueLight }} />
+                      <li key={it} className="flex items-start gap-2 text-[14px]">
+                        <Check className="w-3.5 h-3.5 mt-1 shrink-0" style={{ color: t.blueLight }} />
                         <span style={{ color: t.textOnDarkMuted }}>{it}</span>
                       </li>
                     ))}
@@ -930,13 +938,13 @@ export default function LP4() {
             </div>
           </div>
 
-          <p className="mt-16 text-sm" style={{ color: t.textOnDarkMuted }} data-reveal>
+          <p className="mt-16 text-base" style={{ color: t.textOnDarkMuted }} data-reveal>
             Baseado no método Escale.
           </p>
 
           {/* Cronograma */}
           <div className="mt-24">
-            <h3 data-reveal className="text-2xl lg:text-4xl font-semibold tracking-[-0.025em] mb-10">
+            <h3 data-reveal className="text-3xl lg:text-5xl font-semibold tracking-[-0.025em] mb-10">
               Tudo estruturado em <span style={{ color: t.blueLight }}>30 dias</span>
             </h3>
 
@@ -954,7 +962,7 @@ export default function LP4() {
                   style={{ background: t.navy }}
                 >
                   <div
-                    className="text-[10px] uppercase tracking-[0.25em] mb-3"
+                    className="text-[11px] uppercase tracking-[0.25em] mb-3"
                     style={{ color: t.blueLight }}
                   >
                     {week}
@@ -970,29 +978,27 @@ export default function LP4() {
               ))}
             </div>
 
-            <p className="text-base mt-8" style={{ color: t.textOnDark }} data-reveal>
+            <p className="text-lg mt-8" style={{ color: t.textOnDark }} data-reveal>
               Você sai com tudo pronto. <span style={{ color: t.blueLight }}>Não é teoria.</span>
             </p>
           </div>
         </div>
       </section>
 
-      {/* ============== COMPARATIVO — White stacked ============== */}
+      {/* ============== COMPARATIVO ============== */}
       <section
         id="valores"
         className="stack-section relative z-[70] -mt-10 rounded-t-[40px] lg:rounded-t-[56px]"
         style={{ background: t.offWhite, color: t.ink }}
       >
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10 py-24 lg:py-32">
-          <div className="grid lg:grid-cols-12 gap-10 mb-16">
-            <div className="lg:col-span-8" data-reveal>
-              <div className="text-[10px] uppercase tracking-[0.25em] mb-4" style={{ color: t.blue }}>
-                comparativo
-              </div>
-              <h2 className="text-4xl lg:text-6xl font-semibold tracking-[-0.03em] leading-[1.02]">
-                Quanto custaria montar tudo isso <span style={{ color: t.blue }}>separado?</span>
-              </h2>
-            </div>
+          <div className="max-w-4xl mb-16">
+            <h2
+              data-reveal
+              className="text-4xl lg:text-6xl font-semibold tracking-[-0.03em] leading-[1.05]"
+            >
+              Quanto custaria montar tudo isso <span style={{ color: t.blue }}>separado?</span>
+            </h2>
           </div>
 
           <div
@@ -1001,7 +1007,7 @@ export default function LP4() {
             style={{ background: t.white, border: `1px solid ${t.border}` }}
           >
             <div
-              className="grid grid-cols-3 px-6 py-4 text-[11px] uppercase tracking-[0.18em]"
+              className="grid grid-cols-3 px-6 py-4 text-[12px] uppercase tracking-[0.18em]"
               style={{ color: t.inkMuted, borderBottom: `1px solid ${t.border}` }}
             >
               <span className="col-span-2">estrutura / serviço</span>
@@ -1026,8 +1032,8 @@ export default function LP4() {
                   className="grid grid-cols-3 px-6 py-4 transition-colors hover:bg-[#FAFBFE]"
                   style={{ borderBottom: `1px solid ${t.border}` }}
                 >
-                  <span className="col-span-2 text-sm">{row.label}</span>
-                  <span className="text-right text-sm tabular-nums" style={{ color: t.inkMuted }}>
+                  <span className="col-span-2 text-base">{row.label}</span>
+                  <span className="text-right text-base tabular-nums" style={{ color: t.inkMuted }}>
                     <CountUp end={row.val} prefix="R$ " />
                   </span>
                 </div>
@@ -1037,7 +1043,7 @@ export default function LP4() {
                 className="px-6 py-5 grid grid-cols-3"
                 style={{ borderBottom: `1px solid ${t.border}` }}
               >
-                <span className="col-span-2 text-sm" style={{ color: t.inkMuted }}>
+                <span className="col-span-2 text-base" style={{ color: t.inkMuted }}>
                   Total no mercado
                 </span>
                 <span
@@ -1059,7 +1065,7 @@ export default function LP4() {
               </div>
 
               <div className="px-6 py-5 grid grid-cols-3">
-                <span className="col-span-2 text-sm" style={{ color: t.inkMuted }}>
+                <span className="col-span-2 text-base" style={{ color: t.inkMuted }}>
                   Economia superior a
                 </span>
                 <span className="text-right text-xl font-semibold tabular-nums" style={{ color: t.blue }}>
@@ -1071,7 +1077,7 @@ export default function LP4() {
         </div>
       </section>
 
-      {/* ============== PROVA DE VALOR — Deep Navy minimal stacked ============== */}
+      {/* ============== PROVA DE VALOR ============== */}
       <section
         className="stack-section relative z-[80] -mt-10 rounded-t-[40px] lg:rounded-t-[56px] overflow-hidden"
         style={{
@@ -1082,7 +1088,7 @@ export default function LP4() {
         <div className="max-w-5xl mx-auto px-6 lg:px-10 py-32 lg:py-44 text-center">
           <h2
             data-reveal
-            className="text-4xl lg:text-7xl font-semibold tracking-[-0.035em] leading-[1.02] mb-10"
+            className="text-4xl lg:text-7xl font-semibold tracking-[-0.035em] leading-[1.05] mb-12"
           >
             Você não contrata ferramentas.
             <br />
@@ -1090,14 +1096,14 @@ export default function LP4() {
             <span style={{ color: t.blueLight }}>controle</span> e{" "}
             <span style={{ color: t.blueLight }}>crescimento</span>.
           </h2>
-          <div data-reveal className="text-lg lg:text-xl space-y-2" style={{ color: t.textOnDarkMuted }}>
+          <div data-reveal className="text-xl lg:text-2xl space-y-3" style={{ color: t.textOnDarkMuted }}>
             <p>Tecnologia sem estratégia vira custo.</p>
             <p style={{ color: t.white }}>Estrutura bem construída vira lucro.</p>
           </div>
         </div>
       </section>
 
-      {/* ============== CTA FINAL — White stacked ============== */}
+      {/* ============== CTA FINAL ============== */}
       <section
         id="cta-final"
         className="stack-section relative z-[90] -mt-10 rounded-t-[40px] lg:rounded-t-[56px]"
@@ -1116,12 +1122,12 @@ export default function LP4() {
 
           <h2
             data-reveal
-            className="text-4xl lg:text-6xl font-semibold tracking-[-0.03em] leading-[1.02] mb-6"
+            className="text-4xl lg:text-6xl font-semibold tracking-[-0.03em] leading-[1.05] mb-8"
           >
             Se sua empresa quer crescer com <span style={{ color: t.blue }}>previsibilidade</span>, fale com a Escale.
           </h2>
 
-          <p data-reveal className="text-lg mb-12" style={{ color: t.inkMuted }}>
+          <p data-reveal className="text-lg lg:text-xl mb-12" style={{ color: t.inkMuted }}>
             Vamos mostrar onde estão os gargalos e como estruturar uma operação que escala.
           </p>
 
@@ -1130,7 +1136,7 @@ export default function LP4() {
             href="https://wa.me/5500000000000"
             target="_blank"
             rel="noopener noreferrer"
-            className="group inline-flex items-center gap-3 px-8 py-5 rounded-full font-medium text-base transition-all hover:scale-[1.03]"
+            className="group inline-flex items-center gap-3 px-8 py-5 rounded-full font-medium text-lg transition-all hover:scale-[1.03]"
             style={{
               background: t.blue,
               color: t.white,
@@ -1141,19 +1147,15 @@ export default function LP4() {
             Quero meu Diagnóstico Estratégico
             <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1.5" />
           </a>
-
-          <p data-reveal className="mt-12 text-[10px] uppercase tracking-[0.25em]" style={{ color: t.inkMuted }}>
-            17 anos · estratégia · performance · tecnologia
-          </p>
         </div>
       </section>
 
       {/* ============== FOOTER ============== */}
       <footer
-        className="relative z-[100] py-10 text-center text-xs lowercase tracking-wider"
+        className="relative z-[100] py-10 text-center text-sm lowercase tracking-wider"
         style={{ background: t.white, color: t.inkMuted, borderTop: `1px solid ${t.border}` }}
       >
-        © escale · sistema operacional de crescimento previsível
+        © escale
       </footer>
 
       {/* keyframes */}
