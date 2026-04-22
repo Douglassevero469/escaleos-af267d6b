@@ -277,11 +277,13 @@ export default function LP4() {
 
         <div className="relative max-w-[1280px] mx-auto px-6 lg:px-10 pt-12 pb-32 lg:pt-20 lg:pb-44 grid lg:grid-cols-12 gap-12 items-center">
           <div className="lg:col-span-7">
-            <h1 className="hero-headline text-[44px] lg:text-[80px] leading-[1.02] font-semibold tracking-[-0.035em] mb-10">
+            <h1 className="hero-headline text-[40px] sm:text-[52px] lg:text-[76px] leading-[1.04] font-semibold tracking-[-0.035em] mb-10">
               <span className="block" style={{ color: "rgba(232,236,247,0.45)" }}>
-                Seu comercial cresce
+                Seu comercial
               </span>
-              <span className="block">por estratégia</span>
+              <span className="block">
+                cresce por <span style={{ color: t.white }}>estratégia</span>
+              </span>
               <span className="block">ou por achismo?</span>
             </h1>
 
@@ -293,23 +295,47 @@ export default function LP4() {
               Você passa a tomar decisões com base em números reais — não feeling.
             </p>
 
-            {/* 17 anos — destaque elegante em linha */}
-            <div className="flex items-center gap-5 mb-12 max-w-2xl">
-              <div className="flex flex-col items-center justify-center px-5 py-3 rounded-2xl shrink-0"
-                style={{
-                  background: "rgba(43,91,255,0.12)",
-                  border: "1px solid rgba(91,130,255,0.30)",
-                }}
+            {/* 17 anos — selo horizontal premium */}
+            <div
+              className="inline-flex items-stretch gap-0 mb-12 rounded-2xl overflow-hidden backdrop-blur-md"
+              style={{
+                background: "linear-gradient(135deg, rgba(43,91,255,0.18), rgba(43,91,255,0.06))",
+                border: "1px solid rgba(91,130,255,0.35)",
+                boxShadow: "0 10px 40px rgba(43,91,255,0.15)",
+              }}
+            >
+              <div
+                className="flex items-baseline gap-1.5 px-6 py-4 shrink-0"
+                style={{ borderRight: "1px solid rgba(91,130,255,0.25)" }}
               >
-                <span className="text-3xl lg:text-4xl font-semibold tracking-tight leading-none" style={{ color: t.white }}>17</span>
-                <span className="text-[10px] uppercase tracking-[0.2em] mt-1" style={{ color: t.blueLight }}>anos</span>
+                <span
+                  className="text-4xl lg:text-5xl font-semibold tracking-tight leading-none"
+                  style={{ color: t.white }}
+                >
+                  17
+                </span>
+                <span
+                  className="text-xs uppercase tracking-[0.18em]"
+                  style={{ color: t.blueLight }}
+                >
+                  anos
+                </span>
               </div>
-              <p className="text-sm lg:text-base leading-relaxed" style={{ color: t.textOnDarkMuted }}>
-                de mercado unindo{" "}
-                <span style={{ color: t.white, fontWeight: 500 }}>comunicação</span>,{" "}
-                <span style={{ color: t.white, fontWeight: 500 }}>performance</span> e{" "}
-                <span style={{ color: t.white, fontWeight: 500 }}>tecnologia</span> para escalar empresas.
-              </p>
+              <div className="flex flex-col justify-center px-6 py-4">
+                <span
+                  className="text-[10px] uppercase tracking-[0.22em] mb-1"
+                  style={{ color: t.blueLight }}
+                >
+                  de mercado
+                </span>
+                <p className="text-sm lg:text-[15px] leading-snug" style={{ color: t.white }}>
+                  <span style={{ fontWeight: 500 }}>Comunicação</span>
+                  <span style={{ color: "rgba(232,236,247,0.5)" }}> · </span>
+                  <span style={{ fontWeight: 500 }}>Performance</span>
+                  <span style={{ color: "rgba(232,236,247,0.5)" }}> · </span>
+                  <span style={{ fontWeight: 500 }}>Tecnologia</span>
+                </p>
+              </div>
             </div>
 
             <div className="flex flex-wrap items-center gap-6">
@@ -460,22 +486,22 @@ export default function LP4() {
             </div>
 
             {/* Direita: slot de formulário (placeholder funcional para embed) */}
-            <div className="lg:col-span-5 lg:sticky lg:top-10" data-reveal>
+            <div className="lg:col-span-6 lg:sticky lg:top-10" data-reveal>
               <div
                 id="form-embed-slot"
-                className="rounded-2xl p-8 lg:p-10"
+                className="rounded-2xl p-5 lg:p-6"
                 style={{
                   background: t.offWhite,
                   border: `1px solid ${t.border}`,
                 }}
               >
-                <div className="text-[11px] uppercase tracking-[0.25em] mb-3" style={{ color: t.blue }}>
+                <div className="text-[11px] uppercase tracking-[0.25em] mb-2 px-2 pt-2" style={{ color: t.blue }}>
                   formulário
                 </div>
-                <h3 className="text-2xl lg:text-3xl font-semibold tracking-tight mb-3" style={{ color: t.ink }}>
+                <h3 className="text-2xl lg:text-3xl font-semibold tracking-tight mb-2 px-2" style={{ color: t.ink }}>
                   Solicite seu Diagnóstico
                 </h3>
-                <p className="text-base mb-6" style={{ color: t.inkMuted }}>
+                <p className="text-base mb-5 px-2" style={{ color: t.inkMuted }}>
                   Preencha seus dados e nossa equipe entra em contato.
                 </p>
 
@@ -488,8 +514,8 @@ export default function LP4() {
                   style={{
                     border: 0,
                     background: t.white,
-                    minHeight: 720,
-                    height: 720,
+                    minHeight: 960,
+                    height: 960,
                   }}
                   data-form-embed="rkxlmpyn"
                 />
