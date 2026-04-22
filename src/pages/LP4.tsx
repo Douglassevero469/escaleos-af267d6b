@@ -444,15 +444,14 @@ export default function LP4() {
 
                 {/* Espaço reservado para embed do formulário */}
                 <div
-                  className="rounded-xl flex items-center justify-center text-center text-sm px-6 py-12"
+                  className="rounded-xl flex items-center justify-center text-center text-xs lowercase tracking-wider"
                   style={{
                     background: t.white,
-                    border: `1px dashed ${t.border}`,
-                    color: t.inkMuted,
+                    color: "rgba(91,100,120,0.45)",
                     minHeight: 320,
                   }}
                 >
-                  Espaço reservado para embedar o formulário aqui.
+                  embed do formulário
                 </div>
               </div>
             </div>
@@ -579,8 +578,7 @@ export default function LP4() {
 
           <div
             data-stagger
-            className="grid md:grid-cols-2 lg:grid-cols-4 gap-px"
-            style={{ background: t.border }}
+            className="grid md:grid-cols-2 lg:grid-cols-4 gap-5"
           >
             {[
               { icon: Settings, label: "Processos comerciais definidos" },
@@ -595,11 +593,11 @@ export default function LP4() {
               <div
                 key={label}
                 data-stagger-item
-                className="group p-7 transition-all hover:bg-[#FAFBFE]"
-                style={{ background: t.white }}
+                className="group p-7 rounded-2xl transition-all hover:-translate-y-1"
+                style={{ background: t.white, border: `1px solid ${t.border}` }}
               >
                 <div
-                  className="w-10 h-10 rounded-lg flex items-center justify-center mb-5 transition-transform group-hover:scale-110"
+                  className="w-11 h-11 rounded-xl flex items-center justify-center mb-5 transition-transform group-hover:scale-110"
                   style={{ background: `${t.blue}10`, color: t.blue }}
                 >
                   <Icon className="w-5 h-5" />
@@ -783,7 +781,7 @@ export default function LP4() {
             </p>
           </div>
 
-          <div data-stagger className="grid md:grid-cols-2 lg:grid-cols-4 gap-px" style={{ background: t.border }}>
+          <div data-stagger className="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
             {[
               {
                 title: "Comercial",
@@ -801,11 +799,11 @@ export default function LP4() {
               <div
                 key={title}
                 data-stagger-item
-                className="p-7 transition-all hover:bg-[#FAFBFE]"
-                style={{ background: t.white }}
+                className="p-7 rounded-2xl transition-all hover:-translate-y-1"
+                style={{ background: t.white, border: `1px solid ${t.border}` }}
               >
                 <div
-                  className="w-10 h-10 rounded-lg flex items-center justify-center mb-5"
+                  className="w-11 h-11 rounded-xl flex items-center justify-center mb-5"
                   style={{ background: `${t.blue}10`, color: t.blue }}
                 >
                   <Icon className="w-5 h-5" />
