@@ -1,53 +1,94 @@
-## LP3 — Quiz Funnel Page (`/lp3`)
+# Gestão de Clientes Ativos
 
-A gamified, multi-step quiz landing page that guides the visitor through micro-pages, builds engagement, and delivers a personalized CTA at the end.
+Nova área no menu para acompanhar **clientes ativos** (em contrato), os **serviços prestados** a cada um, **fee mensal**, datas de início/renovação e status do contrato. Diferente da aba "Clientes" atual, que é focada em briefings + pacotes gerados.
 
-### Flow Structure
+## Estrutura
 
-```text
-[Welcome Screen] → [Q1] → [Q2] → [Q3] → [Q4] → [Q5] → [Result Screen]
-     0%             17%    33%    50%    67%    83%        100%
-```
+### 1. Nova rota e item no menu
 
-**7 steps total**: 1 intro + 5 questions + 1 result/offer page.
+- Rota: `/gestao-clientes` (página `src/pages/GestaoClientes.tsx`)
+- Novo item no `AppSidebar` chamado **"Gestão de Clientes"** com ícone `Briefcase` (ou `HandCoins`), posicionado logo abaixo de "Clientes".
 
-### UX & Visual Design
+### 2. Banco de dados (migration)
 
-- **Dark theme** (consistent with LP2), Montserrat font
-- **Top progress bar** — animated, fills as user advances (color gradient blue→green)
-- **Step counter** — "Pergunta 2 de 5"
-- **Micro-page transitions** — smooth fade/slide between steps
-- **Gamification elements**: checkmark animations on answer selection, progress percentage display, encouraging micro-copy between steps ("Ótima escolha!", "Quase lá!")
-- **Escale white logo** at top of every step
-- **No back button** (intentional — keeps forward momentum)
+Como `clients` hoje é só cadastro básico (nome, nicho, instagram, site), criamos duas novas tabelas para o módulo de gestão:
 
-### Quiz Content (5 Questions)
+`**client_contracts**` — um contrato ativo por cliente (pode haver histórico)
 
-Each question has 3-4 options. Selecting an option auto-advances after a brief animation (500ms).
+- `id`, `client_id`, `user_id`
+- `status` (`active` | `paused` | `churned`) — default `active`
+- `monthly_fee` numeric — fee mensal em R$
+- `start_date` date
+- `renewal_date` date (nullable)
+- `payment_day` integer (1–31, dia de cobrança)
+- `responsible` text (responsável interno pela conta)
+- `notes` text
+- `created_at`, `updated_at`
 
-1. "Qual o maior desafio da sua empresa hoje?" — Gerar leads / Converter vendas / Organizar processos / Comunicar melhor
-2. "Sua empresa tem um plano comercial estruturado?" — Sim / Mais ou menos / Não
-3. "Você já investiu em tráfego pago?" — Sim, com resultados / Sim, sem resultados / Nunca investi
-4. "Sua empresa tem um CRM?" — Sim / Não / Nem sei o que é  
-5. Qual seu faturamento? - crie 10 faixas a partir de 20k mensal
-  6. "Quanto você estaria disposto a investir para estruturar tudo isso?" — Até R$5k / R$5k-10k / Acima de R$10k
+`**client_services**` — serviços prestados em um contrato (N por contrato)
 
-### Result Screen
+- `id`, `contract_id`, `user_id`
+- `service_type` text (Tráfego Pago, Social Media, Full Service, Consultoria,  Software ,Escale CRM, etc.)
+- `description` text
+- `scope` text (entregáveis/escopo)
+- `active` boolean default true
+- `created_at`
 
-- Animated "calculating result" loader (2s fake delay for engagement)
-- Personalized headline based on answers (e.g., "Sua empresa precisa urgentemente de estrutura comercial")
-- Score/diagnosis visual (circular progress or rating)
-- Reveal of the Super Pacote Escale as the solution
-- Price, benefits summary, pulsing WhatsApp CTA
-- Social proof toast (reuse from LP2)
+RLS: políticas abertas para `authenticated` (padrão do projeto — modelo open workspace).
 
-### Technical Implementation
+### 3. Página `GestaoClientes.tsx`
 
-1. **Create `src/pages/LP3.tsx**` — Single-file component with:
-  - State machine: `step` (0-6), `answers` array
-  - `Progress` bar at top using the existing `progress.tsx` component
-  - Each step rendered conditionally with CSS transitions
-  - Answer cards as clickable tiles with hover/selected states
-  - Result logic mapping answers to a "diagnosis" message
-  - WhatsApp CTA link + social proof toast (same pattern as LP2)
-2. **Update `src/App.tsx**` — Add route `/lp3` pointing to `LP3` component
+**Header**
+
+- Título "Gestão de Clientes" + contador de ativos
+- Botão "Novo Contrato" (abre dialog para escolher cliente existente + preencher dados)
+
+**KPIs (4 cards no topo)**
+
+- Clientes ativos
+- MRR total (soma dos `monthly_fee` dos contratos ativos)
+- Ticket médio
+- Clientes em pausa / churn no mês
+
+**Filtros**
+
+- Busca por nome
+- Filtro por status (Ativos / Pausados / Churn / Todos)
+- Filtro por serviço prestado
+
+**Listagem (tabela + cards toggle)**
+Colunas: Cliente | Serviços (badges) | Fee Mensal | Início | Próx. renovação | Responsável | Status | Ações
+
+**Detalhe / Edição (Sheet lateral ao clicar)**
+
+- Dados do contrato editáveis
+- Lista de serviços com adicionar/remover/editar
+- Histórico de alterações (futuramente — via `audit_logs`)
+- Atalhos: ver pacotes do cliente, abrir CRM, abrir demandas
+
+**Ações em massa rápidas**
+
+- Marcar como Pausado / Churn
+- Exportar CSV (lista de clientes ativos + fees)
+
+### 4. Integração com módulos existentes
+
+- Link "Ver Pacotes" → `/clientes/:id/pacotes`
+- Dashboard pode futuramente puxar MRR daqui (não nesta entrega)
+
+## Detalhes técnicos
+
+- Tipos: criar `ServiceType` como union de strings sugeridas + livre digitação (input com sugestões).
+- React Query para `contracts` e `services` com invalidação cruzada após mutations.
+- `monthly_fee` formatado em BRL (`Intl.NumberFormat`).
+- Reutilizar `GlassCard`, `Dialog`, `Sheet`, `Table`, `Badge`, `DropdownMenu`.
+- Manter padrão visual: glassmorphism, Montserrat, paleta atual.
+
+## Fora do escopo (sugestões futuras)
+
+- Cobranças/faturas automáticas
+- Integração com gateway de pagamento
+- Forecast de MRR e churn analytics
+- Notificações automáticas próximas à renovação
+
+Confirma esse plano? Se quiser ajustar (ex.: campos extras, remover tabela de serviços, usar um único registro por cliente em vez de contratos versionados), me diga antes de eu implementar.
