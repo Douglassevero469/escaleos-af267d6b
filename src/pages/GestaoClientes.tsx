@@ -54,7 +54,7 @@ const fmtDate = (d?: string | null) =>
   d ? new Date(d + "T00:00:00").toLocaleDateString("pt-BR") : "—";
 
 interface ContractForm {
-  client_id: string;
+  client_name: string;
   status: string;
   monthly_fee: string;
   start_date: string;
@@ -65,7 +65,7 @@ interface ContractForm {
 }
 
 const emptyForm: ContractForm = {
-  client_id: "", status: "active", monthly_fee: "", start_date: "",
+  client_name: "", status: "active", monthly_fee: "", start_date: "",
   renewal_date: "", payment_day: "", responsible: "", notes: "",
 };
 
@@ -83,14 +83,6 @@ export default function GestaoClientes() {
   const [detailId, setDetailId] = useState<string | null>(null);
   const [newService, setNewService] = useState({ service_type: "", description: "", scope: "" });
 
-  const { data: clients = [] } = useQuery({
-    queryKey: ["clients-min"],
-    queryFn: async () => {
-      const { data } = await supabase.from("clients").select("id, name, nicho").order("name");
-      return data ?? [];
-    },
-  });
-
   const { data: contracts = [], isLoading } = useQuery({
     queryKey: ["client-contracts"],
     queryFn: async () => {
@@ -99,14 +91,7 @@ export default function GestaoClientes() {
         .select("*, client_services(id, service_type, description, scope, active)")
         .order("created_at", { ascending: false });
       if (error) throw error;
-      const rows = data ?? [];
-      const ids = Array.from(new Set(rows.map((r: any) => r.client_id).filter(Boolean)));
-      let clientsMap: Record<string, any> = {};
-      if (ids.length) {
-        const { data: cs } = await supabase.from("clients").select("id, name, nicho").in("id", ids);
-        (cs ?? []).forEach((c: any) => { clientsMap[c.id] = c; });
-      }
-      return rows.map((r: any) => ({ ...r, clients: clientsMap[r.client_id] ?? null }));
+      return data ?? [];
     },
   });
 
