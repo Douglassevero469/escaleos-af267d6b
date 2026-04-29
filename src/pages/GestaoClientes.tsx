@@ -222,7 +222,7 @@ export default function GestaoClientes() {
   }, [contracts]);
 
   const filtered = contracts.filter((c: any) => {
-    const name = (c.clients?.name ?? "").toLowerCase();
+    const name = (c.client_name ?? "").toLowerCase();
     if (search && !name.includes(search.toLowerCase())) return false;
     if (statusFilter !== "all" && c.status !== statusFilter) return false;
     if (serviceFilter !== "all") {
@@ -238,7 +238,7 @@ export default function GestaoClientes() {
     const rows = [
       ["Cliente", "Status", "Fee Mensal", "Início", "Renovação", "Responsável", "Serviços"],
       ...filtered.map((c: any) => [
-        c.clients?.name ?? "",
+        c.client_name ?? "",
         STATUS_LABELS[c.status] ?? c.status,
         String(c.monthly_fee ?? 0).replace(".", ","),
         c.start_date ?? "",
@@ -284,14 +284,12 @@ export default function GestaoClientes() {
               <div className="space-y-4 pt-2 max-h-[70vh] overflow-auto pr-1">
                 <div className="space-y-2">
                   <Label>Cliente *</Label>
-                  <Select value={form.client_id} onValueChange={(v) => setForm(f => ({ ...f, client_id: v }))}>
-                    <SelectTrigger><SelectValue placeholder="Selecione o cliente" /></SelectTrigger>
-                    <SelectContent>
-                      {clients.map((c: any) => (
-                        <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Input
+                    value={form.client_name}
+                    onChange={e => setForm(f => ({ ...f, client_name: e.target.value }))}
+                    placeholder="Nome do cliente"
+                    maxLength={120}
+                  />
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
@@ -344,7 +342,7 @@ export default function GestaoClientes() {
 
                 <Button
                   onClick={() => upsertContract.mutate()}
-                  disabled={!form.client_id || !form.monthly_fee || upsertContract.isPending}
+                  disabled={!form.client_name.trim() || !form.monthly_fee || upsertContract.isPending}
                   className="w-full btn-primary-glow"
                 >
                   {upsertContract.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
