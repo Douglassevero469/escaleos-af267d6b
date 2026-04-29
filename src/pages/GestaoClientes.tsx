@@ -444,8 +444,7 @@ export default function GestaoClientes() {
                 return (
                   <TableRow key={c.id} className="cursor-pointer" onClick={() => setDetailId(c.id)}>
                     <TableCell>
-                      <div className="font-medium text-sm">{c.clients?.name ?? "—"}</div>
-                      <div className="text-xs text-muted-foreground">{c.clients?.nicho ?? ""}</div>
+                      <div className="font-medium text-sm">{c.client_name ?? "—"}</div>
                     </TableCell>
                     <TableCell>
                       <div className="flex flex-wrap gap-1 max-w-[240px]">
@@ -512,7 +511,7 @@ export default function GestaoClientes() {
             <>
               <SheetHeader>
                 <SheetTitle className="flex items-center justify-between gap-2">
-                  <span>{detail.clients?.name}</span>
+                  <span>{detail.client_name}</span>
                   <Badge variant="outline" className={STATUS_STYLES[detail.status]}>
                     {STATUS_LABELS[detail.status]}
                   </Badge>
