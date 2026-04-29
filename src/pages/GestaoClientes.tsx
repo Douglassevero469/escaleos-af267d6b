@@ -104,7 +104,7 @@ export default function GestaoClientes() {
     mutationFn: async () => {
       if (!user) throw new Error("Não autenticado");
       const payload: any = {
-        client_id: form.client_id,
+        client_name: form.client_name.trim(),
         status: form.status,
         monthly_fee: parseFloat(form.monthly_fee || "0") || 0,
         start_date: form.start_date || null,
@@ -189,7 +189,7 @@ export default function GestaoClientes() {
   const openEdit = (c: any) => {
     setEditingId(c.id);
     setForm({
-      client_id: c.client_id,
+      client_name: c.client_name ?? "",
       status: c.status,
       monthly_fee: String(c.monthly_fee ?? ""),
       start_date: c.start_date ?? "",
