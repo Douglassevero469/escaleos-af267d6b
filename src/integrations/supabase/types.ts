@@ -85,6 +85,92 @@ export type Database = {
           },
         ]
       }
+      client_contracts: {
+        Row: {
+          client_id: string
+          created_at: string
+          id: string
+          monthly_fee: number
+          notes: string | null
+          payment_day: number | null
+          renewal_date: string | null
+          responsible: string | null
+          start_date: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          id?: string
+          monthly_fee?: number
+          notes?: string | null
+          payment_day?: number | null
+          renewal_date?: string | null
+          responsible?: string | null
+          start_date?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          id?: string
+          monthly_fee?: number
+          notes?: string | null
+          payment_day?: number | null
+          renewal_date?: string | null
+          responsible?: string | null
+          start_date?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      client_services: {
+        Row: {
+          active: boolean
+          contract_id: string
+          created_at: string
+          description: string | null
+          id: string
+          scope: string | null
+          service_type: string
+          user_id: string
+        }
+        Insert: {
+          active?: boolean
+          contract_id: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          scope?: string | null
+          service_type: string
+          user_id: string
+        }
+        Update: {
+          active?: boolean
+          contract_id?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          scope?: string | null
+          service_type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_services_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "client_contracts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       clients: {
         Row: {
           created_at: string
