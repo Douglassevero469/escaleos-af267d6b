@@ -21,13 +21,13 @@ import {
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Briefcase, Plus, Loader2, Search, MoreVertical, Pencil, Trash2,
-  Pause, Play, X, ExternalLink, Download, DollarSign, Users, TrendingDown, Activity,
+  Pause, Play, X, Download, DollarSign, Users, TrendingDown, Activity,
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import { Link } from "react-router-dom";
+
 
 const SERVICE_SUGGESTIONS = [
   "Tráfego Pago", "Social Media", "Full Service", "Consultoria",
@@ -54,7 +54,7 @@ const fmtDate = (d?: string | null) =>
   d ? new Date(d + "T00:00:00").toLocaleDateString("pt-BR") : "—";
 
 interface ContractForm {
-  client_id: string;
+  client_name: string;
   status: string;
   monthly_fee: string;
   start_date: string;
@@ -65,7 +65,7 @@ interface ContractForm {
 }
 
 const emptyForm: ContractForm = {
-  client_id: "", status: "active", monthly_fee: "", start_date: "",
+  client_name: "", status: "active", monthly_fee: "", start_date: "",
   renewal_date: "", payment_day: "", responsible: "", notes: "",
 };
 
@@ -83,14 +83,6 @@ export default function GestaoClientes() {
   const [detailId, setDetailId] = useState<string | null>(null);
   const [newService, setNewService] = useState({ service_type: "", description: "", scope: "" });
 
-  const { data: clients = [] } = useQuery({
-    queryKey: ["clients-min"],
-    queryFn: async () => {
-      const { data } = await supabase.from("clients").select("id, name, nicho").order("name");
-      return data ?? [];
-    },
-  });
-
   const { data: contracts = [], isLoading } = useQuery({
     queryKey: ["client-contracts"],
     queryFn: async () => {
@@ -99,14 +91,7 @@ export default function GestaoClientes() {
         .select("*, client_services(id, service_type, description, scope, active)")
         .order("created_at", { ascending: false });
       if (error) throw error;
-      const rows = data ?? [];
-      const ids = Array.from(new Set(rows.map((r: any) => r.client_id).filter(Boolean)));
-      let clientsMap: Record<string, any> = {};
-      if (ids.length) {
-        const { data: cs } = await supabase.from("clients").select("id, name, nicho").in("id", ids);
-        (cs ?? []).forEach((c: any) => { clientsMap[c.id] = c; });
-      }
-      return rows.map((r: any) => ({ ...r, clients: clientsMap[r.client_id] ?? null }));
+      return data ?? [];
     },
   });
 
@@ -119,7 +104,7 @@ export default function GestaoClientes() {
     mutationFn: async () => {
       if (!user) throw new Error("Não autenticado");
       const payload: any = {
-        client_id: form.client_id,
+        client_name: form.client_name.trim(),
         status: form.status,
         monthly_fee: parseFloat(form.monthly_fee || "0") || 0,
         start_date: form.start_date || null,
@@ -204,7 +189,7 @@ export default function GestaoClientes() {
   const openEdit = (c: any) => {
     setEditingId(c.id);
     setForm({
-      client_id: c.client_id,
+      client_name: c.client_name ?? "",
       status: c.status,
       monthly_fee: String(c.monthly_fee ?? ""),
       start_date: c.start_date ?? "",
@@ -237,7 +222,7 @@ export default function GestaoClientes() {
   }, [contracts]);
 
   const filtered = contracts.filter((c: any) => {
-    const name = (c.clients?.name ?? "").toLowerCase();
+    const name = (c.client_name ?? "").toLowerCase();
     if (search && !name.includes(search.toLowerCase())) return false;
     if (statusFilter !== "all" && c.status !== statusFilter) return false;
     if (serviceFilter !== "all") {
@@ -253,7 +238,7 @@ export default function GestaoClientes() {
     const rows = [
       ["Cliente", "Status", "Fee Mensal", "Início", "Renovação", "Responsável", "Serviços"],
       ...filtered.map((c: any) => [
-        c.clients?.name ?? "",
+        c.client_name ?? "",
         STATUS_LABELS[c.status] ?? c.status,
         String(c.monthly_fee ?? 0).replace(".", ","),
         c.start_date ?? "",
@@ -299,14 +284,12 @@ export default function GestaoClientes() {
               <div className="space-y-4 pt-2 max-h-[70vh] overflow-auto pr-1">
                 <div className="space-y-2">
                   <Label>Cliente *</Label>
-                  <Select value={form.client_id} onValueChange={(v) => setForm(f => ({ ...f, client_id: v }))}>
-                    <SelectTrigger><SelectValue placeholder="Selecione o cliente" /></SelectTrigger>
-                    <SelectContent>
-                      {clients.map((c: any) => (
-                        <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Input
+                    value={form.client_name}
+                    onChange={e => setForm(f => ({ ...f, client_name: e.target.value }))}
+                    placeholder="Nome do cliente"
+                    maxLength={120}
+                  />
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
@@ -359,7 +342,7 @@ export default function GestaoClientes() {
 
                 <Button
                   onClick={() => upsertContract.mutate()}
-                  disabled={!form.client_id || !form.monthly_fee || upsertContract.isPending}
+                  disabled={!form.client_name.trim() || !form.monthly_fee || upsertContract.isPending}
                   className="w-full btn-primary-glow"
                 >
                   {upsertContract.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
@@ -461,8 +444,7 @@ export default function GestaoClientes() {
                 return (
                   <TableRow key={c.id} className="cursor-pointer" onClick={() => setDetailId(c.id)}>
                     <TableCell>
-                      <div className="font-medium text-sm">{c.clients?.name ?? "—"}</div>
-                      <div className="text-xs text-muted-foreground">{c.clients?.nicho ?? ""}</div>
+                      <div className="font-medium text-sm">{c.client_name ?? "—"}</div>
                     </TableCell>
                     <TableCell>
                       <div className="flex flex-wrap gap-1 max-w-[240px]">
@@ -529,7 +511,7 @@ export default function GestaoClientes() {
             <>
               <SheetHeader>
                 <SheetTitle className="flex items-center justify-between gap-2">
-                  <span>{detail.clients?.name}</span>
+                  <span>{detail.client_name}</span>
                   <Badge variant="outline" className={STATUS_STYLES[detail.status]}>
                     {STATUS_LABELS[detail.status]}
                   </Badge>
@@ -633,11 +615,6 @@ export default function GestaoClientes() {
                   <Button variant="outline" size="sm" className="flex-1" onClick={() => openEdit(detail)}>
                     <Pencil className="h-3.5 w-3.5 mr-2" /> Editar
                   </Button>
-                  <Link to={`/clientes/${detail.client_id}/pacotes`} className="flex-1">
-                    <Button variant="outline" size="sm" className="w-full">
-                      <ExternalLink className="h-3.5 w-3.5 mr-2" /> Ver Pacotes
-                    </Button>
-                  </Link>
                 </div>
               </div>
             </>
