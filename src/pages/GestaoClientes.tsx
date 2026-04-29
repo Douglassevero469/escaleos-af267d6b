@@ -96,10 +96,17 @@ export default function GestaoClientes() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("client_contracts")
-        .select("*, clients(id, name, nicho), client_services(id, service_type, description, scope, active)")
+        .select("*, client_services(id, service_type, description, scope, active)")
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return data ?? [];
+      const rows = data ?? [];
+      const ids = Array.from(new Set(rows.map((r: any) => r.client_id).filter(Boolean)));
+      let clientsMap: Record<string, any> = {};
+      if (ids.length) {
+        const { data: cs } = await supabase.from("clients").select("id, name, nicho").in("id", ids);
+        (cs ?? []).forEach((c: any) => { clientsMap[c.id] = c; });
+      }
+      return rows.map((r: any) => ({ ...r, clients: clientsMap[r.client_id] ?? null }));
     },
   });
 
