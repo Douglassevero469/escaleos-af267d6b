@@ -21,13 +21,13 @@ import {
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Briefcase, Plus, Loader2, Search, MoreVertical, Pencil, Trash2,
-  Pause, Play, X, ExternalLink, Download, DollarSign, Users, TrendingDown, Activity,
+  Pause, Play, X, Download, DollarSign, Users, TrendingDown, Activity,
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import { Link } from "react-router-dom";
+
 
 const SERVICE_SUGGESTIONS = [
   "Tráfego Pago", "Social Media", "Full Service", "Consultoria",
@@ -615,11 +615,6 @@ export default function GestaoClientes() {
                   <Button variant="outline" size="sm" className="flex-1" onClick={() => openEdit(detail)}>
                     <Pencil className="h-3.5 w-3.5 mr-2" /> Editar
                   </Button>
-                  <Link to={`/clientes/${detail.client_id}/pacotes`} className="flex-1">
-                    <Button variant="outline" size="sm" className="w-full">
-                      <ExternalLink className="h-3.5 w-3.5 mr-2" /> Ver Pacotes
-                    </Button>
-                  </Link>
                 </div>
               </div>
             </>
