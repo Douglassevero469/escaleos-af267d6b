@@ -36,7 +36,7 @@ export function ExecHeader({ tag, title, subtitle, kpis, actions, className }: E
 
       <div className="flex flex-col xl:flex-row xl:items-stretch divide-y xl:divide-y-0 xl:divide-x divide-border/50">
         {/* Title block */}
-        <div className="p-5 lg:p-6 flex flex-col gap-1.5 xl:min-w-[280px] xl:max-w-sm">
+        <div className="p-5 lg:p-6 flex flex-col gap-1.5 xl:min-w-[260px] xl:max-w-[300px] shrink-0">
           <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
             {tag}
           </span>
@@ -50,12 +50,12 @@ export function ExecHeader({ tag, title, subtitle, kpis, actions, className }: E
 
         {/* KPIs */}
         {kpis && kpis.length > 0 && (
-          <div className="flex-1 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-border/50">
+          <div className="flex-1 min-w-0 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-border/50">
             {kpis.map((k, i) => (
               <div
                 key={i}
                 className={cn(
-                  "p-5 lg:p-6 flex flex-col gap-2 transition-colors hover:bg-foreground/[0.02]",
+                  "min-w-0 p-4 lg:p-5 flex flex-col gap-1.5 transition-colors hover:bg-foreground/[0.02]",
                   k.highlight && "bg-gradient-to-b from-primary/5 to-transparent"
                 )}
               >
@@ -67,10 +67,10 @@ export function ExecHeader({ tag, title, subtitle, kpis, actions, className }: E
                 >
                   {k.label}
                 </span>
-                <div className="flex items-baseline gap-2 flex-wrap">
+                <div className="flex items-baseline gap-2 flex-wrap min-w-0">
                   <span
                     className={cn(
-                      "text-lg lg:text-2xl font-light tabular-nums tracking-tight truncate",
+                      "text-base lg:text-xl xl:text-2xl font-light tabular-nums tracking-tight whitespace-nowrap",
                       k.highlight && (k.positive === false ? "text-destructive font-medium" : "text-foreground font-medium"),
                       !k.highlight && k.positive === false && "text-destructive",
                       !k.highlight && k.positive === true && "text-foreground"
@@ -98,7 +98,7 @@ export function ExecHeader({ tag, title, subtitle, kpis, actions, className }: E
 
         {/* Actions */}
         {actions && (
-          <div className="p-5 lg:p-6 flex flex-wrap items-center gap-2 xl:flex-col xl:items-stretch xl:justify-center xl:min-w-[180px]">
+          <div className="p-5 lg:p-6 flex flex-wrap items-center gap-2 xl:flex-col xl:items-stretch xl:justify-center xl:min-w-[160px] shrink-0">
             {actions}
           </div>
         )}
