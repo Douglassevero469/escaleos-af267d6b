@@ -525,6 +525,13 @@ export function FinanceCashflow({ period }: Props) {
           </div>
         </SheetContent>
       </Sheet>
+
+      <BulkPayBar
+        selectedIds={selectedIds}
+        selectedTotal={selectedTotal}
+        onClear={() => setSelected(new Set())}
+        onDone={() => setSelected(new Set())}
+      />
     </div>
   );
 }
