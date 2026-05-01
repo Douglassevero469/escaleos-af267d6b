@@ -231,7 +231,16 @@ export function FinanceRevenues({ period }: Props) {
                 <TableRow
                   key={r.id}
                   className="border-border/50 cursor-pointer transition-colors hover:bg-foreground/[0.025]"
-                  onClick={() => { setForm({ ...r, category: "Tráfego Pago" }); setOpen(true); }}
+                  onClick={() => {
+                    let dur = 0;
+                    if (r.start_date && r.end_date) {
+                      const a = new Date(r.start_date);
+                      const b = new Date(r.end_date);
+                      dur = Math.max(1, (b.getFullYear() - a.getFullYear()) * 12 + (b.getMonth() - a.getMonth()) + 1);
+                    }
+                    setForm({ ...r, category: "Tráfego Pago", duration_months: dur });
+                    setOpen(true);
+                  }}
                 >
                   <TableCell className="py-4 px-5 lg:px-6 font-medium text-foreground">{r.client_name}</TableCell>
                   <TableCell className="py-4 text-sm text-muted-foreground">{r.description || "—"}</TableCell>
