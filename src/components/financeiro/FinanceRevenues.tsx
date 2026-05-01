@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Plus, Download, Trash2, Search } from "lucide-react";
 import { formatBRL, STATUS_BADGE, REVENUE_CATEGORIES } from "@/lib/finance-utils";
 import { Period, monthsInPeriod } from "@/components/financeiro/PeriodFilter";
+import { downloadCSV, generateBrandedPDF, fmt } from "@/lib/finance-export";
 import { toast } from "sonner";
 
 interface RevForm {
@@ -113,12 +114,36 @@ export function FinanceRevenues({ period }: Props) {
   }
 
   function exportCsv() {
-    const rows = [["Cliente", "Valor", "Dia", "Status", "Início"]];
-    filtered.forEach((r: any) => rows.push([r.client_name, String(r.amount), String(r.payment_day), r.status, r.start_date || ""]));
-    const csv = rows.map(r => r.map(c => `"${c}"`).join(",")).join("\n");
-    const blob = new Blob([csv], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a"); a.href = url; a.download = "receitas.csv"; a.click();
+    const headers = ["Cliente", "Descrição", "Valor mensal", "Dia pgto", "Status", "Início", "Total no período"];
+    const rows = filtered.map((r: any) => [r.client_name, r.description || "", Number(r.amount).toFixed(2), r.payment_day || "", r.status, r.start_date || "", (Number(r.amount) * months).toFixed(2)]);
+    downloadCSV(`receitas-${period.start}-a-${period.end}`, headers, rows);
+    toast.success("CSV exportado");
+  }
+
+  async function exportPdf() {
+    const totalFiltered = filtered.reduce((s: number, r: any) => s + Number(r.amount), 0);
+    await generateBrandedPDF({
+      title: "Receitas Recorrentes",
+      subtitle: "Carteira de clientes ativos no período",
+      periodLabel: period.label,
+      sections: [
+        {
+          kpis: [
+            { label: "MRR", value: fmt(mrr), accent: "#22c55e" },
+            { label: "Total no período", value: fmt(totalPeriod), accent: "#22c55e" },
+            { label: "Clientes", value: String(filtered.length) },
+            { label: "Ticket médio", value: fmt(filtered.length ? totalFiltered / filtered.length : 0) },
+          ],
+          table: {
+            headers: ["Cliente", "Valor mensal", "Dia", "Status", "Total período"],
+            align: ["left", "right", "center", "center", "right"],
+            rows: filtered.map((r: any) => [r.client_name, fmt(Number(r.amount)), r.payment_day || "—", r.status, fmt(Number(r.amount) * months)]),
+            totalsRow: ["TOTAL", fmt(totalFiltered), "", "", fmt(totalFiltered * months)],
+          },
+        },
+      ],
+    });
+    toast.success("PDF gerado");
   }
 
   return (
@@ -130,9 +155,10 @@ export function FinanceRevenues({ period }: Props) {
             <p className="text-3xl font-bold">{formatBRL(mrr)}</p>
             <p className="text-xs text-muted-foreground mt-1">{filtered.length} receitas · Total no período: <span className="font-mono text-foreground">{formatBRL(totalPeriod)}</span></p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Button variant="outline" onClick={importContracts}>Importar de Contratos</Button>
             <Button variant="outline" onClick={exportCsv}><Download className="mr-2 h-4 w-4" />CSV</Button>
+            <Button variant="outline" onClick={exportPdf}><Download className="mr-2 h-4 w-4" />PDF</Button>
             <Button onClick={() => { setForm(empty); setOpen(true); }}><Plus className="mr-2 h-4 w-4" />Nova Receita</Button>
           </div>
         </div>

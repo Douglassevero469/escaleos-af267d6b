@@ -11,9 +11,10 @@ import { Switch } from "@/components/ui/switch";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, Download } from "lucide-react";
 import { formatBRL, EXPENSE_CATEGORIES } from "@/lib/finance-utils";
 import { Period, monthsInPeriod } from "@/components/financeiro/PeriodFilter";
+import { downloadCSV, generateBrandedPDF, fmt } from "@/lib/finance-export";
 import { toast } from "sonner";
 
 interface ExpForm {
@@ -112,6 +113,51 @@ export function FinanceExpenses({ period }: Props) {
 
   const sections = [...grouped, ...(ungrouped.length ? [{ cat: "Sem categoria", items: ungrouped }] : [])];
 
+  function exportCsv() {
+    const headers = ["Categoria", "Nome", "Fornecedor", "Valor mensal", "Dia pgto", "Ativa", "Total no período"];
+    const rows: (string | number)[][] = [];
+    sections.forEach(sec => {
+      sec.items.forEach((e: any) => {
+        rows.push([sec.cat, e.name, e.vendor || "", Number(e.amount).toFixed(2), e.payment_day || "", e.active ? "Sim" : "Não", (Number(e.amount) * months).toFixed(2)]);
+      });
+    });
+    downloadCSV(`despesas-${period.start}-a-${period.end}`, headers, rows);
+    toast.success("CSV exportado");
+  }
+
+  async function exportPdf() {
+    const sectionsPdf = sections.map(sec => {
+      const subtotal = sec.items.filter((e: any) => e.active).reduce((s: number, e: any) => s + Number(e.amount), 0);
+      return {
+        title: sec.cat,
+        subtitle: `${sec.items.length} despesa(s) · Subtotal mensal ${fmt(subtotal)} · Período ${fmt(subtotal * months)}`,
+        table: {
+          headers: ["Nome", "Fornecedor", "Dia", "Valor mensal", "Total período"],
+          align: ["left", "left", "center", "right", "right"] as ("left" | "right" | "center")[],
+          rows: sec.items.map((e: any) => [e.name, e.vendor || "—", e.payment_day || "—", fmt(Number(e.amount)), fmt(Number(e.amount) * months)]),
+          totalsRow: ["Subtotal", "", "", fmt(subtotal), fmt(subtotal * months)],
+        },
+      };
+    });
+    await generateBrandedPDF({
+      title: "Despesas por Categoria",
+      subtitle: "Despesas fixas recorrentes agrupadas por categoria",
+      periodLabel: period.label,
+      sections: [
+        {
+          kpis: [
+            { label: "Total mensal", value: fmt(total), accent: "#ef4444" },
+            { label: "Total no período", value: fmt(totalPeriod), accent: "#ef4444" },
+            { label: "Categorias", value: String(sections.length) },
+            { label: "Despesas ativas", value: String(expenses.filter((e: any) => e.active).length) },
+          ],
+        },
+        ...sectionsPdf,
+      ],
+    });
+    toast.success("PDF gerado");
+  }
+
   return (
     <div className="space-y-4">
       <GlassCard>
@@ -121,7 +167,11 @@ export function FinanceExpenses({ period }: Props) {
             <p className="text-3xl font-bold text-rose-500">{formatBRL(total)}<span className="text-sm text-muted-foreground font-normal">/mês</span></p>
             <p className="text-xs text-muted-foreground mt-1">{expenses.filter((e: any) => e.active).length} ativas · Total no período: <span className="font-mono text-foreground">{formatBRL(totalPeriod)}</span></p>
           </div>
-          <Button onClick={() => { setForm(empty); setOpen(true); }}><Plus className="mr-2 h-4 w-4" />Nova Despesa</Button>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="outline" onClick={exportCsv}><Download className="mr-2 h-4 w-4" />CSV</Button>
+            <Button variant="outline" onClick={exportPdf}><Download className="mr-2 h-4 w-4" />PDF</Button>
+            <Button onClick={() => { setForm(empty); setOpen(true); }}><Plus className="mr-2 h-4 w-4" />Nova Despesa</Button>
+          </div>
         </div>
       </GlassCard>
 

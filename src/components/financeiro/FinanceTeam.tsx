@@ -10,9 +10,10 @@ import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Trash2, LayoutGrid, List } from "lucide-react";
+import { Plus, Trash2, LayoutGrid, List, Download } from "lucide-react";
 import { formatBRL, COMPENSATION_LABELS, STATUS_BADGE } from "@/lib/finance-utils";
 import { Period, monthsInPeriod } from "@/components/financeiro/PeriodFilter";
+import { downloadCSV, generateBrandedPDF, fmt } from "@/lib/finance-export";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -101,6 +102,49 @@ export function FinanceTeam({ period }: Props) {
     setOpen(true);
   }
 
+  function exportCsv() {
+    const headers = ["Cargo", "Nome", "Tipo", "Status", "Custo mensal", "Início", "Custo no período"];
+    const rows = team.map((t: any) => [
+      t.role, t.name || "Vaga aberta",
+      COMPENSATION_LABELS[t.compensation_type] || t.compensation_type,
+      t.status, Number(t.monthly_cost).toFixed(2), t.start_date || "",
+      (Number(t.monthly_cost) * months).toFixed(2),
+    ]);
+    downloadCSV(`equipe-${period.start}-a-${period.end}`, headers, rows);
+    toast.success("CSV exportado");
+  }
+
+  async function exportPdf() {
+    await generateBrandedPDF({
+      title: "Equipe & Folha de Pagamento",
+      subtitle: "Composição de equipe, custos e vagas em aberto",
+      periodLabel: period.label,
+      sections: [
+        {
+          kpis: [
+            { label: "Folha CLT", value: fmt(totalSalary) },
+            { label: "Pró-labores", value: fmt(totalProlabore) },
+            { label: "PJ / Freelas", value: fmt(totalContractor) },
+            { label: "Total mensal", value: fmt(totalAll), accent: "#7B2FF7" },
+            { label: "Total no período", value: fmt(totalPeriod), accent: "#0000FF" },
+            { label: "Vagas abertas", value: String(vacant), accent: "#ef4444" },
+          ],
+          table: {
+            headers: ["Cargo", "Nome", "Tipo", "Status", "Custo mensal", "Custo período"],
+            align: ["left", "left", "left", "center", "right", "right"],
+            rows: team.map((t: any) => [
+              t.role, t.name || "— Vaga aberta —",
+              COMPENSATION_LABELS[t.compensation_type] || t.compensation_type,
+              t.status, fmt(Number(t.monthly_cost)), fmt(Number(t.monthly_cost) * months),
+            ]),
+            totalsRow: ["TOTAL", "", "", "", fmt(totalAll), fmt(totalPeriod)],
+          },
+        },
+      ],
+    });
+    toast.success("PDF gerado");
+  }
+
   const memberCard = (m: any) => {
     const filled = m.status === "active" && m.name;
     return (
@@ -131,7 +175,7 @@ export function FinanceTeam({ period }: Props) {
         <GlassCard className="!p-3"><p className="text-xs text-muted-foreground">Vagas em aberto</p><p className="text-lg font-bold text-rose-500">{vacant}</p></GlassCard>
       </div>
 
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="inline-flex rounded-lg border bg-card p-1">
           <Button variant={view === "org" ? "default" : "ghost"} size="sm" onClick={() => setView("org")}>
             <LayoutGrid className="mr-1.5 h-4 w-4" />Organograma
@@ -140,7 +184,11 @@ export function FinanceTeam({ period }: Props) {
             <List className="mr-1.5 h-4 w-4" />Tabela
           </Button>
         </div>
-        <Button onClick={() => { setForm(empty); setOpen(true); }}><Plus className="mr-2 h-4 w-4" />Nova Posição</Button>
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" onClick={exportCsv}><Download className="mr-2 h-4 w-4" />CSV</Button>
+          <Button variant="outline" onClick={exportPdf}><Download className="mr-2 h-4 w-4" />PDF</Button>
+          <Button onClick={() => { setForm(empty); setOpen(true); }}><Plus className="mr-2 h-4 w-4" />Nova Posição</Button>
+        </div>
       </div>
 
       {view === "org" && (
