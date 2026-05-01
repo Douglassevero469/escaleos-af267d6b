@@ -70,6 +70,11 @@ const ACTION_LABELS: Record<string, string> = {
   client_deleted: "Cliente excluído",
   role_assigned: "Role atribuída",
   role_removed: "Role removida",
+  finance_revenue_deleted: "Receita excluída",
+  finance_expense_deleted: "Despesa excluída",
+  finance_team_deleted: "Membro da equipe excluído",
+  finance_goal_deleted: "Meta excluída",
+  finance_transaction_deleted: "Lançamento excluído",
 };
 
 const STATUS_CONFIG: Record<string, { icon: typeof Info; color: string; bg: string }> = {
@@ -84,6 +89,11 @@ const ENTITY_LABELS: Record<string, string> = {
   document: "Documento",
   client: "Cliente",
   user_role: "Role",
+  finance_revenue: "Receita",
+  finance_expense: "Despesa",
+  finance_team_member: "Equipe",
+  finance_goal: "Meta",
+  finance_transaction: "Lançamento",
 };
 
 const PAGE_SIZE = 50;
@@ -376,6 +386,11 @@ export default function Admin() {
                     <SelectItem value="document">Documentos</SelectItem>
                     <SelectItem value="client">Clientes</SelectItem>
                     <SelectItem value="user_role">Roles</SelectItem>
+                    <SelectItem value="finance_revenue">Receitas</SelectItem>
+                    <SelectItem value="finance_expense">Despesas</SelectItem>
+                    <SelectItem value="finance_team_member">Equipe</SelectItem>
+                    <SelectItem value="finance_goal">Metas</SelectItem>
+                    <SelectItem value="finance_transaction">Lançamentos</SelectItem>
                   </SelectContent>
                 </Select>
                 <Select value={auditStatusFilter} onValueChange={(v) => { setAuditStatusFilter(v); setAuditPage(0); }}>
