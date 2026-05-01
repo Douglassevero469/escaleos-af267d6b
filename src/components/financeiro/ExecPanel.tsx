@@ -111,7 +111,7 @@ export function ExecHeader({ tag, title, subtitle, kpis, actions, className }: E
  * Card de seção interno padronizado (mesma linguagem visual do ExecHeader,
  * mas mais leve para usar em listas, gráficos e tabelas).
  */
-interface ExecCardProps extends React.HTMLAttributes<HTMLDivElement> {
+interface ExecCardProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "title"> {
   title?: ReactNode;
   subtitle?: ReactNode;
   actions?: ReactNode;
