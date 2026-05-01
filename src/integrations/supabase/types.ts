@@ -870,12 +870,14 @@ export type Database = {
       finance_recurring_revenues: {
         Row: {
           amount: number
+          annual_adjustment_index: string | null
           category_id: string | null
           client_name: string
           created_at: string
           description: string | null
           end_date: string | null
           id: string
+          last_adjustment_date: string | null
           linked_contract_id: string | null
           payment_day: number | null
           start_date: string | null
@@ -885,12 +887,14 @@ export type Database = {
         }
         Insert: {
           amount?: number
+          annual_adjustment_index?: string | null
           category_id?: string | null
           client_name: string
           created_at?: string
           description?: string | null
           end_date?: string | null
           id?: string
+          last_adjustment_date?: string | null
           linked_contract_id?: string | null
           payment_day?: number | null
           start_date?: string | null
@@ -900,16 +904,48 @@ export type Database = {
         }
         Update: {
           amount?: number
+          annual_adjustment_index?: string | null
           category_id?: string | null
           client_name?: string
           created_at?: string
           description?: string | null
           end_date?: string | null
           id?: string
+          last_adjustment_date?: string | null
           linked_contract_id?: string | null
           payment_day?: number | null
           start_date?: string | null
           status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      finance_settings: {
+        Row: {
+          approval_enabled: boolean
+          approval_threshold: number
+          created_at: string
+          default_payment_alert_days: number
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          approval_enabled?: boolean
+          approval_threshold?: number
+          created_at?: string
+          default_payment_alert_days?: number
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          approval_enabled?: boolean
+          approval_threshold?: number
+          created_at?: string
+          default_payment_alert_days?: number
+          id?: string
           updated_at?: string
           user_id?: string
         }
@@ -971,6 +1007,9 @@ export type Database = {
       finance_transactions: {
         Row: {
           amount: number
+          approval_status: string | null
+          approved_at: string | null
+          approved_by: string | null
           attachment_url: string | null
           category_id: string | null
           created_at: string
@@ -981,14 +1020,19 @@ export type Database = {
           notes: string | null
           paid_date: string | null
           payment_method: string | null
+          recurring_group_id: string | null
           reference_id: string | null
           reference_type: string | null
           status: string
+          tags: string[] | null
           updated_at: string
           user_id: string
         }
         Insert: {
           amount?: number
+          approval_status?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
           attachment_url?: string | null
           category_id?: string | null
           created_at?: string
@@ -999,14 +1043,19 @@ export type Database = {
           notes?: string | null
           paid_date?: string | null
           payment_method?: string | null
+          recurring_group_id?: string | null
           reference_id?: string | null
           reference_type?: string | null
           status?: string
+          tags?: string[] | null
           updated_at?: string
           user_id: string
         }
         Update: {
           amount?: number
+          approval_status?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
           attachment_url?: string | null
           category_id?: string | null
           created_at?: string
@@ -1017,9 +1066,11 @@ export type Database = {
           notes?: string | null
           paid_date?: string | null
           payment_method?: string | null
+          recurring_group_id?: string | null
           reference_id?: string | null
           reference_type?: string | null
           status?: string
+          tags?: string[] | null
           updated_at?: string
           user_id?: string
         }
@@ -1393,6 +1444,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      bulk_mark_transactions_paid: {
+        Args: { _ids: string[]; _paid_date?: string }
+        Returns: number
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1402,7 +1457,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "user"
+      app_role: "admin" | "user" | "socio"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1530,7 +1585,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "user"],
+      app_role: ["admin", "user", "socio"],
     },
   },
 } as const
