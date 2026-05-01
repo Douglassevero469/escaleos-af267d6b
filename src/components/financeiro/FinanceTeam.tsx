@@ -166,13 +166,13 @@ export function FinanceTeam({ period }: Props) {
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
-        <GlassCard className="!p-3"><p className="text-xs text-muted-foreground">Folha CLT</p><p className="text-lg font-bold">{formatBRL(totalSalary)}</p></GlassCard>
-        <GlassCard className="!p-3"><p className="text-xs text-muted-foreground">Prolabores</p><p className="text-lg font-bold">{formatBRL(totalProlabore)}</p></GlassCard>
-        <GlassCard className="!p-3"><p className="text-xs text-muted-foreground">PJ/Freela</p><p className="text-lg font-bold">{formatBRL(totalContractor)}</p></GlassCard>
-        <GlassCard className="!p-3"><p className="text-xs text-muted-foreground">Custo Total/mês</p><p className="text-lg font-bold text-primary">{formatBRL(totalAll)}</p></GlassCard>
-        <GlassCard className="!p-3"><p className="text-xs text-muted-foreground capitalize">{period.label}</p><p className="text-lg font-bold text-primary">{formatBRL(totalPeriod)}</p></GlassCard>
-        <GlassCard className="!p-3"><p className="text-xs text-muted-foreground">Vagas em aberto</p><p className="text-lg font-bold text-rose-500">{vacant}</p></GlassCard>
+      <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3">
+        <GlassCard className="!p-3 min-w-0"><p className="text-[10px] uppercase tracking-wide text-muted-foreground">Folha CLT</p><p className="text-base md:text-lg font-bold font-mono truncate">{formatBRL(totalSalary)}</p></GlassCard>
+        <GlassCard className="!p-3 min-w-0"><p className="text-[10px] uppercase tracking-wide text-muted-foreground">Prolabores</p><p className="text-base md:text-lg font-bold font-mono truncate">{formatBRL(totalProlabore)}</p></GlassCard>
+        <GlassCard className="!p-3 min-w-0"><p className="text-[10px] uppercase tracking-wide text-muted-foreground">PJ/Freela</p><p className="text-base md:text-lg font-bold font-mono truncate">{formatBRL(totalContractor)}</p></GlassCard>
+        <GlassCard className="!p-3 min-w-0"><p className="text-[10px] uppercase tracking-wide text-muted-foreground">Custo/mês</p><p className="text-base md:text-lg font-bold font-mono text-primary truncate">{formatBRL(totalAll)}</p></GlassCard>
+        <GlassCard className="!p-3 min-w-0"><p className="text-[10px] uppercase tracking-wide text-muted-foreground capitalize truncate">{period.label}</p><p className="text-base md:text-lg font-bold font-mono text-primary truncate">{formatBRL(totalPeriod)}</p></GlassCard>
+        <GlassCard className="!p-3 min-w-0"><p className="text-[10px] uppercase tracking-wide text-muted-foreground">Vagas abertas</p><p className="text-base md:text-lg font-bold text-rose-500">{vacant}</p></GlassCard>
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -196,7 +196,7 @@ export function FinanceTeam({ period }: Props) {
           {team.length === 0 ? (
             <p className="text-center text-muted-foreground py-12">Cadastre membros para visualizar o organograma</p>
           ) : (
-            <div className="space-y-8 min-w-[600px]">
+            <div className="space-y-8">
               <div className="flex justify-center">
                 <div className="rounded-lg bg-primary/10 border-2 border-primary px-6 py-2 font-bold">EQUIPE</div>
               </div>
