@@ -69,6 +69,7 @@ interface Props {
 
 export function FinanceGoals({ period }: Props) {
   const [goals, setGoals] = useState<Goal[]>([]);
+  const confirm = useConfirm();
   const [tx, setTx] = useState<{ kind: string; amount: number; due_date: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
