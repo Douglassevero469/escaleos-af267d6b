@@ -1,7 +1,11 @@
 // AI-powered financial insights — analyzes the workspace's finance data and returns
 // strategic observations using Lovable AI Gateway (Gemini).
-import { corsHeaders } from "@supabase/supabase-js/cors";
 import { createClient } from "jsr:@supabase/supabase-js@2";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
 
 interface Snapshot {
   mrr: number;
