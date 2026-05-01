@@ -43,6 +43,12 @@ export function FinanceCashflow({ period }: Props) {
   const { data: revenues = [] } = useQuery({ queryKey: ["fin-rev-src"], queryFn: async () => (await supabase.from("finance_recurring_revenues").select("*")).data || [] });
   const { data: expenses = [] } = useQuery({ queryKey: ["fin-exp-src"], queryFn: async () => (await supabase.from("finance_recurring_expenses").select("*")).data || [] });
   const { data: team = [] } = useQuery({ queryKey: ["fin-team-src"], queryFn: async () => (await supabase.from("finance_team_members").select("*")).data || [] });
+  const { data: runs = [] } = useQuery({
+    queryKey: ["fin-runs"],
+    queryFn: async () => (await supabase.from("finance_generation_runs").select("*").order("created_at", { ascending: false }).limit(50)).data || [],
+  });
+  const runsByMonth: Record<string, any> = {};
+  runs.forEach((r: any) => { if (!runsByMonth[r.month]) runsByMonth[r.month] = r; });
 
   // Group txs by month
   const byMonth: Record<string, any[]> = {};
