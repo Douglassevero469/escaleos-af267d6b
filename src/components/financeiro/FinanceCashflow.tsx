@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Download, Trash2, RefreshCw, ChevronDown, ChevronRight } from "lucide-react";
+import { Plus, Download, Trash2, RefreshCw, ChevronDown, ChevronRight, History, CheckCircle2, XCircle, AlertCircle, Loader2, Clock } from "lucide-react";
 import { formatBRL, STATUS_BADGE } from "@/lib/finance-utils";
 import { Period } from "@/components/financeiro/PeriodFilter";
 import { toast } from "sonner";
@@ -174,9 +174,16 @@ export function FinanceCashflow({ period }: Props) {
             <p className="text-xs text-muted-foreground uppercase tracking-wide">Fluxo de Caixa</p>
             <p className="text-sm text-muted-foreground capitalize">{period.label} · {months.length} {months.length === 1 ? "mês" : "meses"}</p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Button variant="outline" onClick={exportCsv}><Download className="mr-2 h-4 w-4" />CSV</Button>
-            <Button variant="outline" onClick={generate}><RefreshCw className="mr-2 h-4 w-4" />Gerar mês</Button>
+            <Button variant="outline" onClick={() => setHistoryOpen(true)}>
+              <History className="mr-2 h-4 w-4" />Histórico
+              {runs.length > 0 && <span className="ml-2 text-xs text-muted-foreground">({runs.length})</span>}
+            </Button>
+            <Button variant="outline" onClick={generate} disabled={generating}>
+              {generating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
+              Gerar mês
+            </Button>
             <Button onClick={() => setOpen(true)}><Plus className="mr-2 h-4 w-4" />Lançamento</Button>
           </div>
         </div>
