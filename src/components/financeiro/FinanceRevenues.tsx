@@ -38,6 +38,7 @@ interface Props { period: Period }
 export function FinanceRevenues({ period }: Props) {
   const { user } = useAuth();
   const qc = useQueryClient();
+  const confirm = useConfirm();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [open, setOpen] = useState(false);
