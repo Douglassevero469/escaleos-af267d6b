@@ -237,70 +237,78 @@ export function FinanceCashflow({ period }: Props) {
         }
       />
 
-      <ExecCard title="Evolução mês a mês" subtitle="Clique em uma linha para detalhar">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-8"></TableHead>
-              <TableHead>Mês</TableHead>
-              <TableHead className="text-right">Receita</TableHead>
-              <TableHead className="text-right">Despesa</TableHead>
-              <TableHead className="text-right">Saldo</TableHead>
-              <TableHead className="text-right">Acumulado</TableHead>
-              <TableHead className="text-center">Lanç.</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {rows.map(r => (
-              <>
-                <TableRow key={r.month} className="cursor-pointer" onClick={() => setExpanded(expanded === r.month ? null : r.month)}>
-                  <TableCell>{expanded === r.month ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}</TableCell>
-                  <TableCell className="font-medium">
-                    <div className="flex items-center gap-2">
-                      {monthLabel(r.month)}
-                      {runsByMonth[r.month] && (
-                        <RunStatusIcon status={runsByMonth[r.month].status} trigger={runsByMonth[r.month].trigger} />
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-right font-mono text-emerald-600">{formatBRL(r.inc)}</TableCell>
-                  <TableCell className="text-right font-mono text-rose-600">{formatBRL(r.out)}</TableCell>
-                  <TableCell className={`text-right font-mono font-bold ${r.balance >= 0 ? "text-emerald-600" : "text-rose-600"}`}>{formatBRL(r.balance)}</TableCell>
-                  <TableCell className={`text-right font-mono ${r.acc >= 0 ? "" : "text-rose-600"}`}>{formatBRL(r.acc)}</TableCell>
-                  <TableCell className="text-center text-muted-foreground text-sm">{r.count}</TableCell>
-                </TableRow>
-                {expanded === r.month && (
-                  <TableRow>
-                    <TableCell colSpan={7} className="bg-muted/30 p-0">
-                      <div className="p-3 space-y-1.5">
-                        {(byMonth[r.month] || []).length === 0 ? (
-                          <p className="text-xs text-muted-foreground text-center py-4">Sem lançamentos. Use "Gerar mês" para criar a partir das recorrências.</p>
-                        ) : (
-                          (byMonth[r.month] || []).map(t => (
-                            <div key={t.id} className="flex items-center gap-2 text-sm bg-background rounded px-2 py-1.5">
-                              <Badge variant="outline" className={STATUS_BADGE[t.status]}>{t.status}</Badge>
-                              <span className="text-xs text-muted-foreground w-20">{t.due_date.slice(8)}/{t.due_date.slice(5, 7)}</span>
-                              <span className="flex-1 truncate">{t.description}</span>
-                              <span className={`font-mono text-xs ${t.kind === "income" ? "text-emerald-600" : "text-rose-600"}`}>
-                                {t.kind === "income" ? "+" : "-"}{formatBRL(Number(t.amount))}
-                              </span>
-                              {t.status === "pending" && (
-                                <Button size="sm" variant="ghost" className="h-6 text-xs" onClick={() => markPaid(t)}>Pagar</Button>
-                              )}
-                              <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => removeTx(t.id)}>
-                                <Trash2 className="h-3 w-3 text-destructive" />
-                              </Button>
-                            </div>
-                          ))
+      <ExecCard title="Evolução mês a mês" subtitle="Clique em uma linha para detalhar" padded={false}>
+        <div className="border-t border-border/50">
+          <Table>
+            <TableHeader>
+              <TableRow className="border-border/50 hover:bg-transparent bg-muted/20">
+                <TableHead className="h-11 w-10 px-5 lg:px-6"></TableHead>
+                <TableHead className="h-11 text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">Mês</TableHead>
+                <TableHead className="h-11 text-right text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">Receita</TableHead>
+                <TableHead className="h-11 text-right text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">Despesa</TableHead>
+                <TableHead className="h-11 text-right text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">Saldo</TableHead>
+                <TableHead className="h-11 text-right text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">Acumulado</TableHead>
+                <TableHead className="h-11 text-center text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground px-5 lg:px-6">Lanç.</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {rows.map(r => (
+                <>
+                  <TableRow
+                    key={r.month}
+                    className="border-border/50 cursor-pointer transition-colors hover:bg-foreground/[0.025]"
+                    onClick={() => setExpanded(expanded === r.month ? null : r.month)}
+                  >
+                    <TableCell className="py-4 px-5 lg:px-6 text-muted-foreground">
+                      {expanded === r.month ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                    </TableCell>
+                    <TableCell className="py-4 font-medium text-foreground">
+                      <div className="flex items-center gap-2">
+                        {monthLabel(r.month)}
+                        {runsByMonth[r.month] && (
+                          <RunStatusIcon status={runsByMonth[r.month].status} trigger={runsByMonth[r.month].trigger} />
                         )}
                       </div>
                     </TableCell>
+                    <TableCell className="py-4 text-right tabular-nums text-[hsl(142_71%_40%)] dark:text-[hsl(142_71%_55%)]">{formatBRL(r.inc)}</TableCell>
+                    <TableCell className="py-4 text-right tabular-nums text-destructive">{formatBRL(r.out)}</TableCell>
+                    <TableCell className={`py-4 text-right tabular-nums font-semibold ${r.balance >= 0 ? "text-[hsl(142_71%_40%)] dark:text-[hsl(142_71%_55%)]" : "text-destructive"}`}>{formatBRL(r.balance)}</TableCell>
+                    <TableCell className={`py-4 text-right tabular-nums ${r.acc >= 0 ? "text-foreground" : "text-destructive"}`}>{formatBRL(r.acc)}</TableCell>
+                    <TableCell className="py-4 text-center text-sm text-muted-foreground px-5 lg:px-6">{r.count}</TableCell>
                   </TableRow>
-                )}
-              </>
-            ))}
-          </TableBody>
-        </Table>
+                  {expanded === r.month && (
+                    <TableRow className="border-border/50 hover:bg-transparent">
+                      <TableCell colSpan={7} className="bg-muted/20 p-0">
+                        <div className="px-5 lg:px-6 py-4 space-y-1.5">
+                          {(byMonth[r.month] || []).length === 0 ? (
+                            <p className="text-xs text-muted-foreground text-center py-6">Sem lançamentos. Use "Gerar mês" para criar a partir das recorrências.</p>
+                          ) : (
+                            (byMonth[r.month] || []).map(t => (
+                              <div key={t.id} className="flex items-center gap-3 text-sm bg-background/60 backdrop-blur-sm border border-border/40 rounded-lg px-3 py-2">
+                                <Badge variant="outline" className={`${STATUS_BADGE[t.status]} font-medium border-0 text-[10px]`}>{t.status}</Badge>
+                                <span className="text-xs text-muted-foreground tabular-nums w-14">{t.due_date.slice(8)}/{t.due_date.slice(5, 7)}</span>
+                                <span className="flex-1 truncate text-foreground">{t.description}</span>
+                                <span className={`tabular-nums font-medium text-xs ${t.kind === "income" ? "text-[hsl(142_71%_40%)] dark:text-[hsl(142_71%_55%)]" : "text-destructive"}`}>
+                                  {t.kind === "income" ? "+" : "-"}{formatBRL(Number(t.amount))}
+                                </span>
+                                {t.status === "pending" && (
+                                  <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => markPaid(t)}>Pagar</Button>
+                                )}
+                                <Button size="icon" variant="ghost" className="h-7 w-7 hover:bg-destructive/10 hover:text-destructive" onClick={() => removeTx(t.id)}>
+                                  <Trash2 className="h-3.5 w-3.5" />
+                                </Button>
+                              </div>
+                            ))
+                          )}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       </ExecCard>
 
       <Sheet open={open} onOpenChange={setOpen}>
