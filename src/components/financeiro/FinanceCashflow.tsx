@@ -241,6 +241,14 @@ export function FinanceCashflow({ period }: Props) {
   const totalOut = rows.reduce((s, r) => s + r.out, 0);
   const finalAcc = rows.length ? rows[rows.length - 1].acc : 0;
 
+  // Alertas de vencimento (todas pendentes do período)
+  const overdueCount = txsInPeriod.filter((t: any) => t.status === "pending" && t.due_date < todayISO).length;
+  const dueSoonCount = txsInPeriod.filter((t: any) => {
+    if (t.status !== "pending" || t.due_date < todayISO) return false;
+    const d = Math.round((new Date(t.due_date).getTime() - new Date(todayISO).getTime()) / 86400000);
+    return d <= 7;
+  }).length;
+
   return (
     <div className="space-y-6">
       <ExecHeader
