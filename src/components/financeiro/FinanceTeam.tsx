@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { GlassCard } from "@/components/ui/GlassCard";
+import { ExecHeader, ExecCard } from "@/components/financeiro/ExecPanel";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -165,40 +165,43 @@ export function FinanceTeam({ period }: Props) {
   };
 
   return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3">
-        <GlassCard className="!p-3 min-w-0"><p className="text-[10px] uppercase tracking-wide text-muted-foreground">Folha CLT</p><p className="text-base md:text-lg font-bold font-mono truncate">{formatBRL(totalSalary)}</p></GlassCard>
-        <GlassCard className="!p-3 min-w-0"><p className="text-[10px] uppercase tracking-wide text-muted-foreground">Prolabores</p><p className="text-base md:text-lg font-bold font-mono truncate">{formatBRL(totalProlabore)}</p></GlassCard>
-        <GlassCard className="!p-3 min-w-0"><p className="text-[10px] uppercase tracking-wide text-muted-foreground">PJ/Freela</p><p className="text-base md:text-lg font-bold font-mono truncate">{formatBRL(totalContractor)}</p></GlassCard>
-        <GlassCard className="!p-3 min-w-0"><p className="text-[10px] uppercase tracking-wide text-muted-foreground">Custo/mês</p><p className="text-base md:text-lg font-bold font-mono text-primary truncate">{formatBRL(totalAll)}</p></GlassCard>
-        <GlassCard className="!p-3 min-w-0"><p className="text-[10px] uppercase tracking-wide text-muted-foreground capitalize truncate">{period.label}</p><p className="text-base md:text-lg font-bold font-mono text-primary truncate">{formatBRL(totalPeriod)}</p></GlassCard>
-        <GlassCard className="!p-3 min-w-0"><p className="text-[10px] uppercase tracking-wide text-muted-foreground">Vagas abertas</p><p className="text-base md:text-lg font-bold text-rose-500">{vacant}</p></GlassCard>
-      </div>
-
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="inline-flex rounded-lg border bg-card p-1">
-          <Button variant={view === "org" ? "default" : "ghost"} size="sm" onClick={() => setView("org")}>
-            <LayoutGrid className="mr-1.5 h-4 w-4" />Organograma
-          </Button>
-          <Button variant={view === "table" ? "default" : "ghost"} size="sm" onClick={() => setView("table")}>
-            <List className="mr-1.5 h-4 w-4" />Tabela
-          </Button>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <Button variant="outline" onClick={exportCsv}><Download className="mr-2 h-4 w-4" />CSV</Button>
-          <Button variant="outline" onClick={exportPdf}><Download className="mr-2 h-4 w-4" />PDF</Button>
-          <Button onClick={() => { setForm(empty); setOpen(true); }}><Plus className="mr-2 h-4 w-4" />Nova Posição</Button>
-        </div>
-      </div>
+    <div className="space-y-6">
+      <ExecHeader
+        tag="Equipe & Folha"
+        title="Estrutura Operacional"
+        subtitle={`${period.label} · ${team.filter((t: any) => t.status === "active").length} ativos · ${vacant} vagas abertas`}
+        kpis={[
+          { label: "Custo Mensal", value: formatBRL(totalAll), highlight: true, positive: true },
+          { label: "Folha CLT", value: formatBRL(totalSalary) },
+          { label: "Pró-labores", value: formatBRL(totalProlabore) },
+          { label: "PJ / Freela", value: formatBRL(totalContractor) },
+        ]}
+        actions={
+          <>
+            <div className="inline-flex rounded-lg border border-border bg-card/50 p-1">
+              <Button variant={view === "org" ? "default" : "ghost"} size="sm" onClick={() => setView("org")}>
+                <LayoutGrid className="h-4 w-4" />
+              </Button>
+              <Button variant={view === "table" ? "default" : "ghost"} size="sm" onClick={() => setView("table")}>
+                <List className="h-4 w-4" />
+              </Button>
+            </div>
+            <Button variant="outline" size="sm" onClick={exportCsv}><Download className="mr-2 h-4 w-4" />CSV</Button>
+            <Button variant="outline" size="sm" onClick={exportPdf}><Download className="mr-2 h-4 w-4" />PDF</Button>
+            <Button size="sm" onClick={() => { setForm(empty); setOpen(true); }}><Plus className="mr-2 h-4 w-4" />Nova Posição</Button>
+          </>
+        }
+      />
 
       {view === "org" && (
-        <GlassCard className="overflow-x-auto">
+        <ExecCard title="Organograma" subtitle={`Total no período: ${formatBRL(totalPeriod)}`}>
+          <div className="overflow-x-auto">
           {team.length === 0 ? (
             <p className="text-center text-muted-foreground py-12">Cadastre membros para visualizar o organograma</p>
           ) : (
             <div className="space-y-8">
               <div className="flex justify-center">
-                <div className="rounded-lg bg-primary/10 border-2 border-primary px-6 py-2 font-bold">EQUIPE</div>
+                <div className="rounded-lg bg-primary/10 border-2 border-primary px-6 py-2 font-bold text-primary">EQUIPE</div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {managers.map((mgr: any) => (
@@ -223,11 +226,12 @@ export function FinanceTeam({ period }: Props) {
               </div>
             </div>
           )}
-        </GlassCard>
+          </div>
+        </ExecCard>
       )}
 
       {view === "table" && (
-        <GlassCard>
+        <ExecCard title="Membros da Equipe">
           <Table>
             <TableHeader>
               <TableRow>
@@ -262,7 +266,7 @@ export function FinanceTeam({ period }: Props) {
               })}
             </TableBody>
           </Table>
-        </GlassCard>
+        </ExecCard>
       )}
 
       <Sheet open={open} onOpenChange={setOpen}>
