@@ -13,7 +13,19 @@ import {
   AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell, Legend,
 } from "recharts";
 
-const COLORS = ["#7B2FF7", "#0000FF", "#22c55e", "#f59e0b", "#ec4899", "#06b6d4", "#8b5cf6", "#10b981"];
+const COLORS = ["hsl(265 92% 58%)", "hsl(240 100% 60%)", "hsl(142 71% 45%)", "hsl(38 92% 50%)", "hsl(330 81% 60%)", "hsl(189 94% 43%)", "hsl(280 70% 55%)", "hsl(160 84% 39%)"];
+
+const chartTooltipStyle = {
+  background: "hsl(var(--card) / 0.95)",
+  backdropFilter: "blur(12px)",
+  border: "1px solid hsl(var(--border) / 0.6)",
+  borderRadius: 12,
+  boxShadow: "0 8px 32px hsl(240 20% 4% / 0.12)",
+  padding: "10px 14px",
+  fontSize: 12,
+} as const;
+
+const axisTickStyle = { fill: "hsl(var(--muted-foreground))", fontSize: 11, fontWeight: 500 } as const;
 
 interface Props { period: Period }
 
