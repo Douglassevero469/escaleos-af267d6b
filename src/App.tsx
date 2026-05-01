@@ -16,6 +16,7 @@ import Dashboard from "./pages/Dashboard";
 import NovoBriefing from "./pages/NovoBriefing";
 import Clientes from "./pages/Clientes";
 import GestaoClientes from "./pages/GestaoClientes";
+import Financeiro from "./pages/Financeiro";
 import ClientePacotes from "./pages/ClientePacotes";
 import PacoteDocumentos from "./pages/PacoteDocumentos";
 import Templates from "./pages/Templates";
@@ -54,6 +55,7 @@ const App = () => (
                 <Route path="/briefing/novo" element={<NovoBriefing />} />
                 <Route path="/clientes" element={<Clientes />} />
                 <Route path="/gestao-clientes" element={<GestaoClientes />} />
+                <Route path="/financeiro" element={<Financeiro />} />
                 <Route path="/clientes/:id/pacotes" element={<ClientePacotes />} />
                 <Route path="/pacote/:id" element={<PacoteDocumentos />} />
                 <Route path="/templates" element={<Templates />} />
