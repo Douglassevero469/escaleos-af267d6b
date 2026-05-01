@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { TrendingUp, TrendingDown, Users, BarChart3, Calendar } from "lucide-react";
+import { TrendingUp, TrendingDown, Users, BarChart3, Calendar, Target } from "lucide-react";
 import { FinanceDashboard } from "@/components/financeiro/FinanceDashboard";
 import { FinanceRevenues } from "@/components/financeiro/FinanceRevenues";
 import { FinanceExpenses } from "@/components/financeiro/FinanceExpenses";
 import { FinanceTeam } from "@/components/financeiro/FinanceTeam";
 import { FinanceCashflow } from "@/components/financeiro/FinanceCashflow";
+import { FinanceGoals } from "@/components/financeiro/FinanceGoals";
 import { PeriodFilter, buildPeriod, Period } from "@/components/financeiro/PeriodFilter";
 import { CurrentMonthBar } from "@/components/financeiro/CurrentMonthBar";
 
@@ -50,6 +51,7 @@ export default function Financeiro() {
               { v: "despesas", icon: TrendingDown, label: "Despesas" },
               { v: "equipe", icon: Users, label: "Equipe" },
               { v: "fluxo", icon: Calendar, label: "Fluxo de Caixa" },
+              { v: "metas", icon: Target, label: "Metas" },
             ].map(({ v, icon: Icon, label }) => (
               <TabsTrigger
                 key={v}
@@ -85,6 +87,9 @@ export default function Financeiro() {
           </TabsContent>
           <TabsContent value="fluxo" className="mt-0 animate-in fade-in-50 duration-300">
             <FinanceCashflow period={period} />
+          </TabsContent>
+          <TabsContent value="metas" className="mt-0 animate-in fade-in-50 duration-300">
+            <FinanceGoals period={period} />
           </TabsContent>
         </Tabs>
       </div>

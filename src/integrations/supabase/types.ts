@@ -777,6 +777,48 @@ export type Database = {
         }
         Relationships: []
       }
+      finance_goals: {
+        Row: {
+          color: string | null
+          created_at: string
+          goal_type: string
+          id: string
+          notes: string | null
+          period_type: string
+          reference_month: string
+          target_amount: number
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          goal_type?: string
+          id?: string
+          notes?: string | null
+          period_type?: string
+          reference_month: string
+          target_amount?: number
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          goal_type?: string
+          id?: string
+          notes?: string | null
+          period_type?: string
+          reference_month?: string
+          target_amount?: number
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       finance_recurring_expenses: {
         Row: {
           active: boolean
