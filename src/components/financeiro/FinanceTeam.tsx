@@ -40,6 +40,7 @@ interface Props { period: Period }
 export function FinanceTeam({ period }: Props) {
   const { user } = useAuth();
   const qc = useQueryClient();
+  const confirm = useConfirm();
   const [view, setView] = useState<"org" | "table">("org");
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<MemberForm>(empty);
