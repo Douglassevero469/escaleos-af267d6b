@@ -144,6 +144,96 @@ export function FinanceDashboard({ period }: Props) {
 
   const runway = result < 0 && totalExp ? Math.max(0, Math.floor(mrr / totalExp * 6)) : 999;
 
+  // ===== Indicadores Estratégicos =====
+  // 1. Burn Rate — taxa mensal de queima de caixa quando despesa > receita
+  const burnRate = result < 0 ? Math.abs(result) : 0;
+
+  // 2. Margem Líquida (%)
+  const netMargin = mrr > 0 ? (result / mrr) * 100 : 0;
+
+  // 3. Caixa Atual — soma de transações pagas (income - expense) até hoje
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const cashCurrent = txs
+    .filter((t: any) => t.status === "paid" && t.paid_date && t.paid_date <= todayStr)
+    .reduce((s: number, t: any) => s + (t.kind === "income" ? Number(t.amount) : -Number(t.amount)), 0);
+
+  // 6. MRR Growth — comparação MRR ativo no período atual vs período anterior do mesmo tamanho
+  const prevStart = new Date(period.start);
+  prevStart.setMonth(prevStart.getMonth() - months);
+  const prevStartStr = prevStart.toISOString().slice(0, 10);
+  const prevEndStr = period.start;
+  const prevActiveRevs = revenues.filter((r: any) =>
+    r.status === "active" &&
+    (!r.start_date || r.start_date <= prevEndStr) &&
+    (!r.end_date || r.end_date >= prevStartStr)
+  );
+  const prevMrr = prevActiveRevs.reduce((s: number, r: any) => s + Number(r.amount), 0);
+  const mrrGrowth = prevMrr > 0 ? ((mrr - prevMrr) / prevMrr) * 100 : (mrr > 0 ? 100 : 0);
+
+  // 7. Churn Rate — % de clientes que terminaram contrato no período
+  const churnedInPeriod = revenues.filter((r: any) =>
+    r.end_date && r.end_date >= period.start && r.end_date <= period.end
+  ).length;
+  const churnBase = activeClients + churnedInPeriod;
+  const churnRate = churnBase > 0 ? (churnedInPeriod / churnBase) * 100 : 0;
+
+  // 9. LTV (Lifetime Value) — Ticket médio / churn mensal estimado
+  const monthlyChurnRate = months > 0 ? churnRate / months : churnRate;
+  const ltv = monthlyChurnRate > 0 ? ticket / (monthlyChurnRate / 100) : ticket * 24; // fallback: 24 meses
+
+  // 11. % Folha sobre Receita
+  const payrollPct = mrr > 0 ? (teamCost / mrr) * 100 : 0;
+
+  // 12. Concentração Top 3 (% — já calculado acima)
+  // 14. Receita por Funcionário
+  const revenuePerEmployee = activeTeamCount > 0 ? mrr / activeTeamCount : 0;
+
+  // ===== Forecast 90 dias =====
+  const forecastSeries = (() => {
+    const arr: any[] = [];
+    let cumulative = cashCurrent;
+    const start = new Date();
+    for (let d = 0; d < 90; d++) {
+      const day = new Date(start);
+      day.setDate(start.getDate() + d);
+      const ds = day.toISOString().slice(0, 10);
+      const dayNum = day.getDate();
+
+      // Pendências reais agendadas para o dia
+      const pendingTx = txs.filter((t: any) => t.status === "pending" && t.due_date === ds);
+      const pendingIn = pendingTx.filter((t: any) => t.kind === "income").reduce((s: number, t: any) => s + Number(t.amount), 0);
+      const pendingOut = pendingTx.filter((t: any) => t.kind === "expense").reduce((s: number, t: any) => s + Number(t.amount), 0);
+
+      // Recorrências projetadas no dia de pagamento
+      const recIn = activeRevs
+        .filter((r: any) => (r.payment_day || 5) === dayNum)
+        .reduce((s: number, r: any) => s + Number(r.amount), 0);
+      const recOut = activeExps
+        .filter((e: any) => (e.payment_day || 5) === dayNum)
+        .reduce((s: number, e: any) => s + Number(e.amount), 0);
+      // Folha — aproximado no dia 5
+      const payrollOut = dayNum === 5 ? teamCost : 0;
+
+      const inflow = pendingIn + recIn;
+      const outflow = pendingOut + recOut + payrollOut;
+      cumulative += inflow - outflow;
+
+      arr.push({
+        dia: day.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }),
+        saldo: Math.round(cumulative),
+        entrada: inflow,
+        saida: outflow,
+      });
+    }
+    return arr;
+  })();
+
+  const forecast30 = forecastSeries[29]?.saldo ?? cashCurrent;
+  const forecast60 = forecastSeries[59]?.saldo ?? cashCurrent;
+  const forecast90 = forecastSeries[89]?.saldo ?? cashCurrent;
+  const forecastMin = Math.min(...forecastSeries.map((f: any) => f.saldo));
+  const forecastNegativeDay = forecastSeries.find((f: any) => f.saldo < 0);
+
   function exportCsv() {
     const headers = ["Período", "Receita", "Despesa", "Saldo"];
     const rows = monthSeries.map((m: any) => [m.mes, Number(m.receita).toFixed(2), Number(m.despesa).toFixed(2), Number(m.saldo).toFixed(2)]);
