@@ -343,11 +343,42 @@ export function FinanceCashflow({ period }: Props) {
                           {(byMonth[r.month] || []).length === 0 ? (
                             <p className="text-xs text-muted-foreground text-center py-6">Sem lançamentos. Use "Gerar mês" para criar a partir das recorrências.</p>
                           ) : (
-                            (byMonth[r.month] || []).map(t => (
-                              <div key={t.id} className="flex items-center gap-3 text-sm bg-background/60 backdrop-blur-sm border border-border/40 rounded-lg px-3 py-2">
+                            (byMonth[r.month] || []).map(t => {
+                              const alert = dueAlert(t);
+                              const isSel = selected.has(t.id);
+                              return (
+                              <div key={t.id} className={`flex items-center gap-3 text-sm bg-background/60 backdrop-blur-sm border rounded-lg px-3 py-2 transition-colors ${isSel ? "border-primary/60 bg-primary/5" : "border-border/40"}`}>
+                                {t.status === "pending" && (
+                                  <Checkbox
+                                    checked={isSel}
+                                    onCheckedChange={() => toggleSelect(t.id)}
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="shrink-0"
+                                  />
+                                )}
                                 <Badge variant="outline" className={`${STATUS_BADGE[t.status]} font-medium border-0 text-[10px]`}>{t.status}</Badge>
                                 <span className="text-xs text-muted-foreground tabular-nums w-14">{t.due_date.slice(8)}/{t.due_date.slice(5, 7)}</span>
-                                <span className="flex-1 truncate text-foreground">{t.description}</span>
+                                {alert && (
+                                  <Badge
+                                    variant="outline"
+                                    className={`text-[10px] font-semibold border-0 ${alert.tone === "danger" ? "bg-destructive/15 text-destructive" : "bg-amber-500/15 text-amber-600 dark:text-amber-400"}`}
+                                  >
+                                    {alert.label}
+                                  </Badge>
+                                )}
+                                <span className="flex-1 truncate text-foreground">
+                                  {t.description}
+                                  {t.attachment_url && (
+                                    <a href={t.attachment_url} target="_blank" rel="noreferrer" className="inline-block ml-1.5 align-middle text-primary hover:text-primary/80" onClick={(e) => e.stopPropagation()} title="Ver anexo">📎</a>
+                                  )}
+                                  {Array.isArray(t.tags) && t.tags.length > 0 && (
+                                    <span className="ml-2 inline-flex gap-1 align-middle">
+                                      {t.tags.slice(0, 3).map((tag: string) => (
+                                        <span key={tag} className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">{tag}</span>
+                                      ))}
+                                    </span>
+                                  )}
+                                </span>
                                 <span className={`tabular-nums font-medium text-xs ${t.kind === "income" ? "text-[hsl(142_71%_40%)] dark:text-[hsl(142_71%_55%)]" : "text-destructive"}`}>
                                   {t.kind === "income" ? "+" : "-"}{formatBRL(Number(t.amount))}
                                 </span>
@@ -358,7 +389,8 @@ export function FinanceCashflow({ period }: Props) {
                                   <Trash2 className="h-3.5 w-3.5" />
                                 </Button>
                               </div>
-                            ))
+                              );
+                            })
                           )}
                         </div>
                       </TableCell>
