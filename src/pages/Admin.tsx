@@ -18,6 +18,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
 import { formatDistanceToNow, format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { AdminUserActions } from "@/components/admin/AdminUserActions";
 
 interface AdminUser {
   user_id: string;
