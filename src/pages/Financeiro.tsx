@@ -7,6 +7,7 @@ import { FinanceExpenses } from "@/components/financeiro/FinanceExpenses";
 import { FinanceTeam } from "@/components/financeiro/FinanceTeam";
 import { FinanceCashflow } from "@/components/financeiro/FinanceCashflow";
 import { PeriodFilter, buildPeriod, Period } from "@/components/financeiro/PeriodFilter";
+import { CurrentMonthBar } from "@/components/financeiro/CurrentMonthBar";
 
 export default function Financeiro() {
   const [tab, setTab] = useState("dashboard");
@@ -47,6 +48,8 @@ export default function Financeiro() {
             <Calendar className="h-4 w-4" /> Fluxo de Caixa
           </TabsTrigger>
         </TabsList>
+
+        <CurrentMonthBar />
 
         <TabsContent value="dashboard"><FinanceDashboard period={period} /></TabsContent>
         <TabsContent value="receitas"><FinanceRevenues period={period} /></TabsContent>
