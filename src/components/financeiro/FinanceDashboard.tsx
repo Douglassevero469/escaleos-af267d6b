@@ -256,7 +256,7 @@ export function FinanceDashboard({ period }: Props) {
 
       {/* Receita vs Despesa */}
       <div className="grid lg:grid-cols-2 gap-5">
-        <ExecCard title="Receita vs Despesa" subtitle={period.label}>
+        <ExecCard title="Receita vs Despesa" subtitle={period.label} info="Comparativo mês a mês entre receitas recebidas e despesas pagas no período selecionado. Permite identificar tendências de crescimento, sazonalidade e meses deficitários.">
           <div className="flex items-center gap-4 mb-3 text-[11px] font-medium">
             <span className="flex items-center gap-1.5">
               <span className="h-2 w-2 rounded-full bg-[hsl(142_71%_45%)]" />
