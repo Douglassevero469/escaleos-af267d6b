@@ -13,6 +13,7 @@ import { Plus, Download, Trash2, Search } from "lucide-react";
 import { formatBRL, STATUS_BADGE, REVENUE_CATEGORIES } from "@/lib/finance-utils";
 import { Period, monthsInPeriod } from "@/components/financeiro/PeriodFilter";
 import { downloadCSV, generateBrandedPDF, fmt } from "@/lib/finance-export";
+import { useConfirm } from "@/components/ui/confirm-dialog";
 import { ExecHeader, ExecCard } from "@/components/financeiro/ExecPanel";
 import { toast } from "sonner";
 
