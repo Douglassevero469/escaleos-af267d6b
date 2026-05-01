@@ -14,6 +14,7 @@ import { Plus, Trash2, LayoutGrid, List, Download } from "lucide-react";
 import { formatBRL, COMPENSATION_LABELS, STATUS_BADGE } from "@/lib/finance-utils";
 import { Period, monthsInPeriod } from "@/components/financeiro/PeriodFilter";
 import { downloadCSV, generateBrandedPDF, fmt } from "@/lib/finance-export";
+import { useConfirm } from "@/components/ui/confirm-dialog";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
