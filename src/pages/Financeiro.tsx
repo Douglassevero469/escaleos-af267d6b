@@ -51,6 +51,7 @@ export default function Financeiro() {
               { v: "despesas", icon: TrendingDown, label: "Despesas" },
               { v: "equipe", icon: Users, label: "Equipe" },
               { v: "fluxo", icon: Calendar, label: "Fluxo de Caixa" },
+              { v: "metas", icon: Target, label: "Metas" },
             ].map(({ v, icon: Icon, label }) => (
               <TabsTrigger
                 key={v}
