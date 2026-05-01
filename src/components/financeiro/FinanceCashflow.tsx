@@ -22,6 +22,7 @@ interface Props { period: Period }
 export function FinanceCashflow({ period }: Props) {
   const { user } = useAuth();
   const qc = useQueryClient();
+  const confirm = useConfirm();
   const [open, setOpen] = useState(false);
   const [genOpen, setGenOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
