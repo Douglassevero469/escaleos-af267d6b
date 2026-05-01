@@ -75,23 +75,23 @@ export function CurrentMonthBar() {
   ];
 
   return (
-    <GlassCard className="!p-3 border-primary/20">
-      <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
-        <div className="flex items-center gap-2 pr-2 border-r border-border/50">
-          <div className="rounded-md bg-primary/10 p-1.5">
-            <CalendarCheck2 className="h-4 w-4 text-primary" />
-          </div>
-          <div>
-            <p className="text-[10px] uppercase tracking-wide text-muted-foreground leading-none">Mês atual</p>
-            <p className="text-sm font-semibold capitalize leading-tight">{label}</p>
-          </div>
+    <GlassCard className="!p-4 border-primary/20 bg-gradient-to-r from-primary/5 to-transparent">
+      <div className="flex items-center gap-3 mb-3">
+        <div className="rounded-md bg-primary/10 p-1.5">
+          <CalendarCheck2 className="h-4 w-4 text-primary" />
         </div>
+        <div>
+          <p className="text-[10px] uppercase tracking-wide text-muted-foreground leading-none">Mês atual</p>
+          <p className="text-sm font-semibold capitalize leading-tight">{label}</p>
+        </div>
+      </div>
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
         {items.map((it) => (
-          <div key={it.label} className="flex items-center gap-2">
-            <it.icon className={`h-4 w-4 ${it.color} opacity-70`} />
-            <div>
-              <p className="text-[10px] uppercase tracking-wide text-muted-foreground leading-none">{it.label}</p>
-              <p className={`text-sm font-bold font-mono leading-tight ${it.color}`}>{it.value}</p>
+          <div key={it.label} className="flex items-center gap-2 min-w-0">
+            <it.icon className={`h-4 w-4 shrink-0 ${it.color} opacity-70`} />
+            <div className="min-w-0">
+              <p className="text-[10px] uppercase tracking-wide text-muted-foreground leading-none truncate">{it.label}</p>
+              <p className={`text-sm font-bold font-mono leading-tight truncate ${it.color}`}>{it.value}</p>
             </div>
           </div>
         ))}

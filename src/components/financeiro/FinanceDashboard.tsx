@@ -196,17 +196,30 @@ export function FinanceDashboard({ period }: Props) {
     <div className="space-y-6">
       {/* Período resumo */}
       <GlassCard>
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <p className="text-xs text-muted-foreground uppercase tracking-wide">Período: <span className="capitalize text-foreground">{period.label}</span></p>
-            <p className="text-xs text-muted-foreground">{period.start.split("-").reverse().join("/")} → {period.end.split("-").reverse().join("/")} · {months} {months === 1 ? "mês" : "meses"}</p>
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+          <div className="min-w-0">
+            <p className="text-xs text-muted-foreground uppercase tracking-wide">
+              Período: <span className="capitalize text-foreground font-medium">{period.label}</span>
+            </p>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {period.start.split("-").reverse().join("/")} → {period.end.split("-").reverse().join("/")} · {months} {months === 1 ? "mês" : "meses"}
+            </p>
           </div>
-          <div className="grid grid-cols-3 gap-6 text-right">
-            <div><p className="text-xs text-muted-foreground">Receita período</p><p className="font-mono font-bold text-emerald-600">{formatBRL(periodRev)}</p></div>
-            <div><p className="text-xs text-muted-foreground">Despesa período</p><p className="font-mono font-bold text-rose-600">{formatBRL(periodExp)}</p></div>
-            <div><p className="text-xs text-muted-foreground">Resultado</p><p className={`font-mono font-bold ${periodResult >= 0 ? "text-emerald-600" : "text-rose-600"}`}>{formatBRL(periodResult)}</p></div>
+          <div className="grid grid-cols-3 gap-4 lg:gap-6 lg:text-right">
+            <div className="min-w-0">
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Receita</p>
+              <p className="font-mono font-bold text-emerald-600 text-sm md:text-base truncate">{formatBRL(periodRev)}</p>
+            </div>
+            <div className="min-w-0">
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Despesa</p>
+              <p className="font-mono font-bold text-rose-600 text-sm md:text-base truncate">{formatBRL(periodExp)}</p>
+            </div>
+            <div className="min-w-0">
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Resultado</p>
+              <p className={`font-mono font-bold text-sm md:text-base truncate ${periodResult >= 0 ? "text-emerald-600" : "text-rose-600"}`}>{formatBRL(periodResult)}</p>
+            </div>
           </div>
-          <div className="flex flex-wrap gap-2 w-full md:w-auto">
+          <div className="flex flex-wrap gap-2">
             <Button variant="outline" size="sm" onClick={exportCsv}><Download className="mr-2 h-4 w-4" />CSV</Button>
             <Button variant="outline" size="sm" onClick={exportPdf}><Download className="mr-2 h-4 w-4" />PDF</Button>
           </div>
@@ -214,7 +227,7 @@ export function FinanceDashboard({ period }: Props) {
       </GlassCard>
 
       {/* KPIs */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3 md:gap-4">
         <StatsCard title="MRR" value={formatBRL(mrr)} icon={TrendingUp} positive change={`${activeClients} clientes`} />
         <StatsCard title="Despesas/mês" value={formatBRL(totalExp)} icon={TrendingDown} change={`Folha + fixos`} />
         <StatsCard title="Resultado/mês" value={formatBRL(result)} icon={Wallet} positive={result >= 0} change={result >= 0 ? "Lucro" : "Prejuízo"} />
