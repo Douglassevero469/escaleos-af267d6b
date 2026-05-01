@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { GlassCard } from "@/components/ui/GlassCard";
+import { ExecHeader, ExecCard } from "@/components/financeiro/ExecPanel";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -159,34 +159,39 @@ export function FinanceExpenses({ period }: Props) {
   }
 
   return (
-    <div className="space-y-4">
-      <GlassCard>
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <p className="text-xs text-muted-foreground uppercase tracking-wide">Despesas Fixas · {period.label}</p>
-            <p className="text-3xl font-bold text-rose-500">{formatBRL(total)}<span className="text-sm text-muted-foreground font-normal">/mês</span></p>
-            <p className="text-xs text-muted-foreground mt-1">{expenses.filter((e: any) => e.active).length} ativas · Total no período: <span className="font-mono text-foreground">{formatBRL(totalPeriod)}</span></p>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <Button variant="outline" onClick={exportCsv}><Download className="mr-2 h-4 w-4" />CSV</Button>
-            <Button variant="outline" onClick={exportPdf}><Download className="mr-2 h-4 w-4" />PDF</Button>
-            <Button onClick={() => { setForm(empty); setOpen(true); }}><Plus className="mr-2 h-4 w-4" />Nova Despesa</Button>
-          </div>
-        </div>
-      </GlassCard>
+    <div className="space-y-6">
+      <ExecHeader
+        tag="Despesas Fixas"
+        title="Custos Recorrentes"
+        subtitle={`${period.label} · ${expenses.filter((e: any) => e.active).length} despesas ativas em ${sections.length} categorias`}
+        kpis={[
+          { label: "Total Mensal", value: formatBRL(total), highlight: true, positive: false },
+          { label: "Total no Período", value: formatBRL(totalPeriod) },
+          { label: "Categorias", value: String(sections.length) },
+          { label: "Despesas Ativas", value: String(expenses.filter((e: any) => e.active).length) },
+        ]}
+        actions={
+          <>
+            <Button variant="outline" size="sm" onClick={exportCsv}><Download className="mr-2 h-4 w-4" />CSV</Button>
+            <Button variant="outline" size="sm" onClick={exportPdf}><Download className="mr-2 h-4 w-4" />PDF</Button>
+            <Button size="sm" onClick={() => { setForm(empty); setOpen(true); }}><Plus className="mr-2 h-4 w-4" />Nova Despesa</Button>
+          </>
+        }
+      />
 
       {sections.length === 0 && (
-        <GlassCard><p className="text-center text-muted-foreground py-12">Nenhuma despesa cadastrada</p></GlassCard>
+        <ExecCard><p className="text-center text-muted-foreground py-12">Nenhuma despesa cadastrada</p></ExecCard>
       )}
 
       {sections.map(section => {
         const subtotal = section.items.filter((e: any) => e.active).reduce((s: number, e: any) => s + Number(e.amount), 0);
         return (
-          <GlassCard key={section.cat}>
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="font-semibold">{section.cat}</h3>
-              <span className="text-sm font-mono text-muted-foreground">{formatBRL(subtotal)}</span>
-            </div>
+          <ExecCard
+            key={section.cat}
+            title={section.cat}
+            subtitle={`${section.items.length} ${section.items.length === 1 ? "despesa" : "despesas"}`}
+            actions={<span className="text-sm font-mono font-medium text-foreground">{formatBRL(subtotal)}</span>}
+          >
             <Table>
               <TableHeader>
                 <TableRow>
@@ -217,7 +222,7 @@ export function FinanceExpenses({ period }: Props) {
                 ))}
               </TableBody>
             </Table>
-          </GlassCard>
+          </ExecCard>
         );
       })}
 
