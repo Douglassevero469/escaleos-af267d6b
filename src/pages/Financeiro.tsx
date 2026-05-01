@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { TrendingUp, TrendingDown, Users, BarChart3, Calendar, Target, Sparkles } from "lucide-react";
+import { TrendingUp, TrendingDown, Users, BarChart3, Calendar, Target, Sparkles, PiggyBank } from "lucide-react";
 import { FinanceDashboard } from "@/components/financeiro/FinanceDashboard";
 import { FinanceRevenues } from "@/components/financeiro/FinanceRevenues";
 import { FinanceExpenses } from "@/components/financeiro/FinanceExpenses";
@@ -8,6 +8,7 @@ import { FinanceTeam } from "@/components/financeiro/FinanceTeam";
 import { FinanceCashflow } from "@/components/financeiro/FinanceCashflow";
 import { FinanceGoals } from "@/components/financeiro/FinanceGoals";
 import { FinanceInsights } from "@/components/financeiro/FinanceInsights";
+import { FinanceBudgets } from "@/components/financeiro/FinanceBudgets";
 import { PeriodFilter, buildPeriod, Period } from "@/components/financeiro/PeriodFilter";
 import { CurrentMonthBar } from "@/components/financeiro/CurrentMonthBar";
 
