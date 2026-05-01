@@ -343,12 +343,21 @@ export default function Admin() {
                                 })
                               : "Nunca"}
                           </TableCell>
+                          <TableCell>
+                            <AdminUserActions
+                              userId={u.user_id}
+                              userEmail={u.email}
+                              userName={u.display_name}
+                              currentModules={u.modules || []}
+                              isSelf={u.user_id === user?.id}
+                            />
+                          </TableCell>
                         </TableRow>
                       );
                     })}
                     {filteredUsers.length === 0 && (
                       <TableRow>
-                        <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
+                        <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
                           Nenhum usuário encontrado
                         </TableCell>
                       </TableRow>
