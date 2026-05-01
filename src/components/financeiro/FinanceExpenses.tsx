@@ -15,6 +15,7 @@ import { Plus, Trash2, Download } from "lucide-react";
 import { formatBRL, EXPENSE_CATEGORIES } from "@/lib/finance-utils";
 import { Period, monthsInPeriod } from "@/components/financeiro/PeriodFilter";
 import { downloadCSV, generateBrandedPDF, fmt } from "@/lib/finance-export";
+import { useConfirm } from "@/components/ui/confirm-dialog";
 import { toast } from "sonner";
 
 interface ExpForm {
@@ -38,6 +39,7 @@ interface Props { period: Period }
 export function FinanceExpenses({ period }: Props) {
   const { user } = useAuth();
   const qc = useQueryClient();
+  const confirm = useConfirm();
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<ExpForm>(empty);
 
@@ -94,7 +96,7 @@ export function FinanceExpenses({ period }: Props) {
   }
 
   async function remove(id: string) {
-    if (!confirm("Excluir?")) return;
+    if (!(await confirm({ title: "Excluir despesa?", description: "Esta despesa será removida permanentemente. Esta ação não poderá ser desfeita.", confirmText: "Excluir" }))) return;
     await supabase.from("finance_recurring_expenses").delete().eq("id", id);
     qc.invalidateQueries({ queryKey: ["fin-expenses"] });
     qc.invalidateQueries({ queryKey: ["fin-exp"] });

@@ -13,6 +13,7 @@ import { Plus, Download, Trash2, Search } from "lucide-react";
 import { formatBRL, STATUS_BADGE, REVENUE_CATEGORIES } from "@/lib/finance-utils";
 import { Period, monthsInPeriod } from "@/components/financeiro/PeriodFilter";
 import { downloadCSV, generateBrandedPDF, fmt } from "@/lib/finance-export";
+import { useConfirm } from "@/components/ui/confirm-dialog";
 import { ExecHeader, ExecCard } from "@/components/financeiro/ExecPanel";
 import { toast } from "sonner";
 
@@ -37,6 +38,7 @@ interface Props { period: Period }
 export function FinanceRevenues({ period }: Props) {
   const { user } = useAuth();
   const qc = useQueryClient();
+  const confirm = useConfirm();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [open, setOpen] = useState(false);
@@ -85,7 +87,7 @@ export function FinanceRevenues({ period }: Props) {
   }
 
   async function remove(id: string) {
-    if (!confirm("Excluir esta receita?")) return;
+    if (!(await confirm({ title: "Excluir receita?", description: "Esta receita será removida permanentemente. Esta ação não poderá ser desfeita.", confirmText: "Excluir" }))) return;
     await supabase.from("finance_recurring_revenues").delete().eq("id", id);
     qc.invalidateQueries({ queryKey: ["fin-revenues"] });
     qc.invalidateQueries({ queryKey: ["fin-rev"] });

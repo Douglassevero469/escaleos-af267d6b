@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { ConfirmProvider } from "@/components/ui/confirm-dialog";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ThemeProvider } from "@/hooks/useTheme";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
@@ -40,9 +41,10 @@ const App = () => (
     <ThemeProvider>
       <AuthProvider>
         <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
+          <ConfirmProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/lp1" element={<Index />} />
@@ -72,7 +74,8 @@ const App = () => (
               <Route path="/briefing-publico" element={<BriefingPublico />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
-          </BrowserRouter>
+            </BrowserRouter>
+          </ConfirmProvider>
         </TooltipProvider>
       </AuthProvider>
     </ThemeProvider>

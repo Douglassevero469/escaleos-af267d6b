@@ -15,12 +15,14 @@ import { formatBRL, STATUS_BADGE } from "@/lib/finance-utils";
 import { Period } from "@/components/financeiro/PeriodFilter";
 import { downloadCSV, generateBrandedPDF, fmt, monthBR } from "@/lib/finance-export";
 import { toast } from "sonner";
+import { useConfirm } from "@/components/ui/confirm-dialog";
 
 interface Props { period: Period }
 
 export function FinanceCashflow({ period }: Props) {
   const { user } = useAuth();
   const qc = useQueryClient();
+  const confirm = useConfirm();
   const [open, setOpen] = useState(false);
   const [genOpen, setGenOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
@@ -158,7 +160,7 @@ export function FinanceCashflow({ period }: Props) {
   }
 
   async function removeTx(id: string) {
-    if (!confirm("Excluir lançamento?")) return;
+    if (!(await confirm({ title: "Excluir lançamento?", description: "Este lançamento será removido permanentemente. Esta ação não poderá ser desfeita.", confirmText: "Excluir" }))) return;
     await supabase.from("finance_transactions").delete().eq("id", id);
     qc.invalidateQueries({ queryKey: ["fin-tx-cf"] });
   }
