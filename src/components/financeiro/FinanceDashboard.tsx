@@ -226,12 +226,12 @@ export function FinanceDashboard({ period }: Props) {
 
       {/* KPIs detalhados */}
       <div className="grid grid-cols-2 md:grid-cols-3 2xl:grid-cols-6 gap-3 md:gap-4">
-        <StatsCard title="MRR" value={formatBRL(mrr)} icon={TrendingUp} positive change={`${activeClients} clientes`} />
-        <StatsCard title="Despesas/mês" value={formatBRL(totalExp)} icon={TrendingDown} change={`Folha + fixos`} />
-        <StatsCard title="Resultado/mês" value={formatBRL(result)} icon={Wallet} positive={result >= 0} change={result >= 0 ? "Lucro" : "Prejuízo"} />
-        <StatsCard title="Ticket Médio" value={formatBRL(ticket)} icon={Target} />
-        <StatsCard title="Custo/Func." value={formatBRL(costPerEmployee)} icon={Users} change={`${activeTeamCount} ativos`} />
-        <StatsCard title="Runway" value={runway > 100 ? "∞" : `${runway}m`} icon={AlertTriangle} positive={runway > 6} change={runway > 6 ? "Saudável" : "Crítico"} />
+        <StatsCard title="MRR" value={formatBRL(mrr)} icon={TrendingUp} positive change={`${activeClients} clientes`} info="MRR (Monthly Recurring Revenue) é a receita recorrente mensal proveniente de contratos ativos. Indica a previsibilidade de faturamento do negócio." />
+        <StatsCard title="Despesas/mês" value={formatBRL(totalExp)} icon={TrendingDown} change={`Folha + fixos`} info="Soma de todas as despesas mensais previstas, incluindo folha de pagamento, custos fixos recorrentes e variáveis." />
+        <StatsCard title="Resultado/mês" value={formatBRL(result)} icon={Wallet} positive={result >= 0} change={result >= 0 ? "Lucro" : "Prejuízo"} info="Diferença entre receita mensal (MRR) e despesas mensais. Resultado positivo indica lucro; negativo, prejuízo operacional." />
+        <StatsCard title="Ticket Médio" value={formatBRL(ticket)} icon={Target} info="Valor médio cobrado por cliente ativo (MRR ÷ número de clientes). Mede o poder de monetização da carteira." />
+        <StatsCard title="Custo/Func." value={formatBRL(costPerEmployee)} icon={Users} change={`${activeTeamCount} ativos`} info="Custo médio mensal por colaborador ativo. Inclui salários, pró-labore e outras formas de remuneração cadastradas na equipe." />
+        <StatsCard title="Runway" value={runway > 100 ? "∞" : `${runway}m`} icon={AlertTriangle} positive={runway > 6} change={runway > 6 ? "Saudável" : "Crítico"} info="Runway (cash runway) é o tempo, em meses, que a empresa consegue operar com o caixa atual considerando o ritmo de queima (burn rate). Acima de 6 meses é considerado saudável." />
       </div>
 
       {/* Alertas */}
