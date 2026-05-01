@@ -87,7 +87,7 @@ export function FinanceRevenues({ period }: Props) {
   }
 
   async function remove(id: string) {
-    if (!confirm("Excluir esta receita?")) return;
+    if (!(await confirm({ title: "Excluir receita?", description: "Esta receita será removida permanentemente. Esta ação não poderá ser desfeita.", confirmText: "Excluir" }))) return;
     await supabase.from("finance_recurring_revenues").delete().eq("id", id);
     qc.invalidateQueries({ queryKey: ["fin-revenues"] });
     qc.invalidateQueries({ queryKey: ["fin-rev"] });
