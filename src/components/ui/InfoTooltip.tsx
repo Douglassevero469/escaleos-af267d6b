@@ -32,8 +32,11 @@ export function InfoTooltip({ text, className, size = 14 }: InfoTooltipProps) {
         </TooltipTrigger>
         <TooltipContent
           side="top"
-          align="end"
-          className="max-w-xs text-xs leading-relaxed bg-popover text-popover-foreground border border-border shadow-lg"
+          align="center"
+          sideOffset={6}
+          collisionPadding={16}
+          avoidCollisions
+          className="max-w-[260px] text-xs leading-relaxed bg-popover text-popover-foreground border border-border shadow-lg z-[60]"
         >
           {text}
         </TooltipContent>
