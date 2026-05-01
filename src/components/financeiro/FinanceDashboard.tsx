@@ -335,7 +335,7 @@ export function FinanceDashboard({ period }: Props) {
           </ResponsiveContainer>
         </ExecCard>
 
-        <ExecCard title="Composição de Despesas" subtitle="Por categoria">
+        <ExecCard title="Composição de Despesas" subtitle="Por categoria" info="Distribuição percentual das despesas por categoria (folha, marketing, infraestrutura, etc.). Útil para identificar onde o dinheiro está sendo concentrado e oportunidades de otimização.">
           {expByCat.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 gap-2">
               <div className="h-12 w-12 rounded-full bg-muted/40 flex items-center justify-center">
