@@ -31,6 +31,7 @@ interface AdminUser {
   total_documents: number;
   total_tokens: number;
   total_words: number;
+  modules: string[];
 }
 
 interface AdminStats {
