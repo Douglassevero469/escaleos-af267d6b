@@ -1,19 +1,16 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { GlassCard } from "@/components/ui/GlassCard";
-import { CalendarCheck2, TrendingUp, TrendingDown, Wallet, Users } from "lucide-react";
 import { formatBRL } from "@/lib/finance-utils";
 
 /**
- * Barra fixa "Mês atual" — exibe sempre os totais do mês corrente,
- * independente do filtro de período aplicado nas abas.
+ * Barra fixa "Mês atual" — Executive Glass Console layout.
+ * Usa tokens semânticos do design system para suportar light/dark mode.
  */
 export function CurrentMonthBar() {
   const today = new Date();
   const monthStart = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().slice(0, 10);
   const monthEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0).toISOString().slice(0, 10);
   const monthKey = monthStart.slice(0, 7);
-  const label = today.toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
 
   const { data: revenues = [] } = useQuery({
     queryKey: ["fin-cm-rev"],
@@ -37,21 +34,16 @@ export function CurrentMonthBar() {
         .lte("due_date", monthEnd)).data || [],
   });
 
-  // Totais recorrentes ativos no mês atual
   const mrr = revenues
-    .filter((r: any) =>
-      r.status === "active" &&
+    .filter((r: any) => r.status === "active" &&
       (!r.start_date || r.start_date <= monthEnd) &&
-      (!r.end_date || r.end_date >= monthStart)
-    )
+      (!r.end_date || r.end_date >= monthStart))
     .reduce((s: number, r: any) => s + Number(r.amount), 0);
 
   const fixedExp = expenses
-    .filter((e: any) =>
-      e.active &&
+    .filter((e: any) => e.active &&
       (!e.start_date || e.start_date <= monthEnd) &&
-      (!e.end_date || e.end_date >= monthStart)
-    )
+      (!e.end_date || e.end_date >= monthStart))
     .reduce((s: number, e: any) => s + Number(e.amount), 0);
 
   const teamCost = team
@@ -59,43 +51,53 @@ export function CurrentMonthBar() {
     .reduce((s: number, t: any) => s + Number(t.monthly_cost), 0);
 
   const totalExp = fixedExp + teamCost;
-
-  // Realizado a partir das transações
   const txInc = txs.filter((t: any) => t.kind === "income").reduce((s: number, t: any) => s + Number(t.amount), 0);
   const txOut = txs.filter((t: any) => t.kind === "expense").reduce((s: number, t: any) => s + Number(t.amount), 0);
   const realizedResult = txInc - txOut;
   const projectedResult = mrr - totalExp;
+  const activeTeam = team.filter((t: any) => t.status === "active").length;
+  const realizationPct = mrr > 0 ? Math.min(100, Math.round((txInc / mrr) * 100)) : 0;
 
-  const items = [
-    { icon: TrendingUp, label: "Receita projetada", value: formatBRL(mrr), color: "text-emerald-600" },
-    { icon: TrendingDown, label: "Despesas projetadas", value: formatBRL(totalExp), color: "text-rose-600" },
-    { icon: Wallet, label: "Resultado projetado", value: formatBRL(projectedResult), color: projectedResult >= 0 ? "text-emerald-600" : "text-rose-600" },
-    { icon: Users, label: "Equipe ativa", value: String(team.filter((t: any) => t.status === "active").length), color: "text-foreground" },
-    { icon: TrendingUp, label: "Realizado (mês)", value: formatBRL(realizedResult), color: realizedResult >= 0 ? "text-emerald-600" : "text-rose-600" },
+  const cells = [
+    { label: "Receita Projetada", value: formatBRL(mrr), highlight: false },
+    { label: "Despesa Projetada", value: formatBRL(totalExp), highlight: false },
+    { label: "Resultado Projetado", value: formatBRL(projectedResult), highlight: true, positive: projectedResult >= 0 },
+    { label: "Realizado", value: formatBRL(realizedResult), badge: `${realizationPct}%`, badgePositive: realizedResult >= 0 },
+    { label: "Equipe Ativa", value: String(activeTeam) },
   ];
 
   return (
-    <GlassCard className="!p-4 border-primary/20 bg-gradient-to-r from-primary/5 to-transparent">
-      <div className="flex items-center gap-3 mb-3">
-        <div className="rounded-md bg-primary/10 p-1.5">
-          <CalendarCheck2 className="h-4 w-4 text-primary" />
-        </div>
-        <div>
-          <p className="text-[10px] uppercase tracking-wide text-muted-foreground leading-none">Mês atual</p>
-          <p className="text-sm font-semibold capitalize leading-tight">{label}</p>
-        </div>
-      </div>
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-        {items.map((it) => (
-          <div key={it.label} className="flex items-center gap-2 min-w-0">
-            <it.icon className={`h-4 w-4 shrink-0 ${it.color} opacity-70`} />
-            <div className="min-w-0">
-              <p className="text-[10px] uppercase tracking-wide text-muted-foreground leading-none truncate">{it.label}</p>
-              <p className={`text-sm font-bold font-mono leading-tight truncate ${it.color}`}>{it.value}</p>
+    <div className="relative rounded-2xl glass-strong overflow-hidden shadow-[0_8px_32px_hsl(240_20%_4%/0.08)]">
+      {/* subtle top edge */}
+      <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 divide-y sm:divide-y-0 sm:divide-x divide-border/50">
+        {cells.map((c, i) => (
+          <div
+            key={i}
+            className={`p-5 lg:p-6 flex flex-col gap-2 transition-colors hover:bg-foreground/[0.02] ${c.highlight ? "bg-gradient-to-b from-primary/5 to-transparent relative" : ""}`}
+          >
+            <span className={`text-[10px] font-semibold uppercase tracking-[0.15em] ${c.highlight ? "text-primary" : "text-muted-foreground"}`}>
+              {c.label}
+            </span>
+            <div className="flex items-baseline gap-2 flex-wrap">
+              <span className={`text-xl lg:text-2xl font-light tabular-nums tracking-tight truncate ${
+                c.highlight
+                  ? c.positive ? "text-foreground font-medium" : "text-destructive font-medium"
+                  : "text-foreground"
+              }`}>
+                {c.value}
+              </span>
+              {c.badge && (
+                <span className={`text-[10px] font-semibold px-2 py-0.5 rounded ${
+                  c.badgePositive ? "bg-success/10 text-[hsl(var(--success))]" : "bg-destructive/10 text-destructive"
+                }`}>
+                  {c.badge}
+                </span>
+              )}
             </div>
           </div>
         ))}
       </div>
-    </GlassCard>
+    </div>
   );
 }
