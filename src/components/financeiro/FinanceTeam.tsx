@@ -88,7 +88,7 @@ export function FinanceTeam({ period }: Props) {
   }
 
   async function remove(id: string) {
-    if (!confirm("Excluir esta posição?")) return;
+    if (!(await confirm({ title: "Excluir posição?", description: "Este membro da equipe será removido permanentemente. Esta ação não poderá ser desfeita.", confirmText: "Excluir" }))) return;
     await supabase.from("finance_team_members").delete().eq("id", id);
     qc.invalidateQueries({ queryKey: ["fin-team-list"] });
     qc.invalidateQueries({ queryKey: ["fin-team"] });
