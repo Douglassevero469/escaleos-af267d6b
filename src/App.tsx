@@ -52,7 +52,7 @@ const App = () => (
               <Route path="/lp3" element={<LP3 />} />
               <Route path="/lp4" element={<LP4 />} />
               <Route path="/login" element={<Login />} />
-              <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
+              <Route element={<ProtectedRoute><ModuleGuard><AppLayout /></ModuleGuard></ProtectedRoute>}>
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/briefing/novo" element={<NovoBriefing />} />
                 <Route path="/clientes" element={<Clientes />} />
