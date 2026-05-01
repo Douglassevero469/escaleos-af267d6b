@@ -96,7 +96,7 @@ export function FinanceExpenses({ period }: Props) {
   }
 
   async function remove(id: string) {
-    if (!confirm("Excluir?")) return;
+    if (!(await confirm({ title: "Excluir despesa?", description: "Esta despesa será removida permanentemente. Esta ação não poderá ser desfeita.", confirmText: "Excluir" }))) return;
     await supabase.from("finance_recurring_expenses").delete().eq("id", id);
     qc.invalidateQueries({ queryKey: ["fin-expenses"] });
     qc.invalidateQueries({ queryKey: ["fin-exp"] });
