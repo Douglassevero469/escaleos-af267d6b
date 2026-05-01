@@ -151,7 +151,7 @@ export function FinanceCashflow({ period }: Props) {
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-xs text-muted-foreground uppercase tracking-wide">Fluxo de Caixa</p>
-            <p className="text-sm text-muted-foreground">12 meses (6 passados + atual + 5 projeções)</p>
+            <p className="text-sm text-muted-foreground capitalize">{period.label} · {months.length} {months.length === 1 ? "mês" : "meses"}</p>
           </div>
           <div className="flex gap-2">
             <Button variant="outline" onClick={exportCsv}><Download className="mr-2 h-4 w-4" />CSV</Button>
