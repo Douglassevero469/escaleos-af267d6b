@@ -297,6 +297,24 @@ export function FinanceRevenues({ period }: Props) {
               </Select>
             </div>
             <div><Label>Data de início</Label><Input type="date" value={form.start_date} onChange={e => setForm({ ...form, start_date: e.target.value })} /></div>
+            <div>
+              <Label>Duração do contrato (meses)</Label>
+              <Input
+                type="number"
+                min="0"
+                value={form.duration_months}
+                onChange={e => setForm({ ...form, duration_months: Number(e.target.value) })}
+                placeholder="0 = recorrência indefinida"
+              />
+              {form.duration_months > 0 && form.start_date && (
+                <div className="mt-2 flex items-center gap-2 rounded-lg bg-primary/5 border border-primary/20 px-3 py-2 text-xs text-foreground">
+                  <Calendar className="h-3.5 w-3.5 text-primary shrink-0" />
+                  <span>
+                    Contrato de <strong>{form.duration_months} meses</strong> · LTV: <strong className="tabular-nums">{formatBRL(Number(form.amount) * form.duration_months)}</strong>
+                  </span>
+                </div>
+              )}
+            </div>
             <div className="flex gap-2 pt-2">
               {form.id && (
                 <Button
