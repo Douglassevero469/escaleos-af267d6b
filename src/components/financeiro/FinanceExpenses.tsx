@@ -11,7 +11,7 @@ import { Switch } from "@/components/ui/switch";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Trash2, Download } from "lucide-react";
+import { Plus, Trash2, Download, Calendar } from "lucide-react";
 import { formatBRL, EXPENSE_CATEGORIES } from "@/lib/finance-utils";
 import { Period, monthsInPeriod } from "@/components/financeiro/PeriodFilter";
 import { downloadCSV, generateBrandedPDF, fmt } from "@/lib/finance-export";
