@@ -74,7 +74,8 @@ const App = () => (
               <Route path="/briefing-publico" element={<BriefingPublico />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
-          </BrowserRouter>
+            </BrowserRouter>
+          </ConfirmProvider>
         </TooltipProvider>
       </AuthProvider>
     </ThemeProvider>
