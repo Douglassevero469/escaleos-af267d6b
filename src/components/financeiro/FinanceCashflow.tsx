@@ -494,6 +494,42 @@ export function FinanceCashflow({ period }: Props) {
             </div>
             <div><Label>Método de pagamento</Label><Input value={form.payment_method} onChange={e => setForm({ ...form, payment_method: e.target.value })} placeholder="PIX, Boleto, Cartão..." /></div>
             <div><Label>Notas</Label><Input value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} /></div>
+
+            <div className="rounded-lg border border-border/50 p-3 space-y-3 bg-muted/20">
+              <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Parcelamento</div>
+              <div>
+                <Label>Número de parcelas</Label>
+                <Input
+                  type="number" min={1} max={60} value={form.installments}
+                  onChange={e => setForm({ ...form, installments: Math.max(1, Number(e.target.value)) })}
+                />
+                {form.installments > 1 && form.amount > 0 && (
+                  <p className="text-[11px] text-muted-foreground mt-1">
+                    {form.installments}x de {formatBRL(Number(form.amount) / form.installments)} — total {formatBRL(Number(form.amount))}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="rounded-lg border border-border/50 p-3 space-y-3 bg-muted/20">
+              <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Juros, multa e desconto</div>
+              <div className="grid grid-cols-3 gap-2">
+                <div>
+                  <Label className="text-xs">Juros %/mês</Label>
+                  <Input type="number" step="0.1" value={form.interest_rate} onChange={e => setForm({ ...form, interest_rate: Number(e.target.value) })} />
+                </div>
+                <div>
+                  <Label className="text-xs">Multa %</Label>
+                  <Input type="number" step="0.1" value={form.fine_rate} onChange={e => setForm({ ...form, fine_rate: Number(e.target.value) })} />
+                </div>
+                <div>
+                  <Label className="text-xs">Desc. antec. %</Label>
+                  <Input type="number" step="0.1" value={form.early_discount_rate} onChange={e => setForm({ ...form, early_discount_rate: Number(e.target.value) })} />
+                </div>
+              </div>
+              <p className="text-[11px] text-muted-foreground">Aplicados automaticamente ao marcar como pago.</p>
+            </div>
+
             <div>
               <Label>Tags / Centro de Custo</Label>
               <TagsInput value={form.tags} onChange={(tags) => setForm({ ...form, tags })} placeholder="ex: cliente-x, projeto-y" />
