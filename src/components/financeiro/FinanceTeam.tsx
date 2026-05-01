@@ -122,11 +122,12 @@ export function FinanceTeam({ period }: Props) {
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
         <GlassCard className="!p-3"><p className="text-xs text-muted-foreground">Folha CLT</p><p className="text-lg font-bold">{formatBRL(totalSalary)}</p></GlassCard>
         <GlassCard className="!p-3"><p className="text-xs text-muted-foreground">Prolabores</p><p className="text-lg font-bold">{formatBRL(totalProlabore)}</p></GlassCard>
         <GlassCard className="!p-3"><p className="text-xs text-muted-foreground">PJ/Freela</p><p className="text-lg font-bold">{formatBRL(totalContractor)}</p></GlassCard>
-        <GlassCard className="!p-3"><p className="text-xs text-muted-foreground">Custo Total</p><p className="text-lg font-bold text-primary">{formatBRL(totalAll)}</p></GlassCard>
+        <GlassCard className="!p-3"><p className="text-xs text-muted-foreground">Custo Total/mês</p><p className="text-lg font-bold text-primary">{formatBRL(totalAll)}</p></GlassCard>
+        <GlassCard className="!p-3"><p className="text-xs text-muted-foreground capitalize">{period.label}</p><p className="text-lg font-bold text-primary">{formatBRL(totalPeriod)}</p></GlassCard>
         <GlassCard className="!p-3"><p className="text-xs text-muted-foreground">Vagas em aberto</p><p className="text-lg font-bold text-rose-500">{vacant}</p></GlassCard>
       </div>
 
