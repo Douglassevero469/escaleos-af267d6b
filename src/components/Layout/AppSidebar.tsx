@@ -11,6 +11,7 @@ import {
   Contact,
   Phone,
   Briefcase,
+  Wallet,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
@@ -38,6 +39,7 @@ const mainItems = [
   { title: "Novo Briefing", url: "/briefing/novo", icon: FilePlus },
   { title: "Clientes", url: "/clientes", icon: Users },
   { title: "Gestão de Clientes", url: "/gestao-clientes", icon: Briefcase },
+  { title: "Financeiro", url: "/financeiro", icon: Wallet },
   { title: "Templates", url: "/templates", icon: FileText },
   { title: "Formulários", url: "/forms", icon: ClipboardList },
   { title: "Demandas", url: "/demandas", icon: KanbanSquare },

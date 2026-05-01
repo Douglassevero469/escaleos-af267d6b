@@ -1,94 +1,139 @@
-# Gestão de Clientes Ativos
 
-Nova área no menu para acompanhar **clientes ativos** (em contrato), os **serviços prestados** a cada um, **fee mensal**, datas de início/renovação e status do contrato. Diferente da aba "Clientes" atual, que é focada em briefings + pacotes gerados.
+# Módulo Financeiro — Estrutura Completa
 
-## Estrutura
+Nova aba **Financeiro** (`/financeiro`) para gerir entradas (clientes/MRR), saídas (folha, prolabores, custos fixos, despesas variáveis) e oferecer um **dashboard BI** completo com forecasts e indicadores de saúde da empresa.
 
-### 1. Nova rota e item no menu
+A estrutura segue o que foi mapeado no recorte enviado:
+- **Entradas**: clientes recorrentes (Leo Bortolin, Sec. Bruno, Toto, Besouro... = R$41k)
+- **Saídas**: Folha (R$23.5k), Prolabores (R$45k), Sistemas (R$10k), Contador, Sala, etc. = R$81.9k
+- **Equipe**: hierarquia (Fill, Jef, Douglas → Fin/Adm, Closer, Tráfego, Arte, Vídeo, Devs) com salário individual
+- **Saldo do mês** com alertas visuais (vermelho quando negativo)
 
-- Rota: `/gestao-clientes` (página `src/pages/GestaoClientes.tsx`)
-- Novo item no `AppSidebar` chamado **"Gestão de Clientes"** com ícone `Briefcase` (ou `HandCoins`), posicionado logo abaixo de "Clientes".
+## Estrutura de Navegação
 
-### 2. Banco de dados (migration)
+Nova entrada no `AppSidebar` chamada **"Financeiro"** com ícone `DollarSign` (ou `Wallet`), abaixo de "Gestão de Clientes".
 
-Como `clients` hoje é só cadastro básico (nome, nicho, instagram, site), criamos duas novas tabelas para o módulo de gestão:
+A página `/financeiro` terá **5 abas internas** (Tabs):
 
-`**client_contracts**` — um contrato ativo por cliente (pode haver histórico)
+1. **Dashboard BI** — KPIs, gráficos e visão executiva
+2. **Receitas** — Entradas recorrentes e avulsas
+3. **Despesas** — Saídas categorizadas
+4. **Equipe & Folha** — Organograma + salários/prolabores
+5. **Fluxo de Caixa** — Visão mensal/anual com projeções
 
-- `id`, `client_id`, `user_id`
-- `status` (`active` | `paused` | `churned`) — default `active`
-- `monthly_fee` numeric — fee mensal em R$
-- `start_date` date
-- `renewal_date` date (nullable)
-- `payment_day` integer (1–31, dia de cobrança)
-- `responsible` text (responsável interno pela conta)
-- `notes` text
-- `created_at`, `updated_at`
+## Banco de Dados (migration)
 
-`**client_services**` — serviços prestados em um contrato (N por contrato)
+### `finance_categories`
+Categorias de receita/despesa configuráveis.
+- `id`, `user_id`, `name`, `kind` ('income'|'expense'), `color`, `icon`, `created_at`
 
-- `id`, `contract_id`, `user_id`
-- `service_type` text (Tráfego Pago, Social Media, Full Service, Consultoria,  Software ,Escale CRM, etc.)
-- `description` text
-- `scope` text (entregáveis/escopo)
-- `active` boolean default true
-- `created_at`
+### `finance_team_members`
+Membros da equipe com hierarquia e custo mensal.
+- `id`, `user_id`, `name`, `role` (cargo), `manager_id` (self-fk para hierarquia: Fill/Jef/Douglas como gerentes), `compensation_type` ('salary'|'prolabore'|'contractor'), `monthly_cost` numeric, `status` ('active'|'inactive'|'vacant'), `start_date`, `notes`
 
-RLS: políticas abertas para `authenticated` (padrão do projeto — modelo open workspace).
+### `finance_recurring_revenues`
+Receitas recorrentes (clientes ativos que pagam mensalmente).
+- `id`, `user_id`, `client_name`, `description`, `amount` numeric, `payment_day` int, `status` ('active'|'paused'|'churned'), `start_date`, `end_date` nullable, `linked_contract_id` (opcional → `client_contracts.id`), `category_id`
+- *Atalho*: botão "Importar de Gestão de Clientes" para puxar contratos ativos automaticamente.
 
-### 3. Página `GestaoClientes.tsx`
+### `finance_recurring_expenses`
+Despesas fixas mensais (Sistemas, Sala, Contador, etc.).
+- `id`, `user_id`, `name`, `description`, `amount` numeric, `payment_day` int, `category_id`, `vendor` text, `active` boolean, `start_date`, `end_date` nullable
 
-**Header**
+### `finance_transactions`
+Lançamentos efetivos (entradas e saídas confirmadas/previstas) — base para o fluxo de caixa real.
+- `id`, `user_id`, `kind` ('income'|'expense'), `category_id`, `description`, `amount` numeric, `due_date` date, `paid_date` date nullable, `status` ('pending'|'paid'|'overdue'|'canceled'), `payment_method` text, `reference_type` text ('manual'|'recurring_revenue'|'recurring_expense'|'team_payroll'), `reference_id` uuid, `attachment_url` text, `notes` text, `created_at`, `updated_at`
 
-- Título "Gestão de Clientes" + contador de ativos
-- Botão "Novo Contrato" (abre dialog para escolher cliente existente + preencher dados)
+RLS: padrão open workspace (todos `authenticated` com CRUD completo).
 
-**KPIs (4 cards no topo)**
+### Função SQL `generate_monthly_transactions(month date)`
+Gera os lançamentos do mês a partir das tabelas recorrentes (revenues, expenses, team) — botão "Gerar lançamentos do mês" na UI.
 
-- Clientes ativos
-- MRR total (soma dos `monthly_fee` dos contratos ativos)
-- Ticket médio
-- Clientes em pausa / churn no mês
+## Página `Financeiro.tsx` — detalhamento por aba
 
-**Filtros**
+### Aba 1 — Dashboard BI
 
-- Busca por nome
-- Filtro por status (Ativos / Pausados / Churn / Todos)
-- Filtro por serviço prestado
+**KPIs (cards no topo)**
+- MRR (Receita Recorrente)
+- Despesas Fixas Mensais
+- Resultado do Mês (verde/vermelho)
+- Burn Rate / Runway (meses de caixa restante baseado no saldo médio)
+- Ticket Médio por cliente
+- Custo por Funcionário
 
-**Listagem (tabela + cards toggle)**
-Colunas: Cliente | Serviços (badges) | Fee Mensal | Início | Próx. renovação | Responsável | Status | Ações
+**Gráficos (Recharts)**
+- **Linha**: Receita vs Despesa últimos 12 meses
+- **Área empilhada**: Composição de despesas por categoria (Folha, Prolabore, Sistemas, etc.)
+- **Donut**: Distribuição de receita por cliente (top 10)
+- **Barras**: Saldo mensal últimos 6 meses
+- **Funnel/Forecast**: Projeção de saldo próximos 3 meses
 
-**Detalhe / Edição (Sheet lateral ao clicar)**
+**Alertas inteligentes**
+- "Despesas superam receita em X%"
+- "3 clientes representam 60% do MRR (concentração de risco)"
+- "R$X em contas vencendo nos próximos 7 dias"
 
-- Dados do contrato editáveis
-- Lista de serviços com adicionar/remover/editar
-- Histórico de alterações (futuramente — via `audit_logs`)
-- Atalhos: ver pacotes do cliente, abrir CRM, abrir demandas
+### Aba 2 — Receitas
 
-**Ações em massa rápidas**
+- Tabela de receitas recorrentes (cliente, valor, dia pgto, status, ações)
+- Botão "Nova Receita" + "Importar de Gestão de Clientes"
+- Filtros: status, mês, categoria
+- Total MRR consolidado no topo
+- Sheet lateral para edição
 
-- Marcar como Pausado / Churn
-- Exportar CSV (lista de clientes ativos + fees)
+### Aba 3 — Despesas
 
-### 4. Integração com módulos existentes
+- Tabela de despesas recorrentes agrupadas por categoria
+- Possibilidade de marcar como "ativa/inativa"
+- Categoria de despesas pré-cadastradas: Folha, Prolabores, Sistemas, Contador, Sala, Marketing, Impostos, Outros
+- Botão "Nova Despesa Fixa" e "Lançamento Avulso"
 
-- Link "Ver Pacotes" → `/clientes/:id/pacotes`
-- Dashboard pode futuramente puxar MRR daqui (não nesta entrega)
+### Aba 4 — Equipe & Folha
 
-## Detalhes técnicos
+**Visualização em 2 modos (toggle)**:
 
-- Tipos: criar `ServiceType` como union de strings sugeridas + livre digitação (input com sugestões).
-- React Query para `contracts` e `services` com invalidação cruzada após mutations.
-- `monthly_fee` formatado em BRL (`Intl.NumberFormat`).
-- Reutilizar `GlassCard`, `Dialog`, `Sheet`, `Table`, `Badge`, `DropdownMenu`.
-- Manter padrão visual: glassmorphism, Montserrat, paleta atual.
+1. **Organograma** (estilo do recorte enviado) — usando `react-flow` ou um grid customizado com cards conectados por linhas. Top: 3 sócios (Fill, Jef, Douglas). Sob cada sócio: cargos sob sua gestão. Cards em **amarelo** para vagas preenchidas, **rosa** para vagas em aberto (`?`).
 
-## Fora do escopo (sugestões futuras)
+2. **Tabela** — Nome, Cargo, Gestor, Tipo (Salário/Prolabore/PJ), Custo Mensal, Status, Ações.
 
-- Cobranças/faturas automáticas
-- Integração com gateway de pagamento
-- Forecast de MRR e churn analytics
-- Notificações automáticas próximas à renovação
+**KPIs**
+- Total de Folha (somatório de salários)
+- Total de Prolabores
+- Custo Total da Equipe
+- Vagas em aberto
 
-Confirma esse plano? Se quiser ajustar (ex.: campos extras, remover tabela de serviços, usar um único registro por cliente em vez de contratos versionados), me diga antes de eu implementar.
+**Botão**: "Nova Posição" — permite cadastrar mesmo sem pessoa atribuída (vaga em aberto).
+
+### Aba 5 — Fluxo de Caixa
+
+- Tabela mensal com colunas: Mês | Receita | Despesa | Saldo | Saldo Acumulado
+- Visão de 12 meses (passado e projeção)
+- Drill-down: clicar em um mês abre todos os lançamentos daquele mês
+- Lançamentos pendentes destacados (amarelo) e vencidos (vermelho)
+- Exportação CSV / PDF do fluxo
+
+## Padrões Visuais e Técnicos
+
+- **Glassmorphism + Montserrat** (memória do projeto)
+- **Recharts** para gráficos, com cores da paleta (Roxo #7B2FF7, Azul #0000FF)
+- **GlassCard, StatsCard, Sheet, Dialog, Table, Badge, Tabs** já existentes
+- Formatação BRL via `Intl.NumberFormat('pt-BR')`
+- React Query com invalidação cruzada entre tabelas
+- Para o organograma: cards em grid CSS conectados por SVG linhas (sem dependência nova) — mantém leveza
+
+## Integrações com módulos existentes
+
+- **Gestão de Clientes** → botão para importar contratos ativos como receitas recorrentes
+- **Dashboard principal** → futuramente puxar MRR e Saldo do módulo financeiro
+
+## Fora do escopo (futuro)
+
+- Conciliação bancária via Open Finance
+- Geração de boletos/NFe
+- Múltiplas contas bancárias
+- Centro de custos por projeto
+- Notificações automáticas de vencimento
+
+---
+
+**Confirma esse plano?** Se quiser ajustar algo (ex: começar só com Dashboard + Receitas + Despesas e deixar Equipe/Fluxo para depois, ou trocar o organograma por uma visão só de tabela), me avise antes.
