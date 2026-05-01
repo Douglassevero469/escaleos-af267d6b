@@ -89,6 +89,11 @@ const ENTITY_LABELS: Record<string, string> = {
   document: "Documento",
   client: "Cliente",
   user_role: "Role",
+  finance_revenue: "Receita",
+  finance_expense: "Despesa",
+  finance_team_member: "Equipe",
+  finance_goal: "Meta",
+  finance_transaction: "Lançamento",
 };
 
 const PAGE_SIZE = 50;
