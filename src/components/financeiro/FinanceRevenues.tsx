@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { GlassCard } from "@/components/ui/GlassCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,6 +13,7 @@ import { Plus, Download, Trash2, Search } from "lucide-react";
 import { formatBRL, STATUS_BADGE, REVENUE_CATEGORIES } from "@/lib/finance-utils";
 import { Period, monthsInPeriod } from "@/components/financeiro/PeriodFilter";
 import { downloadCSV, generateBrandedPDF, fmt } from "@/lib/finance-export";
+import { ExecHeader, ExecCard } from "@/components/financeiro/ExecPanel";
 import { toast } from "sonner";
 
 interface RevForm {
@@ -147,24 +147,31 @@ export function FinanceRevenues({ period }: Props) {
   }
 
   return (
-    <div className="space-y-4">
-      <GlassCard>
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <p className="text-xs text-muted-foreground uppercase tracking-wide">MRR · {period.label}</p>
-            <p className="text-3xl font-bold">{formatBRL(mrr)}</p>
-            <p className="text-xs text-muted-foreground mt-1">{filtered.length} receitas · Total no período: <span className="font-mono text-foreground">{formatBRL(totalPeriod)}</span></p>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <Button variant="outline" onClick={importContracts}>Importar de Contratos</Button>
-            <Button variant="outline" onClick={exportCsv}><Download className="mr-2 h-4 w-4" />CSV</Button>
-            <Button variant="outline" onClick={exportPdf}><Download className="mr-2 h-4 w-4" />PDF</Button>
-            <Button onClick={() => { setForm(empty); setOpen(true); }}><Plus className="mr-2 h-4 w-4" />Nova Receita</Button>
-          </div>
-        </div>
-      </GlassCard>
+    <div className="space-y-6">
+      <ExecHeader
+        tag="Receitas Recorrentes"
+        title="Carteira de Clientes"
+        subtitle={`${period.label} · ${filtered.length} ${filtered.length === 1 ? "cliente" : "clientes"} ativos`}
+        kpis={[
+          { label: "MRR Mensal", value: formatBRL(mrr), highlight: true, positive: true },
+          { label: "Total no Período", value: formatBRL(totalPeriod) },
+          { label: "Clientes Ativos", value: String(filtered.length) },
+          { label: "Ticket Médio", value: formatBRL(filtered.length ? mrr / filtered.length : 0) },
+        ]}
+        actions={
+          <>
+            <Button variant="outline" size="sm" onClick={importContracts}>Importar Contratos</Button>
+            <Button variant="outline" size="sm" onClick={exportCsv}><Download className="mr-2 h-4 w-4" />CSV</Button>
+            <Button variant="outline" size="sm" onClick={exportPdf}><Download className="mr-2 h-4 w-4" />PDF</Button>
+            <Button size="sm" onClick={() => { setForm(empty); setOpen(true); }}><Plus className="mr-2 h-4 w-4" />Nova Receita</Button>
+          </>
+        }
+      />
 
-      <GlassCard>
+      <ExecCard
+        title="Lançamentos no período"
+        subtitle={`${filtered.length} de ${activeInPeriod.length}`}
+      >
         <div className="flex flex-wrap gap-2 mb-4">
           <div className="relative flex-1 min-w-[200px]">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -212,7 +219,7 @@ export function FinanceRevenues({ period }: Props) {
             ))}
           </TableBody>
         </Table>
-      </GlassCard>
+      </ExecCard>
 
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetContent className="w-full sm:max-w-md overflow-y-auto">

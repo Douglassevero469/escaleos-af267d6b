@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { GlassCard } from "@/components/ui/GlassCard";
+import { ExecHeader, ExecCard } from "@/components/financeiro/ExecPanel";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -204,31 +204,40 @@ export function FinanceCashflow({ period }: Props) {
     return new Date(y, m - 1, 1).toLocaleDateString("pt-BR", { month: "short", year: "2-digit" });
   };
 
+  const totalInc = rows.reduce((s, r) => s + r.inc, 0);
+  const totalOut = rows.reduce((s, r) => s + r.out, 0);
+  const finalAcc = rows.length ? rows[rows.length - 1].acc : 0;
+
   return (
-    <div className="space-y-4">
-      <GlassCard>
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <p className="text-xs text-muted-foreground uppercase tracking-wide">Fluxo de Caixa</p>
-            <p className="text-sm text-muted-foreground capitalize">{period.label} · {months.length} {months.length === 1 ? "mês" : "meses"}</p>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <Button variant="outline" onClick={exportCsv}><Download className="mr-2 h-4 w-4" />CSV</Button>
-            <Button variant="outline" onClick={exportPdf}><Download className="mr-2 h-4 w-4" />PDF</Button>
-            <Button variant="outline" onClick={() => setHistoryOpen(true)}>
+    <div className="space-y-6">
+      <ExecHeader
+        tag="Fluxo de Caixa"
+        title="Projeção & Realizado"
+        subtitle={`${period.label} · ${months.length} ${months.length === 1 ? "mês" : "meses"}`}
+        kpis={[
+          { label: "Resultado", value: formatBRL(totalInc - totalOut), highlight: true, positive: totalInc - totalOut >= 0 },
+          { label: "Receitas", value: formatBRL(totalInc) },
+          { label: "Despesas", value: formatBRL(totalOut), positive: false },
+          { label: "Saldo Acumulado", value: formatBRL(finalAcc), positive: finalAcc >= 0 },
+        ]}
+        actions={
+          <>
+            <Button variant="outline" size="sm" onClick={exportCsv}><Download className="mr-2 h-4 w-4" />CSV</Button>
+            <Button variant="outline" size="sm" onClick={exportPdf}><Download className="mr-2 h-4 w-4" />PDF</Button>
+            <Button variant="outline" size="sm" onClick={() => setHistoryOpen(true)}>
               <History className="mr-2 h-4 w-4" />Histórico
-              {runs.length > 0 && <span className="ml-2 text-xs text-muted-foreground">({runs.length})</span>}
+              {runs.length > 0 && <span className="ml-1.5 text-xs text-muted-foreground">({runs.length})</span>}
             </Button>
-            <Button variant="outline" onClick={generate} disabled={generating}>
+            <Button variant="outline" size="sm" onClick={generate} disabled={generating}>
               {generating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
               Gerar mês
             </Button>
-            <Button onClick={() => setOpen(true)}><Plus className="mr-2 h-4 w-4" />Lançamento</Button>
-          </div>
-        </div>
-      </GlassCard>
+            <Button size="sm" onClick={() => setOpen(true)}><Plus className="mr-2 h-4 w-4" />Lançamento</Button>
+          </>
+        }
+      />
 
-      <GlassCard>
+      <ExecCard title="Evolução mês a mês" subtitle="Clique em uma linha para detalhar">
         <Table>
           <TableHeader>
             <TableRow>
@@ -292,7 +301,7 @@ export function FinanceCashflow({ period }: Props) {
             ))}
           </TableBody>
         </Table>
-      </GlassCard>
+      </ExecCard>
 
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetContent className="w-full sm:max-w-md overflow-y-auto">
