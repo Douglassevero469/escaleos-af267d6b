@@ -39,8 +39,9 @@ export function FinanceCashflow({ period }: Props) {
   const [form, setForm] = useState<any>({
     kind: "expense", description: "", amount: 0,
     due_date: new Date().toISOString().slice(0, 10), status: "pending",
-    payment_method: "", notes: "",
+    payment_method: "", notes: "", tags: [] as string[], attachment_url: null as string | null,
   });
+  const [selected, setSelected] = useState<Set<string>>(new Set());
   const autoTriedRef = useRef<Set<string>>(new Set());
 
   const { data: txs = [] } = useQuery({
