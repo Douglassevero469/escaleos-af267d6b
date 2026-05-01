@@ -236,7 +236,7 @@ export function FinanceDashboard({ period }: Props) {
 
       {/* Alertas */}
       {(result < 0 || concentration > 50 || upcoming > 0) && (
-        <ExecCard title="Alertas Inteligentes">
+        <ExecCard title="Alertas Inteligentes" info="Sinais automáticos sobre a saúde financeira do negócio: runway curto, prejuízo no mês, churn relevante e outras métricas críticas que merecem atenção imediata.">
           <div className="flex items-start gap-3">
             <AlertTriangle className="h-5 w-5 text-amber-500 flex-shrink-0 mt-0.5" />
             <div className="space-y-1.5 text-sm">
