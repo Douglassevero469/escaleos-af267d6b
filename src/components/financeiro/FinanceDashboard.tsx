@@ -295,7 +295,7 @@ export function FinanceDashboard({ period }: Props) {
           </ResponsiveContainer>
         </ExecCard>
 
-        <ExecCard title="Saldo Mensal" subtitle="Últimos 6 períodos">
+        <ExecCard title="Saldo Mensal" subtitle="Últimos 6 períodos" info="Resultado líquido (receita - despesa) acumulado de cada mês nos últimos 6 períodos. Barras verdes indicam meses lucrativos; vermelhas, meses deficitários.">
           <div className="flex items-center gap-4 mb-3 text-[11px] font-medium">
             <span className="flex items-center gap-1.5">
               <span className="h-2 w-2 rounded-sm bg-[hsl(142_71%_45%)]" />
