@@ -277,7 +277,23 @@ export function FinanceRevenues({ period }: Props) {
               </Select>
             </div>
             <div><Label>Data de início</Label><Input type="date" value={form.start_date} onChange={e => setForm({ ...form, start_date: e.target.value })} /></div>
-            <Button onClick={save} className="w-full">Salvar</Button>
+            <div className="flex gap-2 pt-2">
+              {form.id && (
+                <Button
+                  variant="outline"
+                  className="flex-1 border-destructive/40 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                  onClick={async () => {
+                    await remove(form.id!);
+                    setOpen(false);
+                    setForm(empty);
+                  }}
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Excluir
+                </Button>
+              )}
+              <Button onClick={save} className="flex-1">Salvar</Button>
+            </div>
           </div>
         </SheetContent>
       </Sheet>
