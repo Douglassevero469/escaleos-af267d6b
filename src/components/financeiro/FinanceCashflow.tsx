@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Plus, Download, Trash2, RefreshCw, ChevronDown, ChevronRight, History, CheckCircle2, XCircle, AlertCircle, Loader2, Clock } from "lucide-react";
 import { formatBRL, STATUS_BADGE } from "@/lib/finance-utils";
 import { Period } from "@/components/financeiro/PeriodFilter";
+import { downloadCSV, generateBrandedPDF, fmt, monthBR } from "@/lib/finance-export";
 import { toast } from "sonner";
 
 interface Props { period: Period }
@@ -154,11 +155,39 @@ export function FinanceCashflow({ period }: Props) {
   }
 
   function exportCsv() {
-    const r = [["Mês", "Receita", "Despesa", "Saldo", "Acumulado"]];
-    rows.forEach(x => r.push([x.month, String(x.inc), String(x.out), String(x.balance), String(x.acc)]));
-    const csv = r.map(rr => rr.join(",")).join("\n");
-    const blob = new Blob([csv], { type: "text/csv" });
-    const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "fluxo-caixa.csv"; a.click();
+    const headers = ["Mês", "Receita", "Despesa", "Saldo", "Acumulado", "Lançamentos"];
+    const data = rows.map(x => [monthBR(x.month), Number(x.inc).toFixed(2), Number(x.out).toFixed(2), Number(x.balance).toFixed(2), Number(x.acc).toFixed(2), x.count]);
+    downloadCSV(`fluxo-caixa-${period.start}-a-${period.end}`, headers, data);
+    toast.success("CSV exportado");
+  }
+
+  async function exportPdf() {
+    const totalInc = rows.reduce((s, r) => s + r.inc, 0);
+    const totalOut = rows.reduce((s, r) => s + r.out, 0);
+    const finalAcc = rows.length ? rows[rows.length - 1].acc : 0;
+    await generateBrandedPDF({
+      title: "Fluxo de Caixa",
+      subtitle: "Projeção mês a mês de receitas, despesas e saldo acumulado",
+      periodLabel: period.label,
+      orientation: "portrait",
+      sections: [
+        {
+          kpis: [
+            { label: "Receita total", value: fmt(totalInc), accent: "#22c55e" },
+            { label: "Despesa total", value: fmt(totalOut), accent: "#ef4444" },
+            { label: "Resultado", value: fmt(totalInc - totalOut), accent: totalInc - totalOut >= 0 ? "#22c55e" : "#ef4444" },
+            { label: "Saldo acumulado", value: fmt(finalAcc) },
+          ],
+          table: {
+            headers: ["Mês", "Receita", "Despesa", "Saldo", "Acumulado", "Lanç."],
+            align: ["left", "right", "right", "right", "right", "center"],
+            rows: rows.map(r => [monthBR(r.month), fmt(r.inc), fmt(r.out), fmt(r.balance), fmt(r.acc), r.count]),
+            totalsRow: ["TOTAL", fmt(totalInc), fmt(totalOut), fmt(totalInc - totalOut), fmt(finalAcc), rows.reduce((s, r) => s + r.count, 0)],
+          },
+        },
+      ],
+    });
+    toast.success("PDF gerado");
   }
 
   const monthLabel = (s: string) => {
@@ -176,6 +205,7 @@ export function FinanceCashflow({ period }: Props) {
           </div>
           <div className="flex flex-wrap gap-2">
             <Button variant="outline" onClick={exportCsv}><Download className="mr-2 h-4 w-4" />CSV</Button>
+            <Button variant="outline" onClick={exportPdf}><Download className="mr-2 h-4 w-4" />PDF</Button>
             <Button variant="outline" onClick={() => setHistoryOpen(true)}>
               <History className="mr-2 h-4 w-4" />Histórico
               {runs.length > 0 && <span className="ml-2 text-xs text-muted-foreground">({runs.length})</span>}
