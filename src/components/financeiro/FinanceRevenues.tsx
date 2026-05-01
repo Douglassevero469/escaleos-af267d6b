@@ -26,11 +26,13 @@ interface RevForm {
   status: string;
   start_date: string;
   category: string;
+  duration_months: number;
 }
 
 const empty: RevForm = {
   client_name: "", description: "", amount: 0, payment_day: 5,
   status: "active", start_date: new Date().toISOString().slice(0, 10), category: "Tráfego Pago",
+  duration_months: 0,
 };
 
 interface Props { period: Period }
