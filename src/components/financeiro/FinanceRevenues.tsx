@@ -171,14 +171,22 @@ export function FinanceRevenues({ period }: Props) {
       <ExecCard
         title="Lançamentos no período"
         subtitle={`${filtered.length} de ${activeInPeriod.length}`}
+        padded={false}
       >
-        <div className="flex flex-wrap gap-2 mb-4">
-          <div className="relative flex-1 min-w-[200px]">
+        <div className="px-5 lg:px-6 pb-4 flex flex-wrap gap-2">
+          <div className="relative flex-1 min-w-[220px]">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input placeholder="Buscar cliente..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9" />
+            <Input
+              placeholder="Buscar cliente..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              className="pl-9 h-10 bg-background/50 border-border/60 focus-visible:ring-1 focus-visible:ring-primary/40"
+            />
           </div>
           <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-[180px]"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="w-[180px] h-10 bg-background/50 border-border/60">
+              <SelectValue />
+            </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos status</SelectItem>
               <SelectItem value="active">Ativos</SelectItem>
@@ -188,37 +196,56 @@ export function FinanceRevenues({ period }: Props) {
           </Select>
         </div>
 
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Cliente</TableHead>
-              <TableHead>Descrição</TableHead>
-              <TableHead className="text-right">Valor</TableHead>
-              <TableHead className="text-center">Dia Pgto</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="w-20"></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filtered.length === 0 && (
-              <TableRow><TableCell colSpan={6} className="text-center py-8 text-muted-foreground">Nenhuma receita</TableCell></TableRow>
-            )}
-            {filtered.map((r: any) => (
-              <TableRow key={r.id} className="cursor-pointer" onClick={() => { setForm({ ...r, category: "Tráfego Pago" }); setOpen(true); }}>
-                <TableCell className="font-medium">{r.client_name}</TableCell>
-                <TableCell className="text-muted-foreground text-sm">{r.description}</TableCell>
-                <TableCell className="text-right font-mono">{formatBRL(Number(r.amount))}</TableCell>
-                <TableCell className="text-center">{r.payment_day}</TableCell>
-                <TableCell><Badge variant="outline" className={STATUS_BADGE[r.status]}>{r.status}</Badge></TableCell>
-                <TableCell>
-                  <Button size="icon" variant="ghost" onClick={(e) => { e.stopPropagation(); remove(r.id); }}>
-                    <Trash2 className="h-4 w-4 text-destructive" />
-                  </Button>
-                </TableCell>
+        <div className="border-t border-border/50">
+          <Table>
+            <TableHeader>
+              <TableRow className="border-border/50 hover:bg-transparent bg-muted/20">
+                <TableHead className="h-11 px-5 lg:px-6 text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">Cliente</TableHead>
+                <TableHead className="h-11 text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">Descrição</TableHead>
+                <TableHead className="h-11 text-right text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">Valor</TableHead>
+                <TableHead className="h-11 text-center text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">Dia Pgto</TableHead>
+                <TableHead className="h-11 text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">Status</TableHead>
+                <TableHead className="h-11 w-16 px-5 lg:px-6"></TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {filtered.length === 0 && (
+                <TableRow className="border-border/50 hover:bg-transparent">
+                  <TableCell colSpan={6} className="text-center py-12 text-sm text-muted-foreground">
+                    Nenhuma receita no período
+                  </TableCell>
+                </TableRow>
+              )}
+              {filtered.map((r: any) => (
+                <TableRow
+                  key={r.id}
+                  className="border-border/50 cursor-pointer transition-colors hover:bg-foreground/[0.025]"
+                  onClick={() => { setForm({ ...r, category: "Tráfego Pago" }); setOpen(true); }}
+                >
+                  <TableCell className="py-4 px-5 lg:px-6 font-medium text-foreground">{r.client_name}</TableCell>
+                  <TableCell className="py-4 text-sm text-muted-foreground">{r.description || "—"}</TableCell>
+                  <TableCell className="py-4 text-right tabular-nums font-medium text-foreground">{formatBRL(Number(r.amount))}</TableCell>
+                  <TableCell className="py-4 text-center tabular-nums text-muted-foreground">{r.payment_day}</TableCell>
+                  <TableCell className="py-4">
+                    <Badge variant="outline" className={`${STATUS_BADGE[r.status]} font-medium capitalize border-0`}>
+                      {r.status === "active" ? "Ativo" : r.status === "paused" ? "Pausado" : "Churn"}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="py-4 px-5 lg:px-6 text-right">
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-8 w-8 opacity-0 group-hover:opacity-100 hover:bg-destructive/10 hover:text-destructive transition-opacity"
+                      onClick={(e) => { e.stopPropagation(); remove(r.id); }}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       </ExecCard>
 
       <Sheet open={open} onOpenChange={setOpen}>
