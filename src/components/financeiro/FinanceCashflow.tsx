@@ -15,6 +15,7 @@ import { formatBRL, STATUS_BADGE } from "@/lib/finance-utils";
 import { Period } from "@/components/financeiro/PeriodFilter";
 import { downloadCSV, generateBrandedPDF, fmt, monthBR } from "@/lib/finance-export";
 import { toast } from "sonner";
+import { useConfirm } from "@/components/ui/confirm-dialog";
 
 interface Props { period: Period }
 
