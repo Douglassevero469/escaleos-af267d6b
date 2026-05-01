@@ -260,7 +260,7 @@ export function FinanceDashboard({ period }: Props) {
       {/* Receita vs Despesa */}
       <div className="grid lg:grid-cols-2 gap-4">
         <GlassCard>
-          <h3 className="font-semibold mb-4">Receita vs Despesa (12 meses)</h3>
+          <h3 className="font-semibold mb-4 text-sm md:text-base">Receita vs Despesa <span className="text-xs text-muted-foreground font-normal capitalize">· {period.label}</span></h3>
           <ResponsiveContainer width="100%" height={260}>
             <LineChart data={monthSeries}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
@@ -275,7 +275,7 @@ export function FinanceDashboard({ period }: Props) {
         </GlassCard>
 
         <GlassCard>
-          <h3 className="font-semibold mb-4">Saldo mensal</h3>
+          <h3 className="font-semibold mb-4 text-sm md:text-base">Saldo mensal</h3>
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={monthSeries.slice(-6)}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
@@ -292,7 +292,7 @@ export function FinanceDashboard({ period }: Props) {
         </GlassCard>
 
         <GlassCard>
-          <h3 className="font-semibold mb-4">Composição de despesas</h3>
+          <h3 className="font-semibold mb-4 text-sm md:text-base">Composição de despesas</h3>
           {expByCat.length === 0 ? (
             <p className="text-sm text-muted-foreground py-12 text-center">Cadastre despesas e equipe para visualizar</p>
           ) : (
@@ -309,7 +309,7 @@ export function FinanceDashboard({ period }: Props) {
         </GlassCard>
 
         <GlassCard>
-          <h3 className="font-semibold mb-4">Top clientes (MRR)</h3>
+          <h3 className="font-semibold mb-4 text-sm md:text-base">Top clientes (MRR)</h3>
           {topClients.length === 0 ? (
             <p className="text-sm text-muted-foreground py-12 text-center">Cadastre receitas para visualizar</p>
           ) : (
