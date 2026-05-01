@@ -40,8 +40,10 @@ export function FinanceCashflow({ period }: Props) {
     kind: "expense", description: "", amount: 0,
     due_date: new Date().toISOString().slice(0, 10), status: "pending",
     payment_method: "", notes: "", tags: [] as string[], attachment_url: null as string | null,
+    installments: 1, interest_rate: 0, fine_rate: 0, early_discount_rate: 0,
   });
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [partial, setPartial] = useState<{ tx: any; amount: number } | null>(null);
   const autoTriedRef = useRef<Set<string>>(new Set());
 
   const { data: txs = [] } = useQuery({
@@ -147,24 +149,68 @@ export function FinanceCashflow({ period }: Props) {
 
   async function saveTx() {
     if (!form.description) return toast.error("Descrição obrigatória");
-    const { error } = await supabase.from("finance_transactions").insert({
-      kind: form.kind, description: form.description, amount: Number(form.amount),
-      due_date: form.due_date, status: form.status, payment_method: form.payment_method,
-      notes: form.notes, tags: form.tags, attachment_url: form.attachment_url,
-      user_id: user!.id, reference_type: "manual",
-    });
-    if (error) return toast.error(error.message);
-    toast.success("Lançamento adicionado");
+    const installments = Math.max(1, Number(form.installments) || 1);
+
+    if (installments > 1) {
+      const { error } = await supabase.rpc("create_installments", {
+        _user_id: user!.id,
+        _kind: form.kind,
+        _description: form.description,
+        _total_amount: Number(form.amount),
+        _first_due: form.due_date,
+        _installments: installments,
+        _category_id: null,
+        _notes: form.notes,
+        _tags: form.tags,
+      });
+      if (error) return toast.error(error.message);
+      toast.success(`${installments} parcelas criadas`);
+    } else {
+      const { error } = await supabase.from("finance_transactions").insert({
+        kind: form.kind, description: form.description, amount: Number(form.amount),
+        original_amount: Number(form.amount),
+        due_date: form.due_date, status: form.status, payment_method: form.payment_method,
+        notes: form.notes, tags: form.tags, attachment_url: form.attachment_url,
+        interest_rate: Number(form.interest_rate) || 0,
+        fine_rate: Number(form.fine_rate) || 0,
+        early_discount_rate: Number(form.early_discount_rate) || 0,
+        user_id: user!.id, reference_type: "manual",
+      });
+      if (error) return toast.error(error.message);
+      toast.success("Lançamento adicionado");
+    }
     setOpen(false);
-    setForm({ kind: "expense", description: "", amount: 0, due_date: new Date().toISOString().slice(0, 10), status: "pending", payment_method: "", notes: "", tags: [], attachment_url: null });
+    setForm({ kind: "expense", description: "", amount: 0, due_date: new Date().toISOString().slice(0, 10), status: "pending", payment_method: "", notes: "", tags: [], attachment_url: null, installments: 1, interest_rate: 0, fine_rate: 0, early_discount_rate: 0 });
     qc.invalidateQueries({ queryKey: ["fin-tx-cf"] });
     qc.invalidateQueries({ queryKey: ["fin-tx"] });
   }
 
   async function markPaid(t: any) {
+    // Calcula valor com juros/multa/desconto via RPC
+    const { data: dueAmount } = await supabase.rpc("calculate_transaction_due_amount", { _tx_id: t.id });
+    const amt = Number(dueAmount ?? t.amount);
+    if (Math.abs(amt - Number(t.amount)) > 0.01) {
+      const ok = await confirm({
+        title: "Confirmar valor de pagamento",
+        description: `Valor calculado: ${formatBRL(amt)} (original ${formatBRL(Number(t.amount))} ${amt > t.amount ? "+ juros/multa" : "− desconto"}). Marcar como pago?`,
+        confirmText: "Confirmar",
+      });
+      if (!ok) return;
+    }
     await supabase.from("finance_transactions").update({
-      status: "paid", paid_date: new Date().toISOString().slice(0, 10),
+      status: "paid", paid_date: new Date().toISOString().slice(0, 10), partial_paid_amount: Number(t.amount),
     }).eq("id", t.id);
+    qc.invalidateQueries({ queryKey: ["fin-tx-cf"] });
+  }
+
+  async function doPartialPay() {
+    if (!partial) return;
+    const { error } = await supabase.rpc("partial_pay_transaction", {
+      _tx_id: partial.tx.id, _amount: partial.amount, _paid_date: new Date().toISOString().slice(0, 10),
+    });
+    if (error) return toast.error(error.message);
+    toast.success("Baixa parcial registrada");
+    setPartial(null);
     qc.invalidateQueries({ queryKey: ["fin-tx-cf"] });
   }
 
@@ -357,6 +403,16 @@ export function FinanceCashflow({ period }: Props) {
                                   />
                                 )}
                                 <Badge variant="outline" className={`${STATUS_BADGE[t.status]} font-medium border-0 text-[10px]`}>{t.status}</Badge>
+                                {t.installment_total > 1 && (
+                                  <Badge variant="outline" className="text-[10px] border-0 bg-primary/10 text-primary">
+                                    {t.installment_number}/{t.installment_total}
+                                  </Badge>
+                                )}
+                                {Number(t.partial_paid_amount) > 0 && t.status === "pending" && (
+                                  <Badge variant="outline" className="text-[10px] border-0 bg-blue-500/15 text-blue-600 dark:text-blue-400">
+                                    Parcial {formatBRL(Number(t.partial_paid_amount))}
+                                  </Badge>
+                                )}
                                 <span className="text-xs text-muted-foreground tabular-nums w-14">{t.due_date.slice(8)}/{t.due_date.slice(5, 7)}</span>
                                 {alert && (
                                   <Badge
@@ -383,7 +439,10 @@ export function FinanceCashflow({ period }: Props) {
                                   {t.kind === "income" ? "+" : "-"}{formatBRL(Number(t.amount))}
                                 </span>
                                 {t.status === "pending" && (
-                                  <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => markPaid(t)}>Pagar</Button>
+                                  <>
+                                    <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => markPaid(t)}>Pagar</Button>
+                                    <Button size="sm" variant="ghost" className="h-7 text-xs text-blue-600 dark:text-blue-400" onClick={() => setPartial({ tx: t, amount: Math.max(0, Number(t.amount) - Number(t.partial_paid_amount || 0)) })}>Parcial</Button>
+                                  </>
                                 )}
                                 <Button size="icon" variant="ghost" className="h-7 w-7 hover:bg-destructive/10 hover:text-destructive" onClick={() => removeTx(t.id)}>
                                   <Trash2 className="h-3.5 w-3.5" />
@@ -435,6 +494,42 @@ export function FinanceCashflow({ period }: Props) {
             </div>
             <div><Label>Método de pagamento</Label><Input value={form.payment_method} onChange={e => setForm({ ...form, payment_method: e.target.value })} placeholder="PIX, Boleto, Cartão..." /></div>
             <div><Label>Notas</Label><Input value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} /></div>
+
+            <div className="rounded-lg border border-border/50 p-3 space-y-3 bg-muted/20">
+              <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Parcelamento</div>
+              <div>
+                <Label>Número de parcelas</Label>
+                <Input
+                  type="number" min={1} max={60} value={form.installments}
+                  onChange={e => setForm({ ...form, installments: Math.max(1, Number(e.target.value)) })}
+                />
+                {form.installments > 1 && form.amount > 0 && (
+                  <p className="text-[11px] text-muted-foreground mt-1">
+                    {form.installments}x de {formatBRL(Number(form.amount) / form.installments)} — total {formatBRL(Number(form.amount))}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="rounded-lg border border-border/50 p-3 space-y-3 bg-muted/20">
+              <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Juros, multa e desconto</div>
+              <div className="grid grid-cols-3 gap-2">
+                <div>
+                  <Label className="text-xs">Juros %/mês</Label>
+                  <Input type="number" step="0.1" value={form.interest_rate} onChange={e => setForm({ ...form, interest_rate: Number(e.target.value) })} />
+                </div>
+                <div>
+                  <Label className="text-xs">Multa %</Label>
+                  <Input type="number" step="0.1" value={form.fine_rate} onChange={e => setForm({ ...form, fine_rate: Number(e.target.value) })} />
+                </div>
+                <div>
+                  <Label className="text-xs">Desc. antec. %</Label>
+                  <Input type="number" step="0.1" value={form.early_discount_rate} onChange={e => setForm({ ...form, early_discount_rate: Number(e.target.value) })} />
+                </div>
+              </div>
+              <p className="text-[11px] text-muted-foreground">Aplicados automaticamente ao marcar como pago.</p>
+            </div>
+
             <div>
               <Label>Tags / Centro de Custo</Label>
               <TagsInput value={form.tags} onChange={(tags) => setForm({ ...form, tags })} placeholder="ex: cliente-x, projeto-y" />
@@ -523,6 +618,46 @@ export function FinanceCashflow({ period }: Props) {
               </div>
             ))}
           </div>
+        </SheetContent>
+      </Sheet>
+
+      {/* Sheet: Baixa parcial */}
+      <Sheet open={!!partial} onOpenChange={(o) => !o && setPartial(null)}>
+        <SheetContent className="w-full sm:max-w-md overflow-y-auto">
+          <SheetHeader><SheetTitle>Baixa parcial</SheetTitle></SheetHeader>
+          {partial && (
+            <div className="space-y-4 mt-6">
+              <div className="rounded-lg border bg-muted/20 p-3 text-sm space-y-1">
+                <div className="font-medium text-foreground">{partial.tx.description}</div>
+                <div className="text-muted-foreground text-xs">Vencimento: {partial.tx.due_date}</div>
+                <div className="flex items-center justify-between pt-1">
+                  <span className="text-muted-foreground">Valor original</span>
+                  <span className="font-semibold tabular-nums">{formatBRL(Number(partial.tx.amount))}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Já pago</span>
+                  <span className="tabular-nums">{formatBRL(Number(partial.tx.partial_paid_amount || 0))}</span>
+                </div>
+                <div className="flex items-center justify-between font-medium">
+                  <span>Restante</span>
+                  <span className="tabular-nums">{formatBRL(Number(partial.tx.amount) - Number(partial.tx.partial_paid_amount || 0))}</span>
+                </div>
+              </div>
+              <div>
+                <Label>Valor a receber/pagar agora</Label>
+                <Input
+                  type="number" step="0.01" value={partial.amount}
+                  onChange={e => setPartial({ ...partial, amount: Number(e.target.value) })}
+                />
+                <p className="text-[11px] text-muted-foreground mt-1">
+                  Se o restante for quitado, o status muda para "pago" automaticamente.
+                </p>
+              </div>
+              <Button onClick={doPartialPay} className="w-full" disabled={!partial.amount || partial.amount <= 0}>
+                Confirmar baixa parcial
+              </Button>
+            </div>
+          )}
         </SheetContent>
       </Sheet>
 

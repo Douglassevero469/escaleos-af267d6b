@@ -687,6 +687,42 @@ export type Database = {
           },
         ]
       }
+      finance_budgets: {
+        Row: {
+          alert_threshold: number
+          category_id: string | null
+          created_at: string
+          id: string
+          notes: string | null
+          planned_amount: number
+          reference_month: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          alert_threshold?: number
+          category_id?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          planned_amount?: number
+          reference_month: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          alert_threshold?: number
+          category_id?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          planned_amount?: number
+          reference_month?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       finance_categories: {
         Row: {
           color: string | null
@@ -1015,10 +1051,18 @@ export type Database = {
           created_at: string
           description: string
           due_date: string
+          early_discount_rate: number
+          fine_rate: number
           id: string
+          installment_group_id: string | null
+          installment_number: number | null
+          installment_total: number | null
+          interest_rate: number
           kind: string
           notes: string | null
+          original_amount: number | null
           paid_date: string | null
+          partial_paid_amount: number
           payment_method: string | null
           recurring_group_id: string | null
           reference_id: string | null
@@ -1038,10 +1082,18 @@ export type Database = {
           created_at?: string
           description: string
           due_date: string
+          early_discount_rate?: number
+          fine_rate?: number
           id?: string
+          installment_group_id?: string | null
+          installment_number?: number | null
+          installment_total?: number | null
+          interest_rate?: number
           kind: string
           notes?: string | null
+          original_amount?: number | null
           paid_date?: string | null
+          partial_paid_amount?: number
           payment_method?: string | null
           recurring_group_id?: string | null
           reference_id?: string | null
@@ -1061,10 +1113,18 @@ export type Database = {
           created_at?: string
           description?: string
           due_date?: string
+          early_discount_rate?: number
+          fine_rate?: number
           id?: string
+          installment_group_id?: string | null
+          installment_number?: number | null
+          installment_total?: number | null
+          interest_rate?: number
           kind?: string
           notes?: string | null
+          original_amount?: number | null
           paid_date?: string | null
+          partial_paid_amount?: number
           payment_method?: string | null
           recurring_group_id?: string | null
           reference_id?: string | null
@@ -1448,12 +1508,35 @@ export type Database = {
         Args: { _ids: string[]; _paid_date?: string }
         Returns: number
       }
+      calculate_transaction_due_amount: {
+        Args: { _ref_date?: string; _tx_id: string }
+        Returns: number
+      }
+      create_installments: {
+        Args: {
+          _category_id?: string
+          _description: string
+          _first_due: string
+          _installments: number
+          _kind: string
+          _notes?: string
+          _tags?: string[]
+          _total_amount: number
+          _user_id: string
+        }
+        Returns: string
+      }
+      generate_due_date_notifications: { Args: never; Returns: number }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
         Returns: boolean
+      }
+      partial_pay_transaction: {
+        Args: { _amount: number; _paid_date?: string; _tx_id: string }
+        Returns: Json
       }
     }
     Enums: {
