@@ -22,6 +22,7 @@ import {
 import { Plus, Target, Trash2, Pencil, TrendingUp, TrendingDown, Wallet } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { useConfirm } from "@/components/ui/confirm-dialog";
 
 type GoalType = "revenue" | "expense" | "profit";
 type PeriodType = "monthly" | "quarterly" | "yearly";
