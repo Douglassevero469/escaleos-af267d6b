@@ -43,13 +43,16 @@ export function FinanceCashflow({ period }: Props) {
     (byMonth[key] = byMonth[key] || []).push(t);
   });
 
-  // Build 12 months window (6 past, current, 5 future)
+  // Janela de meses do período selecionado
   const months: string[] = [];
-  const base = new Date();
-  for (let i = -6; i <= 5; i++) {
-    const d = new Date(base.getFullYear(), base.getMonth() + i, 1);
-    months.push(d.toISOString().slice(0, 7));
+  const startD = new Date(period.start);
+  const endD = new Date(period.end);
+  const cursor = new Date(startD.getFullYear(), startD.getMonth(), 1);
+  while (cursor <= endD) {
+    months.push(`${cursor.getFullYear()}-${String(cursor.getMonth() + 1).padStart(2, "0")}`);
+    cursor.setMonth(cursor.getMonth() + 1);
   }
+  if (months.length === 0) months.push(period.start.slice(0, 7));
 
   let acc = 0;
   const rows = months.map(month => {
