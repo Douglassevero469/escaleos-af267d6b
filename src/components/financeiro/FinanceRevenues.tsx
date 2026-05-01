@@ -69,7 +69,13 @@ export function FinanceRevenues({ period }: Props) {
 
   async function save() {
     if (!form.client_name) return toast.error("Informe o nome do cliente");
-    const payload = {
+    let end_date: string | null = null;
+    if (form.duration_months > 0 && form.start_date) {
+      const d = new Date(form.start_date);
+      d.setMonth(d.getMonth() + form.duration_months - 1);
+      end_date = new Date(d.getFullYear(), d.getMonth() + 1, 0).toISOString().slice(0, 10);
+    }
+    const payload: any = {
       user_id: user!.id,
       client_name: form.client_name,
       description: form.description,
@@ -77,6 +83,7 @@ export function FinanceRevenues({ period }: Props) {
       payment_day: Number(form.payment_day),
       status: form.status,
       start_date: form.start_date || null,
+      end_date,
     };
     const { error } = form.id
       ? await supabase.from("finance_recurring_revenues").update(payload).eq("id", form.id)
