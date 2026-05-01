@@ -278,6 +278,25 @@ export function FinanceCashflow({ period }: Props) {
         }
       />
 
+      {(overdueCount > 0 || dueSoonCount > 0) && (
+        <div className="flex flex-wrap items-center gap-3 rounded-xl border border-amber-500/30 bg-amber-500/5 px-4 py-3">
+          <AlertTriangle className="h-5 w-5 text-amber-500 shrink-0" />
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-1 text-sm">
+            {overdueCount > 0 && (
+              <span className="text-foreground">
+                <span className="font-bold text-destructive">{overdueCount}</span> lançamento{overdueCount > 1 ? "s" : ""} <span className="text-destructive font-medium">vencido{overdueCount > 1 ? "s" : ""}</span>
+              </span>
+            )}
+            {dueSoonCount > 0 && (
+              <span className="text-foreground">
+                <span className="font-bold text-amber-500">{dueSoonCount}</span> vencendo nos próximos 7 dias
+              </span>
+            )}
+          </div>
+          <span className="ml-auto text-xs text-muted-foreground">Expanda os meses para revisar e marcar como pago.</span>
+        </div>
+      )}
+
       <ExecCard title="Evolução mês a mês" subtitle="Clique em uma linha para detalhar" padded={false}>
         <div className="border-t border-border/50">
           <Table>
