@@ -152,7 +152,7 @@ export function FinanceGoals({ period }: Props) {
 
   const remove = async () => {
     if (!editing) return;
-    if (!confirm("Excluir esta meta?")) return;
+    if (!(await confirm({ title: "Excluir meta?", description: "Esta meta será removida permanentemente. Esta ação não poderá ser desfeita.", confirmText: "Excluir" }))) return;
     const { error } = await supabase.from("finance_goals").delete().eq("id", editing.id);
     if (error) return toast.error(error.message);
     toast.success("Meta excluída");
