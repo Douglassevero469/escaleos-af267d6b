@@ -123,6 +123,7 @@ interface ExecCardProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "titl
   subtitle?: ReactNode;
   actions?: ReactNode;
   padded?: boolean;
+  info?: string;
 }
 
 export function ExecCard({
