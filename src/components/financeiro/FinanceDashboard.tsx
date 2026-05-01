@@ -131,13 +131,28 @@ export function FinanceDashboard({ period }: Props) {
 
   return (
     <div className="space-y-6">
+      {/* Período resumo */}
+      <GlassCard>
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <p className="text-xs text-muted-foreground uppercase tracking-wide">Período: <span className="capitalize text-foreground">{period.label}</span></p>
+            <p className="text-xs text-muted-foreground">{period.start.split("-").reverse().join("/")} → {period.end.split("-").reverse().join("/")} · {months} {months === 1 ? "mês" : "meses"}</p>
+          </div>
+          <div className="grid grid-cols-3 gap-6 text-right">
+            <div><p className="text-xs text-muted-foreground">Receita período</p><p className="font-mono font-bold text-emerald-600">{formatBRL(periodRev)}</p></div>
+            <div><p className="text-xs text-muted-foreground">Despesa período</p><p className="font-mono font-bold text-rose-600">{formatBRL(periodExp)}</p></div>
+            <div><p className="text-xs text-muted-foreground">Resultado</p><p className={`font-mono font-bold ${periodResult >= 0 ? "text-emerald-600" : "text-rose-600"}`}>{formatBRL(periodResult)}</p></div>
+          </div>
+        </div>
+      </GlassCard>
+
       {/* KPIs */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         <StatsCard title="MRR" value={formatBRL(mrr)} icon={TrendingUp} positive change={`${activeClients} clientes`} />
         <StatsCard title="Despesas/mês" value={formatBRL(totalExp)} icon={TrendingDown} change={`Folha + fixos`} />
-        <StatsCard title="Resultado" value={formatBRL(result)} icon={Wallet} positive={result >= 0} change={result >= 0 ? "Lucro" : "Prejuízo"} />
+        <StatsCard title="Resultado/mês" value={formatBRL(result)} icon={Wallet} positive={result >= 0} change={result >= 0 ? "Lucro" : "Prejuízo"} />
         <StatsCard title="Ticket Médio" value={formatBRL(ticket)} icon={Target} />
-        <StatsCard title="Custo/Func." value={formatBRL(costPerEmployee)} icon={Users} change={`${activeTeam} ativos`} />
+        <StatsCard title="Custo/Func." value={formatBRL(costPerEmployee)} icon={Users} change={`${activeTeamCount} ativos`} />
         <StatsCard title="Runway" value={runway > 100 ? "∞" : `${runway}m`} icon={AlertTriangle} positive={runway > 6} change={runway > 6 ? "Saudável" : "Crítico"} />
       </div>
 
