@@ -56,7 +56,11 @@ export function AppSidebar() {
   const location = useLocation();
   const { user, signOut } = useAuth();
   const { theme } = useTheme();
+  const { data: allowedModules } = useUserModules();
   const isActive = (path: string) => location.pathname.startsWith(path);
+  const visibleItems = allowedModules
+    ? mainItems.filter((i) => allowedModules.includes(i.key))
+    : mainItems;
 
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border bg-sidebar">
