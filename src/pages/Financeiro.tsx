@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { TrendingUp, TrendingDown, Users, BarChart3, Calendar } from "lucide-react";
+import { TrendingUp, TrendingDown, Users, BarChart3, Calendar, Target } from "lucide-react";
 import { FinanceDashboard } from "@/components/financeiro/FinanceDashboard";
 import { FinanceRevenues } from "@/components/financeiro/FinanceRevenues";
 import { FinanceExpenses } from "@/components/financeiro/FinanceExpenses";
 import { FinanceTeam } from "@/components/financeiro/FinanceTeam";
 import { FinanceCashflow } from "@/components/financeiro/FinanceCashflow";
+import { FinanceGoals } from "@/components/financeiro/FinanceGoals";
 import { PeriodFilter, buildPeriod, Period } from "@/components/financeiro/PeriodFilter";
 import { CurrentMonthBar } from "@/components/financeiro/CurrentMonthBar";
 
