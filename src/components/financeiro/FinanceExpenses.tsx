@@ -27,11 +27,15 @@ interface ExpForm {
   vendor: string;
   active: boolean;
   category: string;
+  start_date: string;
+  duration_months: number; // 0 = indefinida
 }
 
 const empty: ExpForm = {
   name: "", description: "", amount: 0, payment_day: 5,
   vendor: "", active: true, category: "Sistemas",
+  start_date: new Date().toISOString().slice(0, 10),
+  duration_months: 0,
 };
 
 interface Props { period: Period }
