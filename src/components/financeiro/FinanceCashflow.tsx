@@ -51,14 +51,7 @@ export function FinanceCashflow({ period }: Props) {
   const runsByMonth: Record<string, any> = {};
   runs.forEach((r: any) => { if (!runsByMonth[r.month]) runsByMonth[r.month] = r; });
 
-  // Group txs by month
-  const byMonth: Record<string, any[]> = {};
-  txs.forEach((t: any) => {
-    const key = t.due_date.slice(0, 7);
-    (byMonth[key] = byMonth[key] || []).push(t);
-  });
-
-  // Janela de meses do período selecionado
+  // Janela de meses do período selecionado (somente meses dentro de [period.start, period.end])
   const months: string[] = [];
   const startD = new Date(period.start);
   const endD = new Date(period.end);
@@ -68,7 +61,23 @@ export function FinanceCashflow({ period }: Props) {
     cursor.setMonth(cursor.getMonth() + 1);
   }
   if (months.length === 0) months.push(period.start.slice(0, 7));
+  const monthsSet = new Set(months);
 
+  // Apenas transações cujo due_date cai dentro do recorte exato [period.start, period.end]
+  // E cujo mês está na janela (defesa redundante para custom ranges parciais).
+  const txsInPeriod = txs.filter((t: any) => {
+    if (!t?.due_date) return false;
+    return t.due_date >= period.start && t.due_date <= period.end && monthsSet.has(t.due_date.slice(0, 7));
+  });
+
+  // Agrupa por mês somente o que está no período
+  const byMonth: Record<string, any[]> = {};
+  txsInPeriod.forEach((t: any) => {
+    const key = t.due_date.slice(0, 7);
+    (byMonth[key] = byMonth[key] || []).push(t);
+  });
+
+  // Projeção/linhas estritamente dentro da janela
   let acc = 0;
   const rows = months.map(month => {
     const items = byMonth[month] || [];
