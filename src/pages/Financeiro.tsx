@@ -41,9 +41,6 @@ export default function Financeiro() {
           <PeriodFilter value={period} onChange={setPeriod} />
         </header>
 
-        {/* Fixed KPI Bar — Glass Panel */}
-        <CurrentMonthBar />
-
         {/* Tabs — minimalist border-bottom style */}
         <Tabs value={tab} onValueChange={setTab} className="space-y-8">
           <TabsList className="w-full justify-start bg-transparent p-0 h-auto border-b border-border rounded-none gap-2 md:gap-8 overflow-x-auto">
@@ -73,7 +70,8 @@ export default function Financeiro() {
             ))}
           </TabsList>
 
-          <TabsContent value="dashboard" className="mt-0 animate-in fade-in-50 duration-300">
+          <TabsContent value="dashboard" className="mt-0 animate-in fade-in-50 duration-300 space-y-8">
+            <CurrentMonthBar />
             <FinanceDashboard period={period} />
           </TabsContent>
           <TabsContent value="receitas" className="mt-0 animate-in fade-in-50 duration-300">
