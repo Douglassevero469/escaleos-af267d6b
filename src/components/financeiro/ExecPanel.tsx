@@ -131,6 +131,7 @@ export function ExecCard({
   subtitle,
   actions,
   padded = true,
+  info,
   className,
   children,
   ...rest
@@ -147,8 +148,9 @@ export function ExecCard({
         <div className="flex items-start justify-between gap-3 px-5 lg:px-6 pt-5 lg:pt-6 pb-3">
           <div className="min-w-0">
             {title && (
-              <h3 className="text-sm lg:text-base font-medium text-foreground leading-tight">
-                {title}
+              <h3 className="text-sm lg:text-base font-medium text-foreground leading-tight flex items-center gap-1.5 flex-wrap">
+                <span>{title}</span>
+                {info && <InfoTooltip text={info} size={14} />}
               </h3>
             )}
             {subtitle && (
