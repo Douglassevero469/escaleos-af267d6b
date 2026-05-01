@@ -207,7 +207,14 @@ export function FinanceCashflow({ period }: Props) {
               <>
                 <TableRow key={r.month} className="cursor-pointer" onClick={() => setExpanded(expanded === r.month ? null : r.month)}>
                   <TableCell>{expanded === r.month ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}</TableCell>
-                  <TableCell className="font-medium">{monthLabel(r.month)}</TableCell>
+                  <TableCell className="font-medium">
+                    <div className="flex items-center gap-2">
+                      {monthLabel(r.month)}
+                      {runsByMonth[r.month] && (
+                        <RunStatusIcon status={runsByMonth[r.month].status} trigger={runsByMonth[r.month].trigger} />
+                      )}
+                    </div>
+                  </TableCell>
                   <TableCell className="text-right font-mono text-emerald-600">{formatBRL(r.inc)}</TableCell>
                   <TableCell className="text-right font-mono text-rose-600">{formatBRL(r.out)}</TableCell>
                   <TableCell className={`text-right font-mono font-bold ${r.balance >= 0 ? "text-emerald-600" : "text-rose-600"}`}>{formatBRL(r.balance)}</TableCell>
