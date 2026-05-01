@@ -255,31 +255,80 @@ export function FinanceDashboard({ period }: Props) {
       )}
 
       {/* Receita vs Despesa */}
-      <div className="grid lg:grid-cols-2 gap-6">
+      <div className="grid lg:grid-cols-2 gap-5">
         <ExecCard title="Receita vs Despesa" subtitle={period.label}>
-          <ResponsiveContainer width="100%" height={260}>
-            <LineChart data={monthSeries}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-              <XAxis dataKey="mes" stroke="hsl(var(--muted-foreground))" fontSize={12} />
-              <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} tickFormatter={(v) => `${(v/1000).toFixed(0)}k`} />
-              <Tooltip formatter={(v: number) => formatBRL(v)} contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8 }} />
-              <Legend />
-              <Line type="monotone" dataKey="receita" stroke="#22c55e" strokeWidth={2.5} name="Receita" />
-              <Line type="monotone" dataKey="despesa" stroke="#ef4444" strokeWidth={2.5} name="Despesa" />
-            </LineChart>
+          <div className="flex items-center gap-4 mb-3 text-[11px] font-medium">
+            <span className="flex items-center gap-1.5">
+              <span className="h-2 w-2 rounded-full bg-[hsl(142_71%_45%)]" />
+              <span className="text-muted-foreground">Receita</span>
+              <span className="text-foreground tabular-nums">{formatBRL(periodRev)}</span>
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="h-2 w-2 rounded-full bg-[hsl(0_84%_60%)]" />
+              <span className="text-muted-foreground">Despesa</span>
+              <span className="text-foreground tabular-nums">{formatBRL(periodExp)}</span>
+            </span>
+          </div>
+          <ResponsiveContainer width="100%" height={280}>
+            <AreaChart data={monthSeries} margin={{ top: 8, right: 12, left: -8, bottom: 0 }}>
+              <defs>
+                <linearGradient id="grad-receita" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="hsl(142 71% 45%)" stopOpacity={0.35} />
+                  <stop offset="100%" stopColor="hsl(142 71% 45%)" stopOpacity={0} />
+                </linearGradient>
+                <linearGradient id="grad-despesa" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="hsl(0 84% 60%)" stopOpacity={0.3} />
+                  <stop offset="100%" stopColor="hsl(0 84% 60%)" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="2 4" stroke="hsl(var(--border) / 0.6)" vertical={false} />
+              <XAxis dataKey="mes" tick={axisTickStyle} axisLine={false} tickLine={false} dy={6} />
+              <YAxis tick={axisTickStyle} axisLine={false} tickLine={false} tickFormatter={(v) => `${(v/1000).toFixed(0)}k`} width={42} />
+              <Tooltip
+                formatter={(v: number, name: string) => [formatBRL(v), name === "receita" ? "Receita" : "Despesa"]}
+                contentStyle={chartTooltipStyle}
+                cursor={{ stroke: "hsl(var(--primary) / 0.2)", strokeWidth: 1 }}
+              />
+              <Area type="monotone" dataKey="receita" stroke="hsl(142 71% 45%)" strokeWidth={2.5} fill="url(#grad-receita)" dot={false} activeDot={{ r: 5, strokeWidth: 2, stroke: "hsl(var(--card))" }} />
+              <Area type="monotone" dataKey="despesa" stroke="hsl(0 84% 60%)" strokeWidth={2.5} fill="url(#grad-despesa)" dot={false} activeDot={{ r: 5, strokeWidth: 2, stroke: "hsl(var(--card))" }} />
+            </AreaChart>
           </ResponsiveContainer>
         </ExecCard>
 
         <ExecCard title="Saldo Mensal" subtitle="Últimos 6 períodos">
-          <ResponsiveContainer width="100%" height={260}>
-            <BarChart data={monthSeries.slice(-6)}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-              <XAxis dataKey="mes" stroke="hsl(var(--muted-foreground))" fontSize={12} />
-              <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} tickFormatter={(v) => `${(v/1000).toFixed(0)}k`} />
-              <Tooltip formatter={(v: number) => formatBRL(v)} contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8 }} />
-              <Bar dataKey="saldo" radius={[8, 8, 0, 0]}>
+          <div className="flex items-center gap-4 mb-3 text-[11px] font-medium">
+            <span className="flex items-center gap-1.5">
+              <span className="h-2 w-2 rounded-sm bg-[hsl(142_71%_45%)]" />
+              <span className="text-muted-foreground">Lucro</span>
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="h-2 w-2 rounded-sm bg-[hsl(0_84%_60%)]" />
+              <span className="text-muted-foreground">Prejuízo</span>
+            </span>
+          </div>
+          <ResponsiveContainer width="100%" height={280}>
+            <BarChart data={monthSeries.slice(-6)} margin={{ top: 8, right: 12, left: -8, bottom: 0 }}>
+              <defs>
+                <linearGradient id="bar-positive" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="hsl(142 71% 55%)" stopOpacity={1} />
+                  <stop offset="100%" stopColor="hsl(142 71% 40%)" stopOpacity={0.85} />
+                </linearGradient>
+                <linearGradient id="bar-negative" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="hsl(0 84% 65%)" stopOpacity={1} />
+                  <stop offset="100%" stopColor="hsl(0 84% 50%)" stopOpacity={0.85} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="2 4" stroke="hsl(var(--border) / 0.6)" vertical={false} />
+              <XAxis dataKey="mes" tick={axisTickStyle} axisLine={false} tickLine={false} dy={6} />
+              <YAxis tick={axisTickStyle} axisLine={false} tickLine={false} tickFormatter={(v) => `${(v/1000).toFixed(0)}k`} width={42} />
+              <Tooltip
+                formatter={(v: number) => [formatBRL(v), "Saldo"]}
+                contentStyle={chartTooltipStyle}
+                cursor={{ fill: "hsl(var(--primary) / 0.05)" }}
+              />
+              <Bar dataKey="saldo" radius={[8, 8, 2, 2]} maxBarSize={48}>
                 {monthSeries.slice(-6).map((m, i) => (
-                  <Cell key={i} fill={m.saldo >= 0 ? "#22c55e" : "#ef4444"} />
+                  <Cell key={i} fill={m.saldo >= 0 ? "url(#bar-positive)" : "url(#bar-negative)"} />
                 ))}
               </Bar>
             </BarChart>
@@ -288,31 +337,84 @@ export function FinanceDashboard({ period }: Props) {
 
         <ExecCard title="Composição de Despesas" subtitle="Por categoria">
           {expByCat.length === 0 ? (
-            <p className="text-sm text-muted-foreground py-12 text-center">Cadastre despesas e equipe para visualizar</p>
+            <div className="flex flex-col items-center justify-center py-16 gap-2">
+              <div className="h-12 w-12 rounded-full bg-muted/40 flex items-center justify-center">
+                <TrendingDown className="h-5 w-5 text-muted-foreground" />
+              </div>
+              <p className="text-sm text-muted-foreground">Cadastre despesas e equipe para visualizar</p>
+            </div>
           ) : (
-            <ResponsiveContainer width="100%" height={260}>
-              <PieChart>
-                <Pie data={expByCat} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={90} innerRadius={50} paddingAngle={2}>
-                  {expByCat.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
-                </Pie>
-                <Tooltip formatter={(v: number) => formatBRL(v)} contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8 }} />
-                <Legend wrapperStyle={{ fontSize: 11 }} />
-              </PieChart>
-            </ResponsiveContainer>
+            <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-4 items-center">
+              <ResponsiveContainer width="100%" height={260}>
+                <PieChart>
+                  <defs>
+                    {COLORS.map((c, i) => (
+                      <linearGradient key={i} id={`pie-grad-${i}`} x1="0" y1="0" x2="1" y2="1">
+                        <stop offset="0%" stopColor={c} stopOpacity={1} />
+                        <stop offset="100%" stopColor={c} stopOpacity={0.7} />
+                      </linearGradient>
+                    ))}
+                  </defs>
+                  <Pie
+                    data={expByCat}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={95}
+                    innerRadius={58}
+                    paddingAngle={3}
+                    stroke="hsl(var(--card))"
+                    strokeWidth={2}
+                  >
+                    {expByCat.map((_, i) => <Cell key={i} fill={`url(#pie-grad-${i % COLORS.length})`} />)}
+                  </Pie>
+                  <Tooltip formatter={(v: number) => formatBRL(v)} contentStyle={chartTooltipStyle} />
+                </PieChart>
+              </ResponsiveContainer>
+              <div className="flex flex-col gap-2 text-xs md:max-w-[180px]">
+                {expByCat.slice(0, 6).map((cat, i) => {
+                  const total = expByCat.reduce((s, c) => s + c.value, 0);
+                  const pct = total ? ((cat.value / total) * 100).toFixed(0) : "0";
+                  return (
+                    <div key={i} className="flex items-center gap-2 min-w-0">
+                      <span className="h-2.5 w-2.5 rounded-sm shrink-0" style={{ background: COLORS[i % COLORS.length] }} />
+                      <span className="text-muted-foreground truncate flex-1">{cat.name}</span>
+                      <span className="text-foreground font-medium tabular-nums">{pct}%</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
           )}
         </ExecCard>
 
         <ExecCard title="Maiores Origens" subtitle="Top clientes (MRR)">
           {topClients.length === 0 ? (
-            <p className="text-sm text-muted-foreground py-12 text-center">Cadastre receitas para visualizar</p>
+            <div className="flex flex-col items-center justify-center py-16 gap-2">
+              <div className="h-12 w-12 rounded-full bg-muted/40 flex items-center justify-center">
+                <Users className="h-5 w-5 text-muted-foreground" />
+              </div>
+              <p className="text-sm text-muted-foreground">Cadastre receitas para visualizar</p>
+            </div>
           ) : (
-            <ResponsiveContainer width="100%" height={260}>
-              <BarChart data={topClients} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis type="number" stroke="hsl(var(--muted-foreground))" fontSize={11} tickFormatter={(v) => `${(v/1000).toFixed(0)}k`} />
-                <YAxis dataKey="name" type="category" width={90} stroke="hsl(var(--muted-foreground))" fontSize={11} />
-                <Tooltip formatter={(v: number) => formatBRL(v)} contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8 }} />
-                <Bar dataKey="value" fill="hsl(var(--primary))" radius={[0, 6, 6, 0]} />
+            <ResponsiveContainer width="100%" height={Math.max(260, topClients.length * 36)}>
+              <BarChart data={topClients} layout="vertical" margin={{ top: 4, right: 16, left: 4, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="bar-client" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.9} />
+                    <stop offset="100%" stopColor="hsl(var(--accent))" stopOpacity={0.95} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="2 4" stroke="hsl(var(--border) / 0.6)" horizontal={false} />
+                <XAxis type="number" tick={axisTickStyle} axisLine={false} tickLine={false} tickFormatter={(v) => `${(v/1000).toFixed(0)}k`} />
+                <YAxis dataKey="name" type="category" width={110} tick={axisTickStyle} axisLine={false} tickLine={false} />
+                <Tooltip
+                  formatter={(v: number) => [formatBRL(v), "MRR"]}
+                  contentStyle={chartTooltipStyle}
+                  cursor={{ fill: "hsl(var(--primary) / 0.05)" }}
+                />
+                <Bar dataKey="value" fill="url(#bar-client)" radius={[0, 8, 8, 0]} maxBarSize={28} />
               </BarChart>
             </ResponsiveContainer>
           )}
