@@ -117,11 +117,19 @@ export function FinanceExpenses({ period }: Props) {
 
   function openEdit(e: any) {
     const catMatch = EXPENSE_CATEGORIES.find(c => (e.description || "").startsWith(`[${c}]`)) || "Outros";
+    let duration = 0;
+    if (e.start_date && e.end_date) {
+      const a = new Date(e.start_date);
+      const b = new Date(e.end_date);
+      duration = Math.max(1, (b.getFullYear() - a.getFullYear()) * 12 + (b.getMonth() - a.getMonth()) + 1);
+    }
     setForm({
       id: e.id, name: e.name,
       description: (e.description || "").replace(`[${catMatch}] `, ""),
       amount: Number(e.amount), payment_day: e.payment_day || 5,
       vendor: e.vendor, active: e.active, category: catMatch,
+      start_date: e.start_date || new Date().toISOString().slice(0, 10),
+      duration_months: duration,
     });
     setOpen(true);
   }
