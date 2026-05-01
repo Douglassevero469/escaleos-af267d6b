@@ -39,6 +39,7 @@ interface Props { period: Period }
 export function FinanceExpenses({ period }: Props) {
   const { user } = useAuth();
   const qc = useQueryClient();
+  const confirm = useConfirm();
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<ExpForm>(empty);
 
