@@ -13,6 +13,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Trash2 } from "lucide-react";
 import { formatBRL, EXPENSE_CATEGORIES } from "@/lib/finance-utils";
+import { Period, monthsInPeriod } from "@/components/financeiro/PeriodFilter";
 import { toast } from "sonner";
 
 interface ExpForm {
@@ -31,18 +32,28 @@ const empty: ExpForm = {
   vendor: "", active: true, category: "Sistemas",
 };
 
-export function FinanceExpenses() {
+interface Props { period: Period }
+
+export function FinanceExpenses({ period }: Props) {
   const { user } = useAuth();
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<ExpForm>(empty);
 
-  const { data: expenses = [] } = useQuery({
+  const { data: expensesAll = [] } = useQuery({
     queryKey: ["fin-expenses"],
     queryFn: async () => (await supabase.from("finance_recurring_expenses").select("*").order("amount", { ascending: false })).data || [],
   });
 
+  // Vigentes no período
+  const expenses = expensesAll.filter((e: any) =>
+    (!e.start_date || e.start_date <= period.end) &&
+    (!e.end_date || e.end_date >= period.start)
+  );
+
+  const months = monthsInPeriod(period);
   const total = expenses.filter((e: any) => e.active).reduce((s: number, e: any) => s + Number(e.amount), 0);
+  const totalPeriod = total * months;
 
   // Group by category (using description as proxy until categories table is wired)
   const grouped = EXPENSE_CATEGORIES.map(cat => ({
@@ -106,9 +117,9 @@ export function FinanceExpenses() {
       <GlassCard>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <p className="text-xs text-muted-foreground uppercase tracking-wide">Total Despesas Fixas/mês</p>
-            <p className="text-3xl font-bold text-rose-500">{formatBRL(total)}</p>
-            <p className="text-xs text-muted-foreground mt-1">{expenses.filter((e: any) => e.active).length} despesas ativas</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wide">Despesas Fixas · {period.label}</p>
+            <p className="text-3xl font-bold text-rose-500">{formatBRL(total)}<span className="text-sm text-muted-foreground font-normal">/mês</span></p>
+            <p className="text-xs text-muted-foreground mt-1">{expenses.filter((e: any) => e.active).length} ativas · Total no período: <span className="font-mono text-foreground">{formatBRL(totalPeriod)}</span></p>
           </div>
           <Button onClick={() => { setForm(empty); setOpen(true); }}><Plus className="mr-2 h-4 w-4" />Nova Despesa</Button>
         </div>

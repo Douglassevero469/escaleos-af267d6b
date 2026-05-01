@@ -4,6 +4,7 @@ import { GlassCard } from "@/components/ui/GlassCard";
 import { StatsCard } from "@/components/ui/StatsCard";
 import { TrendingUp, TrendingDown, Wallet, AlertTriangle, Users, Target } from "lucide-react";
 import { formatBRL } from "@/lib/finance-utils";
+import { Period, monthsInPeriod, inPeriod } from "@/components/financeiro/PeriodFilter";
 import {
   ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid,
   AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell, Legend,
@@ -11,7 +12,9 @@ import {
 
 const COLORS = ["#7B2FF7", "#0000FF", "#22c55e", "#f59e0b", "#ec4899", "#06b6d4", "#8b5cf6", "#10b981"];
 
-export function FinanceDashboard() {
+interface Props { period: Period }
+
+export function FinanceDashboard({ period }: Props) {
   const { data: revenues = [] } = useQuery({
     queryKey: ["fin-rev"],
     queryFn: async () => (await supabase.from("finance_recurring_revenues").select("*")).data || [],
@@ -29,28 +32,73 @@ export function FinanceDashboard() {
     queryFn: async () => (await supabase.from("finance_transactions").select("*").order("due_date")).data || [],
   });
 
-  const mrr = revenues.filter((r: any) => r.status === "active").reduce((s: number, r: any) => s + Number(r.amount), 0);
-  const fixedExp = expenses.filter((e: any) => e.active).reduce((s: number, e: any) => s + Number(e.amount), 0);
-  const teamCost = team.filter((t: any) => t.status === "active").reduce((s: number, t: any) => s + Number(t.monthly_cost), 0);
+  const months = monthsInPeriod(period);
+
+  // Active items considered active during the period (start_date <= end & end_date null/>= start)
+  const activeRevs = revenues.filter((r: any) =>
+    r.status === "active" &&
+    (!r.start_date || r.start_date <= period.end) &&
+    (!r.end_date || r.end_date >= period.start)
+  );
+  const activeExps = expenses.filter((e: any) =>
+    e.active &&
+    (!e.start_date || e.start_date <= period.end) &&
+    (!e.end_date || e.end_date >= period.start)
+  );
+  const activeTeamArr = team.filter((t: any) =>
+    t.status === "active" &&
+    (!t.start_date || t.start_date <= period.end)
+  );
+
+  const mrr = activeRevs.reduce((s: number, r: any) => s + Number(r.amount), 0);
+  const fixedExp = activeExps.reduce((s: number, e: any) => s + Number(e.amount), 0);
+  const teamCost = activeTeamArr.reduce((s: number, t: any) => s + Number(t.monthly_cost), 0);
   const totalExp = fixedExp + teamCost;
   const result = mrr - totalExp;
-  const activeClients = revenues.filter((r: any) => r.status === "active").length;
+  const activeClients = activeRevs.length;
   const ticket = activeClients ? mrr / activeClients : 0;
-  const activeTeam = team.filter((t: any) => t.status === "active").length;
-  const costPerEmployee = activeTeam ? teamCost / activeTeam : 0;
+  const activeTeamCount = activeTeamArr.length;
+  const costPerEmployee = activeTeamCount ? teamCost / activeTeamCount : 0;
 
-  // 12 month series (mock baseado em dados atuais; futuro: agregar transactions reais)
-  const monthSeries = Array.from({ length: 12 }).map((_, i) => {
-    const d = new Date();
-    d.setMonth(d.getMonth() - (11 - i));
-    const variance = 0.85 + (i / 11) * 0.3;
-    return {
-      mes: d.toLocaleDateString("pt-BR", { month: "short" }),
-      receita: Math.round(mrr * variance),
-      despesa: Math.round(totalExp * (0.9 + (i / 11) * 0.2)),
-      saldo: Math.round(mrr * variance - totalExp * (0.9 + (i / 11) * 0.2)),
-    };
-  });
+  // Period totals (scaled by months in period)
+  const periodRev = mrr * months;
+  const periodExp = totalExp * months;
+  const periodResult = periodRev - periodExp;
+
+  // Series — granularidade adaptativa ao período
+  const buildSeries = () => {
+    const start = new Date(period.start);
+    const end = new Date(period.end);
+    if (months <= 1) {
+      // Daily within month — usa transações reais quando há, senão distribui
+      const days = end.getDate();
+      return Array.from({ length: days }).map((_, i) => {
+        const day = new Date(start.getFullYear(), start.getMonth(), i + 1);
+        const ds = day.toISOString().slice(0, 10);
+        const dayTx = txs.filter((t: any) => t.due_date === ds);
+        const inc = dayTx.filter((t: any) => t.kind === "income").reduce((s: number, t: any) => s + Number(t.amount), 0);
+        const out = dayTx.filter((t: any) => t.kind === "expense").reduce((s: number, t: any) => s + Number(t.amount), 0);
+        return { mes: String(i + 1).padStart(2, "0"), receita: inc, despesa: out, saldo: inc - out };
+      });
+    }
+    // Monthly buckets
+    const buckets: any[] = [];
+    const cursor = new Date(start.getFullYear(), start.getMonth(), 1);
+    while (cursor <= end) {
+      const mStart = new Date(cursor.getFullYear(), cursor.getMonth(), 1);
+      const mEnd = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 0);
+      const mTx = txs.filter((t: any) => t.due_date >= mStart.toISOString().slice(0, 10) && t.due_date <= mEnd.toISOString().slice(0, 10));
+      const inc = mTx.filter((t: any) => t.kind === "income").reduce((s: number, t: any) => s + Number(t.amount), 0) || mrr;
+      const out = mTx.filter((t: any) => t.kind === "expense").reduce((s: number, t: any) => s + Number(t.amount), 0) || totalExp;
+      buckets.push({
+        mes: cursor.toLocaleDateString("pt-BR", { month: "short" }),
+        receita: inc, despesa: out, saldo: inc - out,
+      });
+      cursor.setMonth(cursor.getMonth() + 1);
+    }
+    return buckets;
+  };
+  const monthSeries = buildSeries();
 
   // Composição despesas
   const expByCat = [
@@ -83,13 +131,28 @@ export function FinanceDashboard() {
 
   return (
     <div className="space-y-6">
+      {/* Período resumo */}
+      <GlassCard>
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <p className="text-xs text-muted-foreground uppercase tracking-wide">Período: <span className="capitalize text-foreground">{period.label}</span></p>
+            <p className="text-xs text-muted-foreground">{period.start.split("-").reverse().join("/")} → {period.end.split("-").reverse().join("/")} · {months} {months === 1 ? "mês" : "meses"}</p>
+          </div>
+          <div className="grid grid-cols-3 gap-6 text-right">
+            <div><p className="text-xs text-muted-foreground">Receita período</p><p className="font-mono font-bold text-emerald-600">{formatBRL(periodRev)}</p></div>
+            <div><p className="text-xs text-muted-foreground">Despesa período</p><p className="font-mono font-bold text-rose-600">{formatBRL(periodExp)}</p></div>
+            <div><p className="text-xs text-muted-foreground">Resultado</p><p className={`font-mono font-bold ${periodResult >= 0 ? "text-emerald-600" : "text-rose-600"}`}>{formatBRL(periodResult)}</p></div>
+          </div>
+        </div>
+      </GlassCard>
+
       {/* KPIs */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         <StatsCard title="MRR" value={formatBRL(mrr)} icon={TrendingUp} positive change={`${activeClients} clientes`} />
         <StatsCard title="Despesas/mês" value={formatBRL(totalExp)} icon={TrendingDown} change={`Folha + fixos`} />
-        <StatsCard title="Resultado" value={formatBRL(result)} icon={Wallet} positive={result >= 0} change={result >= 0 ? "Lucro" : "Prejuízo"} />
+        <StatsCard title="Resultado/mês" value={formatBRL(result)} icon={Wallet} positive={result >= 0} change={result >= 0 ? "Lucro" : "Prejuízo"} />
         <StatsCard title="Ticket Médio" value={formatBRL(ticket)} icon={Target} />
-        <StatsCard title="Custo/Func." value={formatBRL(costPerEmployee)} icon={Users} change={`${activeTeam} ativos`} />
+        <StatsCard title="Custo/Func." value={formatBRL(costPerEmployee)} icon={Users} change={`${activeTeamCount} ativos`} />
         <StatsCard title="Runway" value={runway > 100 ? "∞" : `${runway}m`} icon={AlertTriangle} positive={runway > 6} change={runway > 6 ? "Saudável" : "Crítico"} />
       </div>
 

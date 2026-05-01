@@ -12,6 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Trash2, LayoutGrid, List } from "lucide-react";
 import { formatBRL, COMPENSATION_LABELS, STATUS_BADGE } from "@/lib/finance-utils";
+import { Period, monthsInPeriod } from "@/components/financeiro/PeriodFilter";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -32,17 +33,23 @@ const empty: MemberForm = {
   monthly_cost: 0, status: "active", start_date: "", notes: "",
 };
 
-export function FinanceTeam() {
+interface Props { period: Period }
+
+export function FinanceTeam({ period }: Props) {
   const { user } = useAuth();
   const qc = useQueryClient();
   const [view, setView] = useState<"org" | "table">("org");
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<MemberForm>(empty);
 
-  const { data: team = [] } = useQuery({
+  const { data: teamAll = [] } = useQuery({
     queryKey: ["fin-team-list"],
     queryFn: async () => (await supabase.from("finance_team_members").select("*").order("created_at")).data || [],
   });
+
+  // Membros vigentes no período (admitidos até o fim do período)
+  const team = teamAll.filter((t: any) => !t.start_date || t.start_date <= period.end);
+  const months = monthsInPeriod(period);
 
   const managers = team.filter((t: any) => !t.manager_id);
   const subordinates = (mgrId: string) => team.filter((t: any) => t.manager_id === mgrId);
@@ -51,6 +58,7 @@ export function FinanceTeam() {
   const totalProlabore = team.filter((t: any) => t.compensation_type === "prolabore" && t.status === "active").reduce((s: number, t: any) => s + Number(t.monthly_cost), 0);
   const totalContractor = team.filter((t: any) => t.compensation_type === "contractor" && t.status === "active").reduce((s: number, t: any) => s + Number(t.monthly_cost), 0);
   const totalAll = totalSalary + totalProlabore + totalContractor;
+  const totalPeriod = totalAll * months;
   const vacant = team.filter((t: any) => t.status === "vacant").length;
 
   async function save() {
@@ -114,11 +122,12 @@ export function FinanceTeam() {
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
         <GlassCard className="!p-3"><p className="text-xs text-muted-foreground">Folha CLT</p><p className="text-lg font-bold">{formatBRL(totalSalary)}</p></GlassCard>
         <GlassCard className="!p-3"><p className="text-xs text-muted-foreground">Prolabores</p><p className="text-lg font-bold">{formatBRL(totalProlabore)}</p></GlassCard>
         <GlassCard className="!p-3"><p className="text-xs text-muted-foreground">PJ/Freela</p><p className="text-lg font-bold">{formatBRL(totalContractor)}</p></GlassCard>
-        <GlassCard className="!p-3"><p className="text-xs text-muted-foreground">Custo Total</p><p className="text-lg font-bold text-primary">{formatBRL(totalAll)}</p></GlassCard>
+        <GlassCard className="!p-3"><p className="text-xs text-muted-foreground">Custo Total/mês</p><p className="text-lg font-bold text-primary">{formatBRL(totalAll)}</p></GlassCard>
+        <GlassCard className="!p-3"><p className="text-xs text-muted-foreground capitalize">{period.label}</p><p className="text-lg font-bold text-primary">{formatBRL(totalPeriod)}</p></GlassCard>
         <GlassCard className="!p-3"><p className="text-xs text-muted-foreground">Vagas em aberto</p><p className="text-lg font-bold text-rose-500">{vacant}</p></GlassCard>
       </div>
 

@@ -12,9 +12,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Download, Trash2, RefreshCw, ChevronDown, ChevronRight } from "lucide-react";
 import { formatBRL, STATUS_BADGE } from "@/lib/finance-utils";
+import { Period } from "@/components/financeiro/PeriodFilter";
 import { toast } from "sonner";
 
-export function FinanceCashflow() {
+interface Props { period: Period }
+
+export function FinanceCashflow({ period }: Props) {
   const { user } = useAuth();
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
@@ -40,13 +43,16 @@ export function FinanceCashflow() {
     (byMonth[key] = byMonth[key] || []).push(t);
   });
 
-  // Build 12 months window (6 past, current, 5 future)
+  // Janela de meses do período selecionado
   const months: string[] = [];
-  const base = new Date();
-  for (let i = -6; i <= 5; i++) {
-    const d = new Date(base.getFullYear(), base.getMonth() + i, 1);
-    months.push(d.toISOString().slice(0, 7));
+  const startD = new Date(period.start);
+  const endD = new Date(period.end);
+  const cursor = new Date(startD.getFullYear(), startD.getMonth(), 1);
+  while (cursor <= endD) {
+    months.push(`${cursor.getFullYear()}-${String(cursor.getMonth() + 1).padStart(2, "0")}`);
+    cursor.setMonth(cursor.getMonth() + 1);
   }
+  if (months.length === 0) months.push(period.start.slice(0, 7));
 
   let acc = 0;
   const rows = months.map(month => {
@@ -145,7 +151,7 @@ export function FinanceCashflow() {
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-xs text-muted-foreground uppercase tracking-wide">Fluxo de Caixa</p>
-            <p className="text-sm text-muted-foreground">12 meses (6 passados + atual + 5 projeções)</p>
+            <p className="text-sm text-muted-foreground capitalize">{period.label} · {months.length} {months.length === 1 ? "mês" : "meses"}</p>
           </div>
           <div className="flex gap-2">
             <Button variant="outline" onClick={exportCsv}><Download className="mr-2 h-4 w-4" />CSV</Button>

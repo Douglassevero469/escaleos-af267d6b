@@ -12,6 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Download, Trash2, Search } from "lucide-react";
 import { formatBRL, STATUS_BADGE, REVENUE_CATEGORIES } from "@/lib/finance-utils";
+import { Period, monthsInPeriod } from "@/components/financeiro/PeriodFilter";
 import { toast } from "sonner";
 
 interface RevForm {
@@ -30,7 +31,9 @@ const empty: RevForm = {
   status: "active", start_date: new Date().toISOString().slice(0, 10), category: "Tráfego Pago",
 };
 
-export function FinanceRevenues() {
+interface Props { period: Period }
+
+export function FinanceRevenues({ period }: Props) {
   const { user } = useAuth();
   const qc = useQueryClient();
   const [search, setSearch] = useState("");
@@ -43,13 +46,21 @@ export function FinanceRevenues() {
     queryFn: async () => (await supabase.from("finance_recurring_revenues").select("*").order("amount", { ascending: false })).data || [],
   });
 
-  const filtered = revenues.filter((r: any) => {
+  // Ativas no período: começou antes/durante o fim do período E (sem fim ou fim >= início)
+  const activeInPeriod = revenues.filter((r: any) =>
+    (!r.start_date || r.start_date <= period.end) &&
+    (!r.end_date || r.end_date >= period.start)
+  );
+
+  const filtered = activeInPeriod.filter((r: any) => {
     if (statusFilter !== "all" && r.status !== statusFilter) return false;
     if (search && !r.client_name.toLowerCase().includes(search.toLowerCase())) return false;
     return true;
   });
 
-  const mrr = revenues.filter((r: any) => r.status === "active").reduce((s: number, r: any) => s + Number(r.amount), 0);
+  const months = monthsInPeriod(period);
+  const mrr = activeInPeriod.filter((r: any) => r.status === "active").reduce((s: number, r: any) => s + Number(r.amount), 0);
+  const totalPeriod = mrr * months;
 
   async function save() {
     if (!form.client_name) return toast.error("Informe o nome do cliente");
@@ -115,9 +126,9 @@ export function FinanceRevenues() {
       <GlassCard>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <p className="text-xs text-muted-foreground uppercase tracking-wide">MRR Total</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wide">MRR · {period.label}</p>
             <p className="text-3xl font-bold">{formatBRL(mrr)}</p>
-            <p className="text-xs text-muted-foreground mt-1">{filtered.length} receitas listadas</p>
+            <p className="text-xs text-muted-foreground mt-1">{filtered.length} receitas · Total no período: <span className="font-mono text-foreground">{formatBRL(totalPeriod)}</span></p>
           </div>
           <div className="flex gap-2">
             <Button variant="outline" onClick={importContracts}>Importar de Contratos</Button>
