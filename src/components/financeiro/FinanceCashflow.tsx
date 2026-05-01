@@ -12,9 +12,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Download, Trash2, RefreshCw, ChevronDown, ChevronRight } from "lucide-react";
 import { formatBRL, STATUS_BADGE } from "@/lib/finance-utils";
+import { Period } from "@/components/financeiro/PeriodFilter";
 import { toast } from "sonner";
 
-export function FinanceCashflow() {
+interface Props { period: Period }
+
+export function FinanceCashflow({ period }: Props) {
   const { user } = useAuth();
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
