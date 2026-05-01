@@ -1,0 +1,188 @@
+import { useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { GlassCard } from "@/components/ui/GlassCard";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Plus, Trash2 } from "lucide-react";
+import { formatBRL, EXPENSE_CATEGORIES } from "@/lib/finance-utils";
+import { toast } from "sonner";
+
+interface ExpForm {
+  id?: string;
+  name: string;
+  description: string;
+  amount: number;
+  payment_day: number;
+  vendor: string;
+  active: boolean;
+  category: string;
+}
+
+const empty: ExpForm = {
+  name: "", description: "", amount: 0, payment_day: 5,
+  vendor: "", active: true, category: "Sistemas",
+};
+
+export function FinanceExpenses() {
+  const { user } = useAuth();
+  const qc = useQueryClient();
+  const [open, setOpen] = useState(false);
+  const [form, setForm] = useState<ExpForm>(empty);
+
+  const { data: expenses = [] } = useQuery({
+    queryKey: ["fin-expenses"],
+    queryFn: async () => (await supabase.from("finance_recurring_expenses").select("*").order("amount", { ascending: false })).data || [],
+  });
+
+  const total = expenses.filter((e: any) => e.active).reduce((s: number, e: any) => s + Number(e.amount), 0);
+
+  // Group by category (using description as proxy until categories table is wired)
+  const grouped = EXPENSE_CATEGORIES.map(cat => ({
+    cat,
+    items: expenses.filter((e: any) => (e.description || "").startsWith(`[${cat}]`) || e.vendor === cat),
+  })).filter(g => g.items.length > 0);
+
+  const ungrouped = expenses.filter((e: any) =>
+    !EXPENSE_CATEGORIES.some(c => (e.description || "").startsWith(`[${c}]`) || e.vendor === c)
+  );
+
+  async function save() {
+    if (!form.name) return toast.error("Informe o nome");
+    const payload = {
+      user_id: user!.id,
+      name: form.name,
+      description: `[${form.category}] ${form.description}`.trim(),
+      amount: Number(form.amount),
+      payment_day: Number(form.payment_day),
+      vendor: form.vendor || form.category,
+      active: form.active,
+    };
+    const { error } = form.id
+      ? await supabase.from("finance_recurring_expenses").update(payload).eq("id", form.id)
+      : await supabase.from("finance_recurring_expenses").insert(payload);
+    if (error) return toast.error(error.message);
+    toast.success("Despesa salva");
+    setOpen(false); setForm(empty);
+    qc.invalidateQueries({ queryKey: ["fin-expenses"] });
+    qc.invalidateQueries({ queryKey: ["fin-exp"] });
+  }
+
+  async function toggle(e: any) {
+    await supabase.from("finance_recurring_expenses").update({ active: !e.active }).eq("id", e.id);
+    qc.invalidateQueries({ queryKey: ["fin-expenses"] });
+    qc.invalidateQueries({ queryKey: ["fin-exp"] });
+  }
+
+  async function remove(id: string) {
+    if (!confirm("Excluir?")) return;
+    await supabase.from("finance_recurring_expenses").delete().eq("id", id);
+    qc.invalidateQueries({ queryKey: ["fin-expenses"] });
+    qc.invalidateQueries({ queryKey: ["fin-exp"] });
+  }
+
+  function openEdit(e: any) {
+    const catMatch = EXPENSE_CATEGORIES.find(c => (e.description || "").startsWith(`[${c}]`)) || "Outros";
+    setForm({
+      id: e.id, name: e.name,
+      description: (e.description || "").replace(`[${catMatch}] `, ""),
+      amount: Number(e.amount), payment_day: e.payment_day || 5,
+      vendor: e.vendor, active: e.active, category: catMatch,
+    });
+    setOpen(true);
+  }
+
+  const sections = [...grouped, ...(ungrouped.length ? [{ cat: "Sem categoria", items: ungrouped }] : [])];
+
+  return (
+    <div className="space-y-4">
+      <GlassCard>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="text-xs text-muted-foreground uppercase tracking-wide">Total Despesas Fixas/mês</p>
+            <p className="text-3xl font-bold text-rose-500">{formatBRL(total)}</p>
+            <p className="text-xs text-muted-foreground mt-1">{expenses.filter((e: any) => e.active).length} despesas ativas</p>
+          </div>
+          <Button onClick={() => { setForm(empty); setOpen(true); }}><Plus className="mr-2 h-4 w-4" />Nova Despesa</Button>
+        </div>
+      </GlassCard>
+
+      {sections.length === 0 && (
+        <GlassCard><p className="text-center text-muted-foreground py-12">Nenhuma despesa cadastrada</p></GlassCard>
+      )}
+
+      {sections.map(section => {
+        const subtotal = section.items.filter((e: any) => e.active).reduce((s: number, e: any) => s + Number(e.amount), 0);
+        return (
+          <GlassCard key={section.cat}>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="font-semibold">{section.cat}</h3>
+              <span className="text-sm font-mono text-muted-foreground">{formatBRL(subtotal)}</span>
+            </div>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Nome</TableHead>
+                  <TableHead>Fornecedor</TableHead>
+                  <TableHead className="text-right">Valor</TableHead>
+                  <TableHead className="text-center">Dia</TableHead>
+                  <TableHead className="text-center">Ativa</TableHead>
+                  <TableHead className="w-20"></TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {section.items.map((e: any) => (
+                  <TableRow key={e.id} className="cursor-pointer" onClick={() => openEdit(e)}>
+                    <TableCell className="font-medium">{e.name}</TableCell>
+                    <TableCell className="text-muted-foreground text-sm">{e.vendor}</TableCell>
+                    <TableCell className="text-right font-mono">{formatBRL(Number(e.amount))}</TableCell>
+                    <TableCell className="text-center">{e.payment_day}</TableCell>
+                    <TableCell className="text-center" onClick={ev => ev.stopPropagation()}>
+                      <Switch checked={e.active} onCheckedChange={() => toggle(e)} />
+                    </TableCell>
+                    <TableCell>
+                      <Button size="icon" variant="ghost" onClick={(ev) => { ev.stopPropagation(); remove(e.id); }}>
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </GlassCard>
+        );
+      })}
+
+      <Sheet open={open} onOpenChange={setOpen}>
+        <SheetContent className="w-full sm:max-w-md overflow-y-auto">
+          <SheetHeader><SheetTitle>{form.id ? "Editar" : "Nova"} Despesa Fixa</SheetTitle></SheetHeader>
+          <div className="space-y-4 mt-6">
+            <div><Label>Nome *</Label><Input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} /></div>
+            <div>
+              <Label>Categoria</Label>
+              <Select value={form.category} onValueChange={v => setForm({ ...form, category: v })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>{EXPENSE_CATEGORIES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
+              </Select>
+            </div>
+            <div><Label>Fornecedor</Label><Input value={form.vendor} onChange={e => setForm({ ...form, vendor: e.target.value })} /></div>
+            <div><Label>Descrição</Label><Input value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} /></div>
+            <div className="grid grid-cols-2 gap-3">
+              <div><Label>Valor (R$)</Label><Input type="number" step="0.01" value={form.amount} onChange={e => setForm({ ...form, amount: Number(e.target.value) })} /></div>
+              <div><Label>Dia Pgto</Label><Input type="number" min="1" max="31" value={form.payment_day} onChange={e => setForm({ ...form, payment_day: Number(e.target.value) })} /></div>
+            </div>
+            <div className="flex items-center justify-between"><Label>Despesa Ativa</Label><Switch checked={form.active} onCheckedChange={v => setForm({ ...form, active: v })} /></div>
+            <Button onClick={save} className="w-full">Salvar</Button>
+          </div>
+        </SheetContent>
+      </Sheet>
+    </div>
+  );
+}
