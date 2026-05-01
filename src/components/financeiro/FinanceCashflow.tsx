@@ -148,11 +148,15 @@ export function FinanceCashflow({ period }: Props) {
   async function saveTx() {
     if (!form.description) return toast.error("Descrição obrigatória");
     const { error } = await supabase.from("finance_transactions").insert({
-      ...form, user_id: user!.id, amount: Number(form.amount), reference_type: "manual",
+      kind: form.kind, description: form.description, amount: Number(form.amount),
+      due_date: form.due_date, status: form.status, payment_method: form.payment_method,
+      notes: form.notes, tags: form.tags, attachment_url: form.attachment_url,
+      user_id: user!.id, reference_type: "manual",
     });
     if (error) return toast.error(error.message);
     toast.success("Lançamento adicionado");
     setOpen(false);
+    setForm({ kind: "expense", description: "", amount: 0, due_date: new Date().toISOString().slice(0, 10), status: "pending", payment_method: "", notes: "", tags: [], attachment_url: null });
     qc.invalidateQueries({ queryKey: ["fin-tx-cf"] });
     qc.invalidateQueries({ queryKey: ["fin-tx"] });
   }
@@ -169,6 +173,28 @@ export function FinanceCashflow({ period }: Props) {
     await supabase.from("finance_transactions").delete().eq("id", id);
     qc.invalidateQueries({ queryKey: ["fin-tx-cf"] });
   }
+
+  // Helpers para alertas de vencimento
+  const todayISO = new Date().toISOString().slice(0, 10);
+  function dueAlert(t: any): { label: string; tone: "danger" | "warn" } | null {
+    if (t.status !== "pending" || !t.due_date) return null;
+    if (t.due_date < todayISO) return { label: "Vencido", tone: "danger" };
+    const diff = Math.round((new Date(t.due_date).getTime() - new Date(todayISO).getTime()) / 86400000);
+    if (diff <= 7) return { label: `Vence em ${diff}d`, tone: "warn" };
+    return null;
+  }
+
+  function toggleSelect(id: string) {
+    setSelected(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  }
+  const selectedIds = Array.from(selected);
+  const selectedTotal = txsInPeriod
+    .filter((t: any) => selected.has(t.id))
+    .reduce((s: number, t: any) => s + Number(t.amount), 0);
 
   function exportCsv() {
     const headers = ["Mês", "Receita", "Despesa", "Saldo", "Acumulado", "Lançamentos"];
