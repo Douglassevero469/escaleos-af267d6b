@@ -78,48 +78,55 @@ export function FinanceCashflow({ period }: Props) {
     return { month, inc, out, balance, acc, count: items.length };
   });
 
-  async function generate() {
-    const month = prompt("Gerar lançamentos para qual mês? (YYYY-MM)", new Date().toISOString().slice(0, 7));
-    if (!month) return;
-    const [y, m] = month.split("-").map(Number);
-    const items: any[] = [];
-
-    revenues.filter((r: any) => r.status === "active").forEach((r: any) => {
-      items.push({
-        user_id: user!.id, kind: "income", description: `${r.client_name} — Mensalidade`,
-        amount: Number(r.amount), due_date: `${month}-${String(r.payment_day || 5).padStart(2, "0")}`,
-        status: "pending", reference_type: "recurring_revenue", reference_id: r.id,
+  async function runGeneration(month: string, mode: "replace" | "append", trigger: "manual" | "auto" = "manual") {
+    setGenerating(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-cashflow-month", {
+        body: { month, mode, trigger },
       });
-    });
-    expenses.filter((e: any) => e.active).forEach((e: any) => {
-      items.push({
-        user_id: user!.id, kind: "expense", description: `${e.name}${e.vendor ? ` (${e.vendor})` : ""}`,
-        amount: Number(e.amount), due_date: `${month}-${String(e.payment_day || 5).padStart(2, "0")}`,
-        status: "pending", reference_type: "recurring_expense", reference_id: e.id,
-      });
-    });
-    team.filter((t: any) => t.status === "active" && Number(t.monthly_cost) > 0).forEach((t: any) => {
-      items.push({
-        user_id: user!.id, kind: "expense",
-        description: `${t.name || t.role} — ${t.compensation_type === "salary" ? "Salário" : t.compensation_type === "prolabore" ? "Pró-labore" : "PJ"}`,
-        amount: Number(t.monthly_cost), due_date: `${month}-05`, status: "pending",
-        reference_type: "team_payroll", reference_id: t.id,
-      });
-    });
-
-    if (!items.length) return toast.error("Nenhum item recorrente para gerar");
-
-    // Avoid duplicates: delete existing for this month with reference
-    const start = `${month}-01`; const end = `${month}-31`;
-    await supabase.from("finance_transactions").delete()
-      .gte("due_date", start).lte("due_date", end).neq("reference_type", "manual");
-
-    const { error } = await supabase.from("finance_transactions").insert(items);
-    if (error) return toast.error(error.message);
-    toast.success(`${items.length} lançamentos gerados para ${month}`);
-    qc.invalidateQueries({ queryKey: ["fin-tx-cf"] });
-    qc.invalidateQueries({ queryKey: ["fin-tx"] });
+      if (error) throw error;
+      if (data?.status === "success") {
+        toast.success(`${data.inserted} lançamentos gerados (${month})`);
+      } else if (data?.status === "partial") {
+        toast.info(data.message || "Sem recorrências para gerar");
+      } else if (data?.error) {
+        toast.error(data.error);
+      }
+      qc.invalidateQueries({ queryKey: ["fin-tx-cf"] });
+      qc.invalidateQueries({ queryKey: ["fin-tx"] });
+      qc.invalidateQueries({ queryKey: ["fin-runs"] });
+    } catch (e: any) {
+      toast.error(e?.message || "Falha ao gerar");
+    } finally {
+      setGenerating(false);
+    }
   }
+
+  async function generate() {
+    setGenForm({ month: new Date().toISOString().slice(0, 7), mode: "replace" });
+    setGenOpen(true);
+  }
+
+  async function confirmGenerate() {
+    setGenOpen(false);
+    await runGeneration(genForm.month, genForm.mode, "manual");
+  }
+
+  // Auto-geração: quando o período só cobre o mês corrente e ele está vazio + sem run prévia
+  useEffect(() => {
+    if (months.length !== 1) return;
+    const m = months[0];
+    const today = new Date().toISOString().slice(0, 7);
+    if (m !== today) return; // só auto-dispara para o mês atual
+    if ((byMonth[m] || []).length > 0) return;
+    if (runsByMonth[m]) return; // já tentou
+    if (autoTriedRef.current.has(m)) return;
+    if (!revenues.length && !expenses.length && !team.length) return;
+    autoTriedRef.current.add(m);
+    runGeneration(m, "replace", "auto");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [months.join(","), txs.length, runs.length, revenues.length, expenses.length, team.length]);
+
 
   async function saveTx() {
     if (!form.description) return toast.error("Descrição obrigatória");
