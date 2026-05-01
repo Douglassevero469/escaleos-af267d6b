@@ -10,12 +10,16 @@ import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Download, Trash2, RefreshCw, ChevronDown, ChevronRight, History, CheckCircle2, XCircle, AlertCircle, Loader2, Clock } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Plus, Download, Trash2, RefreshCw, ChevronDown, ChevronRight, History, CheckCircle2, XCircle, AlertCircle, Loader2, Clock, AlertTriangle } from "lucide-react";
 import { formatBRL, STATUS_BADGE } from "@/lib/finance-utils";
 import { Period } from "@/components/financeiro/PeriodFilter";
 import { downloadCSV, generateBrandedPDF, fmt, monthBR } from "@/lib/finance-export";
 import { toast } from "sonner";
 import { useConfirm } from "@/components/ui/confirm-dialog";
+import { BulkPayBar } from "@/components/financeiro/BulkPayBar";
+import { AttachmentUpload } from "@/components/financeiro/AttachmentUpload";
+import { TagsInput } from "@/components/financeiro/TagsInput";
 
 interface Props { period: Period }
 
@@ -35,8 +39,9 @@ export function FinanceCashflow({ period }: Props) {
   const [form, setForm] = useState<any>({
     kind: "expense", description: "", amount: 0,
     due_date: new Date().toISOString().slice(0, 10), status: "pending",
-    payment_method: "", notes: "",
+    payment_method: "", notes: "", tags: [] as string[], attachment_url: null as string | null,
   });
+  const [selected, setSelected] = useState<Set<string>>(new Set());
   const autoTriedRef = useRef<Set<string>>(new Set());
 
   const { data: txs = [] } = useQuery({
@@ -143,11 +148,15 @@ export function FinanceCashflow({ period }: Props) {
   async function saveTx() {
     if (!form.description) return toast.error("Descrição obrigatória");
     const { error } = await supabase.from("finance_transactions").insert({
-      ...form, user_id: user!.id, amount: Number(form.amount), reference_type: "manual",
+      kind: form.kind, description: form.description, amount: Number(form.amount),
+      due_date: form.due_date, status: form.status, payment_method: form.payment_method,
+      notes: form.notes, tags: form.tags, attachment_url: form.attachment_url,
+      user_id: user!.id, reference_type: "manual",
     });
     if (error) return toast.error(error.message);
     toast.success("Lançamento adicionado");
     setOpen(false);
+    setForm({ kind: "expense", description: "", amount: 0, due_date: new Date().toISOString().slice(0, 10), status: "pending", payment_method: "", notes: "", tags: [], attachment_url: null });
     qc.invalidateQueries({ queryKey: ["fin-tx-cf"] });
     qc.invalidateQueries({ queryKey: ["fin-tx"] });
   }
@@ -164,6 +173,28 @@ export function FinanceCashflow({ period }: Props) {
     await supabase.from("finance_transactions").delete().eq("id", id);
     qc.invalidateQueries({ queryKey: ["fin-tx-cf"] });
   }
+
+  // Helpers para alertas de vencimento
+  const todayISO = new Date().toISOString().slice(0, 10);
+  function dueAlert(t: any): { label: string; tone: "danger" | "warn" } | null {
+    if (t.status !== "pending" || !t.due_date) return null;
+    if (t.due_date < todayISO) return { label: "Vencido", tone: "danger" };
+    const diff = Math.round((new Date(t.due_date).getTime() - new Date(todayISO).getTime()) / 86400000);
+    if (diff <= 7) return { label: `Vence em ${diff}d`, tone: "warn" };
+    return null;
+  }
+
+  function toggleSelect(id: string) {
+    setSelected(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  }
+  const selectedIds = Array.from(selected);
+  const selectedTotal = txsInPeriod
+    .filter((t: any) => selected.has(t.id))
+    .reduce((s: number, t: any) => s + Number(t.amount), 0);
 
   function exportCsv() {
     const headers = ["Mês", "Receita", "Despesa", "Saldo", "Acumulado", "Lançamentos"];
@@ -210,6 +241,14 @@ export function FinanceCashflow({ period }: Props) {
   const totalOut = rows.reduce((s, r) => s + r.out, 0);
   const finalAcc = rows.length ? rows[rows.length - 1].acc : 0;
 
+  // Alertas de vencimento (todas pendentes do período)
+  const overdueCount = txsInPeriod.filter((t: any) => t.status === "pending" && t.due_date < todayISO).length;
+  const dueSoonCount = txsInPeriod.filter((t: any) => {
+    if (t.status !== "pending" || t.due_date < todayISO) return false;
+    const d = Math.round((new Date(t.due_date).getTime() - new Date(todayISO).getTime()) / 86400000);
+    return d <= 7;
+  }).length;
+
   return (
     <div className="space-y-6">
       <ExecHeader
@@ -238,6 +277,25 @@ export function FinanceCashflow({ period }: Props) {
           </>
         }
       />
+
+      {(overdueCount > 0 || dueSoonCount > 0) && (
+        <div className="flex flex-wrap items-center gap-3 rounded-xl border border-amber-500/30 bg-amber-500/5 px-4 py-3">
+          <AlertTriangle className="h-5 w-5 text-amber-500 shrink-0" />
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-1 text-sm">
+            {overdueCount > 0 && (
+              <span className="text-foreground">
+                <span className="font-bold text-destructive">{overdueCount}</span> lançamento{overdueCount > 1 ? "s" : ""} <span className="text-destructive font-medium">vencido{overdueCount > 1 ? "s" : ""}</span>
+              </span>
+            )}
+            {dueSoonCount > 0 && (
+              <span className="text-foreground">
+                <span className="font-bold text-amber-500">{dueSoonCount}</span> vencendo nos próximos 7 dias
+              </span>
+            )}
+          </div>
+          <span className="ml-auto text-xs text-muted-foreground">Expanda os meses para revisar e marcar como pago.</span>
+        </div>
+      )}
 
       <ExecCard title="Evolução mês a mês" subtitle="Clique em uma linha para detalhar" padded={false}>
         <div className="border-t border-border/50">
@@ -285,11 +343,42 @@ export function FinanceCashflow({ period }: Props) {
                           {(byMonth[r.month] || []).length === 0 ? (
                             <p className="text-xs text-muted-foreground text-center py-6">Sem lançamentos. Use "Gerar mês" para criar a partir das recorrências.</p>
                           ) : (
-                            (byMonth[r.month] || []).map(t => (
-                              <div key={t.id} className="flex items-center gap-3 text-sm bg-background/60 backdrop-blur-sm border border-border/40 rounded-lg px-3 py-2">
+                            (byMonth[r.month] || []).map(t => {
+                              const alert = dueAlert(t);
+                              const isSel = selected.has(t.id);
+                              return (
+                              <div key={t.id} className={`flex items-center gap-3 text-sm bg-background/60 backdrop-blur-sm border rounded-lg px-3 py-2 transition-colors ${isSel ? "border-primary/60 bg-primary/5" : "border-border/40"}`}>
+                                {t.status === "pending" && (
+                                  <Checkbox
+                                    checked={isSel}
+                                    onCheckedChange={() => toggleSelect(t.id)}
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="shrink-0"
+                                  />
+                                )}
                                 <Badge variant="outline" className={`${STATUS_BADGE[t.status]} font-medium border-0 text-[10px]`}>{t.status}</Badge>
                                 <span className="text-xs text-muted-foreground tabular-nums w-14">{t.due_date.slice(8)}/{t.due_date.slice(5, 7)}</span>
-                                <span className="flex-1 truncate text-foreground">{t.description}</span>
+                                {alert && (
+                                  <Badge
+                                    variant="outline"
+                                    className={`text-[10px] font-semibold border-0 ${alert.tone === "danger" ? "bg-destructive/15 text-destructive" : "bg-amber-500/15 text-amber-600 dark:text-amber-400"}`}
+                                  >
+                                    {alert.label}
+                                  </Badge>
+                                )}
+                                <span className="flex-1 truncate text-foreground">
+                                  {t.description}
+                                  {t.attachment_url && (
+                                    <a href={t.attachment_url} target="_blank" rel="noreferrer" className="inline-block ml-1.5 align-middle text-primary hover:text-primary/80" onClick={(e) => e.stopPropagation()} title="Ver anexo">📎</a>
+                                  )}
+                                  {Array.isArray(t.tags) && t.tags.length > 0 && (
+                                    <span className="ml-2 inline-flex gap-1 align-middle">
+                                      {t.tags.slice(0, 3).map((tag: string) => (
+                                        <span key={tag} className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">{tag}</span>
+                                      ))}
+                                    </span>
+                                  )}
+                                </span>
                                 <span className={`tabular-nums font-medium text-xs ${t.kind === "income" ? "text-[hsl(142_71%_40%)] dark:text-[hsl(142_71%_55%)]" : "text-destructive"}`}>
                                   {t.kind === "income" ? "+" : "-"}{formatBRL(Number(t.amount))}
                                 </span>
@@ -300,7 +389,8 @@ export function FinanceCashflow({ period }: Props) {
                                   <Trash2 className="h-3.5 w-3.5" />
                                 </Button>
                               </div>
-                            ))
+                              );
+                            })
                           )}
                         </div>
                       </TableCell>
@@ -345,6 +435,14 @@ export function FinanceCashflow({ period }: Props) {
             </div>
             <div><Label>Método de pagamento</Label><Input value={form.payment_method} onChange={e => setForm({ ...form, payment_method: e.target.value })} placeholder="PIX, Boleto, Cartão..." /></div>
             <div><Label>Notas</Label><Input value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} /></div>
+            <div>
+              <Label>Tags / Centro de Custo</Label>
+              <TagsInput value={form.tags} onChange={(tags) => setForm({ ...form, tags })} placeholder="ex: cliente-x, projeto-y" />
+            </div>
+            <div>
+              <Label>Comprovante / NF</Label>
+              <AttachmentUpload value={form.attachment_url} onChange={(url) => setForm({ ...form, attachment_url: url })} />
+            </div>
             <Button onClick={saveTx} className="w-full">Salvar</Button>
           </div>
         </SheetContent>
@@ -427,6 +525,13 @@ export function FinanceCashflow({ period }: Props) {
           </div>
         </SheetContent>
       </Sheet>
+
+      <BulkPayBar
+        selectedIds={selectedIds}
+        selectedTotal={selectedTotal}
+        onClear={() => setSelected(new Set())}
+        onDone={() => setSelected(new Set())}
+      />
     </div>
   );
 }

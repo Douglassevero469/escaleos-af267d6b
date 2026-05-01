@@ -11,7 +11,7 @@ import { Switch } from "@/components/ui/switch";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Trash2, Download } from "lucide-react";
+import { Plus, Trash2, Download, Calendar } from "lucide-react";
 import { formatBRL, EXPENSE_CATEGORIES } from "@/lib/finance-utils";
 import { Period, monthsInPeriod } from "@/components/financeiro/PeriodFilter";
 import { downloadCSV, generateBrandedPDF, fmt } from "@/lib/finance-export";
@@ -27,11 +27,15 @@ interface ExpForm {
   vendor: string;
   active: boolean;
   category: string;
+  start_date: string;
+  duration_months: number; // 0 = indefinida
 }
 
 const empty: ExpForm = {
   name: "", description: "", amount: 0, payment_day: 5,
   vendor: "", active: true, category: "Sistemas",
+  start_date: new Date().toISOString().slice(0, 10),
+  duration_months: 0,
 };
 
 interface Props { period: Period }
@@ -70,7 +74,14 @@ export function FinanceExpenses({ period }: Props) {
 
   async function save() {
     if (!form.name) return toast.error("Informe o nome");
-    const payload = {
+    let end_date: string | null = null;
+    if (form.duration_months > 0 && form.start_date) {
+      const d = new Date(form.start_date);
+      d.setMonth(d.getMonth() + form.duration_months - 1);
+      // último dia do mês final para cobrir o ciclo inteiro
+      end_date = new Date(d.getFullYear(), d.getMonth() + 1, 0).toISOString().slice(0, 10);
+    }
+    const payload: any = {
       user_id: user!.id,
       name: form.name,
       description: `[${form.category}] ${form.description}`.trim(),
@@ -78,6 +89,8 @@ export function FinanceExpenses({ period }: Props) {
       payment_day: Number(form.payment_day),
       vendor: form.vendor || form.category,
       active: form.active,
+      start_date: form.start_date || null,
+      end_date,
     };
     const { error } = form.id
       ? await supabase.from("finance_recurring_expenses").update(payload).eq("id", form.id)
@@ -104,11 +117,19 @@ export function FinanceExpenses({ period }: Props) {
 
   function openEdit(e: any) {
     const catMatch = EXPENSE_CATEGORIES.find(c => (e.description || "").startsWith(`[${c}]`)) || "Outros";
+    let duration = 0;
+    if (e.start_date && e.end_date) {
+      const a = new Date(e.start_date);
+      const b = new Date(e.end_date);
+      duration = Math.max(1, (b.getFullYear() - a.getFullYear()) * 12 + (b.getMonth() - a.getMonth()) + 1);
+    }
     setForm({
       id: e.id, name: e.name,
       description: (e.description || "").replace(`[${catMatch}] `, ""),
       amount: Number(e.amount), payment_day: e.payment_day || 5,
       vendor: e.vendor, active: e.active, category: catMatch,
+      start_date: e.start_date || new Date().toISOString().slice(0, 10),
+      duration_months: duration,
     });
     setOpen(true);
   }
@@ -258,6 +279,27 @@ export function FinanceExpenses({ period }: Props) {
               <div><Label>Valor (R$)</Label><Input type="number" step="0.01" value={form.amount} onChange={e => setForm({ ...form, amount: Number(e.target.value) })} /></div>
               <div><Label>Dia Pgto</Label><Input type="number" min="1" max="31" value={form.payment_day} onChange={e => setForm({ ...form, payment_day: Number(e.target.value) })} /></div>
             </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div><Label>Início</Label><Input type="date" value={form.start_date} onChange={e => setForm({ ...form, start_date: e.target.value })} /></div>
+              <div>
+                <Label>Duração (meses)</Label>
+                <Input
+                  type="number"
+                  min="0"
+                  value={form.duration_months}
+                  onChange={e => setForm({ ...form, duration_months: Number(e.target.value) })}
+                  placeholder="0 = indefinida"
+                />
+              </div>
+            </div>
+            {form.duration_months > 0 && form.start_date && (
+              <div className="flex items-center gap-2 rounded-lg bg-primary/5 border border-primary/20 px-3 py-2 text-xs text-foreground">
+                <Calendar className="h-3.5 w-3.5 text-primary shrink-0" />
+                <span>
+                  Recorrência fixa por <strong>{form.duration_months} meses</strong> · Total: <strong className="tabular-nums">{formatBRL(Number(form.amount) * form.duration_months)}</strong>
+                </span>
+              </div>
+            )}
             <div className="flex items-center justify-between"><Label>Despesa Ativa</Label><Switch checked={form.active} onCheckedChange={v => setForm({ ...form, active: v })} /></div>
             <Button onClick={save} className="w-full">Salvar</Button>
           </div>

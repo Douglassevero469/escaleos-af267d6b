@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Download, Trash2, Search } from "lucide-react";
+import { Plus, Download, Trash2, Search, Calendar } from "lucide-react";
 import { formatBRL, STATUS_BADGE, REVENUE_CATEGORIES } from "@/lib/finance-utils";
 import { Period, monthsInPeriod } from "@/components/financeiro/PeriodFilter";
 import { downloadCSV, generateBrandedPDF, fmt } from "@/lib/finance-export";
@@ -26,11 +26,13 @@ interface RevForm {
   status: string;
   start_date: string;
   category: string;
+  duration_months: number;
 }
 
 const empty: RevForm = {
   client_name: "", description: "", amount: 0, payment_day: 5,
   status: "active", start_date: new Date().toISOString().slice(0, 10), category: "Tráfego Pago",
+  duration_months: 0,
 };
 
 interface Props { period: Period }
@@ -67,7 +69,13 @@ export function FinanceRevenues({ period }: Props) {
 
   async function save() {
     if (!form.client_name) return toast.error("Informe o nome do cliente");
-    const payload = {
+    let end_date: string | null = null;
+    if (form.duration_months > 0 && form.start_date) {
+      const d = new Date(form.start_date);
+      d.setMonth(d.getMonth() + form.duration_months - 1);
+      end_date = new Date(d.getFullYear(), d.getMonth() + 1, 0).toISOString().slice(0, 10);
+    }
+    const payload: any = {
       user_id: user!.id,
       client_name: form.client_name,
       description: form.description,
@@ -75,6 +83,7 @@ export function FinanceRevenues({ period }: Props) {
       payment_day: Number(form.payment_day),
       status: form.status,
       start_date: form.start_date || null,
+      end_date,
     };
     const { error } = form.id
       ? await supabase.from("finance_recurring_revenues").update(payload).eq("id", form.id)
@@ -222,7 +231,16 @@ export function FinanceRevenues({ period }: Props) {
                 <TableRow
                   key={r.id}
                   className="border-border/50 cursor-pointer transition-colors hover:bg-foreground/[0.025]"
-                  onClick={() => { setForm({ ...r, category: "Tráfego Pago" }); setOpen(true); }}
+                  onClick={() => {
+                    let dur = 0;
+                    if (r.start_date && r.end_date) {
+                      const a = new Date(r.start_date);
+                      const b = new Date(r.end_date);
+                      dur = Math.max(1, (b.getFullYear() - a.getFullYear()) * 12 + (b.getMonth() - a.getMonth()) + 1);
+                    }
+                    setForm({ ...r, category: "Tráfego Pago", duration_months: dur });
+                    setOpen(true);
+                  }}
                 >
                   <TableCell className="py-4 px-5 lg:px-6 font-medium text-foreground">{r.client_name}</TableCell>
                   <TableCell className="py-4 text-sm text-muted-foreground">{r.description || "—"}</TableCell>
@@ -279,6 +297,24 @@ export function FinanceRevenues({ period }: Props) {
               </Select>
             </div>
             <div><Label>Data de início</Label><Input type="date" value={form.start_date} onChange={e => setForm({ ...form, start_date: e.target.value })} /></div>
+            <div>
+              <Label>Duração do contrato (meses)</Label>
+              <Input
+                type="number"
+                min="0"
+                value={form.duration_months}
+                onChange={e => setForm({ ...form, duration_months: Number(e.target.value) })}
+                placeholder="0 = recorrência indefinida"
+              />
+              {form.duration_months > 0 && form.start_date && (
+                <div className="mt-2 flex items-center gap-2 rounded-lg bg-primary/5 border border-primary/20 px-3 py-2 text-xs text-foreground">
+                  <Calendar className="h-3.5 w-3.5 text-primary shrink-0" />
+                  <span>
+                    Contrato de <strong>{form.duration_months} meses</strong> · LTV: <strong className="tabular-nums">{formatBRL(Number(form.amount) * form.duration_months)}</strong>
+                  </span>
+                </div>
+              )}
+            </div>
             <div className="flex gap-2 pt-2">
               {form.id && (
                 <Button
