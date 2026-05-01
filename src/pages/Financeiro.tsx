@@ -6,22 +6,27 @@ import { FinanceRevenues } from "@/components/financeiro/FinanceRevenues";
 import { FinanceExpenses } from "@/components/financeiro/FinanceExpenses";
 import { FinanceTeam } from "@/components/financeiro/FinanceTeam";
 import { FinanceCashflow } from "@/components/financeiro/FinanceCashflow";
+import { PeriodFilter, buildPeriod, Period } from "@/components/financeiro/PeriodFilter";
 
 export default function Financeiro() {
   const [tab, setTab] = useState("dashboard");
+  const [period, setPeriod] = useState<Period>(() => buildPeriod("month", new Date()));
 
   return (
     <div className="space-y-6 p-6">
-      <div className="flex items-center gap-3">
-        <div className="rounded-xl bg-primary/10 p-2.5">
-          <Wallet className="h-6 w-6 text-primary" />
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="rounded-xl bg-primary/10 p-2.5">
+            <Wallet className="h-6 w-6 text-primary" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight">Financeiro</h1>
+            <p className="text-sm text-muted-foreground">
+              BI completo, receitas, despesas, equipe e fluxo de caixa
+            </p>
+          </div>
         </div>
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Financeiro</h1>
-          <p className="text-sm text-muted-foreground">
-            BI completo, receitas, despesas, equipe e fluxo de caixa
-          </p>
-        </div>
+        <PeriodFilter value={period} onChange={setPeriod} />
       </div>
 
       <Tabs value={tab} onValueChange={setTab} className="space-y-6">
@@ -43,11 +48,11 @@ export default function Financeiro() {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="dashboard"><FinanceDashboard /></TabsContent>
-        <TabsContent value="receitas"><FinanceRevenues /></TabsContent>
-        <TabsContent value="despesas"><FinanceExpenses /></TabsContent>
-        <TabsContent value="equipe"><FinanceTeam /></TabsContent>
-        <TabsContent value="fluxo"><FinanceCashflow /></TabsContent>
+        <TabsContent value="dashboard"><FinanceDashboard period={period} /></TabsContent>
+        <TabsContent value="receitas"><FinanceRevenues period={period} /></TabsContent>
+        <TabsContent value="despesas"><FinanceExpenses period={period} /></TabsContent>
+        <TabsContent value="equipe"><FinanceTeam period={period} /></TabsContent>
+        <TabsContent value="fluxo"><FinanceCashflow period={period} /></TabsContent>
       </Tabs>
     </div>
   );
