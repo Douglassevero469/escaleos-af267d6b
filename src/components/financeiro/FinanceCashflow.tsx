@@ -10,12 +10,16 @@ import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Download, Trash2, RefreshCw, ChevronDown, ChevronRight, History, CheckCircle2, XCircle, AlertCircle, Loader2, Clock } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Plus, Download, Trash2, RefreshCw, ChevronDown, ChevronRight, History, CheckCircle2, XCircle, AlertCircle, Loader2, Clock, AlertTriangle } from "lucide-react";
 import { formatBRL, STATUS_BADGE } from "@/lib/finance-utils";
 import { Period } from "@/components/financeiro/PeriodFilter";
 import { downloadCSV, generateBrandedPDF, fmt, monthBR } from "@/lib/finance-export";
 import { toast } from "sonner";
 import { useConfirm } from "@/components/ui/confirm-dialog";
+import { BulkPayBar } from "@/components/financeiro/BulkPayBar";
+import { AttachmentUpload } from "@/components/financeiro/AttachmentUpload";
+import { TagsInput } from "@/components/financeiro/TagsInput";
 
 interface Props { period: Period }
 
