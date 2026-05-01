@@ -92,6 +92,9 @@ export default function Financeiro() {
           <TabsContent value="fluxo" className="mt-0 animate-in fade-in-50 duration-300">
             <FinanceCashflow period={period} />
           </TabsContent>
+          <TabsContent value="orcamento" className="mt-0 animate-in fade-in-50 duration-300">
+            <FinanceBudgets period={period} />
+          </TabsContent>
           <TabsContent value="metas" className="mt-0 animate-in fade-in-50 duration-300">
             <FinanceGoals period={period} />
           </TabsContent>
