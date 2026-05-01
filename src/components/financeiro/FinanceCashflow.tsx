@@ -291,6 +291,98 @@ export function FinanceCashflow({ period }: Props) {
           </div>
         </SheetContent>
       </Sheet>
+
+      {/* Sheet: Gerar mês */}
+      <Sheet open={genOpen} onOpenChange={setGenOpen}>
+        <SheetContent className="w-full sm:max-w-md overflow-y-auto">
+          <SheetHeader><SheetTitle>Gerar lançamentos do mês</SheetTitle></SheetHeader>
+          <div className="space-y-4 mt-6">
+            <p className="text-sm text-muted-foreground">
+              Cria automaticamente os lançamentos a partir das receitas recorrentes, despesas fixas e folha de pagamento.
+            </p>
+            <div>
+              <Label>Mês de referência</Label>
+              <Input type="month" value={genForm.month} onChange={e => setGenForm({ ...genForm, month: e.target.value })} />
+            </div>
+            <div>
+              <Label>Modo</Label>
+              <Select value={genForm.mode} onValueChange={(v: "replace" | "append") => setGenForm({ ...genForm, mode: v })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="replace">Substituir (apaga gerados anteriormente)</SelectItem>
+                  <SelectItem value="append">Adicionar (mantém existentes)</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground mt-1">
+                Lançamentos manuais são sempre preservados.
+              </p>
+            </div>
+            <Button onClick={confirmGenerate} disabled={generating} className="w-full">
+              {generating ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Gerando...</> : "Gerar agora"}
+            </Button>
+          </div>
+        </SheetContent>
+      </Sheet>
+
+      {/* Sheet: Histórico */}
+      <Sheet open={historyOpen} onOpenChange={setHistoryOpen}>
+        <SheetContent className="w-full sm:max-w-2xl overflow-y-auto">
+          <SheetHeader><SheetTitle>Histórico de gerações</SheetTitle></SheetHeader>
+          <div className="mt-6 space-y-2">
+            {runs.length === 0 && (
+              <p className="text-sm text-muted-foreground text-center py-12">
+                Nenhuma execução ainda. Use "Gerar mês" para começar.
+              </p>
+            )}
+            {runs.map((r: any) => (
+              <div key={r.id} className="rounded-lg border bg-card p-3 space-y-2">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <RunStatusIcon status={r.status} trigger={r.trigger} />
+                    <span className="font-medium">{r.month}</span>
+                    <Badge variant="outline" className="text-[10px] uppercase">{r.trigger}</Badge>
+                    <Badge variant="outline" className="text-[10px]">{r.mode}</Badge>
+                  </div>
+                  <span className="text-xs text-muted-foreground">
+                    {new Date(r.created_at).toLocaleString("pt-BR")}
+                  </span>
+                </div>
+                <p className="text-sm text-muted-foreground">{r.message || "—"}</p>
+                <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+                  <span>📥 {r.revenues_count} rec.</span>
+                  <span>📤 {r.expenses_count} desp.</span>
+                  <span>👥 {r.payroll_count} folha</span>
+                  <span>+{r.total_inserted} criados</span>
+                  {r.total_deleted > 0 && <span>−{r.total_deleted} substituídos</span>}
+                  {Number(r.total_amount) > 0 && (
+                    <span className="font-mono">{formatBRL(Number(r.total_amount))}</span>
+                  )}
+                  <Button
+                    size="sm" variant="ghost" className="ml-auto h-7 text-xs"
+                    onClick={() => runGeneration(r.month, r.mode, "manual")}
+                  >
+                    <RefreshCw className="mr-1 h-3 w-3" />Re-executar
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
+  );
+}
+
+function RunStatusIcon({ status, trigger }: { status: string; trigger: string }) {
+  const cls = "h-4 w-4";
+  let icon, color = "", label = status;
+  if (status === "success") { icon = <CheckCircle2 className={cls} />; color = "text-emerald-500"; label = "Sucesso"; }
+  else if (status === "error") { icon = <XCircle className={cls} />; color = "text-rose-500"; label = "Erro"; }
+  else if (status === "partial") { icon = <AlertCircle className={cls} />; color = "text-amber-500"; label = "Parcial"; }
+  else if (status === "running") { icon = <Loader2 className={`${cls} animate-spin`} />; color = "text-primary"; label = "Executando"; }
+  else { icon = <Clock className={cls} />; color = "text-muted-foreground"; }
+  const triggerLabel = trigger === "auto" ? "automático" : trigger === "scheduled" ? "agendado" : "manual";
+  return (
+    <span className={color} title={`${label} · ${triggerLabel}`}>{icon}</span>
   );
 }
