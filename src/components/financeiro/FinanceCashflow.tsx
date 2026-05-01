@@ -403,6 +403,16 @@ export function FinanceCashflow({ period }: Props) {
                                   />
                                 )}
                                 <Badge variant="outline" className={`${STATUS_BADGE[t.status]} font-medium border-0 text-[10px]`}>{t.status}</Badge>
+                                {t.installment_total > 1 && (
+                                  <Badge variant="outline" className="text-[10px] border-0 bg-primary/10 text-primary">
+                                    {t.installment_number}/{t.installment_total}
+                                  </Badge>
+                                )}
+                                {Number(t.partial_paid_amount) > 0 && t.status === "pending" && (
+                                  <Badge variant="outline" className="text-[10px] border-0 bg-blue-500/15 text-blue-600 dark:text-blue-400">
+                                    Parcial {formatBRL(Number(t.partial_paid_amount))}
+                                  </Badge>
+                                )}
                                 <span className="text-xs text-muted-foreground tabular-nums w-14">{t.due_date.slice(8)}/{t.due_date.slice(5, 7)}</span>
                                 {alert && (
                                   <Badge
@@ -429,7 +439,10 @@ export function FinanceCashflow({ period }: Props) {
                                   {t.kind === "income" ? "+" : "-"}{formatBRL(Number(t.amount))}
                                 </span>
                                 {t.status === "pending" && (
-                                  <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => markPaid(t)}>Pagar</Button>
+                                  <>
+                                    <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => markPaid(t)}>Pagar</Button>
+                                    <Button size="sm" variant="ghost" className="h-7 text-xs text-blue-600 dark:text-blue-400" onClick={() => setPartial({ tx: t, amount: Math.max(0, Number(t.amount) - Number(t.partial_paid_amount || 0)) })}>Parcial</Button>
+                                  </>
                                 )}
                                 <Button size="icon" variant="ghost" className="h-7 w-7 hover:bg-destructive/10 hover:text-destructive" onClick={() => removeTx(t.id)}>
                                   <Trash2 className="h-3.5 w-3.5" />
