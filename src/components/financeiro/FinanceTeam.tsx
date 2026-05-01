@@ -231,41 +231,62 @@ export function FinanceTeam({ period }: Props) {
       )}
 
       {view === "table" && (
-        <ExecCard title="Membros da Equipe">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Nome</TableHead>
-                <TableHead>Cargo</TableHead>
-                <TableHead>Gestor</TableHead>
-                <TableHead>Tipo</TableHead>
-                <TableHead className="text-right">Custo</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="w-20"></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {team.length === 0 && <TableRow><TableCell colSpan={7} className="text-center py-8 text-muted-foreground">Nenhum membro</TableCell></TableRow>}
-              {team.map((m: any) => {
-                const mgr = team.find((t: any) => t.id === m.manager_id);
-                return (
-                  <TableRow key={m.id} className="cursor-pointer" onClick={() => openEdit(m)}>
-                    <TableCell className="font-medium">{m.name || <span className="text-muted-foreground italic">Vaga</span>}</TableCell>
-                    <TableCell>{m.role}</TableCell>
-                    <TableCell className="text-muted-foreground">{mgr?.name || mgr?.role || "—"}</TableCell>
-                    <TableCell>{COMPENSATION_LABELS[m.compensation_type]}</TableCell>
-                    <TableCell className="text-right font-mono">{formatBRL(Number(m.monthly_cost))}</TableCell>
-                    <TableCell><Badge variant="outline" className={STATUS_BADGE[m.status]}>{m.status}</Badge></TableCell>
-                    <TableCell>
-                      <Button size="icon" variant="ghost" onClick={(e) => { e.stopPropagation(); remove(m.id); }}>
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
-                    </TableCell>
+        <ExecCard title="Membros da Equipe" padded={false}>
+          <div className="border-t border-border/50">
+            <Table>
+              <TableHeader>
+                <TableRow className="border-border/50 hover:bg-transparent bg-muted/20">
+                  <TableHead className="h-11 px-5 lg:px-6 text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">Nome</TableHead>
+                  <TableHead className="h-11 text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">Cargo</TableHead>
+                  <TableHead className="h-11 text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">Gestor</TableHead>
+                  <TableHead className="h-11 text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">Tipo</TableHead>
+                  <TableHead className="h-11 text-right text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">Custo</TableHead>
+                  <TableHead className="h-11 text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">Status</TableHead>
+                  <TableHead className="h-11 w-16 px-5 lg:px-6"></TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {team.length === 0 && (
+                  <TableRow className="border-border/50 hover:bg-transparent">
+                    <TableCell colSpan={7} className="text-center py-12 text-sm text-muted-foreground">Nenhum membro cadastrado</TableCell>
                   </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
+                )}
+                {team.map((m: any) => {
+                  const mgr = team.find((t: any) => t.id === m.manager_id);
+                  return (
+                    <TableRow
+                      key={m.id}
+                      className="border-border/50 cursor-pointer transition-colors hover:bg-foreground/[0.025]"
+                      onClick={() => openEdit(m)}
+                    >
+                      <TableCell className="py-4 px-5 lg:px-6 font-medium text-foreground">
+                        {m.name || <span className="text-muted-foreground italic font-normal">Vaga aberta</span>}
+                      </TableCell>
+                      <TableCell className="py-4 text-sm text-muted-foreground">{m.role || "—"}</TableCell>
+                      <TableCell className="py-4 text-sm text-muted-foreground">{mgr?.name || mgr?.role || "—"}</TableCell>
+                      <TableCell className="py-4 text-sm text-muted-foreground">{COMPENSATION_LABELS[m.compensation_type]}</TableCell>
+                      <TableCell className="py-4 text-right tabular-nums font-medium text-foreground">{formatBRL(Number(m.monthly_cost))}</TableCell>
+                      <TableCell className="py-4">
+                        <Badge variant="outline" className={`${STATUS_BADGE[m.status]} font-medium capitalize border-0`}>
+                          {m.status === "active" ? "Ativo" : m.status === "inactive" ? "Inativo" : m.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="py-4 px-5 lg:px-6 text-right">
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="h-8 w-8 hover:bg-destructive/10 hover:text-destructive"
+                          onClick={(e) => { e.stopPropagation(); remove(m.id); }}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </div>
         </ExecCard>
       )}
 
