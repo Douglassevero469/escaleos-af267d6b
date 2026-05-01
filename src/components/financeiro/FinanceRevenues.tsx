@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Download, Trash2, Search } from "lucide-react";
+import { Plus, Download, Trash2, Search, Calendar } from "lucide-react";
 import { formatBRL, STATUS_BADGE, REVENUE_CATEGORIES } from "@/lib/finance-utils";
 import { Period, monthsInPeriod } from "@/components/financeiro/PeriodFilter";
 import { downloadCSV, generateBrandedPDF, fmt } from "@/lib/finance-export";
