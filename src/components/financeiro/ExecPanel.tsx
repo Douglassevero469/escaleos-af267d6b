@@ -34,9 +34,9 @@ export function ExecHeader({ tag, title, subtitle, kpis, actions, className }: E
     >
       <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
 
-      <div className="flex flex-col xl:flex-row xl:items-stretch divide-y xl:divide-y-0 xl:divide-x divide-border/50">
-        {/* Title block */}
-        <div className="p-5 lg:p-6 flex flex-col gap-1.5 xl:min-w-[260px] xl:max-w-[300px] shrink-0">
+      {/* Top row: title + actions */}
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 p-5 lg:p-6 border-b border-border/50">
+        <div className="flex flex-col gap-1.5 min-w-0 flex-1">
           <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
             {tag}
           </span>
@@ -47,62 +47,68 @@ export function ExecHeader({ tag, title, subtitle, kpis, actions, className }: E
             <p className="text-xs text-muted-foreground mt-0.5">{subtitle}</p>
           )}
         </div>
-
-        {/* KPIs */}
-        {kpis && kpis.length > 0 && (
-          <div className="flex-1 min-w-0 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-border/50">
-            {kpis.map((k, i) => (
-              <div
-                key={i}
-                className={cn(
-                  "min-w-0 p-4 lg:p-5 flex flex-col gap-1.5 transition-colors hover:bg-foreground/[0.02]",
-                  k.highlight && "bg-gradient-to-b from-primary/5 to-transparent"
-                )}
-              >
-                <span
-                  className={cn(
-                    "text-[10px] font-semibold uppercase tracking-[0.15em] truncate",
-                    k.highlight ? "text-primary" : "text-muted-foreground"
-                  )}
-                >
-                  {k.label}
-                </span>
-                <div className="flex items-baseline gap-2 flex-wrap min-w-0">
-                  <span
-                    className={cn(
-                      "text-base lg:text-xl xl:text-2xl font-light tabular-nums tracking-tight whitespace-nowrap",
-                      k.highlight && (k.positive === false ? "text-destructive font-medium" : "text-foreground font-medium"),
-                      !k.highlight && k.positive === false && "text-destructive",
-                      !k.highlight && k.positive === true && "text-foreground"
-                    )}
-                  >
-                    {k.value}
-                  </span>
-                  {k.badge && (
-                    <span
-                      className={cn(
-                        "text-[10px] font-semibold px-2 py-0.5 rounded shrink-0",
-                        k.badge.positive
-                          ? "bg-[hsl(var(--success)/0.1)] text-[hsl(var(--success))]"
-                          : "bg-destructive/10 text-destructive"
-                      )}
-                    >
-                      {k.badge.label}
-                    </span>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Actions */}
         {actions && (
-          <div className="p-5 lg:p-6 flex flex-wrap items-center gap-2 xl:flex-col xl:items-stretch xl:justify-center xl:min-w-[160px] shrink-0">
+          <div className="flex flex-wrap items-center gap-2 shrink-0">
             {actions}
           </div>
         )}
       </div>
+
+      {/* KPIs row — full width grid */}
+      {kpis && kpis.length > 0 && (
+        <div
+          className={cn(
+            "grid divide-y sm:divide-y-0 sm:divide-x divide-border/50",
+            kpis.length === 2 && "grid-cols-1 sm:grid-cols-2",
+            kpis.length === 3 && "grid-cols-1 sm:grid-cols-3",
+            kpis.length === 4 && "grid-cols-2 lg:grid-cols-4",
+            kpis.length >= 5 && "grid-cols-2 sm:grid-cols-3 lg:grid-cols-5"
+          )}
+        >
+          {kpis.map((k, i) => (
+            <div
+              key={i}
+              className={cn(
+                "min-w-0 p-4 lg:p-5 flex flex-col gap-2 transition-colors hover:bg-foreground/[0.02]",
+                k.highlight && "bg-gradient-to-b from-primary/5 to-transparent"
+              )}
+            >
+              <span
+                className={cn(
+                  "text-[10px] font-semibold uppercase tracking-[0.15em] truncate",
+                  k.highlight ? "text-primary" : "text-muted-foreground"
+                )}
+              >
+                {k.label}
+              </span>
+              <div className="flex items-baseline gap-2 flex-wrap min-w-0">
+                <span
+                  className={cn(
+                    "text-xl lg:text-2xl font-light tabular-nums tracking-tight",
+                    k.highlight && (k.positive === false ? "text-destructive font-medium" : "text-foreground font-medium"),
+                    !k.highlight && k.positive === false && "text-destructive",
+                    !k.highlight && k.positive === true && "text-foreground"
+                  )}
+                >
+                  {k.value}
+                </span>
+                {k.badge && (
+                  <span
+                    className={cn(
+                      "text-[10px] font-semibold px-2 py-0.5 rounded shrink-0",
+                      k.badge.positive
+                        ? "bg-[hsl(var(--success)/0.1)] text-[hsl(var(--success))]"
+                        : "bg-destructive/10 text-destructive"
+                    )}
+                  >
+                    {k.badge.label}
+                  </span>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
