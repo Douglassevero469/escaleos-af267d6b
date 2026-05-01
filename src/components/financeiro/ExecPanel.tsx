@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import { cn } from "@/lib/utils";
+import { InfoTooltip } from "@/components/ui/InfoTooltip";
 
 /**
  * Painel executivo padrão do módulo Financeiro — visual "Executive Glass Console".
@@ -122,6 +123,7 @@ interface ExecCardProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "titl
   subtitle?: ReactNode;
   actions?: ReactNode;
   padded?: boolean;
+  info?: string;
 }
 
 export function ExecCard({
@@ -129,6 +131,7 @@ export function ExecCard({
   subtitle,
   actions,
   padded = true,
+  info,
   className,
   children,
   ...rest
@@ -145,8 +148,9 @@ export function ExecCard({
         <div className="flex items-start justify-between gap-3 px-5 lg:px-6 pt-5 lg:pt-6 pb-3">
           <div className="min-w-0">
             {title && (
-              <h3 className="text-sm lg:text-base font-medium text-foreground leading-tight">
-                {title}
+              <h3 className="text-sm lg:text-base font-medium text-foreground leading-tight flex items-center gap-1.5 flex-wrap">
+                <span>{title}</span>
+                {info && <InfoTooltip text={info} size={14} />}
               </h3>
             )}
             {subtitle && (

@@ -226,17 +226,17 @@ export function FinanceDashboard({ period }: Props) {
 
       {/* KPIs detalhados */}
       <div className="grid grid-cols-2 md:grid-cols-3 2xl:grid-cols-6 gap-3 md:gap-4">
-        <StatsCard title="MRR" value={formatBRL(mrr)} icon={TrendingUp} positive change={`${activeClients} clientes`} />
-        <StatsCard title="Despesas/mês" value={formatBRL(totalExp)} icon={TrendingDown} change={`Folha + fixos`} />
-        <StatsCard title="Resultado/mês" value={formatBRL(result)} icon={Wallet} positive={result >= 0} change={result >= 0 ? "Lucro" : "Prejuízo"} />
-        <StatsCard title="Ticket Médio" value={formatBRL(ticket)} icon={Target} />
-        <StatsCard title="Custo/Func." value={formatBRL(costPerEmployee)} icon={Users} change={`${activeTeamCount} ativos`} />
-        <StatsCard title="Runway" value={runway > 100 ? "∞" : `${runway}m`} icon={AlertTriangle} positive={runway > 6} change={runway > 6 ? "Saudável" : "Crítico"} />
+        <StatsCard title="MRR" value={formatBRL(mrr)} icon={TrendingUp} positive change={`${activeClients} clientes`} info="MRR (Monthly Recurring Revenue) é a receita recorrente mensal proveniente de contratos ativos. Indica a previsibilidade de faturamento do negócio." />
+        <StatsCard title="Despesas/mês" value={formatBRL(totalExp)} icon={TrendingDown} change={`Folha + fixos`} info="Soma de todas as despesas mensais previstas, incluindo folha de pagamento, custos fixos recorrentes e variáveis." />
+        <StatsCard title="Resultado/mês" value={formatBRL(result)} icon={Wallet} positive={result >= 0} change={result >= 0 ? "Lucro" : "Prejuízo"} info="Diferença entre receita mensal (MRR) e despesas mensais. Resultado positivo indica lucro; negativo, prejuízo operacional." />
+        <StatsCard title="Ticket Médio" value={formatBRL(ticket)} icon={Target} info="Valor médio cobrado por cliente ativo (MRR ÷ número de clientes). Mede o poder de monetização da carteira." />
+        <StatsCard title="Custo/Func." value={formatBRL(costPerEmployee)} icon={Users} change={`${activeTeamCount} ativos`} info="Custo médio mensal por colaborador ativo. Inclui salários, pró-labore e outras formas de remuneração cadastradas na equipe." />
+        <StatsCard title="Runway" value={runway > 100 ? "∞" : `${runway}m`} icon={AlertTriangle} positive={runway > 6} change={runway > 6 ? "Saudável" : "Crítico"} info="Runway (cash runway) é o tempo, em meses, que a empresa consegue operar com o caixa atual considerando o ritmo de queima (burn rate). Acima de 6 meses é considerado saudável." />
       </div>
 
       {/* Alertas */}
       {(result < 0 || concentration > 50 || upcoming > 0) && (
-        <ExecCard title="Alertas Inteligentes">
+        <ExecCard title="Alertas Inteligentes" info="Sinais automáticos sobre a saúde financeira do negócio: runway curto, prejuízo no mês, churn relevante e outras métricas críticas que merecem atenção imediata.">
           <div className="flex items-start gap-3">
             <AlertTriangle className="h-5 w-5 text-amber-500 flex-shrink-0 mt-0.5" />
             <div className="space-y-1.5 text-sm">
@@ -256,7 +256,7 @@ export function FinanceDashboard({ period }: Props) {
 
       {/* Receita vs Despesa */}
       <div className="grid lg:grid-cols-2 gap-5">
-        <ExecCard title="Receita vs Despesa" subtitle={period.label}>
+        <ExecCard title="Receita vs Despesa" subtitle={period.label} info="Comparativo mês a mês entre receitas recebidas e despesas pagas no período selecionado. Permite identificar tendências de crescimento, sazonalidade e meses deficitários.">
           <div className="flex items-center gap-4 mb-3 text-[11px] font-medium">
             <span className="flex items-center gap-1.5">
               <span className="h-2 w-2 rounded-full bg-[hsl(142_71%_45%)]" />
@@ -295,7 +295,7 @@ export function FinanceDashboard({ period }: Props) {
           </ResponsiveContainer>
         </ExecCard>
 
-        <ExecCard title="Saldo Mensal" subtitle="Últimos 6 períodos">
+        <ExecCard title="Saldo Mensal" subtitle="Últimos 6 períodos" info="Resultado líquido (receita - despesa) acumulado de cada mês nos últimos 6 períodos. Barras verdes indicam meses lucrativos; vermelhas, meses deficitários.">
           <div className="flex items-center gap-4 mb-3 text-[11px] font-medium">
             <span className="flex items-center gap-1.5">
               <span className="h-2 w-2 rounded-sm bg-[hsl(142_71%_45%)]" />
@@ -335,7 +335,7 @@ export function FinanceDashboard({ period }: Props) {
           </ResponsiveContainer>
         </ExecCard>
 
-        <ExecCard title="Composição de Despesas" subtitle="Por categoria">
+        <ExecCard title="Composição de Despesas" subtitle="Por categoria" info="Distribuição percentual das despesas por categoria (folha, marketing, infraestrutura, etc.). Útil para identificar onde o dinheiro está sendo concentrado e oportunidades de otimização.">
           {expByCat.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 gap-2">
               <div className="h-12 w-12 rounded-full bg-muted/40 flex items-center justify-center">
@@ -389,7 +389,7 @@ export function FinanceDashboard({ period }: Props) {
           )}
         </ExecCard>
 
-        <ExecCard title="Maiores Origens" subtitle="Top clientes (MRR)">
+        <ExecCard title="Maiores Origens" subtitle="Top clientes (MRR)" info="Ranking dos clientes que mais contribuem para o MRR. Indicador de concentração de receita: quanto maior a dependência de poucos clientes, maior o risco de churn impactar o caixa.">
           {topClients.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 gap-2">
               <div className="h-12 w-12 rounded-full bg-muted/40 flex items-center justify-center">
