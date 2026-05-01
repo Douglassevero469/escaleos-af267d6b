@@ -70,6 +70,11 @@ const ACTION_LABELS: Record<string, string> = {
   client_deleted: "Cliente excluído",
   role_assigned: "Role atribuída",
   role_removed: "Role removida",
+  finance_revenue_deleted: "Receita excluída",
+  finance_expense_deleted: "Despesa excluída",
+  finance_team_deleted: "Membro da equipe excluído",
+  finance_goal_deleted: "Meta excluída",
+  finance_transaction_deleted: "Lançamento excluído",
 };
 
 const STATUS_CONFIG: Record<string, { icon: typeof Info; color: string; bg: string }> = {
