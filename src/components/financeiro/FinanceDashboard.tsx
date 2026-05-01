@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { GlassCard } from "@/components/ui/GlassCard";
+import { ExecHeader, ExecCard } from "@/components/financeiro/ExecPanel";
 import { StatsCard } from "@/components/ui/StatsCard";
 import { Button } from "@/components/ui/button";
 import { TrendingUp, TrendingDown, Wallet, AlertTriangle, Users, Target, Download } from "lucide-react";
@@ -194,39 +194,25 @@ export function FinanceDashboard({ period }: Props) {
 
   return (
     <div className="space-y-6">
-      {/* Período resumo */}
-      <GlassCard>
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-          <div className="min-w-0">
-            <p className="text-xs text-muted-foreground uppercase tracking-wide">
-              Período: <span className="capitalize text-foreground font-medium">{period.label}</span>
-            </p>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              {period.start.split("-").reverse().join("/")} → {period.end.split("-").reverse().join("/")} · {months} {months === 1 ? "mês" : "meses"}
-            </p>
-          </div>
-          <div className="grid grid-cols-3 gap-4 lg:gap-6 lg:text-right">
-            <div className="min-w-0">
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Receita</p>
-              <p className="font-mono font-bold text-emerald-600 text-sm md:text-base truncate">{formatBRL(periodRev)}</p>
-            </div>
-            <div className="min-w-0">
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Despesa</p>
-              <p className="font-mono font-bold text-rose-600 text-sm md:text-base truncate">{formatBRL(periodExp)}</p>
-            </div>
-            <div className="min-w-0">
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Resultado</p>
-              <p className={`font-mono font-bold text-sm md:text-base truncate ${periodResult >= 0 ? "text-emerald-600" : "text-rose-600"}`}>{formatBRL(periodResult)}</p>
-            </div>
-          </div>
-          <div className="flex flex-wrap gap-2">
+      <ExecHeader
+        tag="Dashboard Executivo"
+        title="Visão Geral do Negócio"
+        subtitle={`${period.label} · ${period.start.split("-").reverse().join("/")} → ${period.end.split("-").reverse().join("/")} · ${months} ${months === 1 ? "mês" : "meses"}`}
+        kpis={[
+          { label: "Resultado", value: formatBRL(periodResult), highlight: true, positive: periodResult >= 0 },
+          { label: "Receita no período", value: formatBRL(periodRev) },
+          { label: "Despesa no período", value: formatBRL(periodExp), positive: false },
+          { label: "Runway", value: runway > 100 ? "∞" : `${runway}m`, positive: runway > 6 },
+        ]}
+        actions={
+          <>
             <Button variant="outline" size="sm" onClick={exportCsv}><Download className="mr-2 h-4 w-4" />CSV</Button>
             <Button variant="outline" size="sm" onClick={exportPdf}><Download className="mr-2 h-4 w-4" />PDF</Button>
-          </div>
-        </div>
-      </GlassCard>
+          </>
+        }
+      />
 
-      {/* KPIs */}
+      {/* KPIs detalhados */}
       <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3 md:gap-4">
         <StatsCard title="MRR" value={formatBRL(mrr)} icon={TrendingUp} positive change={`${activeClients} clientes`} />
         <StatsCard title="Despesas/mês" value={formatBRL(totalExp)} icon={TrendingDown} change={`Folha + fixos`} />
@@ -238,11 +224,10 @@ export function FinanceDashboard({ period }: Props) {
 
       {/* Alertas */}
       {(result < 0 || concentration > 50 || upcoming > 0) && (
-        <GlassCard className="border-amber-500/30">
+        <ExecCard title="Alertas Inteligentes">
           <div className="flex items-start gap-3">
             <AlertTriangle className="h-5 w-5 text-amber-500 flex-shrink-0 mt-0.5" />
             <div className="space-y-1.5 text-sm">
-              <p className="font-semibold">Alertas inteligentes</p>
               {result < 0 && (
                 <p className="text-rose-600">• Despesas superam receitas em {formatBRL(Math.abs(result))}/mês</p>
               )}
@@ -254,13 +239,12 @@ export function FinanceDashboard({ period }: Props) {
               )}
             </div>
           </div>
-        </GlassCard>
+        </ExecCard>
       )}
 
       {/* Receita vs Despesa */}
-      <div className="grid lg:grid-cols-2 gap-4">
-        <GlassCard>
-          <h3 className="font-semibold mb-4 text-sm md:text-base">Receita vs Despesa <span className="text-xs text-muted-foreground font-normal capitalize">· {period.label}</span></h3>
+      <div className="grid lg:grid-cols-2 gap-6">
+        <ExecCard title="Receita vs Despesa" subtitle={period.label}>
           <ResponsiveContainer width="100%" height={260}>
             <LineChart data={monthSeries}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
@@ -272,10 +256,9 @@ export function FinanceDashboard({ period }: Props) {
               <Line type="monotone" dataKey="despesa" stroke="#ef4444" strokeWidth={2.5} name="Despesa" />
             </LineChart>
           </ResponsiveContainer>
-        </GlassCard>
+        </ExecCard>
 
-        <GlassCard>
-          <h3 className="font-semibold mb-4 text-sm md:text-base">Saldo mensal</h3>
+        <ExecCard title="Saldo Mensal" subtitle="Últimos 6 períodos">
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={monthSeries.slice(-6)}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
@@ -289,10 +272,9 @@ export function FinanceDashboard({ period }: Props) {
               </Bar>
             </BarChart>
           </ResponsiveContainer>
-        </GlassCard>
+        </ExecCard>
 
-        <GlassCard>
-          <h3 className="font-semibold mb-4 text-sm md:text-base">Composição de despesas</h3>
+        <ExecCard title="Composição de Despesas" subtitle="Por categoria">
           {expByCat.length === 0 ? (
             <p className="text-sm text-muted-foreground py-12 text-center">Cadastre despesas e equipe para visualizar</p>
           ) : (
@@ -306,10 +288,9 @@ export function FinanceDashboard({ period }: Props) {
               </PieChart>
             </ResponsiveContainer>
           )}
-        </GlassCard>
+        </ExecCard>
 
-        <GlassCard>
-          <h3 className="font-semibold mb-4 text-sm md:text-base">Top clientes (MRR)</h3>
+        <ExecCard title="Maiores Origens" subtitle="Top clientes (MRR)">
           {topClients.length === 0 ? (
             <p className="text-sm text-muted-foreground py-12 text-center">Cadastre receitas para visualizar</p>
           ) : (
@@ -319,11 +300,11 @@ export function FinanceDashboard({ period }: Props) {
                 <XAxis type="number" stroke="hsl(var(--muted-foreground))" fontSize={11} tickFormatter={(v) => `${(v/1000).toFixed(0)}k`} />
                 <YAxis dataKey="name" type="category" width={90} stroke="hsl(var(--muted-foreground))" fontSize={11} />
                 <Tooltip formatter={(v: number) => formatBRL(v)} contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8 }} />
-                <Bar dataKey="value" fill="#7B2FF7" radius={[0, 6, 6, 0]} />
+                <Bar dataKey="value" fill="hsl(var(--primary))" radius={[0, 6, 6, 0]} />
               </BarChart>
             </ResponsiveContainer>
           )}
-        </GlassCard>
+        </ExecCard>
       </div>
     </div>
   );
