@@ -18,6 +18,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
 import { formatDistanceToNow, format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { AdminUserActions } from "@/components/admin/AdminUserActions";
 
 interface AdminUser {
   user_id: string;
@@ -31,6 +32,7 @@ interface AdminUser {
   total_documents: number;
   total_tokens: number;
   total_words: number;
+  modules: string[];
 }
 
 interface AdminStats {
@@ -268,6 +270,7 @@ export default function Admin() {
                       <TableHead className="text-right">Tokens</TableHead>
                       <TableHead className="text-right">Custo (BRL)</TableHead>
                       <TableHead>Último Acesso</TableHead>
+                      <TableHead className="text-right">Ações</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -340,12 +343,21 @@ export default function Admin() {
                                 })
                               : "Nunca"}
                           </TableCell>
+                          <TableCell>
+                            <AdminUserActions
+                              userId={u.user_id}
+                              userEmail={u.email}
+                              userName={u.display_name}
+                              currentModules={u.modules || []}
+                              isSelf={u.user_id === user?.id}
+                            />
+                          </TableCell>
                         </TableRow>
                       );
                     })}
                     {filteredUsers.length === 0 && (
                       <TableRow>
-                        <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
+                        <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
                           Nenhum usuário encontrado
                         </TableCell>
                       </TableRow>

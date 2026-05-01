@@ -7,6 +7,7 @@ import { ConfirmProvider } from "@/components/ui/confirm-dialog";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ThemeProvider } from "@/hooks/useTheme";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { ModuleGuard } from "@/components/ModuleGuard";
 import Home from "./pages/Home";
 import Index from "./pages/Index";
 import LP2 from "./pages/LP2";
@@ -52,7 +53,7 @@ const App = () => (
               <Route path="/lp3" element={<LP3 />} />
               <Route path="/lp4" element={<LP4 />} />
               <Route path="/login" element={<Login />} />
-              <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
+              <Route element={<ProtectedRoute><ModuleGuard><AppLayout /></ModuleGuard></ProtectedRoute>}>
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/briefing/novo" element={<NovoBriefing />} />
                 <Route path="/clientes" element={<Clientes />} />

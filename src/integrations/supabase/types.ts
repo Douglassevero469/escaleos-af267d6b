@@ -1428,6 +1428,30 @@ export type Database = {
         }
         Relationships: []
       }
+      user_module_access: {
+        Row: {
+          created_at: string
+          id: string
+          modules: string[]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          modules?: string[]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          modules?: string[]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
@@ -1459,6 +1483,7 @@ export type Database = {
           display_name: string
           email: string
           last_sign_in_at: string
+          modules: string[]
           role: string
           total_documents: number
           total_packages: number
@@ -1497,6 +1522,10 @@ export type Database = {
           total_users: number
         }[]
       }
+      admin_set_user_modules: {
+        Args: { _modules: string[]; _target_user_id: string }
+        Returns: undefined
+      }
       admin_set_user_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1527,6 +1556,10 @@ export type Database = {
         Returns: string
       }
       generate_due_date_notifications: { Args: never; Returns: number }
+      get_user_modules: {
+        Args: { _target_user_id?: string }
+        Returns: string[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

@@ -30,23 +30,24 @@ import {
 } from "@/components/ui/sidebar";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "@/hooks/useTheme";
+import { useUserModules } from "@/hooks/useUserModules";
 import escaleIcon from "@/assets/escale-icon.png";
 import escaleLogoWhite from "@/assets/escale-logo-white.png";
 import escaleLogoDark from "@/assets/escale-logo-dark.png";
 
 const mainItems = [
-  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
-  { title: "Novo Briefing", url: "/briefing/novo", icon: FilePlus },
-  { title: "Clientes", url: "/clientes", icon: Users },
-  { title: "Gestão de Clientes", url: "/gestao-clientes", icon: Briefcase },
-  { title: "Financeiro", url: "/financeiro", icon: Wallet },
-  { title: "Templates", url: "/templates", icon: FileText },
-  { title: "Formulários", url: "/forms", icon: ClipboardList },
-  { title: "Demandas", url: "/demandas", icon: KanbanSquare },
-  { title: "CRM", url: "/crm", icon: Contact },
-  { title: "CloserAI", url: "/closer-ai", icon: Phone },
-  { title: "Admin", url: "/admin", icon: Settings },
-  { title: "Meu Perfil", url: "/perfil", icon: UserCircle },
+  { key: "dashboard", title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
+  { key: "briefing", title: "Novo Briefing", url: "/briefing/novo", icon: FilePlus },
+  { key: "clientes", title: "Clientes", url: "/clientes", icon: Users },
+  { key: "gestao-clientes", title: "Gestão de Clientes", url: "/gestao-clientes", icon: Briefcase },
+  { key: "financeiro", title: "Financeiro", url: "/financeiro", icon: Wallet },
+  { key: "templates", title: "Templates", url: "/templates", icon: FileText },
+  { key: "forms", title: "Formulários", url: "/forms", icon: ClipboardList },
+  { key: "demandas", title: "Demandas", url: "/demandas", icon: KanbanSquare },
+  { key: "crm", title: "CRM", url: "/crm", icon: Contact },
+  { key: "closer-ai", title: "CloserAI", url: "/closer-ai", icon: Phone },
+  { key: "admin", title: "Admin", url: "/admin", icon: Settings },
+  { key: "perfil", title: "Meu Perfil", url: "/perfil", icon: UserCircle },
 ];
 
 export function AppSidebar() {
@@ -55,7 +56,11 @@ export function AppSidebar() {
   const location = useLocation();
   const { user, signOut } = useAuth();
   const { theme } = useTheme();
+  const { data: allowedModules } = useUserModules();
   const isActive = (path: string) => location.pathname.startsWith(path);
+  const visibleItems = allowedModules
+    ? mainItems.filter((i) => allowedModules.includes(i.key))
+    : mainItems;
 
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border bg-sidebar">
@@ -73,7 +78,7 @@ export function AppSidebar() {
           <SidebarGroupLabel className="text-muted-foreground/60 uppercase text-[10px] tracking-widest">Menu</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {mainItems.map((item) => (
+              {visibleItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <NavLink
