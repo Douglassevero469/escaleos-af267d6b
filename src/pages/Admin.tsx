@@ -270,6 +270,7 @@ export default function Admin() {
                       <TableHead className="text-right">Tokens</TableHead>
                       <TableHead className="text-right">Custo (BRL)</TableHead>
                       <TableHead>Último Acesso</TableHead>
+                      <TableHead className="text-right">Ações</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
