@@ -2,9 +2,12 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { StatsCard } from "@/components/ui/StatsCard";
-import { TrendingUp, TrendingDown, Wallet, AlertTriangle, Users, Target } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { TrendingUp, TrendingDown, Wallet, AlertTriangle, Users, Target, Download } from "lucide-react";
 import { formatBRL } from "@/lib/finance-utils";
 import { Period, monthsInPeriod, inPeriod } from "@/components/financeiro/PeriodFilter";
+import { downloadCSV, generateBrandedPDF, fmt } from "@/lib/finance-export";
+import { toast } from "sonner";
 import {
   ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid,
   AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell, Legend,
@@ -129,6 +132,66 @@ export function FinanceDashboard({ period }: Props) {
 
   const runway = result < 0 && totalExp ? Math.max(0, Math.floor(mrr / totalExp * 6)) : 999;
 
+  function exportCsv() {
+    const headers = ["Período", "Receita", "Despesa", "Saldo"];
+    const rows = monthSeries.map((m: any) => [m.mes, Number(m.receita).toFixed(2), Number(m.despesa).toFixed(2), Number(m.saldo).toFixed(2)]);
+    downloadCSV(`dashboard-financeiro-${period.start}-a-${period.end}`, headers, rows);
+    toast.success("CSV exportado");
+  }
+
+  async function exportPdf() {
+    await generateBrandedPDF({
+      title: "Dashboard Financeiro",
+      subtitle: "Visão executiva de receitas, despesas e indicadores estratégicos",
+      periodLabel: period.label,
+      sections: [
+        {
+          kpis: [
+            { label: "MRR", value: fmt(mrr), accent: "#22c55e" },
+            { label: "Despesas/mês", value: fmt(totalExp), accent: "#ef4444" },
+            { label: "Resultado/mês", value: fmt(result), accent: result >= 0 ? "#22c55e" : "#ef4444" },
+            { label: "Ticket médio", value: fmt(ticket) },
+            { label: "Custo/funcionário", value: fmt(costPerEmployee) },
+            { label: "Runway", value: runway > 100 ? "∞" : `${runway} meses`, accent: runway > 6 ? "#22c55e" : "#ef4444" },
+          ],
+        },
+        {
+          title: "Resumo do período",
+          table: {
+            headers: ["Métrica", "Valor"],
+            align: ["left", "right"],
+            rows: [
+              ["Receita no período", fmt(periodRev)],
+              ["Despesa no período", fmt(periodExp)],
+              ["Resultado no período", fmt(periodResult)],
+              ["Clientes ativos", String(activeClients)],
+              ["Equipe ativa", String(activeTeamCount)],
+              ["Concentração Top 3", `${concentration}%`],
+              ["A vencer (7 dias)", fmt(upcoming)],
+            ],
+          },
+        },
+        {
+          title: "Série temporal",
+          table: {
+            headers: ["Período", "Receita", "Despesa", "Saldo"],
+            align: ["left", "right", "right", "right"],
+            rows: monthSeries.map((m: any) => [m.mes, fmt(m.receita), fmt(m.despesa), fmt(m.saldo)]),
+          },
+        },
+        {
+          title: "Top clientes (MRR)",
+          table: {
+            headers: ["Cliente", "Valor mensal", "% do MRR"],
+            align: ["left", "right", "right"],
+            rows: topClients.map((c) => [c.name, fmt(c.value), mrr ? `${((c.value / mrr) * 100).toFixed(1)}%` : "—"]),
+          },
+        },
+      ],
+    });
+    toast.success("PDF gerado");
+  }
+
   return (
     <div className="space-y-6">
       {/* Período resumo */}
@@ -142,6 +205,10 @@ export function FinanceDashboard({ period }: Props) {
             <div><p className="text-xs text-muted-foreground">Receita período</p><p className="font-mono font-bold text-emerald-600">{formatBRL(periodRev)}</p></div>
             <div><p className="text-xs text-muted-foreground">Despesa período</p><p className="font-mono font-bold text-rose-600">{formatBRL(periodExp)}</p></div>
             <div><p className="text-xs text-muted-foreground">Resultado</p><p className={`font-mono font-bold ${periodResult >= 0 ? "text-emerald-600" : "text-rose-600"}`}>{formatBRL(periodResult)}</p></div>
+          </div>
+          <div className="flex flex-wrap gap-2 w-full md:w-auto">
+            <Button variant="outline" size="sm" onClick={exportCsv}><Download className="mr-2 h-4 w-4" />CSV</Button>
+            <Button variant="outline" size="sm" onClick={exportPdf}><Download className="mr-2 h-4 w-4" />PDF</Button>
           </div>
         </div>
       </GlassCard>
