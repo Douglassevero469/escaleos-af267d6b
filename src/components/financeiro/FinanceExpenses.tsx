@@ -190,38 +190,50 @@ export function FinanceExpenses({ period }: Props) {
             key={section.cat}
             title={section.cat}
             subtitle={`${section.items.length} ${section.items.length === 1 ? "despesa" : "despesas"}`}
-            actions={<span className="text-sm font-mono font-medium text-foreground">{formatBRL(subtotal)}</span>}
+            actions={<span className="text-base font-medium tabular-nums text-foreground">{formatBRL(subtotal)}</span>}
+            padded={false}
           >
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Nome</TableHead>
-                  <TableHead>Fornecedor</TableHead>
-                  <TableHead className="text-right">Valor</TableHead>
-                  <TableHead className="text-center">Dia</TableHead>
-                  <TableHead className="text-center">Ativa</TableHead>
-                  <TableHead className="w-20"></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {section.items.map((e: any) => (
-                  <TableRow key={e.id} className="cursor-pointer" onClick={() => openEdit(e)}>
-                    <TableCell className="font-medium">{e.name}</TableCell>
-                    <TableCell className="text-muted-foreground text-sm">{e.vendor}</TableCell>
-                    <TableCell className="text-right font-mono">{formatBRL(Number(e.amount))}</TableCell>
-                    <TableCell className="text-center">{e.payment_day}</TableCell>
-                    <TableCell className="text-center" onClick={ev => ev.stopPropagation()}>
-                      <Switch checked={e.active} onCheckedChange={() => toggle(e)} />
-                    </TableCell>
-                    <TableCell>
-                      <Button size="icon" variant="ghost" onClick={(ev) => { ev.stopPropagation(); remove(e.id); }}>
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
-                    </TableCell>
+            <div className="border-t border-border/50">
+              <Table>
+                <TableHeader>
+                  <TableRow className="border-border/50 hover:bg-transparent bg-muted/20">
+                    <TableHead className="h-11 px-5 lg:px-6 text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">Nome</TableHead>
+                    <TableHead className="h-11 text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">Fornecedor</TableHead>
+                    <TableHead className="h-11 text-right text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">Valor</TableHead>
+                    <TableHead className="h-11 text-center text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">Dia</TableHead>
+                    <TableHead className="h-11 text-center text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">Ativa</TableHead>
+                    <TableHead className="h-11 w-16 px-5 lg:px-6"></TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {section.items.map((e: any) => (
+                    <TableRow
+                      key={e.id}
+                      className="border-border/50 cursor-pointer transition-colors hover:bg-foreground/[0.025]"
+                      onClick={() => openEdit(e)}
+                    >
+                      <TableCell className="py-4 px-5 lg:px-6 font-medium text-foreground">{e.name}</TableCell>
+                      <TableCell className="py-4 text-sm text-muted-foreground">{e.vendor || "—"}</TableCell>
+                      <TableCell className="py-4 text-right tabular-nums font-medium text-foreground">{formatBRL(Number(e.amount))}</TableCell>
+                      <TableCell className="py-4 text-center tabular-nums text-muted-foreground">{e.payment_day}</TableCell>
+                      <TableCell className="py-4 text-center" onClick={ev => ev.stopPropagation()}>
+                        <Switch checked={e.active} onCheckedChange={() => toggle(e)} />
+                      </TableCell>
+                      <TableCell className="py-4 px-5 lg:px-6 text-right">
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="h-8 w-8 hover:bg-destructive/10 hover:text-destructive"
+                          onClick={(ev) => { ev.stopPropagation(); remove(e.id); }}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           </ExecCard>
         );
       })}
