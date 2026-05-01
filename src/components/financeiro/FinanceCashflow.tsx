@@ -435,6 +435,14 @@ export function FinanceCashflow({ period }: Props) {
             </div>
             <div><Label>Método de pagamento</Label><Input value={form.payment_method} onChange={e => setForm({ ...form, payment_method: e.target.value })} placeholder="PIX, Boleto, Cartão..." /></div>
             <div><Label>Notas</Label><Input value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} /></div>
+            <div>
+              <Label>Tags / Centro de Custo</Label>
+              <TagsInput value={form.tags} onChange={(tags) => setForm({ ...form, tags })} placeholder="ex: cliente-x, projeto-y" />
+            </div>
+            <div>
+              <Label>Comprovante / NF</Label>
+              <AttachmentUpload value={form.attachment_url} onChange={(url) => setForm({ ...form, attachment_url: url })} />
+            </div>
             <Button onClick={saveTx} className="w-full">Salvar</Button>
           </div>
         </SheetContent>
