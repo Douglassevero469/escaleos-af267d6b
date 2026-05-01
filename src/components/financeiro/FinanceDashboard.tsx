@@ -324,7 +324,86 @@ export function FinanceDashboard({ period }: Props) {
         <StatsCard title="Runway" value={runway > 100 ? "∞" : `${runway}m`} icon={AlertTriangle} positive={runway > 6} change={runway > 6 ? "Saudável" : "Crítico"} info="Runway (cash runway) é o tempo, em meses, que a empresa consegue operar com o caixa atual considerando o ritmo de queima (burn rate). Acima de 6 meses é considerado saudável." />
       </div>
 
-      {/* Alertas */}
+      {/* Indicadores Estratégicos */}
+      <div className="space-y-3">
+        <div className="flex items-center gap-2 px-1">
+          <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">Indicadores Estratégicos</span>
+          <span className="h-px flex-1 bg-gradient-to-r from-border/60 to-transparent" />
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-3 2xl:grid-cols-3 gap-3 md:gap-4">
+          {/* Saúde */}
+          <StatsCard title="Burn Rate" value={burnRate > 0 ? formatBRL(burnRate) : "—"} icon={Flame} positive={burnRate === 0} change={burnRate > 0 ? "Queima mensal" : "Sem queima"} info="Burn Rate é o quanto a empresa queima de caixa por mês quando as despesas superam as receitas. Valor zero significa que a operação se sustenta sozinha." />
+          <StatsCard title="Margem Líquida" value={`${netMargin.toFixed(1)}%`} icon={Percent} positive={netMargin >= 15} change={netMargin >= 15 ? "Saudável" : netMargin >= 0 ? "Apertada" : "Negativa"} info="Margem Líquida é o percentual da receita que sobra como lucro após todas as despesas (Resultado ÷ MRR). Acima de 15% é considerado saudável para agências." />
+          <StatsCard title="Inadimplência" value={formatBRL(upcoming)} icon={AlertTriangle} positive={upcoming === 0} change="Próx. 7 dias" info="Valor total de contas a receber/pagar com vencimento nos próximos 7 dias. Use para antecipar cobranças e evitar atrasos no fluxo de caixa." />
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-3 2xl:grid-cols-3 gap-3 md:gap-4">
+          {/* Crescimento */}
+          <StatsCard title="MRR Growth" value={`${mrrGrowth >= 0 ? "+" : ""}${mrrGrowth.toFixed(1)}%`} icon={TrendingUp} positive={mrrGrowth >= 0} change="vs período anterior" info="Crescimento do MRR comparando o período atual com o período anterior do mesmo tamanho. Indica se a base de receita recorrente está crescendo, estável ou encolhendo." />
+          <StatsCard title="Churn Rate" value={`${churnRate.toFixed(1)}%`} icon={UserMinus} positive={churnRate < 5} change={churnRate < 5 ? "Baixo" : churnRate < 10 ? "Atenção" : "Crítico"} info="Churn Rate é a taxa de cancelamento de clientes no período (clientes que terminaram contrato ÷ base total). Abaixo de 5% mensal é considerado saudável em SaaS/agências." />
+          <StatsCard title="LTV Estimado" value={formatBRL(ltv)} icon={PiggyBank} positive change="Por cliente" info="LTV (Lifetime Value) é o valor total estimado que um cliente gera durante todo o relacionamento (Ticket Médio ÷ Churn mensal). Quanto maior, mais valiosa a carteira." />
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-3 2xl:grid-cols-3 gap-3 md:gap-4">
+          {/* Operacional */}
+          <StatsCard title="% Folha/Receita" value={`${payrollPct.toFixed(1)}%`} icon={UserCheck} positive={payrollPct < 50} change={payrollPct < 50 ? "Eficiente" : payrollPct < 70 ? "Atenção" : "Alto"} info="Percentual da receita comprometido com folha de pagamento (custo de equipe ÷ MRR). Em agências, abaixo de 50% é considerado eficiente; acima de 70% indica risco operacional." />
+          <StatsCard title="Concentração Top 3" value={`${concentration}%`} icon={Building2} positive={concentration < 40} change={concentration < 40 ? "Diluído" : concentration < 60 ? "Moderado" : "Risco alto"} info="Percentual do MRR vindo dos 3 maiores clientes. Alta concentração (>50%) significa que a perda de poucos clientes pode quebrar o caixa." />
+          <StatsCard title="Receita/Func." value={formatBRL(revenuePerEmployee)} icon={Trophy} positive change={`${activeTeamCount} ativos`} info="Receita gerada por colaborador ativo (MRR ÷ equipe). Mede a produtividade do time. Quanto maior, mais eficiente a operação por cabeça." />
+        </div>
+      </div>
+
+      {/* Forecast de Caixa 90 dias */}
+      <ExecCard
+        title="Forecast de Caixa — 90 dias"
+        subtitle="Projeção dia a dia"
+        info="Projeção do saldo de caixa para os próximos 90 dias considerando: (1) caixa atual baseado em transações já pagas, (2) receitas e despesas recorrentes nas datas de pagamento, (3) folha no dia 5 e (4) lançamentos pendentes agendados. Útil para antecipar cenários de aperto."
+      >
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+          <div className="rounded-xl border border-border/50 bg-card/40 p-3">
+            <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Caixa hoje</p>
+            <p className="text-base font-semibold tabular-nums mt-1">{formatBRL(cashCurrent)}</p>
+          </div>
+          <div className="rounded-xl border border-border/50 bg-card/40 p-3">
+            <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Em 30 dias</p>
+            <p className={`text-base font-semibold tabular-nums mt-1 ${forecast30 < 0 ? "text-destructive" : ""}`}>{formatBRL(forecast30)}</p>
+          </div>
+          <div className="rounded-xl border border-border/50 bg-card/40 p-3">
+            <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Em 60 dias</p>
+            <p className={`text-base font-semibold tabular-nums mt-1 ${forecast60 < 0 ? "text-destructive" : ""}`}>{formatBRL(forecast60)}</p>
+          </div>
+          <div className="rounded-xl border border-border/50 bg-card/40 p-3">
+            <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Em 90 dias</p>
+            <p className={`text-base font-semibold tabular-nums mt-1 ${forecast90 < 0 ? "text-destructive" : ""}`}>{formatBRL(forecast90)}</p>
+          </div>
+        </div>
+        {forecastNegativeDay && (
+          <div className="mb-3 flex items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-xs">
+            <AlertTriangle className="h-4 w-4 text-destructive shrink-0 mt-0.5" />
+            <span className="text-destructive">
+              Caixa fica negativo em <strong>{forecastNegativeDay.dia}</strong> · saldo mínimo projetado: <strong>{formatBRL(forecastMin)}</strong>
+            </span>
+          </div>
+        )}
+        <ResponsiveContainer width="100%" height={240}>
+          <AreaChart data={forecastSeries} margin={{ top: 8, right: 12, left: -8, bottom: 0 }}>
+            <defs>
+              <linearGradient id="grad-forecast" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="hsl(265 92% 58%)" stopOpacity={0.4} />
+                <stop offset="100%" stopColor="hsl(265 92% 58%)" stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="2 4" stroke="hsl(var(--border) / 0.6)" vertical={false} />
+            <XAxis dataKey="dia" tick={axisTickStyle} axisLine={false} tickLine={false} dy={6} interval={Math.floor(forecastSeries.length / 8)} />
+            <YAxis tick={axisTickStyle} axisLine={false} tickLine={false} tickFormatter={(v) => `${(v/1000).toFixed(0)}k`} width={48} />
+            <Tooltip
+              formatter={(v: number) => [formatBRL(v), "Saldo projetado"]}
+              contentStyle={chartTooltipStyle}
+              cursor={{ stroke: "hsl(var(--primary) / 0.2)", strokeWidth: 1 }}
+            />
+            <Area type="monotone" dataKey="saldo" stroke="hsl(265 92% 58%)" strokeWidth={2.5} fill="url(#grad-forecast)" dot={false} activeDot={{ r: 5, strokeWidth: 2, stroke: "hsl(var(--card))" }} />
+          </AreaChart>
+        </ResponsiveContainer>
+      </ExecCard>
+
+
       {(result < 0 || concentration > 50 || upcoming > 0) && (
         <ExecCard title="Alertas Inteligentes" info="Sinais automáticos sobre a saúde financeira do negócio: runway curto, prejuízo no mês, churn relevante e outras métricas críticas que merecem atenção imediata.">
           <div className="flex items-start gap-3">
