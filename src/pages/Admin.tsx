@@ -386,6 +386,11 @@ export default function Admin() {
                     <SelectItem value="document">Documentos</SelectItem>
                     <SelectItem value="client">Clientes</SelectItem>
                     <SelectItem value="user_role">Roles</SelectItem>
+                    <SelectItem value="finance_revenue">Receitas</SelectItem>
+                    <SelectItem value="finance_expense">Despesas</SelectItem>
+                    <SelectItem value="finance_team_member">Equipe</SelectItem>
+                    <SelectItem value="finance_goal">Metas</SelectItem>
+                    <SelectItem value="finance_transaction">Lançamentos</SelectItem>
                   </SelectContent>
                 </Select>
                 <Select value={auditStatusFilter} onValueChange={(v) => { setAuditStatusFilter(v); setAuditPage(0); }}>
