@@ -53,6 +53,7 @@ export default function Financeiro() {
               { v: "despesas", icon: TrendingDown, label: "Despesas" },
               { v: "equipe", icon: Users, label: "Equipe" },
               { v: "fluxo", icon: Calendar, label: "Fluxo de Caixa" },
+              { v: "orcamento", icon: PiggyBank, label: "Orçamento" },
               { v: "metas", icon: Target, label: "Metas" },
               { v: "insights", icon: Sparkles, label: "Insights & IA" },
             ].map(({ v, icon: Icon, label }) => (
