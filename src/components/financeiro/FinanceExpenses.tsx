@@ -279,6 +279,27 @@ export function FinanceExpenses({ period }: Props) {
               <div><Label>Valor (R$)</Label><Input type="number" step="0.01" value={form.amount} onChange={e => setForm({ ...form, amount: Number(e.target.value) })} /></div>
               <div><Label>Dia Pgto</Label><Input type="number" min="1" max="31" value={form.payment_day} onChange={e => setForm({ ...form, payment_day: Number(e.target.value) })} /></div>
             </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div><Label>Início</Label><Input type="date" value={form.start_date} onChange={e => setForm({ ...form, start_date: e.target.value })} /></div>
+              <div>
+                <Label>Duração (meses)</Label>
+                <Input
+                  type="number"
+                  min="0"
+                  value={form.duration_months}
+                  onChange={e => setForm({ ...form, duration_months: Number(e.target.value) })}
+                  placeholder="0 = indefinida"
+                />
+              </div>
+            </div>
+            {form.duration_months > 0 && form.start_date && (
+              <div className="flex items-center gap-2 rounded-lg bg-primary/5 border border-primary/20 px-3 py-2 text-xs text-foreground">
+                <Calendar className="h-3.5 w-3.5 text-primary shrink-0" />
+                <span>
+                  Recorrência fixa por <strong>{form.duration_months} meses</strong> · Total: <strong className="tabular-nums">{formatBRL(Number(form.amount) * form.duration_months)}</strong>
+                </span>
+              </div>
+            )}
             <div className="flex items-center justify-between"><Label>Despesa Ativa</Label><Switch checked={form.active} onCheckedChange={v => setForm({ ...form, active: v })} /></div>
             <Button onClick={save} className="w-full">Salvar</Button>
           </div>
