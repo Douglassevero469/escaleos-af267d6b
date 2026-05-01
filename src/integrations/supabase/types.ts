@@ -717,6 +717,66 @@ export type Database = {
         }
         Relationships: []
       }
+      finance_generation_runs: {
+        Row: {
+          created_at: string
+          details: Json
+          expenses_count: number
+          finished_at: string | null
+          id: string
+          message: string | null
+          mode: string
+          month: string
+          payroll_count: number
+          revenues_count: number
+          started_at: string
+          status: string
+          total_amount: number
+          total_deleted: number
+          total_inserted: number
+          trigger: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          details?: Json
+          expenses_count?: number
+          finished_at?: string | null
+          id?: string
+          message?: string | null
+          mode?: string
+          month: string
+          payroll_count?: number
+          revenues_count?: number
+          started_at?: string
+          status?: string
+          total_amount?: number
+          total_deleted?: number
+          total_inserted?: number
+          trigger?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          details?: Json
+          expenses_count?: number
+          finished_at?: string | null
+          id?: string
+          message?: string | null
+          mode?: string
+          month?: string
+          payroll_count?: number
+          revenues_count?: number
+          started_at?: string
+          status?: string
+          total_amount?: number
+          total_deleted?: number
+          total_inserted?: number
+          trigger?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       finance_recurring_expenses: {
         Row: {
           active: boolean

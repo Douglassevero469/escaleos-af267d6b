@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Download, Trash2, RefreshCw, ChevronDown, ChevronRight } from "lucide-react";
+import { Plus, Download, Trash2, RefreshCw, ChevronDown, ChevronRight, History, CheckCircle2, XCircle, AlertCircle, Loader2, Clock } from "lucide-react";
 import { formatBRL, STATUS_BADGE } from "@/lib/finance-utils";
 import { Period } from "@/components/financeiro/PeriodFilter";
 import { toast } from "sonner";
@@ -21,12 +21,20 @@ export function FinanceCashflow({ period }: Props) {
   const { user } = useAuth();
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
+  const [genOpen, setGenOpen] = useState(false);
+  const [historyOpen, setHistoryOpen] = useState(false);
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [generating, setGenerating] = useState(false);
+  const [genForm, setGenForm] = useState({
+    month: new Date().toISOString().slice(0, 7),
+    mode: "replace" as "replace" | "append",
+  });
   const [form, setForm] = useState<any>({
     kind: "expense", description: "", amount: 0,
     due_date: new Date().toISOString().slice(0, 10), status: "pending",
     payment_method: "", notes: "",
   });
+  const autoTriedRef = useRef<Set<string>>(new Set());
 
   const { data: txs = [] } = useQuery({
     queryKey: ["fin-tx-cf"],
@@ -35,6 +43,12 @@ export function FinanceCashflow({ period }: Props) {
   const { data: revenues = [] } = useQuery({ queryKey: ["fin-rev-src"], queryFn: async () => (await supabase.from("finance_recurring_revenues").select("*")).data || [] });
   const { data: expenses = [] } = useQuery({ queryKey: ["fin-exp-src"], queryFn: async () => (await supabase.from("finance_recurring_expenses").select("*")).data || [] });
   const { data: team = [] } = useQuery({ queryKey: ["fin-team-src"], queryFn: async () => (await supabase.from("finance_team_members").select("*")).data || [] });
+  const { data: runs = [] } = useQuery({
+    queryKey: ["fin-runs"],
+    queryFn: async () => (await supabase.from("finance_generation_runs").select("*").order("created_at", { ascending: false }).limit(50)).data || [],
+  });
+  const runsByMonth: Record<string, any> = {};
+  runs.forEach((r: any) => { if (!runsByMonth[r.month]) runsByMonth[r.month] = r; });
 
   // Group txs by month
   const byMonth: Record<string, any[]> = {};
@@ -64,48 +78,55 @@ export function FinanceCashflow({ period }: Props) {
     return { month, inc, out, balance, acc, count: items.length };
   });
 
-  async function generate() {
-    const month = prompt("Gerar lançamentos para qual mês? (YYYY-MM)", new Date().toISOString().slice(0, 7));
-    if (!month) return;
-    const [y, m] = month.split("-").map(Number);
-    const items: any[] = [];
-
-    revenues.filter((r: any) => r.status === "active").forEach((r: any) => {
-      items.push({
-        user_id: user!.id, kind: "income", description: `${r.client_name} — Mensalidade`,
-        amount: Number(r.amount), due_date: `${month}-${String(r.payment_day || 5).padStart(2, "0")}`,
-        status: "pending", reference_type: "recurring_revenue", reference_id: r.id,
+  async function runGeneration(month: string, mode: "replace" | "append", trigger: "manual" | "auto" = "manual") {
+    setGenerating(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-cashflow-month", {
+        body: { month, mode, trigger },
       });
-    });
-    expenses.filter((e: any) => e.active).forEach((e: any) => {
-      items.push({
-        user_id: user!.id, kind: "expense", description: `${e.name}${e.vendor ? ` (${e.vendor})` : ""}`,
-        amount: Number(e.amount), due_date: `${month}-${String(e.payment_day || 5).padStart(2, "0")}`,
-        status: "pending", reference_type: "recurring_expense", reference_id: e.id,
-      });
-    });
-    team.filter((t: any) => t.status === "active" && Number(t.monthly_cost) > 0).forEach((t: any) => {
-      items.push({
-        user_id: user!.id, kind: "expense",
-        description: `${t.name || t.role} — ${t.compensation_type === "salary" ? "Salário" : t.compensation_type === "prolabore" ? "Pró-labore" : "PJ"}`,
-        amount: Number(t.monthly_cost), due_date: `${month}-05`, status: "pending",
-        reference_type: "team_payroll", reference_id: t.id,
-      });
-    });
-
-    if (!items.length) return toast.error("Nenhum item recorrente para gerar");
-
-    // Avoid duplicates: delete existing for this month with reference
-    const start = `${month}-01`; const end = `${month}-31`;
-    await supabase.from("finance_transactions").delete()
-      .gte("due_date", start).lte("due_date", end).neq("reference_type", "manual");
-
-    const { error } = await supabase.from("finance_transactions").insert(items);
-    if (error) return toast.error(error.message);
-    toast.success(`${items.length} lançamentos gerados para ${month}`);
-    qc.invalidateQueries({ queryKey: ["fin-tx-cf"] });
-    qc.invalidateQueries({ queryKey: ["fin-tx"] });
+      if (error) throw error;
+      if (data?.status === "success") {
+        toast.success(`${data.inserted} lançamentos gerados (${month})`);
+      } else if (data?.status === "partial") {
+        toast.info(data.message || "Sem recorrências para gerar");
+      } else if (data?.error) {
+        toast.error(data.error);
+      }
+      qc.invalidateQueries({ queryKey: ["fin-tx-cf"] });
+      qc.invalidateQueries({ queryKey: ["fin-tx"] });
+      qc.invalidateQueries({ queryKey: ["fin-runs"] });
+    } catch (e: any) {
+      toast.error(e?.message || "Falha ao gerar");
+    } finally {
+      setGenerating(false);
+    }
   }
+
+  async function generate() {
+    setGenForm({ month: new Date().toISOString().slice(0, 7), mode: "replace" });
+    setGenOpen(true);
+  }
+
+  async function confirmGenerate() {
+    setGenOpen(false);
+    await runGeneration(genForm.month, genForm.mode, "manual");
+  }
+
+  // Auto-geração: quando o período só cobre o mês corrente e ele está vazio + sem run prévia
+  useEffect(() => {
+    if (months.length !== 1) return;
+    const m = months[0];
+    const today = new Date().toISOString().slice(0, 7);
+    if (m !== today) return; // só auto-dispara para o mês atual
+    if ((byMonth[m] || []).length > 0) return;
+    if (runsByMonth[m]) return; // já tentou
+    if (autoTriedRef.current.has(m)) return;
+    if (!revenues.length && !expenses.length && !team.length) return;
+    autoTriedRef.current.add(m);
+    runGeneration(m, "replace", "auto");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [months.join(","), txs.length, runs.length, revenues.length, expenses.length, team.length]);
+
 
   async function saveTx() {
     if (!form.description) return toast.error("Descrição obrigatória");
@@ -153,9 +174,16 @@ export function FinanceCashflow({ period }: Props) {
             <p className="text-xs text-muted-foreground uppercase tracking-wide">Fluxo de Caixa</p>
             <p className="text-sm text-muted-foreground capitalize">{period.label} · {months.length} {months.length === 1 ? "mês" : "meses"}</p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Button variant="outline" onClick={exportCsv}><Download className="mr-2 h-4 w-4" />CSV</Button>
-            <Button variant="outline" onClick={generate}><RefreshCw className="mr-2 h-4 w-4" />Gerar mês</Button>
+            <Button variant="outline" onClick={() => setHistoryOpen(true)}>
+              <History className="mr-2 h-4 w-4" />Histórico
+              {runs.length > 0 && <span className="ml-2 text-xs text-muted-foreground">({runs.length})</span>}
+            </Button>
+            <Button variant="outline" onClick={generate} disabled={generating}>
+              {generating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
+              Gerar mês
+            </Button>
             <Button onClick={() => setOpen(true)}><Plus className="mr-2 h-4 w-4" />Lançamento</Button>
           </div>
         </div>
@@ -179,7 +207,14 @@ export function FinanceCashflow({ period }: Props) {
               <>
                 <TableRow key={r.month} className="cursor-pointer" onClick={() => setExpanded(expanded === r.month ? null : r.month)}>
                   <TableCell>{expanded === r.month ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}</TableCell>
-                  <TableCell className="font-medium">{monthLabel(r.month)}</TableCell>
+                  <TableCell className="font-medium">
+                    <div className="flex items-center gap-2">
+                      {monthLabel(r.month)}
+                      {runsByMonth[r.month] && (
+                        <RunStatusIcon status={runsByMonth[r.month].status} trigger={runsByMonth[r.month].trigger} />
+                      )}
+                    </div>
+                  </TableCell>
                   <TableCell className="text-right font-mono text-emerald-600">{formatBRL(r.inc)}</TableCell>
                   <TableCell className="text-right font-mono text-rose-600">{formatBRL(r.out)}</TableCell>
                   <TableCell className={`text-right font-mono font-bold ${r.balance >= 0 ? "text-emerald-600" : "text-rose-600"}`}>{formatBRL(r.balance)}</TableCell>
@@ -256,6 +291,98 @@ export function FinanceCashflow({ period }: Props) {
           </div>
         </SheetContent>
       </Sheet>
+
+      {/* Sheet: Gerar mês */}
+      <Sheet open={genOpen} onOpenChange={setGenOpen}>
+        <SheetContent className="w-full sm:max-w-md overflow-y-auto">
+          <SheetHeader><SheetTitle>Gerar lançamentos do mês</SheetTitle></SheetHeader>
+          <div className="space-y-4 mt-6">
+            <p className="text-sm text-muted-foreground">
+              Cria automaticamente os lançamentos a partir das receitas recorrentes, despesas fixas e folha de pagamento.
+            </p>
+            <div>
+              <Label>Mês de referência</Label>
+              <Input type="month" value={genForm.month} onChange={e => setGenForm({ ...genForm, month: e.target.value })} />
+            </div>
+            <div>
+              <Label>Modo</Label>
+              <Select value={genForm.mode} onValueChange={(v: "replace" | "append") => setGenForm({ ...genForm, mode: v })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="replace">Substituir (apaga gerados anteriormente)</SelectItem>
+                  <SelectItem value="append">Adicionar (mantém existentes)</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground mt-1">
+                Lançamentos manuais são sempre preservados.
+              </p>
+            </div>
+            <Button onClick={confirmGenerate} disabled={generating} className="w-full">
+              {generating ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Gerando...</> : "Gerar agora"}
+            </Button>
+          </div>
+        </SheetContent>
+      </Sheet>
+
+      {/* Sheet: Histórico */}
+      <Sheet open={historyOpen} onOpenChange={setHistoryOpen}>
+        <SheetContent className="w-full sm:max-w-2xl overflow-y-auto">
+          <SheetHeader><SheetTitle>Histórico de gerações</SheetTitle></SheetHeader>
+          <div className="mt-6 space-y-2">
+            {runs.length === 0 && (
+              <p className="text-sm text-muted-foreground text-center py-12">
+                Nenhuma execução ainda. Use "Gerar mês" para começar.
+              </p>
+            )}
+            {runs.map((r: any) => (
+              <div key={r.id} className="rounded-lg border bg-card p-3 space-y-2">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <RunStatusIcon status={r.status} trigger={r.trigger} />
+                    <span className="font-medium">{r.month}</span>
+                    <Badge variant="outline" className="text-[10px] uppercase">{r.trigger}</Badge>
+                    <Badge variant="outline" className="text-[10px]">{r.mode}</Badge>
+                  </div>
+                  <span className="text-xs text-muted-foreground">
+                    {new Date(r.created_at).toLocaleString("pt-BR")}
+                  </span>
+                </div>
+                <p className="text-sm text-muted-foreground">{r.message || "—"}</p>
+                <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+                  <span>📥 {r.revenues_count} rec.</span>
+                  <span>📤 {r.expenses_count} desp.</span>
+                  <span>👥 {r.payroll_count} folha</span>
+                  <span>+{r.total_inserted} criados</span>
+                  {r.total_deleted > 0 && <span>−{r.total_deleted} substituídos</span>}
+                  {Number(r.total_amount) > 0 && (
+                    <span className="font-mono">{formatBRL(Number(r.total_amount))}</span>
+                  )}
+                  <Button
+                    size="sm" variant="ghost" className="ml-auto h-7 text-xs"
+                    onClick={() => runGeneration(r.month, r.mode, "manual")}
+                  >
+                    <RefreshCw className="mr-1 h-3 w-3" />Re-executar
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
+  );
+}
+
+function RunStatusIcon({ status, trigger }: { status: string; trigger: string }) {
+  const cls = "h-4 w-4";
+  let icon, color = "", label = status;
+  if (status === "success") { icon = <CheckCircle2 className={cls} />; color = "text-emerald-500"; label = "Sucesso"; }
+  else if (status === "error") { icon = <XCircle className={cls} />; color = "text-rose-500"; label = "Erro"; }
+  else if (status === "partial") { icon = <AlertCircle className={cls} />; color = "text-amber-500"; label = "Parcial"; }
+  else if (status === "running") { icon = <Loader2 className={`${cls} animate-spin`} />; color = "text-primary"; label = "Executando"; }
+  else { icon = <Clock className={cls} />; color = "text-muted-foreground"; }
+  const triggerLabel = trigger === "auto" ? "automático" : trigger === "scheduled" ? "agendado" : "manual";
+  return (
+    <span className={color} title={`${label} · ${triggerLabel}`}>{icon}</span>
   );
 }
