@@ -149,24 +149,68 @@ export function FinanceCashflow({ period }: Props) {
 
   async function saveTx() {
     if (!form.description) return toast.error("Descrição obrigatória");
-    const { error } = await supabase.from("finance_transactions").insert({
-      kind: form.kind, description: form.description, amount: Number(form.amount),
-      due_date: form.due_date, status: form.status, payment_method: form.payment_method,
-      notes: form.notes, tags: form.tags, attachment_url: form.attachment_url,
-      user_id: user!.id, reference_type: "manual",
-    });
-    if (error) return toast.error(error.message);
-    toast.success("Lançamento adicionado");
+    const installments = Math.max(1, Number(form.installments) || 1);
+
+    if (installments > 1) {
+      const { error } = await supabase.rpc("create_installments", {
+        _user_id: user!.id,
+        _kind: form.kind,
+        _description: form.description,
+        _total_amount: Number(form.amount),
+        _first_due: form.due_date,
+        _installments: installments,
+        _category_id: null,
+        _notes: form.notes,
+        _tags: form.tags,
+      });
+      if (error) return toast.error(error.message);
+      toast.success(`${installments} parcelas criadas`);
+    } else {
+      const { error } = await supabase.from("finance_transactions").insert({
+        kind: form.kind, description: form.description, amount: Number(form.amount),
+        original_amount: Number(form.amount),
+        due_date: form.due_date, status: form.status, payment_method: form.payment_method,
+        notes: form.notes, tags: form.tags, attachment_url: form.attachment_url,
+        interest_rate: Number(form.interest_rate) || 0,
+        fine_rate: Number(form.fine_rate) || 0,
+        early_discount_rate: Number(form.early_discount_rate) || 0,
+        user_id: user!.id, reference_type: "manual",
+      });
+      if (error) return toast.error(error.message);
+      toast.success("Lançamento adicionado");
+    }
     setOpen(false);
-    setForm({ kind: "expense", description: "", amount: 0, due_date: new Date().toISOString().slice(0, 10), status: "pending", payment_method: "", notes: "", tags: [], attachment_url: null });
+    setForm({ kind: "expense", description: "", amount: 0, due_date: new Date().toISOString().slice(0, 10), status: "pending", payment_method: "", notes: "", tags: [], attachment_url: null, installments: 1, interest_rate: 0, fine_rate: 0, early_discount_rate: 0 });
     qc.invalidateQueries({ queryKey: ["fin-tx-cf"] });
     qc.invalidateQueries({ queryKey: ["fin-tx"] });
   }
 
   async function markPaid(t: any) {
+    // Calcula valor com juros/multa/desconto via RPC
+    const { data: dueAmount } = await supabase.rpc("calculate_transaction_due_amount", { _tx_id: t.id });
+    const amt = Number(dueAmount ?? t.amount);
+    if (Math.abs(amt - Number(t.amount)) > 0.01) {
+      const ok = await confirm({
+        title: "Confirmar valor de pagamento",
+        description: `Valor calculado: ${formatBRL(amt)} (original ${formatBRL(Number(t.amount))} ${amt > t.amount ? "+ juros/multa" : "− desconto"}). Marcar como pago?`,
+        confirmText: "Confirmar",
+      });
+      if (!ok) return;
+    }
     await supabase.from("finance_transactions").update({
-      status: "paid", paid_date: new Date().toISOString().slice(0, 10),
+      status: "paid", paid_date: new Date().toISOString().slice(0, 10), partial_paid_amount: Number(t.amount),
     }).eq("id", t.id);
+    qc.invalidateQueries({ queryKey: ["fin-tx-cf"] });
+  }
+
+  async function doPartialPay() {
+    if (!partial) return;
+    const { error } = await supabase.rpc("partial_pay_transaction", {
+      _tx_id: partial.tx.id, _amount: partial.amount, _paid_date: new Date().toISOString().slice(0, 10),
+    });
+    if (error) return toast.error(error.message);
+    toast.success("Baixa parcial registrada");
+    setPartial(null);
     qc.invalidateQueries({ queryKey: ["fin-tx-cf"] });
   }
 
