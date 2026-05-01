@@ -196,7 +196,7 @@ export function FinanceTeam({ period }: Props) {
           {team.length === 0 ? (
             <p className="text-center text-muted-foreground py-12">Cadastre membros para visualizar o organograma</p>
           ) : (
-            <div className="space-y-8 min-w-[600px]">
+            <div className="space-y-8">
               <div className="flex justify-center">
                 <div className="rounded-lg bg-primary/10 border-2 border-primary px-6 py-2 font-bold">EQUIPE</div>
               </div>
