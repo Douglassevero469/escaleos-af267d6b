@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ExecHeader, ExecCard } from "@/components/financeiro/ExecPanel";
 import { StatsCard } from "@/components/ui/StatsCard";
 import { Button } from "@/components/ui/button";
-import { TrendingUp, TrendingDown, Wallet, AlertTriangle, Users, Target, Download } from "lucide-react";
+import { TrendingUp, TrendingDown, Wallet, AlertTriangle, Users, Target, Download, Flame, Percent, PiggyBank, Activity, UserMinus, Trophy, Building2, UserCheck, LineChart as LineChartIcon } from "lucide-react";
 import { formatBRL } from "@/lib/finance-utils";
 import { Period, monthsInPeriod, inPeriod } from "@/components/financeiro/PeriodFilter";
 import { downloadCSV, generateBrandedPDF, fmt } from "@/lib/finance-export";
