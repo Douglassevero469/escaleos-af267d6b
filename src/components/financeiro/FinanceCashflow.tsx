@@ -40,8 +40,10 @@ export function FinanceCashflow({ period }: Props) {
     kind: "expense", description: "", amount: 0,
     due_date: new Date().toISOString().slice(0, 10), status: "pending",
     payment_method: "", notes: "", tags: [] as string[], attachment_url: null as string | null,
+    installments: 1, interest_rate: 0, fine_rate: 0, early_discount_rate: 0,
   });
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [partial, setPartial] = useState<{ tx: any; amount: number } | null>(null);
   const autoTriedRef = useRef<Set<string>>(new Set());
 
   const { data: txs = [] } = useQuery({
