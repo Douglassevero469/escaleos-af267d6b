@@ -389,7 +389,7 @@ export function FinanceDashboard({ period }: Props) {
           )}
         </ExecCard>
 
-        <ExecCard title="Maiores Origens" subtitle="Top clientes (MRR)">
+        <ExecCard title="Maiores Origens" subtitle="Top clientes (MRR)" info="Ranking dos clientes que mais contribuem para o MRR. Indicador de concentração de receita: quanto maior a dependência de poucos clientes, maior o risco de churn impactar o caixa.">
           {topClients.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 gap-2">
               <div className="h-12 w-12 rounded-full bg-muted/40 flex items-center justify-center">
