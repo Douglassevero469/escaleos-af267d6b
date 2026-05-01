@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import { cn } from "@/lib/utils";
+import { InfoTooltip } from "@/components/ui/InfoTooltip";
 
 /**
  * Painel executivo padrão do módulo Financeiro — visual "Executive Glass Console".
