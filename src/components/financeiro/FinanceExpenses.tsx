@@ -74,7 +74,14 @@ export function FinanceExpenses({ period }: Props) {
 
   async function save() {
     if (!form.name) return toast.error("Informe o nome");
-    const payload = {
+    let end_date: string | null = null;
+    if (form.duration_months > 0 && form.start_date) {
+      const d = new Date(form.start_date);
+      d.setMonth(d.getMonth() + form.duration_months - 1);
+      // último dia do mês final para cobrir o ciclo inteiro
+      end_date = new Date(d.getFullYear(), d.getMonth() + 1, 0).toISOString().slice(0, 10);
+    }
+    const payload: any = {
       user_id: user!.id,
       name: form.name,
       description: `[${form.category}] ${form.description}`.trim(),
@@ -82,6 +89,8 @@ export function FinanceExpenses({ period }: Props) {
       payment_day: Number(form.payment_day),
       vendor: form.vendor || form.category,
       active: form.active,
+      start_date: form.start_date || null,
+      end_date,
     };
     const { error } = form.id
       ? await supabase.from("finance_recurring_expenses").update(payload).eq("id", form.id)
