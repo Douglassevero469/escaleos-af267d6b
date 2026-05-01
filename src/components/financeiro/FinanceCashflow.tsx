@@ -621,6 +621,46 @@ export function FinanceCashflow({ period }: Props) {
         </SheetContent>
       </Sheet>
 
+      {/* Sheet: Baixa parcial */}
+      <Sheet open={!!partial} onOpenChange={(o) => !o && setPartial(null)}>
+        <SheetContent className="w-full sm:max-w-md overflow-y-auto">
+          <SheetHeader><SheetTitle>Baixa parcial</SheetTitle></SheetHeader>
+          {partial && (
+            <div className="space-y-4 mt-6">
+              <div className="rounded-lg border bg-muted/20 p-3 text-sm space-y-1">
+                <div className="font-medium text-foreground">{partial.tx.description}</div>
+                <div className="text-muted-foreground text-xs">Vencimento: {partial.tx.due_date}</div>
+                <div className="flex items-center justify-between pt-1">
+                  <span className="text-muted-foreground">Valor original</span>
+                  <span className="font-semibold tabular-nums">{formatBRL(Number(partial.tx.amount))}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Já pago</span>
+                  <span className="tabular-nums">{formatBRL(Number(partial.tx.partial_paid_amount || 0))}</span>
+                </div>
+                <div className="flex items-center justify-between font-medium">
+                  <span>Restante</span>
+                  <span className="tabular-nums">{formatBRL(Number(partial.tx.amount) - Number(partial.tx.partial_paid_amount || 0))}</span>
+                </div>
+              </div>
+              <div>
+                <Label>Valor a receber/pagar agora</Label>
+                <Input
+                  type="number" step="0.01" value={partial.amount}
+                  onChange={e => setPartial({ ...partial, amount: Number(e.target.value) })}
+                />
+                <p className="text-[11px] text-muted-foreground mt-1">
+                  Se o restante for quitado, o status muda para "pago" automaticamente.
+                </p>
+              </div>
+              <Button onClick={doPartialPay} className="w-full" disabled={!partial.amount || partial.amount <= 0}>
+                Confirmar baixa parcial
+              </Button>
+            </div>
+          )}
+        </SheetContent>
+      </Sheet>
+
       <BulkPayBar
         selectedIds={selectedIds}
         selectedTotal={selectedTotal}
